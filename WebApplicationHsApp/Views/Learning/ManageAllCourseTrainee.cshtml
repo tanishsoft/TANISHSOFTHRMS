@@ -1,0 +1,117 @@
+﻿
+@{
+    ViewBag.Title = "ManageAllCourseTrainee";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" id="hiddencourceid" value="@ViewBag.Id" />
+<script>
+    var oTable;
+    $(document).ready(function () {
+        LoadData();
+    });
+    function LoadData() {
+        oTable = $('#tblKeyRegister').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Learning/AjaxGetCourseVsTrainee",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+               
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                //{
+                //    "sName": "Id",
+                //    "bSortable": false,
+                //    "render": function (data, row, r) {
+
+                //        return '<div class="btn-group">' +
+                //            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                //            '<ul class="dropdown-menu dropdown-menu-right">' +
+                //            '<li><a href="javascript:void(0);"  onclick="ViewDetails(' + data + ')">View</a></li>' +
+                //            '<li><a href="javascript:void(0);"  onclick="UpdateDetails(' + data + ')">Update Details</a></li>' +
+                //            //'<li><a href="javascript:void(0);"  onclick="onDelete(' + data + ')">Delete</a></li>' +
+                //            '</ul></div>';
+                //    }
+                //}
+            ],
+            "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                $('td:eq(5)', nRow).html('<img style="border-radius:50%;width:100px;" src="/Documents/' + aData[5] +'" />');
+            }
+            ,
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "locationid", "value": $("#hiddencourceid").val() },
+                 
+                );
+            }
+        });
+        $("#tblDailyVisting_length").addClass("d-none");
+        $("#tblDailyVisting_length").addClass("d-sm-block");
+        //$("#tblValetParking_length").addClass("col-xs-6");
+    }
+    function newmodalshow() {
+        //$("#myModalnew").modal('show');
+        window.location.href = "/Learning/Index";
+    }
+    function FinalExportExcel() {
+        
+        var url = '/Learning/ExportAllAttendees?CourceId=' + $("#hiddencourceid").val();
+            window.location = url;
+
+    }
+</script>
+
+<div class="panel panel-default">
+    <div class="panel-heading" style="height:35px;"><a href="~/Learning/ManageCourse">Go Back</a> &nbsp;&nbsp;Manage Attendees<span style="color:green; cursor:pointer; float:right;" onclick="FinalExportExcel()">&nbsp;&nbsp;&nbsp;&nbsp;Export to Excel</span>  <span style="color:orangered; cursor:pointer; float:right;" onclick="newmodalshow()">&nbsp;&nbsp;&nbsp;&nbsp;New</span></div>
+    <div class="panel-body">
+        <div class="row" style="padding:5px; display:none;">
+            <div class="col-md-2 col-xs-6">
+                <select id="" class="form-control" onchange="Loaddynamicdata()">
+                    <option value="">Select</option>
+                </select>
+            </div>
+            <div class="col-md-2 col-xs-6">
+                <input type="text" class="form-control" placeholder="From Date" id="txtFromDate" readonly="readonly" autocomplete="off" />
+            </div>
+            <div class="col-md-2 col-xs-6">
+
+                <input type="text" class="form-control" placeholder="To Date" id="txtToDate" readonly="readonly" autocomplete="off" />
+            </div>
+            <div class="col-md-1 col-xs-6" style="text-align:left !important;">
+
+                <input type="button" class="btn btn-primary" id="btnsave" value="Go" style="float:left;" onclick="Loaddynamicdata();" />
+            </div>
+            <div class="col-md-1 col-xs-6" style="text-align:left !important;">
+
+                <input type="button" class="btn btn-default" id="btnsave2" value="Export To Excel" style="float:left;" onclick="FinalExportExcel();" />
+            </div>
+
+        </div>
+        <div class="row" style="padding:5px;">
+
+            <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblKeyRegister">
+                <thead>
+                    <tr style="background-color:chocolate;color:white;">
+                       
+                        <th>Trainer</th>
+                        <th>Course Name</th>
+                        <th>Employee Id</th>
+                        <th>Employee Name</th>
+                        <th>Attended On</th>
+                        <th>Mode</th>
+                        <th>Remarks</th>
+                        <th>Employee Sign</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>

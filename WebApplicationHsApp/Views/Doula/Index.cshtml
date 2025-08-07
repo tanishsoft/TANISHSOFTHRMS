@@ -1,0 +1,474 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+        LoadLocations();
+        $("#txtDate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            Edit: true
+        });
+        $("#txtFromDate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            Edit: true
+        });
+        $("#txtToDate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            Edit: true
+        });
+
+
+        $("#txtMrNo").change(function () {
+            var id = $('#txtMrNo').val();
+            if (id != "") {
+                $.get("/CMS/GetCMS_PatitentNamebyMRno?id=" + id, function (res) {
+                    if (res != null) {
+                        $("#MobileNo").val(res.MobileNumber);
+                        $("#PatientName").val(res.Name);
+                        $("#txtEmail").val(res.Email);
+                    }
+                    else {
+                        $("#PatientName").val("");
+                    }
+                });
+            }
+        });
+        LoadData();
+        LoadSpecificDoula();
+    });
+    function LoadSpecificDoula() {
+        $.get("/Doula/GetSpecificDoulas", function (data) {
+
+            var options = [];
+            options.push('<option value="">- Select -</option>');
+            $("#tblmgdoula").html("");
+            var html = "";
+
+            for (var i = 0; i < data.length; i++) {
+                html += "<tr>";
+                html += "<td>" + data[i].Id + "</td>";
+                html += "<td>" + data[i].SpecificDoula + "</td>";
+                html += "<td> <input type='button' id='" + data[i].Id + "' class='btn btn-sm btn-secondary' value='Delete' onclick='DeleteDoulaSpecific(this.id)' /></td>";
+                html += "</tr>";
+                options.push('<option value="' + data[i].SpecificDoula + '">' + data[i].SpecificDoula + '</option>');
+            }
+            $("#tblmgdoula").html(html);
+            $("#SpecificDoula").html(options.join(''));
+        });
+
+    }
+    function DeleteDoulaSpecific(id) {
+        if (confirm("Are you sure you want to delete?")) {
+
+            $.get("/Doula/DeleteSpecificDoulas?id=" + id, function (data) {
+                LoadSpecificDoula();
+
+            });
+        }
+    }
+    function DeleteDoula(id) {
+        if (confirm("Are you sure you want to delete?")) {
+
+            $.get("/Doula/DeleteDoual?id=" + id, function (data) {
+                oTable.api().ajax.reload(null, false);
+
+            });
+        }
+    }
+    function LoadData() {
+        oTable = $('#tblDailyVisting').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Doula/AjaxGetDoula",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "Id" },
+                { "sName": "Name" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                //{ "sName": "" },
+                { "sName": "IsActive" },
+                {
+                    "sName": "Id",
+                    "bSortable": false,
+                    "render": function (data, row, r) {
+
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+
+                            '<li><a href="javascript:void(0);"  onclick="DeleteDoula(' + data + ')">Delete</a></li>' +
+                            '</ul></div>';
+                    }
+                }
+            ],
+            //"fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+            //    $('td:eq(2)', nRow).html('<a href="javascript:void(0);" id="' + aData[0] + '" onclick="ViewDetails(this.id);">' + aData[2] + '</a>');
+            //}
+            //,
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "locationid", "value": $("#LocationId2").val() },
+                    { "name": "fromdate", "value": $("#txtFromDate").val() },
+                    { "name": "todate", "value": $("#txtToDate").val() },
+                );
+            }
+        });
+        $("#tblDailyVisting_length").addClass("d-none");
+        $("#tblDailyVisting_length").addClass("d-sm-block");
+        //$("#tblValetParking_length").addClass("col-xs-6");
+    }
+
+    function newmodalshow() {
+        $("#myModalnew").modal('show');
+    }
+    var locations;
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                locations = data;
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].LocationId == 1 || data[i].LocationId == 5) {
+                        options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                    }
+                }
+                $("#LocationId").html(options.join(''));
+                $("#LocationId2").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function getlocationame(id) {
+        for (var i = 0; i < locations.length; i++) {
+            if (locations[i].LocationId == id) {
+                return locations[i].LocationName;
+            }
+        }
+        return '';
+    }
+    var validate = true;
+    function SavedailyVisiting() {
+        validateDoulaDetails();
+        if (validate) {
+            var task = {
+                DoulaId: 0,
+                LocationId: $("#LocationId").val(),
+
+                Date: $("#txtDate").val(),
+                PatientName: $("#PatientName").val(),
+                Mobile: $("#MobileNo").val(),
+                EmailId: $("#txtEmail").val(),
+                MrNumber: $("#txtMrNo").val(),
+                SpecificDoula: $("#SpecificDoula").val(),
+                PaymentStatus: $("#PaymentStatus").val(),
+                Remarks: $("#Remarks").val(),
+                IsActive: true
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Doula/SaveDoual",
+                data: task,
+                success: function (data) {
+                    alert(data);
+                    if (data == "Success") {
+                        $("#txtDate").val("");
+                        $("#PatientName").val("");
+                        $("#txtEmail").val("");
+                        $("#MobileNo").val("");
+                        $("#txtMrNo").val("");
+                        $("#PaymentStatus").val("");
+                        $("#SpecificDoula").val("");
+                        $("#Remarks").val("");
+                        $("#myModalnew").modal('hide');
+                        oTable.api().ajax.reload(null, false);
+                    }
+                }
+            });
+        } else {
+            alert("Enter all the required fields");
+        }
+    }
+    function validateDoulaDetails() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#LocationId").val() == "") {
+            $("#LocationId").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtDate").val() == "") {
+            $("#txtDate").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtMrNo").val() == "") {
+            $("#txtMrNo").addClass('css-error');
+            validate = false;
+        }
+        if ($("#MobileNo").val() == "") {
+            $("#MobileNo").addClass('css-error');
+            validate = false;
+        }
+        //if ($("#SpecificDoula").val() == "") {
+        //    $("#SpecificDoula").addClass('css-error');
+        //    validate = false;
+        //}
+        if ($("#PaymentStatus").val() == "") {
+            $("#PaymentStatus").addClass('css-error');
+            validate = false;
+        }
+    }
+    function ManageDoulaSpecific() {
+        $("#myModalspecific").modal('show');
+    }
+    function SaveSepcificDoula() {
+        $.get("/Doula/SaveSpecificDoula?name=" + $("#txtSpecificDoulaname").val(), function (data) {
+            $("#txtSpecificDoulaname").val("");
+            LoadSpecificDoula();
+        });
+    }
+    function FinalExportExcel() {
+        var locationid = 0;
+        if ($("#LocationId2").val() != null && $("#LocationId2").val() != "") {
+            locationid = parseInt($("#LocationId2").val());
+        }
+        if ($("#txtFromDate").val() != null && $("#txtFromDate").val() != "" && $("#txtToDate").val() != null && $("#txtToDate").val() != "") {
+            var url = '/Doula/ExportExcelDoula?locationid=' + locationid + '&FromDate=' + $("#txtFromDate").val() + '&ToDate=' + $("#txtToDate").val();
+            window.location = url;
+
+        } else {
+            alert("Please select from date and todae");
+        }
+    }
+    function FinalExportPdf() {
+        var locationid = 0;
+        if ($("#LocationId2").val() != null && $("#LocationId2").val() != "") {
+            locationid = parseInt($("#LocationId2").val());
+        }
+        if ($("#txtFromDate").val() != null && $("#txtFromDate").val() != "" && $("#txtToDate").val() != null && $("#txtToDate").val() != "") {
+            var url = '/Doula/ExportPdfDoula?locationid=' + locationid + '&FromDate=' + $("#txtFromDate").val() + '&ToDate=' + $("#txtToDate").val();
+            window.location = url;
+
+        } else {
+            alert("Please select from date and todae");
+        }
+    }
+</script>
+
+<div class="panel panel-default">
+    <div class="panel-heading" style="height:35px;">&nbsp;&nbsp;  Manage Doula<span style="color:orangered; cursor:pointer; float:right;" onclick="newmodalshow()">&nbsp;&nbsp;&nbsp;&nbsp;New</span>  </div>
+    <div class="panel-body">
+        <div class="row" style="padding:5px;">
+            <div class="col-md-2 col-xs-6" style="display:none;">
+                <select id="LocationId2" class="form-control" onchange="LoadData()">
+                    <option value="">Select</option>
+                </select>
+            </div>
+            <div class="col-md-2 col-xs-6">
+                <input type="text" class="form-control" placeholder="From Date" id="txtFromDate" readonly="readonly" autocomplete="off" />
+            </div>
+            <div class="col-md-2 col-xs-6">
+
+                <input type="text" class="form-control" placeholder="To Date" id="txtToDate" readonly="readonly" autocomplete="off" />
+            </div>
+            <div class="col-md-1 col-xs-6" style="text-align:left !important;">
+
+                <input type="button" class="btn btn-primary" id="btnsave" value="Go" style="float:left;" onclick="LoadData();" />
+            </div>
+            <div class="col-md-1 col-xs-6" style="text-align:left !important;">
+
+                <input type="button" class="btn btn-default" id="btnsave2" value="Export To Excel" style="float:left;" onclick="FinalExportExcel();" />
+            </div>
+            <div class="col-md-1 col-xs-6" style="text-align:left !important;">
+
+                <input type="button" class="btn btn-secondary" id="btnsave2" value="Export To Pdf" style="float:left;" onclick="FinalExportPdf();" />
+            </div>
+
+
+        </div>
+        <div class="row" style="padding:5px;">
+
+            <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblDailyVisting">
+                <thead>
+                    <tr style="background-color:chocolate;color:white;">
+                        <th>Id</th>
+                        <th>Location</th>
+                        <th>EDD Date</th>
+                        <th>Mr No</th>
+                        <th>Name</th>
+                        <th>Mobile No</th>
+                        <th>Specific Doula</th>
+
+                        <th>Payment Status</th>
+                        <th>Modified By</th>
+                        <th>Modified Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div id="myModalnew" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="closeallnew();">×</button>
+                <h4 class="modal-title" id="header22">New Daily Visit</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Location<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select id="LocationId" class="form-control">
+                            <option value="">Select</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">EDD Date<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" readonly="readonly" class="form-control" id="txtDate" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">MR NO<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="txtMrNo" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Patient Name<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="PatientName" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Email <span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="txtEmail" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Mobile No<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="MobileNo" autocomplete="off" />
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Specific Doula   <button type="button" class="btn btn-sm btn-default" onclick="ManageDoulaSpecific();"><span class="glyphicon glyphicon-plus"></span></button> </label>
+                        </div>
+                        <div class="col-md-8">
+                            <select id="SpecificDoula" class="form-control">
+                                <option value="">Select</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Payment Status<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <select id="PaymentStatus" class="form-control">
+                                <option value="">Select</option>
+                                <option value="Payment Received">Payment Received</option>
+                                <option value="Payment Not Received">Payment Not Received</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Remarks<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="Remarks" autocomplete="off" />
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" onclick="SavedailyVisiting();" class="btn btn-primary" />
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearAll();">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="myModalspecific" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" id="header221">Specific Doula</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        Enter Name :<input type="text" id="txtSpecificDoulaname" class="form-control" />
+                    </div>
+                    <div class="col-md-3">
+                        <input type="button" id="btnspecific" class="btn btn-primary" value="Save" onclick="SaveSepcificDoula();" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        Id
+                                    </th>
+                                    <th>Name</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="tblmgdoula"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

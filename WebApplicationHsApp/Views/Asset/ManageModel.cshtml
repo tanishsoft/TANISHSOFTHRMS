@@ -1,0 +1,90 @@
+﻿
+@{
+    ViewBag.Title = "ManageModel";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="~/Scripts/ManageAssetMaster.js"></script>
+<script>
+    var ModeleId = 0;
+    $(document).ready(function () {
+        LoadData();
+        LoadAssetType();
+        //LoadAssetBrand();
+    });
+    function LoadData() {
+        $('#tblAssetModal').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Asset/AjaxGetAssetModelsDetails",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+
+                { "sName": "AssetModelId" },
+                { "sName": "AssetType" },
+                { "sName": "AssetBrand" },
+                { "sName": "Name" },
+                { "sName": "Description" },
+                { "sName": "ShortCode" },
+                { "sName": "IsActive" },
+                {
+                    "sName": "AssetModelId",
+                    "bSortable": false,
+                    "render": function (data) {
+
+                        return '<a href="javascript:void(0);" class="btn btn-success" id="' + data + '"  onclick="Edit(this.id);"><span class="glyphicon glyphicon-edit"></span></a>&nbsp; &nbsp; &nbsp;' +
+                            '<a href="javascript:void(0);" id="' + data + '" class="btn btn-danger" onclick="Delete(this.id);"><span class="glyphicon glyphicon-trash"></span></a>';
+                    }
+                }
+            ]
+
+        });
+        $("#tblAssetModal_length").addClass("col-md-6");
+        $("#tblAssetModal_length").addClass("col-md-6");
+    }
+
+
+    function Delete(id) {
+        if (confirm("Are you sure you want to delete?")) {
+            $.get("/Asset/DeleteAssetModel?id=" + id, function (data) {
+              
+                LoadData();
+            });
+        }
+    }
+    function Edit(id) {
+        ModeleId = id;
+        $.get("/Asset/GetModelsById?id=" + id, function (res) {
+            debugger;
+            $("#AssetTypeId").val(res.AssetTypeId);
+            LoadAssetBrand(res.AssetBrandId);
+            $("#Name").val(res.Name);
+            $("#Description").val(res.Desciption);
+
+            $("#NewAssetmodel").modal('show');
+        });
+    }
+   
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading">Manage Asset Model<span style="cursor:pointer;" onclick="OpenNewAssetmodel();" class="pull-right">New Asset Model</span></div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblAssetModal">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+
+                    <th>Id</th>
+                    <th>Asset Type</th>
+                    <th>Asset Brand</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Short Code</th>
+                    <th>Is Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+@Html.Partial("_CreateModel")

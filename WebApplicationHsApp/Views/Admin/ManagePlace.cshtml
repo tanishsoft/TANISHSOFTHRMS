@@ -1,0 +1,345 @@
+﻿@{
+    ViewBag.Title = "ManagePlace";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+
+    var ListData; var buildID; var flrID; var rmID;
+    $(function () {
+        GetviewList();
+        GetLocList();
+
+    });
+    function GetLocList() {
+        $.ajax({
+            type: "GET",
+            url: "/Admin/GetLocationView",
+            //data: "id=",
+            success: function (data) {
+                //data = data.aaData;
+                //console.log(data);
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#DDLLocation").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function GetviewList() {
+        var URL = "/Admin/ManageSpaceGet";
+        $.get(URL, function (Data) {
+            ListData = Data;
+            BindListtable(Data);
+        });
+
+    }
+
+    function Save() {
+        var Valid = true;
+        $(".SRequired").each(function () {
+            if ($(this).val() == "" || $(this).val() == null) {
+                Valid = false;
+                $(this).css("border", "1px solid red");
+            } else {
+                $(this).css("border", "1px solid #dce4ec");
+            }
+        });
+        if (Valid) {
+
+            var space = {};
+            space.PlaceId = $("#txtid").val();
+            space.PlaceNo = $("#txtSpaceName").val();
+            space.PlaceExtension = $("#txtExtensionNo").val();
+            space.LocationId = $("#DDLLocation").val();
+            space.BuildingId = $("#DDLBuilding").val();
+            space.FloorId = $("#DDLFloor").val();
+            space.RoomId = $("#DDLRoom").val();
+            space.LocationName = $("#DDLLocation option:selected").text();
+            space.BuildingName = $("#DDLBuilding option:selected").text();
+            space.FloorName = $("#DDLFloor option:selected").text();
+            space.RoomName = $("#DDLRoom option:selected").text();
+            var URL = "/Admin/SaveSpace";
+            $.ajax({
+                type: 'POST',
+                url: URL,
+                data: JSON.stringify(space),
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (MSG) {
+                    alert(MSG);
+                    Clear();
+                    funShowView();
+                }
+            });
+        }
+    }
+
+    function Clear() {
+
+        $("#txtid").val("0");
+        $("#txtSpaceName").val("");
+        $("#txtExtensionNo").val("");
+        $("#DDLLocation").val("");
+        $("#DDLBuilding").val("");
+        $("#DDLBuilding").html("");
+        $("#DDLFloor").val("");
+        $("#DDLFloor").html("");
+        $("#DDLRoom").val("");
+        $("#DDLRoom").html("");
+        buildID = "";
+        flrID = "";
+        rmID = "";
+        GetviewList();
+
+    }
+    function OpenUpdate(ID) {
+        funShowAdd();
+        var space = {};
+
+        for (var i in ListData) {
+            if (ListData[i].PlaceId == ID) {
+                space.PlaceId = (ListData[i].PlaceId);
+                space.PlaceNo = (ListData[i].PlaceNo).trim();
+                space.PlaceExtension = (ListData[i].PlaceExtension);
+                space.LocationId = (ListData[i].LocationId);
+                space.BuildingId = (ListData[i].BuildingId);
+                space.FloorId = (ListData[i].FloorId);
+                space.RoomId = (ListData[i].RoomId);
+                break;
+            }
+        }
+        $("#DDLLocation").val(space.LocationId);
+
+        FunLoadBuilding();
+
+        $("#txtid").val(space.PlaceId);
+        $("#txtSpaceName").val(space.PlaceNo);
+
+        $("#txtExtensionNo").val(space.PlaceExtension);
+
+        buildID = space.BuildingId;
+        flrID = space.FloorId;
+        rmID = space.RoomId;
+    }
+
+
+    function BindListtable(Data) {
+        $("#TblList tbody").empty();
+        var TableRows = ''; var RowCount = 1;
+        for (var i in Data) {
+            TableRows += '<tr>';
+            TableRows += '<td>' + RowCount + '</td>';
+            TableRows += '<td>' + Data[i].PlaceNo + '</td>';
+            TableRows += '<td>' + Data[i].LocationName + '</td>';
+            TableRows += '<td>' + Data[i].BuildingName + '</td>';
+            TableRows += '<td>' + Data[i].FloorName + '</td>';
+            TableRows += '<td>' + Data[i].RoomName + '</td>';
+            TableRows += '<td><button class="btn btn-warning btn-sm" id=' + Data[i].PlaceId + ' onclick="DeleteByID(this.id);"><i class="glyphicon glyphicon-trash"> </i></button>&nbsp;&nbsp;';
+            TableRows += '<button class="btn btn-danger btn-sm" id=' + Data[i].PlaceId + ' onclick="OpenUpdate(this.id);"><i class="glyphicon glyphicon-pencil"> </i></button></td>';
+            TableRows += '</tr>';
+            RowCount++;
+        }
+        $("#TblList tbody").append(TableRows);
+        $("#TblList").dataTable();
+    }
+
+    function DeleteByID(ID) {
+        if (confirm('Are you sure you want to delete?')) {
+            var URL = "/Admin/SpaceDelete?ID=" + ID;
+
+            $.ajax({
+                type: 'Post',
+                url: URL,
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (MSG) {
+                    alert(MSG);
+                    Clear();
+                    funShowView();
+                }
+            });
+
+        } return false;
+    }
+    function funShowAdd() {
+        $("#myModal").modal("show");
+        Clear();
+    }
+    function funShowView() {
+        $("#myModal").modal("hide");
+    }
+    function FunLoadBuilding() {
+        var Id = $("#DDLLocation").val();
+        if (Id == "") {
+            $("#DDLLocation").html("");
+        }
+        else {
+            var URL = "/Admin/GetByLocation?Locationid=" + Id;
+            $.get(URL, function (Data) {
+
+                $("#DDLBuilding").html("");
+                $("#DDLBuilding").append("<option  value=''>Select </option>");
+                $.each(Data, function (index, Data) {
+                    $("#DDLBuilding").append("<option value='" + Data.BuildingId + "'>" + Data.BuildingName + "</option>");
+                });
+                $("#DDLBuilding").val(buildID);
+                if (buildID != null && buildID != "") {
+                    FunLoadFloors();
+                }
+            });
+        }
+    }
+
+    function FunLoadFloors() {
+        var Id = $("#DDLBuilding").val();
+        if (Id == "") {
+            $("#DDLBuilding").html("");
+        }
+        else {
+            var URL = "/Admin/GetByFloor?ID=" + Id;
+            $.get(URL, function (Data) {
+
+                $("#DDLFloor").html("");
+                $("#DDLFloor").append("<option  value=''>Select </option>");
+                $.each(Data, function (index, Data) {
+                    $("#DDLFloor").append("<option value='" + Data.FloorId + "'>" + Data.FloorName + "</option>");
+                });
+                $("#DDLFloor").val(flrID);
+                if (flrID != null && flrID != "") {
+                    FunLoadRooms();
+                }
+            });
+        }
+    }
+
+    function FunLoadRooms() {
+        var Id = $("#DDLFloor").val();
+        if (Id == "") {
+            $("#DDLFloor").html("");
+        }
+        else {
+            var URL = "/Admin/GetByRoom?ID=" + Id;
+            $.get(URL, function (Data) {
+
+                $("#DDLRoom").html("");
+                $("#DDLRoom").append("<option  value=''>Select </option>");
+                $.each(Data, function (index, Data) {
+                    $("#DDLRoom").append("<option value='" + Data.RoomId + "'>" + Data.RoomName + "</option>");
+                });
+                $("#DDLRoom").val(rmID);
+            });
+        }
+    }
+</script>
+
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Place List
+
+        <span class="pull-right" style="color:green;font-weight:bold;cursor:pointer;" onclick="funShowAdd();">Create New</span>
+    </div>
+    <div class="panel-body">
+        <table class="table table-bordered table-hover table-responsive" id="TblList">
+            <thead>
+                <tr>
+                    <th>S.No</th>
+                    <th>Place No</th>
+                    <th>Location</th>
+                    <th>Building</th>
+                    <th>Floor</th>
+                    <th>Room</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">    Manage Place</h4>
+            </div>
+            <div class="modal-body">
+
+
+                <div class="row form-group">
+                    <div class="col-md-2">
+                        <span>Place Name</span>
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control SRequired" id="txtSpaceName" />
+                        <input type="hidden" class="form-control " id="txtid" />
+                    </div>
+                </div>
+
+
+                <div class="row form-group">
+                    <div class="col-md-2">
+                        <span>Extension Number</span>
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control " id="txtExtensionNo" />
+                    </div>
+                </div>
+
+                <div class="row form-group">
+                    <div class="col-md-2">
+                        <span>Location</span>
+                    </div>
+                    <div class="col-md-6">
+                        <select class="form-control SRequired" id="DDLLocation" onchange="FunLoadBuilding()"></select>
+                    </div>
+                </div>
+                <div class="row form-group">
+
+                    <div class="col-md-2">
+                        <span>Building </span>
+                    </div>
+                    <div class="col-md-6">
+                        <select class="form-control SRequired" id="DDLBuilding" onchange="FunLoadFloors()"></select>
+                    </div>
+
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-2">
+                        <span>Floor </span>
+                    </div>
+                    <div class="col-md-6">
+                        <select class="form-control SRequired" id="DDLFloor" onchange="FunLoadRooms()"></select>
+                    </div>
+                </div>
+                <div class="row form-group">
+
+                    <div class="col-md-2">
+                        <span>Room </span>
+                    </div>
+                    <div class="col-md-6">
+                        <select class="form-control SRequired" id="DDLRoom"></select>
+                    </div>
+
+
+
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success" value="Save" onclick="Save();">Submit</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

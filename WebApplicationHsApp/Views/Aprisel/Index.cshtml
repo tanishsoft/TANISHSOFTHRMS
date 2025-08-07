@@ -1,0 +1,902 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="panel panel-default">
+
+    <div class="panel-body">
+        <div class="col-md-1"></div>
+        <div class="col-md-10">
+            <div class="page-header text-center table-bordered " style="background-color:darkgray">
+                <h4><b>PERFORMANCE REVIEW FOR THE PERIOD APRIL-2010 TO MARCH-2011</b></h4>
+                              (Below Supervisors)
+            </div>
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <td>
+                            <label for="name" id="Name"> Name</label>
+                        </td>
+                        <td>
+                            <input type="text" name="name" id="Name" class="form-control" />
+                        </td>
+                        <td>
+                            <label for="name" id="Designation">Designation</label>
+                        </td>
+                        <td>
+                            <input type="text" name="name" id="Designation" class="form-control" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="name" id="Department">Department</label>
+                        </td>
+                        <td>
+                            <input type="text" name="name" id="Department" class="form-control" />
+                        </td>
+                        <td>
+                            <label for="name" id="Location">Location</label>
+                        </td>
+                        <td>
+                            <input type="text" name="name" id="Location" class="form-control" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="name" id="Date">Date of Joining</label>
+                        </td>
+                        <td colspan="3">
+                            <input type="date" name="name" id="Date" class="form-control" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4"><hr/></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label for="name" id="Appraiser">Appraiser</label>
+                        </td>
+                        <td>
+                            <input type="text" name="name" id="Appraiser" class="form-control" />
+                        </td>
+                        <td>
+                            <label for="name" id="Reviewers">Reviewer</label>
+                        </td>
+                        <td>
+                            <input type="text" name="name" id="Reviewers" class="form-control" />
+
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <br />
+            <div class="text-center " style="background-color:darkgray">
+                <h4><b>PROCEDURAL GUIDELINES</b></h4>
+            </div>
+            <div>
+                <ol>
+                    <li value="1">
+                        The Appraises completes the Self Assessment and forwards it to the Appraiser.
+                    </li>
+                    <li>
+                        The Appraises records his/her assessment on the Key achievements/performance against KRAs(Key Result Areas) set and the competencies <b>(Part I & II )</b>.
+                    </li>
+                    <li>
+                        The Appraises discusses the appraise and mutually discusses performance of the latter for the period of review. The Appraiser, in consultation with the Appraisee and the Reviewer fills up <b>PART III & IV</b>, which details out the Appraisee's areas of improvement and the action plan to address them.
+                    </li>
+                    <li>
+                        The Appraiser forwards form to the Reviewer and after consulting the Reviewer arrives at the Final Rating.
+                    </li>
+                    <li>
+                        The Appraiser communicates the Fianl Rating and additional feedback, if any , to the Appraisee and also obtains feedback from the Appraisee with respect to the quality of the appraisal process. The respective comments / feedback are recorded on the last sheet of the form and signed off.
+                    </li>
+                    <li>
+                        The completed forms are sent back to HR.
+                    </li>
+                </ol>
+                <br />
+                <div class="text-center" style="background-color:darkgray">
+                    <h5><b><u> Guidelines for the Appraisee</u></b></h5>
+                </div>
+                <ol>
+                    <li value="1">
+                        Before the discussion, prepare the points you would like to discuss with your Appraiser during the discussion.
+                    </li>
+                    <li>
+                        Be objective during the discussion and opportunity for development / improvement of your performance for future effectiveness.
+                    </li>
+                    <li>
+                        Surface the points on which you desire specific action / help from the Appraiser.
+                    </li>
+                    <li>
+                        Discuss your training and develoment needs with the Appraiser.
+                    </li>
+                    <li>
+                        Discuss your training and devlopment needs with the Appraiser.
+                    </li>
+                </ol>
+
+            </div>
+            <br />
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>
+
+                            </th>
+                            <th>
+                                Name
+                            </th>
+                            <th>
+                                Signature
+                            </th>
+                            <th>
+                                Date
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <label>Apparisee :</label>
+                            </td>
+                            <td>
+                                <input type="text" id="apparise" class="form-control" />
+                            </td>
+                            <td>
+                                <input type="text" id="sign" class="form-control" />
+                            </td>
+                            <td>
+                                <input type="date" id="date1" class="form-control" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Appraiser :
+                            </td>
+                            <td>
+                                <input type="text" id="appraiser" class="form-control" />
+                            </td>
+                            <td>
+                                <input type="text" id="appraiser_sign" class="form-control" />
+
+                            </td>
+                            <td>
+                                <input type="date" id="date2" class="form-control" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Reviewer :
+                            </td>
+                            <td>
+                                <input type="text" id="reviewer" class="form-control" />
+                            </td>
+                            <td>
+                                <input type="text" id="reviewer_sign" class="form-control" />
+
+                            </td>
+                            <td>
+                                <input type="date" id="date3" class="form-control" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Head-HR
+                            </td>
+                            <td>
+                                <input type="text" id="head" class="form-control" />
+
+                            </td>
+                            <td>
+                                <input type="text" id="head_sign" class="form-control" />
+                            </td>
+                            <td>
+                                <input type="date" id="date4" class="form-control" />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+           <br />
+
+            <div class="text-center" style="background-color:darkgray"><b>RATING SCALE</b></div>
+            <br />
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="text-center">
+                            Consistently <br /> does surpasses expectations
+                        </th>
+                        <th>
+                            Exceeds expectations
+                        </th>
+                        <th>
+                            Always Meets Expectations
+                        </th>
+                        <th>
+                            Occasionally does not expectation
+                        </th>
+                        <th>
+                            Frequently not meet expectation
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="text-center">5</td>
+                        <td class="text-center">4</td>
+                        <td class="text-center">3</td>
+                        <td class="text-center">2</td>
+                        <td class="text-center">1</td>
+                    </tr>
+                </tbody>
+            </table>
+            <br />
+            <div><b>Description of the scale:</b></div>
+            <br />
+
+            <div><b>Consistently surpasses expectation</b></div>
+            <div>
+                <p>
+                    Describes performance where exceptional result have been consistently achieved with a high stretch under adverse conditions. Has made a considerable positive impact in this function & to the organization. The
+                    appraisee has demonstrated significant mastery of the job & is respected as being an exceptional professional. Additionally, the appraisee inspires team effort putting organizational interest ahead of self.
+                    The individual requries little or no supervision in the dischange of his responsibilities and is considered to be hightly dependable and self-motivated. Generally, less than 3% of the employees will qualify
+                    for this rare grading.
+                </p>
+            </div>
+
+            <br />
+            <div><b>Exceeds expectations:</b></div>
+            <div>
+                <p>
+                    Describes excellent performance where results surpass set expectations with a good degree of stretch. The Appraisee displays commendable grasp of the job together with initiative & leadship, requiring minimal supervision.
+                </p>
+            </div>
+            <br />
+            <div><b>Always Meets Expectations:</b></div>
+            <div>
+                <p>
+                    Describes acceptable performance wherein targets and KROs are consistently met. The Appraisee is able to met the
+                    requirements of the job, carries out normal duties with a measure of initiative & occasional supervision.
+                </p>
+            </div>
+
+            <div>
+                <b>Occasionally does not meet expectations:</b>
+            </div>
+            <div>
+                <p>
+                    Describes mediocre performance with occasional failure to meet targets and achieve KROs. Requires frequent Supervision is
+                    hesitant to take initiative &  does not display adequate knowledge of the job.
+                </p>
+            </div>
+
+            <br />
+            <div>
+                <b> Frequently does not meet expectations:</b>
+            </div>
+            <div>
+                <p>
+                    Describes unacceptable performance with frequent failures to meet expected result, without mitigating reasons to ameliorate the same.
+                </p>
+            </div>
+            <br />
+            <div class="text-center" style="background-color:darkgray"><b>KEY DEFINITIONS</b></div>
+            <br />
+            <div><b>APPRAISEE:</b></div>
+            <div>
+                <p> Individual employees who are being appraised</p>
+            </div>
+            <br />
+            <div><b>APPRAISER:</b></div>
+            <div>
+                <p>
+                    Immediate Superior to whom the Appraisee reports. He/She is the one who sets the KROs and targets of the Appraisee
+                    and provides guidance in work related matters.
+                </p>
+            </div>
+            <br />
+            <div>
+                <b>REVIEWER</b>
+            </div>
+            <div>
+                <p>
+                    Usually this person is the supervior of the Appraiser. The reviewer would be required to review the appraisal of the
+                    individual and supplement it with additional input, if any.
+                </p>
+            </div>
+            <br />
+            <div class="text-center">
+                <h4><b><u>KRA REVIEW SHEET (PART I)</u></b></h4>
+            </div>
+            <table class="table table-bordered">
+                <thead>
+                    <tr style="background-color:darkgray">
+                        <th>
+                            KRA category A/B/C
+                        </th>
+                        <th>
+                            Details of KRA
+                        </th>
+                        <th>
+                            Measure of Performance
+                        </th>
+                        <th>
+                            Weightage(A)(Importance of the KRA as a percentage)
+                        </th>
+                        <th>
+                            Details of Accomplishment
+                        </th>
+                        <th>
+                            Mitigating reasons, if any, for non-achievement of KRA
+                        </th>
+                        <th>
+                            Start Date of the activity
+                        </th>
+                        <th>
+                            End Date of the activity
+                        </th>
+                        <th>
+                            Self-rating by the Appraisee(1-5)
+                        </th>
+                        <th>
+                            (B) Appraiser's rating(1-5)
+                        </th>
+                        <th>
+                            (A) * (B) Weighted rating
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            A
+                        </td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            B
+                        </td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            C
+                        </td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            D
+                        </td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            E
+                        </td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            F
+                        </td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            G
+                        </td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            H
+                        </td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            I
+                        </td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                    </tr>
+                    <tr>
+                        <td colspan="11" class="text-center" style="background-color:darkgray"><b>Others</b></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="text" class="form-control" />
+                        </td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="text" class="form-control" />
+                        </td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="text" class="form-control" />
+                        </td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="text" class="form-control" />
+                        </td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="text" class="form-control" />
+                        </td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="text" class="form-control" />
+                        </td>
+                        <td colspan="7" class="text-right"><b>Overall Rating- Part 1</b></td>
+
+                        <td colspan="3"><input type="text" class="form-control"/></td>
+                    </tr>
+                </tbody>
+            </table>
+            <br />
+            <div class="text-center" style="background-color:darkgray"><b>ASSESSMENT OF OVERALL COMPETENCES</b></div>
+            <div class="text-center table-bordered"><b>PART II (To be filled by the Appraiser)</b></div>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>
+                            <b>Competencies</b>
+                        </th>
+                        <th>
+                            <b>Rating (1-5)</b>
+                        </th>
+                        <th>
+                            <b>
+                                Pls provide examples of demonstration of such
+                            </b>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <b>SERVICE ORIENTATION:</b>
+                            <p>
+                                Responds promptly and proactively to internal and external customers.<br /> Strives to understand other's needs and acts on servicing them within <br />the defined time frame as per their expectations.
+                            </p>
+                        </td>
+                        <td><br /><input type="number" id="rating1" class="form-control" /></td>
+                        <td><br /><textarea id="commaent" class="form-control" style="width: 100%; height: 100%;"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <b>QUALITY OF WORK OUTPUT:</b>
+                            <p>
+                                Ensures thoroughness and avoids trivial mistakes. Is careful and alert<br /> while undertaking any activity. Focuses on details of work.
+                            </p>
+                        </td>
+                        </td>
+                        <td><br /><input type="number" id="rating2" class="form-control" /></td>
+                        <td><br /><textarea id="commaent" class="form-control" style="width: 100%; height: 100%;"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <b>COMPLIANCE TO PROCEDURES & PROCESSES:</b>
+                            <p>
+                                Respect and follows procedures/systems set so as to perform his/ her <br /> role. Adheres rigorously to the rules and procedures set by the <br /> organization.
+                            </p>
+                        </td>
+                        </td>
+                        <td><br /><input type="number" id="rating3" class="form-control" /></td>
+                        <td><br /><textarea id="commaent" class="form-control" style="width: 100%; height: 100%;"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <b>DEPENDABILITY AND RELIABILITY:</b>
+                            <p>
+                                Is aware of the demands made and is prepared to deliver under various <br /> conditions consistently and efficiently. Can be relied upon to deliver<br /> results even under pressure.
+                            </p>
+                        </td>
+                        </td>
+                        <td><br /><input type="number" id="rating4" class="form-control" /></td>
+                        <td><br /><textarea id="commaent" class="form-control" style="width: 100%; height: 100%;"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <b>WILLINGNESS TO LEARN:</b>
+                            <p>
+                                Is eagar to learn new skills / implement new solution. <br />
+                                Undertakes activities to update self-knowledge and seeks clarifications<br /> from superiors when in doubt.
+                            </p>
+                        </td>
+                        </td>
+                        <td><br /><input type="number" id="rating5" class="form-control" /></td>
+                        <td><br /><textarea id="commaent" class="form-control" style="width: 100%; height: 100%;"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <b>JOB KNOWLEDGE:</b>
+                            <p>
+                                Knows everything about the task / project assignd and understands <br /> inter-linkages
+                                with other activities. Possesses in-depth knowledge of <br /> various skills and is able to
+                                apply them in day-to-day functioning.
+
+                            </p>
+                        </td>
+                        </td>
+                        <td><br /><input type="number" id="rating6" class="form-control" /></td>
+                        <td><br /><textarea id="commaent" class="form-control" style="width: 100%; height: 100%;"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <b>ACCOMPLISHMENT OF TASK:</b>
+                            <p>
+                                Having achievement orientation. Focuses on results, not activites.<br />
+                                Delivers result effectively within stipulated time period.
+                            </p>
+                        </td>
+                        </td>
+                        <td><br /><input type="number" id="rating7" class="form-control" /></td>
+                        <td><br /><textarea id="commaent" class="form-control" style="width: 100%; height: 100%;"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <b>TEAM ORIENTATION:</b>
+                            <p>
+                                Understands his/her role in a team and undertakes steps to co-ordinate <br />
+                                with team members, openly shares information with others, focuses on <br /> improving
+                                team performance, Works across department lines to solve <br /> problems.
+                            </p>
+                        </td>
+                        </td>
+                        <td><br /><input type="number" id="rating8" class="form-control" /></td>
+                        <td><br /><textarea id="commaent" class="form-control" style="width: 100%; height: 100%;"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <b>ATTENDANCE & PUNCTUALITY:</b>
+                            <p>
+                                This parameter reflects the employees performance in reporting to work <br /> in time and when scheduled.
+                                This includews taking authorized leave <br /> obtained well in advance as per company norms so to not upset work.
+                            </p>
+                        </td>
+                        </td>
+                        <td><br /><input type="number" id="rating9" class="form-control" /></td>
+                        <td><br /><textarea id="commaent" class="form-control" style="width: 100%; height: 100%;"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <b>COMMUNICATION SKILLS:</b>
+                            <p>
+                                This consist of responsive listening and assertive persuasion; clarity of throught and orignality of communication.
+                            </p>
+                        </td>
+                        </td>
+                        <td><br /><input type="number" id="rating10" class="form-control" /></td>
+                        <td><br /><textarea id="commaent" class="form-control" style="width: 100%; height: 100%;"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td class="text-center">
+                            <b><br />Overall Rating for PART II:</b>
+
+                        </td>
+                        </td>
+                        <td><input type="number" id="rating11" class="form-control" /></td>
+                        <td><textarea id="commaent" class="form-control" style="width: 100%; height: 100%;"></textarea></td>
+                    </tr>
+                </tbody>
+            </table>
+            <br />
+
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <td class="text-center" colspan="6" style="background-color:darkgray">
+                            <b><u>PART III</u></b><br />
+                            <b>(Question 1 to be filled by the appraisee. Rest to be cpmpleted by the appraiser after the performed discussion)</b>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="6">
+                            <b>
+                                1. What in your opinion were the faciliting and inhibiting factors that impacted your performance? (To be filled by the Appraisee)
+                            </b>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="text-center">
+                            <b><u>FACITATING FACTORS</u></b><br />
+                            <textarea id="Factors" class="form-control"></textarea>
+                        </td>
+                        <td colspan="3" class="text-center">
+                            <b><u>INHIBITING FACTORS</u></b><br />
+                            <textarea id="inhibating" class="form-control"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="6">
+                            <b>
+                                2. What were the New Skills / Learnings / Competencies acquired by the Appraisee during the review period?<br />
+                                Specifically mention the progress on the Development Plan consolidated at the beginning of the financial year 2010-<br />
+                                2011.(To be filled by the Appraiser)
+                            </b>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td style="height:120px;" colspan="6">
+
+                            <textarea class="form-control"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="6">
+                            <b>
+                                3. Identify specfic areas of Strength as well as Improvement (To be filled by the Appraiser)
+
+                            </b>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" class="text-center">
+                            <b><u>Strenghts</u></b><br />
+                            <textarea class="form-control"></textarea>
+                        </td>
+                        <td colspan="3" class="text-center">
+                            <b><u>Possible areas of improvement</u></b><br />
+                            <textarea class="form-control"></textarea>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <tr>
+                            <td colspan="6"> 
+                                <b>
+                                    4. Final Rating: To be filled by the Appreaiser in consultation with the Reviewer (Rating to be given after considering the average
+                                    of ratings given for PartI & II) Please Tick
+                                </b>
+                            </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <b> Consistently surpasses</b>
+                        </td>
+                        <td>
+                            <b>  Exceeds expectations</b>
+                        </td>
+                        <td>
+                          <b>  Always Meets Expectations</b>
+                        </td>
+                        <td>
+                         <b>   Occasionally does not</b>
+                        </td>
+                        <td colspan="2">
+                          <b>  Frequently does not meet</b>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td colspan="2"><input type="text" class="form-control" /></td>
+                        
+                    </tr>
+                </tbody>
+            </table>
+
+            <br />
+            <div class="text-center"><b><u>DEVELOPMENT PLAN/TRANING NEEDS 2010-2011(PART IV)</u></b></div>
+           <br />
+            (To be filled by the Appraiser in consultation with the Appraisee during the Appraisal discussion)
+            <table class="table table-bordered">
+                <thead>
+                    <tr style="background-color:darkgray">
+                        <th>
+                            <b>Sr.No</b>
+                        </th>
+                        <th>
+                            <b>
+                                Areas of Imporvement / Competencies <br /> to be developed
+                            </b>
+                        </th>
+                        <th>
+                            <b>
+                                Actions the Appraisee<br /> committed to address the same
+                            </b>
+                        </th>
+                        <th>
+                            <b>
+                                Additional developmental <br />actions recommended by the Appraiser
+                            </b>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="number" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                    </tr>
+                    <tr>
+                        <td><input type="number" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                    </tr>
+                    <tr>
+                        <td><input type="number" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                    </tr>
+                    <tr>
+                        <td><input type="number" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                        <td><input type="text" class="form-control" /></td>
+                    </tr>
+                </tbody>
+
+            </table>
+            <br />
+            <div class="text-center" style="background-color:darkgray">
+                <b>
+                    OVERALL COMMENTS<br />
+                    (please specify and underline if change in designation is recommended)
+                </b>
+            </div>
+            <div class="col-md-12"><b>Comments of the Appraiser:</b><br />
+        <textarea class="form-control" style="text-size-adjust:inherit"></textarea>
+            </div>
+            <div > <b>Comments of the Reviewer:</b><br />
+                <textarea class="form-control" style="text-size-adjust:inherit"></textarea>
+</div>
+            <div>
+                <b>Comments of the Appraisee after completion of the performance review discussion</b><br />
+                <textarea class="form-control" style="text-size-adjust:inherit"></textarea>
+            </div>
+
+        </div>
+
+        <div class="col-md-1"></div>
+    </div>
+</div>

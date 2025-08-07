@@ -1,0 +1,314 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<script type="text/javascript">
+    $(function () {
+       
+        LoadTodayLeave();
+        LoadTomorrowLeave();
+        LoadTable();
+    });
+    function Getseries(name, chart, point) {
+        $.ajax({
+            type: "POST",
+            url: "/Report/GetEmployeesCountByDepartment",
+            data: "location=" + name,
+            success: function (data) {
+                var dept = new Array();
+                for (var i = 0; i < data.length; i++) {
+                    dept.push([
+                       data[i].Key,
+                       data[i].Value
+                    ]);
+                }
+                var cdata = {
+                    name: name,
+                    data: dept
+                }
+                chart.hideLoading();
+                chart.addSeriesAsDrilldown(point, cdata);
+
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function GetseriesDept(name, chart, point) {
+        $.ajax({
+            type: "POST",
+            url: "/Report/GetLeavesCountByDepartment",
+            data: "location=" + name,
+            success: function (data) {
+                var dept = new Array();
+                for (var i = 0; i < data.length; i++) {
+                    dept.push([
+                       data[i].Key,
+                       data[i].Value
+                    ]);
+                }
+                var cdata = {
+                    name: name,
+                    data: dept
+                }
+                chart.hideLoading();
+                chart.addSeriesAsDrilldown(point, cdata);
+
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function GetseriesDepttomorrow(name, chart, point) {
+        $.ajax({
+            type: "POST",
+            url: "/Report/GettomorrowLeavesCountByDepartment",
+            data: "location=" + name,
+            success: function (data) {
+                var dept = new Array();
+                for (var i = 0; i < data.length; i++) {
+                    dept.push([
+                       data[i].Key,
+                       data[i].Value
+                    ]);
+                }
+                var cdata = {
+                    name: name,
+                    data: dept
+                }
+                chart.hideLoading();
+                chart.addSeriesAsDrilldown(point, cdata);
+
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+
+   
+    function LoadTodayLeave() {
+        $.ajax({
+            type: "POST",
+            url: "/Report/GetTodayLeaveCountByLocation",
+            //data: "id=",
+            success: function (data) {
+                var locdata = new Array();
+                for (var i = 0; i < data.length; i++) {
+                    locdata.push({
+                        name: data[i].Key,
+                        y: data[i].Value,
+                        drilldown: true
+                    });
+                }
+                BindTodayOnLeaveEmployees(locdata);
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadTomorrowLeave() {
+        $.ajax({
+            type: "POST",
+            url: "/Report/GettomorrowLeaveCountByLocation",
+            //data: "id=",
+            success: function (data) {
+                var locdata = new Array();
+                for (var i = 0; i < data.length; i++) {
+                    locdata.push({
+                        name: data[i].Key,
+                        y: data[i].Value,
+                        drilldown: true
+                    });
+                }
+                BindTomorrowOnLeaveEmployees(locdata);
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+   
+    function BindTodayOnLeaveEmployees(locations) {
+        $('#container1').highcharts({
+            chart: {
+                type: 'column',
+                events: {
+                    drilldown: function (e) {
+                        if (!e.seriesOptions) {
+
+                            var chart = this;
+                            chart.showLoading('Simulating Ajax ...');
+                            var series = GetseriesDept(e.point.name, chart, e.point);
+                            // Show the loading label
+
+                        }
+                    }
+                }
+            },
+            title: {
+                text: 'Employees on Leave Today'
+            },
+            xAxis: {
+                type: 'category'
+            },
+
+            legend: {
+                enabled: false
+            },
+
+            plotOptions: {
+                series: {
+                    borderWidth: 0,
+                    dataLabels: {
+                        enabled: true
+                    }
+                }
+            },
+
+            series: [{
+                name: 'Leave',
+                colorByPoint: true,
+                data: locations
+            }],
+
+            drilldown: {
+                series: []
+            }
+        });
+    }
+    function BindTomorrowOnLeaveEmployees(locations) {
+
+        $('#container2').highcharts({
+            chart: {
+                type: 'column',
+                events: {
+                    drilldown: function (e) {
+                        if (!e.seriesOptions) {
+
+                            var chart = this;
+                            chart.showLoading('Simulating Ajax ...');
+                            var series = GetseriesDepttomorrow(e.point.name, chart, e.point);
+                            // Show the loading label
+
+                        }
+                    }
+                }
+            },
+            title: {
+                text: 'Employees on Leave Tomorrow'
+            },
+            xAxis: {
+                type: 'category'
+            },
+
+            legend: {
+                enabled: false
+            },
+
+            plotOptions: {
+                series: {
+                    borderWidth: 0,
+                    dataLabels: {
+                        enabled: true
+                    }
+                }
+            },
+
+            series: [{
+                name: 'Leave',
+                colorByPoint: true,
+                data: locations
+            }],
+
+            drilldown: {
+                series: []
+            }
+        });
+    }
+
+    function LoadTable() {
+        $('#tblleave').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Report/AjaxLeavesView",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aoColumns": [
+
+                            { "sName": "LocationName" },
+                            { "sName": "DepartmentName" },
+                            { "sName": "UserName" },
+                            { "sName": "UserId" },
+                            { "sName": "ReasonForLeave" },
+                            { "sName": "LeaveFromDate" },
+                            { "sName": "LeaveTodate" }
+            ],
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, 500, 1000], [10, 20, 30, 50, 100, 150, 200, 500, 1000]],
+            "sDom": 'T<"clear">lfrtip',
+            "oTableTools": {
+                "sSwfPath": "/swf/copy_csv_xls_pdf.swf",
+                "aButtons": [
+                    "copy", "xls", "pdf"
+                ]
+            }
+
+        });
+    }
+</script>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Today Employees on Leave</h3>
+            </div>
+            <div class="panel-body">
+                <div id="container1" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Tomorrow Employees on Leave</h3>
+            </div>
+            <div class="panel-body">
+                <div id="container2" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"> Employees on Leave Today  and tomorrow</h3>
+            </div>
+            <div class="panel-body">
+                <table id="tblleave" class="table table-striped table-bordered  dt-responsive ">
+                    <thead>
+                        <tr>
+
+                            <th>Location Name</th>
+                            <th>Department Name</th>
+                            <th>User Name</th>
+                            <th>User Id</th>
+                            <th>Reason For Leave</th>
+                            <th>Leave From</th>
+                            <th>Leave Todate</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

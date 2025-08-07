@@ -1,0 +1,399 @@
+﻿@{
+    ViewBag.Title = "ManageFloor";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    var ListData; var buildID;
+    $(function () {
+        GetviewList();
+        GetLocList();
+    });
+    function GetLocList() {
+        $.ajax({
+            type: "GET",
+            url: "/Admin/GetLocationView",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#DDLLocation").html(options.join(''));
+                $("#ddllocationnew").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function onchangelocationloaddept() {
+        $.get("/Common/GetDepartmentByLocation?id=" + $("#ddllocationnew").val(), function (data) {
+            var options = [];
+            options.push('<option value="">- Select Department -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+            }
+            $("#ddldepartment").html(options.join(''));
+        });
+        $.get("/Common/GetByLocation?Locationid=" + $("#ddllocationnew").val(), function (data) {
+            var options = [];
+            options.push('<option value="">- Select Building -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].BuildingId + '">' + data[i].BuildingName + '</option>');
+            }
+            $("#ddlBulding").html(options.join(''));
+        });
+    }
+    function GetviewList() {
+        var URL = "@Url.Action("GetFloor", "Admin")";
+        $.get(URL, function (Data) {
+            ListData = Data;
+            BindListtable(Data);
+        });
+    }
+    function Save() {
+        var Valid = true;
+        $(".FRequired").each(function () {
+            if ($(this).val() == "" || $(this).val() == null) {
+                Valid = false;
+                $(this).css("border", "1px solid red");
+            } else {
+                $(this).css("border", "1px solid #dce4ec");
+            }
+        });
+        if (Valid) {
+            var floor = {};
+            floor.FloorId = $("#txtid").val();
+            floor.FloorName = $("#txtFloorName").val();
+            floor.LocationId = $("#DDLLocation").val();
+            floor.BuildingId = $("#DDLBuilding").val();
+            floor.LocationName = $("#DDLLocation option:selected").text();
+            floor.BuildingName = $("#DDLBuilding option:selected").text();
+            var URL = "@Url.Action("SaveFloor", "Admin")";
+            $.ajax({
+                type: 'POST',
+                url: URL,
+                data: JSON.stringify(floor),
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (MSG) {
+                    alert(MSG);
+                    Clear();
+                    funShowView();
+                }
+            });
+        }
+    }
+
+    function BindListtable(Data) {
+        $("#TblList tbody").empty();
+        var TableRows = ''; var RowCount = 1;
+        for (var i in Data) {
+            TableRows += '<tr>';
+            TableRows += '<td>' + RowCount + '</td>';
+            TableRows += '<td>' + Data[i].FloorName + '</td>';
+            TableRows += '<td>' + Data[i].LocationName + '</td>';
+            TableRows += '<td>' + Data[i].BuildingName + '</td>';
+            TableRows += '<td><button class="btn btn-warning btn-sm" id=' + Data[i].FloorId + ' onclick="DeleteByID(this.id);"><i class="glyphicon glyphicon-trash"> </i></button>&nbsp;&nbsp;';
+            TableRows += '<button class="btn btn-danger btn-sm" id=' + Data[i].FloorId + ' onclick="OpenUpdate(this.id);"><i class="glyphicon glyphicon-pencil"> </i></button></td>';
+            TableRows += '</tr>';
+            RowCount++;
+        }
+        $("#TblList tbody").append(TableRows);
+        $("#TblList").dataTable();
+    }
+
+    function DeleteByID(ID) {
+        if (confirm('Are you sure you want to delete?')) {
+            var URL = "/Admin/DeleteFloor?ID=" + ID;
+            $.ajax({
+                type: 'POST',
+                url: URL,
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                success: function (MSG) {
+                    alert(MSG);
+                    Clear();
+                }
+            });
+        }
+        return false;
+    }
+    function funShowAdd() {
+        $("#myModal").modal("show");
+    }
+    function funShowAddDeptFloor() {
+        $("#myModalDeptFloor").modal("show");
+    }
+    function funShowView() {
+        $("#myModal").modal("hide");
+    }
+    function Clear() {
+        $("#txtid").val("0");
+        $("#txtFloorName").val("");
+        $("#DDLLocation").val("");
+        $("#DDLBuilding").val("");
+        $("#DDLBuilding").html("");
+        buildID = "";
+        GetviewList();
+
+    }
+    function OpenUpdate(ID) {
+        funShowAdd();
+        var floor = {};
+        for (var i in ListData) {
+            if (ListData[i].FloorId == ID) {
+                floor.FloorId = (ListData[i].FloorId);
+                floor.FloorName = (ListData[i].FloorName).trim();
+                floor.LocationId = (ListData[i].LocationId);
+                floor.BuildingId = (ListData[i].BuildingId);
+                break;
+            }
+        }
+        $("#DDLLocation").val(floor.LocationId);
+        FunLoadBuilding();
+        $("#txtid").val(floor.FloorId);
+        $("#txtFloorName").val(floor.FloorName);
+        buildID = floor.BuildingId;
+    }
+
+    function FunLoadBuilding() {
+        var Id = $("#DDLLocation").val();
+        if (Id == "") {
+            $("#DDLLocation").html("");
+        }
+        else {
+            var URL = "/Admin/GetByLocation?Locationid=" + Id;
+            $.get(URL, function (Data) {
+                $("#DDLBuilding").html("");
+                $("#DDLBuilding").append("<option  value=''>Select </option>");
+                $.each(Data, function (index, Data) {
+                    $("#DDLBuilding").append("<option value='" + Data.BuildingId + "'>" + Data.BuildingName + "</option>");
+                });
+                $("#DDLBuilding").val(buildID);
+            });
+        }
+    }
+    function SaveFloorDepartment() {
+        var params = {
+            FloorId: $("#ddlfloor").val(),
+            DepartmentId: $("#ddldepartment").val(),
+            IsActive: true,
+            LocationId: $("#ddllocationnew").val(),
+            BuildingId: $("#ddlBulding").val()
+        };
+        $.ajax({
+            type: "POST",
+            url: "/Admin/SaveFloorDepartment",
+            data: params,
+            success: function (data) {
+                //alert(data);
+                $("#myModalDeptFloor").modal("hide");
+                LoadDataFloor();
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+
+    function ddlbuldingchangeloadfloor() {
+        $.get("/Common/GetByFloor?id=" + $("#ddlBulding").val(), function (data) {
+            var options = [];
+            options.push('<option value="">- Select Floor -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].FloorId + '">' + data[i].FloorName + '</option>');
+            }
+            $("#ddlfloor").html(options.join(''));
+        });
+    }
+
+    $(document).ready(function () {
+        LoadDataFloor();
+    });
+    function LoadDataFloor() {
+        $('#TblListManagedepartment').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Admin/AjaxGetFloorDepartment",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                       { "sName": "LocationName" },
+                       { "sName": "DepartmentName" },
+                       { "sName": "BuildingName" },
+                       { "sName": "FloorName" },
+                       {
+                           "sName": "Id",
+                           "bSortable": false,
+                           "render": function (data) {
+                               return '<div class="btn-group">' +
+    '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+    '<ul class="dropdown-menu dropdown-menu-right">' +
+    '<li><a href="javascript:void(0);" id="' + data + '" onclick="DeleteFloorDept(this.id);">Delete</a></li>' +
+    '</ul></div>';
+                           }
+                       }
+            ]
+        });
+        $("#TblListManagedepartment_length").addClass("col-md-6");
+        $("#TblListManagedepartment_length").addClass("col-md-6");
+    }
+
+
+</script>
+
+<div class="row">
+    <div class="col-lg-12">
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+
+                Floor List
+
+                <span class="pull-right" style="color:green;font-weight:bold;cursor:pointer;" onclick="funShowAdd();">Create New</span>
+
+            </div>
+            <div class="panel-body">
+                <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="TblList">
+                    <thead>
+                        <tr>
+                            <th>S.No</th>
+                            <th>Floor Name</th>
+                            <th>Location</th>
+                            <th>Building</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+
+                Manage Department Vs Floor
+
+                <span class="pull-right" style="color:green;font-weight:bold;cursor:pointer;" onclick="funShowAddDeptFloor();">Create New</span>
+
+            </div>
+            <div class="panel-body">
+                <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="TblListManagedepartment">
+                    <thead>
+                        <tr>
+                           
+                            <th>Location</th>
+                            <th>Department</th>
+                            <th>Building</th>
+                            <th>Floor </th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModalDeptFloor" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Department Vs Floor</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row form-group">
+                    <div class="col-md-2">
+                        <span>Location </span>
+                    </div>
+                    <div class="col-md-6">
+                        <select class="form-control" id="ddllocationnew" onchange="onchangelocationloaddept();"></select>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-2">
+                        <span>Department </span>
+                    </div>
+                    <div class="col-md-6">
+                        <select class="form-control" id="ddldepartment"></select>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-2">
+                        <span>Bulding </span>
+                    </div>
+                    <div class="col-md-6">
+                        <select class="form-control" id="ddlBulding" onchange="ddlbuldingchangeloadfloor();"></select>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-2">
+                        <span>Floor </span>
+                    </div>
+                    <div class="col-md-6">
+                        <select class="form-control" id="ddlfloor"></select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" value="Save" onclick="SaveFloorDepartment();">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Manage Floor</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row form-group">
+                    <div class="col-md-2">
+                        <span>Floor Name</span>
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control FRequired " id="txtFloorName" />
+                        <input type="hidden" class="form-control " id="txtid" />
+                    </div>
+
+
+                </div>
+
+
+                <div class="row form-group">
+                    <div class="col-md-2">
+                        <span>Location </span>
+                    </div>
+                    <div class="col-md-6">
+                        <select class="form-control FRequired" id="DDLLocation" onchange="FunLoadBuilding()"></select>
+                    </div>
+
+                </div>
+                <div class="row form-group">
+
+                    <div class="col-md-2">
+                        <span>Building </span>
+                    </div>
+                    <div class="col-md-6">
+                        <select class="form-control FRequired" id="DDLBuilding"></select>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-success" value="Save" onclick="Save();">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>

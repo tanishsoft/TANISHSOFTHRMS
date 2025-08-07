@@ -1,0 +1,52 @@
+﻿<div class="modal fade" id="NewAssetmodel">
+    <div class="modal-dialog" style="padding-top:10%;">
+        <div class="modal-content" style="width:400px;margin:auto;">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal" onclick="ClearAllModel();">&times;</a>
+                <h4 style="color: #c4122f;" id="ourvaluestitle">New Model</h4>
+            </div>
+            <div class="modal-body">
+
+                <div style="width:99%;margin:auto;">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <span class="form-label">Asset Type<span style="color:red;">*</span> </span>
+                                <select id="AssetTypeId" class="form-control" onchange="LoadAssetBrand('');">
+                                    <option value="">Select Asset Type</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <span class="form-label">Asset Brand<span style="color:red;">*</span> </span>
+                                <select id="AssetBrandId" class="form-control">
+                                    <option value="">Select Asset Brand</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <span class="form-label">Name<span style="color:red;">*</span></span>
+                                <input type="text" class="form-control" id="Name" placeholder="Enter Name" />
+                            </div>
+                        </div>
+
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <span class="form-label">Description</span>
+                                <textarea class="form-control" placeholder="Enter Description" id="Description"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="SaveModel();">Save</button>
+                <button type="button" class="btn btn-secondary" placeholder="Please enter here" data-dismiss="modal" onclick="ClearAllModel();">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

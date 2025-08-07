@@ -1,0 +1,29 @@
+﻿
+@{
+    ViewBag.Title = "ApproveLeave";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@if (ViewBag.Message != null && ViewBag.Message != "")
+{
+
+    <div class="panel panel-success">
+        <div class="panel-heading">
+            <h3 class="panel-title">Leave Approved Success</h3>
+        </div>
+        <div class="panel-body">
+            Leave Approved successfully 
+        </div>
+    </div>
+}
+else
+{
+    <div class="panel panel-danger">
+        <div class="panel-heading">
+            <h3 class="panel-title">Leave Approved Fail</h3>
+        </div>
+        <div class="panel-body">
+            Leave Approved Fail Please try again.
+        </div>
+    </div>
+}
+

@@ -1,0 +1,231 @@
+﻿
+@{
+    ViewBag.Title = "CurrentOccupied";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-2" style="padding-left:0px;padding-right:0px;">
+        @Html.Partial("_SideNavAccommodation")
+    </div>
+    <div class="col-md-10" style="padding-left:0px;padding-right:0px;">
+        <div class="panel panel-default" id="myleaestableshow">
+            <div class="panel-heading" id="titleofpage">Current Occupied</div>
+            <div class="panel-body">
+
+                <div class="row">
+                    <div class="col-md-4">
+
+                    </div>
+                    <div class="col-md-4">
+                        <select id="ddllocation" class="form-control">
+                            <option value="">Select</option>
+                            <option selected>Majestic Apartments</option>
+                            <option>Shubhodaya Apartment</option>
+                            <option>RK Residency</option>
+                            <option>Unique Residency</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+
+                    </div>
+                </div>
+                <div class="row" style="margin-top:5px;">
+                    <div class="col-md-3">
+                        <table class="table table-bordered">
+                            <tr style="background-color:teal;color:white;">
+                                <td>Flat</td>
+                                <td>Status</td>
+                            </tr>
+                            <tr>
+                                <td>101</td>
+                                <td><span style="color:green;">Available</span></td>
+                            </tr>
+                            <tr>
+                                <td>102</td>
+                                <td><span style="color:orange;">Occupied</span></td>
+                            </tr>
+                            <tr>
+                                <td>103</td>
+                                <td><span style="color:red;">Under Service</span></td>
+                            </tr>
+                            <tr>
+                                <td>104</td>
+                                <td><span style="color:green;">Available</span></td>
+                            </tr>
+                            <tr>
+                                <td>105</td>
+                                <td><span style="color:orange;">Occupied</span></td>
+                            </tr>
+                            <tr>
+                                <td>106</td>
+                                <td><span style="color:red;">Under Service</span></td>
+                            </tr>
+                            <tr>
+                                <td>107</td>
+                                <td><span style="color:green;">Available</span></td>
+                            </tr>
+                            <tr>
+                                <td>108</td>
+                                <td><span style="color:orange;">Occupied</span></td>
+                            </tr>
+                            <tr>
+                                <td>109</td>
+                                <td><span style="color:red;">Under Service</span></td>
+                            </tr>
+                            <tr>
+                                <td>110</td>
+                                <td><span style="color:red;">Under Service</span></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-3">
+                        <table class="table table-bordered">
+                            <tr style="background-color:teal;color:white;">
+                                <td>Flat</td>
+                                <td>Status</td>
+                            </tr>
+                            <tr>
+                                <td>201</td>
+                                <td><span style="color:green;">Available</span></td>
+                            </tr>
+                            <tr>
+                                <td>202</td>
+                                <td><span style="color:orange;">Occupied</span></td>
+                            </tr>
+                            <tr>
+                                <td>203</td>
+                                <td><span style="color:red;">Under Service</span></td>
+                            </tr>
+                            <tr>
+                                <td>204</td>
+                                <td><span style="color:green;">Available</span></td>
+                            </tr>
+                            <tr>
+                                <td>205</td>
+                                <td><span style="color:orange;">Occupied</span></td>
+                            </tr>
+                            <tr>
+                                <td>206</td>
+                                <td><span style="color:red;">Under Service</span></td>
+                            </tr>
+                            <tr>
+                                <td>207</td>
+                                <td><span style="color:green;">Available</span></td>
+                            </tr>
+                            <tr>
+                                <td>208</td>
+                                <td><span style="color:orange;">Occupied</span></td>
+                            </tr>
+                            <tr>
+                                <td>209</td>
+                                <td><span style="color:red;">Under Service</span></td>
+                            </tr>
+                            <tr>
+                                <td>210</td>
+                                <td><span style="color:red;">Under Service</span></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-3">
+                        <table class="table table-bordered">
+                            <tr style="background-color:teal;color:white;">
+                                <td>Flat</td>
+                                <td>Status</td>
+                            </tr>
+                            <tr>
+                                <td>301</td>
+                                <td><span style="color:green;">Available</span></td>
+                            </tr>
+                            <tr>
+                                <td>302</td>
+                                <td><span style="color:orange;">Occupied</span></td>
+                            </tr>
+                            <tr>
+                                <td>303</td>
+                                <td><span style="color:red;">Under Service</span></td>
+                            </tr>
+                            <tr>
+                                <td>304</td>
+                                <td><span style="color:green;">Available</span></td>
+                            </tr>
+                            <tr>
+                                <td>305</td>
+                                <td><span style="color:orange;">Occupied</span></td>
+                            </tr>
+                            <tr>
+                                <td>306</td>
+                                <td><span style="color:red;">Under Service</span></td>
+                            </tr>
+                            <tr>
+                                <td>307</td>
+                                <td><span style="color:green;">Available</span></td>
+                            </tr>
+                            <tr>
+                                <td>308</td>
+                                <td><span style="color:orange;">Occupied</span></td>
+                            </tr>
+                            <tr>
+                                <td>309</td>
+                                <td><span style="color:red;">Under Service</span></td>
+                            </tr>
+                            <tr>
+                                <td>310</td>
+                                <td><span style="color:red;">Under Service</span></td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-3">
+                        <table class="table table-bordered">
+                            <tr style="background-color:teal;color:white;">
+                                <td>Flat</td>
+                                <td>Status</td>
+                            </tr>
+                            <tr>
+                                <td>401</td>
+                                <td><span style="color:green;">Available</span></td>
+                            </tr>
+                            <tr>
+                                <td>402</td>
+                                <td><span style="color:orange;">Occupied</span></td>
+                            </tr>
+                            <tr>
+                                <td>403</td>
+                                <td><span style="color:red;">Under Service</span></td>
+                            </tr>
+                            <tr>
+                                <td>404</td>
+                                <td><span style="color:green;">Available</span></td>
+                            </tr>
+                            <tr>
+                                <td>405</td>
+                                <td><span style="color:orange;">Occupied</span></td>
+                            </tr>
+                            <tr>
+                                <td>406</td>
+                                <td><span style="color:red;">Under Service</span></td>
+                            </tr>
+                            <tr>
+                                <td>407</td>
+                                <td><span style="color:green;">Available</span></td>
+                            </tr>
+                            <tr>
+                                <td>408</td>
+                                <td><span style="color:orange;">Occupied</span></td>
+                            </tr>
+                            <tr>
+                                <td>409</td>
+                                <td><span style="color:red;">Under Service</span></td>
+                            </tr>
+                            <tr>
+                                <td>410</td>
+                                <td><span style="color:red;">Under Service</span></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

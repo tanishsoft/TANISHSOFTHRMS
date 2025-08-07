@@ -1,0 +1,66 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+
+    $(document).ready(function () {
+        LoadData();
+
+    });
+    function LoadData() {
+        $('#tblCategory').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/CMS/AjaxGetCMSVendorMealAll",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "Id" },
+                //{ "sName": "Vendor Stock" },
+                { "sName": "Emp" },
+                { "sName": "Meal" },
+                { "sName": "QTY" },
+                { "sName": "Notes" },
+
+                { "sName": "IsActive" },
+                { "sName": "CreatedOn" },
+                { "sName": "CreatedBy" },
+                //{
+                //    "sName": "CategoryId",
+                //    "bSortable": false,
+                //    "render": function (data, row, r) {
+                //        //console.log(r);
+                //        return '<div class="btn-group">' +
+                //            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                //            '<ul class="dropdown-menu dropdown-menu-right">' +
+                //            '<li><a href="javascript:void(0);"  onclick="onEdit(' + data + ')">Edit</a></li>' +
+                //            '<li><a href="javascript:void(0);"  onclick="onDelete(' + data + ')">Delete</a></li>' +
+                //            '</ul></div>';
+                //    }
+                //}
+            ]
+        });
+        $("#tblCategory_length").addClass("col-md-6");
+        $("#tblCategory_length").addClass("col-md-6");
+    }
+
+
+</script>
+<table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblCategory">
+    <thead>
+        <tr>
+            <th>Id</th>
+          
+            <th>Emp Name</th>
+            <th>Meal Type</th>
+            <th>Qty</th>
+            <th>Notes</th>
+            <th>Is Active</th>
+            <th>Created On</th>
+            <th>Created By</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>

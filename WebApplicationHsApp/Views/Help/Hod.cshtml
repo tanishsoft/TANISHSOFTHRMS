@@ -1,0 +1,115 @@
+﻿
+@{
+    ViewBag.Title = "Hod";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+       HOD ROLES
+
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-lg-3 col-xlg-2 col-md-4">
+                <div class="stickyside">
+                    <div class="list-group" id="top-menu">
+                        <a href="#1" class="list-group-item">Main Page</a>
+                        <a href="#22" class="list-group-item">Leave Approve</a>
+                        <a href="#3" class="list-group-item">Approve Comp Off</a>
+                        <a href="#4" class="list-group-item">Approve Permission</a>
+                        <a href="#5" class="list-group-item">View DutyRoster</a>
+                        <a href="#6" class="list-group-item">Edit DutyRoster</a>
+                        <a href="#7" class="list-group-item">Manage All Employee</a>
+                        <a href="#8" class="list-group-item">1.Employee</a>
+                        <a href="#9" class="list-group-item">2.Employee Available Leave</a>
+                        <a href="#10" class="list-group-item">3.Employee Leave</a>
+                        <a href="#11" class="list-group-item">4.Employee Permission</a>
+                       
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-9 col-xlg-10 col-md-8">
+                <div class="card">
+                    <div class="card-block">
+                        <h4 class="card-title" id="1">1. Main Page</h4>
+                        <p>Go to the Leave menu click, will open menu-> it show option</p>
+                        <ol>
+                            <li>Leave Management</li>
+                            <li>View DutyRoaster</li>
+                            <li>Edit DutyRoaster</li>
+                        </ol>
+                        <img src="~/Images/Help/main.png" class="img-responsive" />
+                        
+                        <h4 class="card-title m-t-40" id="22">2. Leave Approval </h4>
+                        <p> If you are Hod of department need to approve an leave  click on “Approve Leaves ” in side menu</p>
+                        @*<p>  It shows Number of Leaves to Approve applied will display</p>
+                        <p>  Go to Action Button Clicked- will show options->Approve,Reject and Cancel</p>*@
+                        <img src="~/Images/Help/Leave/HodApprove.jpg" class="img-responsive" />
+
+                        <h4 class="card-title m-t-40" id="3">3. Approve Comp Off</h4>
+                        <p>If you are Hod of department need to approve an Cmp-Off click on “Approve Cmp Request ” in side menu.</p>
+                        @*<p>  It shows Number of Comp off Request will display</p>
+                        <p>  Go to Action Button Clicked- will show options->Approve,Reject and Cancel </p>*@
+                        <img src="~/Images/Help/Leave/compoffreqest.png" class="img-responsive" />
+
+                        <h4 class="card-title m-t-40" id="4">4. Approve Permission</h4>
+                        <p>If you are HOD of Department need to approve an Permission click on “Approve Permission ” in side menu.</p>
+                        @*<p>  It shows Number of Permission Applyied  will display</p>
+                        <p>Go to Action Button Clicked- will show options->Approve,Reject and Cancel</p>*@
+                        <img src="~/Images/Help/Leave/ApprovePermission.png" class="img-responsive" />
+
+                        <h4 class="card-title m-t-40" id="5">5. View DutyRoster</h4>
+                        <p>Here we can view the DutyRoster Shift created or not</p>\
+                        @*<p>Select Fromdate & ToDate  and click Generate Button. Then, it's load the DutyRoster  here and also display how applied leave type.</p>*@
+                        <img src="~/Images/Help/Leave/ViewDutyRoster.jpg" class="img-responsive" />
+
+                         <h4 class="card-title m-t-40"id="6">6.Edit DutyRoster</h4>
+                        <p>Here HOD can Create or Modify Shift to the Particular Employee</p>
+                        @*<p>At Frist Select FromDate-TODate and click Generate Button. It display list of Employee</p>*@
+                        <p>Select Shift to the Employee and Click "Save"</p>
+                        <p>Note:-
+                            <ol>
+                                <li> An employee is eligible for Comp-Off only when he/she had worked for a full day on a week off / official holiday. However, employee will be eligible for Comp-Off only if He/She works on a Week off/ Offical Holiday on the Request of Concerned HOD </li>
+                                <li>Comp-Off may used along with reqular week off or Casual Leave only.</li>
+                            </ol>
+                        </p>
+
+                        <img src="~/Images/Help/Leave/EditDutyRostr.jpg" class="img-responsive" />
+
+
+                        <h4 class="card-title m-t-40" id="7">7. Manage</h4>
+                        <p>If you Hod of department , At Menu option you will see Manage menu click it.</p>
+                        <p> It will show Four options shown below.</p>
+                        <ol>
+                            <li>Employee</li>
+                            <li>Available Leave Count</li>
+                            <li>Employee Leave</li>
+                            <li>Employee Permissiom</li>
+                        </ol>
+                        <img src="~/Images/Help/Manage/mange.png" class="img-responsive" />
+
+                        <h4 class="card-title m-t-40" id="8">8. Employee List</h4>
+                        <p> Here display all Employee List of perticular Deparment</p>
+                        <img src="~/Images/Help/Manage/Employeelist.png" class="img-responsive" />
+
+                        <h4 class="card-title m-t-40" id="9">9. Employee Leave Count</h4>
+                        <p>Here display all Employee Available Leave Balanace.</p>
+                        <img src="~/Images/Help/Manage/Available_emp_count.png" class="img-responsive" />
+
+                        <h4 class="card-title m-t-40" id="10">10. Employee Leave</h4>
+                        <p>Here display all Employee Leave Applied list.</p>
+                        <img src="~/Images/Help/Manage/Emp_leave.png" class="img-responsive" />
+
+                        <h4 class="card-title m-t-40" id="11">11. Employee Permission</h4>
+                        <p>Here HOD can See Applied Permission Employee List</p>
+                        <img src="~/Images/Help/Manage/Emp_permission.png" class="img-responsive" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        </div>
+
+    </div>
+

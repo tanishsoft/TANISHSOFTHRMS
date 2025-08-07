@@ -1,0 +1,209 @@
+﻿
+@{
+    ViewBag.Title = "NewCourse";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+</style>
+<script src="~/Scripts/jSignature.min.js"></script>
+<!--[if lt IE 9]>
+<script  type="text/javascript" src="~/Scripts/flashcanvas.js"></script>
+    <![endif]-->
+<script>
+    var validate;
+    var eId = 0;
+
+
+    $(document).ready(function () {
+        LoadDataDepartment();
+        LoadLocations();
+        $('.datetotext').datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            minDate: "-100",
+            yearRange: "-0:+100",
+        });
+    });
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Locations -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#LocationId").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function SaveRegister() {
+        ValidateDetails();
+        if (validate) {
+            var task = {
+                CourseId: eId,
+                LocationId: $("#LocationId").val(),
+                CourseCode: $("#selCource").val(),
+                CourseName: $("#CourseName").val(),
+                Description: $("#Description").val(),
+                DateOfCourse: $("#DateOfCourse").val(),
+                Status: $("#ddlselectdepartment").val(),
+                IsActive: true,
+                Remarks: $("#txtRemarks").val()
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Learning/SaveNewCourse",
+                data: task,
+                success: function (data) {
+                    alert(data);
+                    clearAll();
+                }
+            });
+        } else {
+            alert("Please enter all the required fields");
+        }
+    }
+    function ValidateDetails() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+
+        if ($("#LocationId").val() == "") {
+            $("#LocationId").addClass('css-error');
+            validate = false;
+        }
+        if ($("#CourseCode").val() == "") {
+            $("#CourseCode").addClass('css-error');
+            validate = false;
+        }
+        if ($("#CourseName").val() == "") {
+            $("#CourseName").addClass('css-error');
+            validate = false;
+        }
+    }
+    function clearAll() {
+        window.location.href = "/Learning/ManageCourse";
+    }
+    function LoadDataDepartment() {
+
+        $.get("/Hospital/GetTrainingDepartmentsToBind", function (data) {
+            var options = [];
+            options.push('<option value="">- Select -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i] + '">' + data[i] + '</option>');
+            }
+            $("#ddlselectdepartment").html(options.join(''));
+        });
+    }
+    function LoadCourceByDepartment() {
+        $.get("/Learning/GetCourcesSearch?dept=" + $("#ddlselectdepartment").val() + "&searchTerm=", function (data) {
+            var options = [];
+            options.push('<option value="">- Select -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].text + '">' + data[i].text + '</option>');
+            }
+            $("#selCource").html(options.join(''));
+        });
+
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading" style="height:35px;"><a href="~/Learning/ManageCourse">Go Back</a> &nbsp;&nbsp;New Training </div>
+    <div class="panel-body">
+        <div class="modal-body">
+            <div class="row">
+                <div class="col-md-3">
+
+                </div>
+                <div class="col-md-6">
+                    <div class="row">
+                        <div class="col-md-4">Select Department</div>
+                        <div class="col-md-6">
+                            <select id="ddlselectdepartment" class="form-control  border-primary" name="query" onchange="LoadCourceByDepartment();">
+                                <option value=""></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:10px;">
+                        <div class="col-md-4">Select Cource</div>
+                        <div class="col-md-6">
+                            <select id="selCource" class="form-control typeahead border-primary" name="query"
+                                    data-provide="typeahead" autocomplete="off" onchange="OnchangeCource();">
+                                <option>Select</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Location<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-6">
+                            <select id="LocationId" class="form-control">
+                                <option value="">Select</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Topic <span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" id="CourseName" autocomplete="off" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="row" style="padding:5px;">
+
+                        <div class="col-md-4">
+                            <label for="name">Trainer<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" id="Description" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Date Of Training<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" id="DateOfCourse" readonly="readonly" autocomplete="off" class="form-control datetotext" />
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Remarks</label>
+                        </div>
+                        <div class="col-md-6">
+                            <textarea rows="2" id="txtRemarks" class="form-control"></textarea>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+
+                        </div>
+                        <div class="col-md-4">
+                            <input type="button" id="btnasigntask" value="Save" onclick="SaveRegister();" class="btn btn-primary" />
+                            <button type="button" class="btn btn-default" onclick="clearAll();">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+
+                </div>
+            </div>
+        
+        </div>
+       
+    </div>
+</div>

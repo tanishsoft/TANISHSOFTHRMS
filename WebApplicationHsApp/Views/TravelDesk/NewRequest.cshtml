@@ -1,0 +1,720 @@
+﻿
+@{
+    ViewBag.Title = "NewRequest";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+        //datepicker
+        $("#txtdateofjourney").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-80:+50",
+            Edit: true,
+            //  minDate: 0,
+            onSelect: function (dateText, inst) {
+                $("#txtdateofreturnjourney").datepicker("option", "minDate",
+                    $("#txtdateofjourney").datepicker("getDate"));
+            }
+
+        });
+        $("#txtdateofreturnjourney").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-80:+50",
+            Edit: true
+        });
+        $("#txtDateofBirth").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-80:+0"
+        });
+
+        $(".normaldate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-80:+50",
+            Edit: true
+        });
+    });
+
+    function validatedetails() {
+        var validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#txtEventStartDate").val() == "") {
+            $("#txtEventStartDate").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtEventEndDate").val() == "") {
+            $("#txtEventEndDate").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtNameOftheConferece").val() == "") {
+            $("#txtNameOftheConferece").addClass('css-error');
+            validate = false;
+        }
+
+        if ($("#txtPlaceFrom").val() == "") {
+            $("#txtPlaceFrom").addClass('css-error');
+            validate = false;
+        } 
+        if ($("#txtPlaceTo").val() == "") {
+            $("#txtPlaceTo").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtdateofjourney").val() == "") {
+            $("#txtdateofjourney").addClass('css-error');
+            validate = false;
+        }
+        
+        return validate;
+    }
+    function SaveTravelDeskDetails() {
+
+        var valid = validatedetails();
+        if (valid) {
+
+
+            if (window.FormData !== undefined) {
+                var Fileslist = []; var files = "";
+                // Create FormData object
+                var fileData = new FormData();
+                var fileUpload = $("#documnet").get(0);
+                files = fileUpload.files;
+
+                //  if (files.length != 0) {
+                fileData.append("UploadDocument", files[0]);
+
+                //fileUpload = $("#TSMCcertificate").get(0);
+                //files = fileUpload.files;
+
+                ////  if (files.length != 0) {
+                //fileData.append("TSMCcertificate", files[0]);
+
+
+                //fileUpload = $("#documnetAadharcard").get(0);
+                //files = fileUpload.files;
+
+                ////  if (files.length != 0) {
+                //fileData.append("documnetAadharcard", files[0]);
+
+
+                fileData.append('DocumentName', $("#documnetName").val());
+                fileData.append('EmpId', $("#txtempId").val());
+                fileData.append('EmpName', $("#txtempname").val());
+                fileData.append('MailId', $("#txtMailId").val());
+                fileData.append('Designation', $("#txtDesignation").val());
+
+                fileData.append('DateOfBirth', $("#txtDateofBirth").val());
+                fileData.append('Mobile', $("#txtPhoneNumber").val());
+
+
+                fileData.append('TravelCategory', $("#ddlTravelSubCategory").val());
+                fileData.append('TravelSubCategory', "");
+                fileData.append('NameOfConference', $("#txtNameOftheConferece").val());
+                fileData.append('Detailsoftheparticipation', $("#txtDetailsoftheparticipation").val());
+
+                fileData.append('ModeOfTravel', $("#ddlModeOfTravel").val());
+                fileData.append('Accommodation', $("input[name='Accommodation']:checked").val());
+
+                fileData.append('EmployeeCategory', $("#ddlEmpCategory").val());
+                fileData.append('DateOfJourney', $("#txtdateofjourney").val());
+                fileData.append('EventStartDate', $("#txtEventStartDate").val());
+                fileData.append('EventEndDate', $("#txtEventEndDate").val());
+                fileData.append('PlaceFrom', $("#txtPlaceFrom").val());
+                fileData.append('PlaceTo', $("#txtPlaceTo").val());
+                fileData.append('DateOfReturnJourney', $("#txtdateofreturnjourney").val());
+                fileData.append('ReturnPlaceFrom', $("#txtPlaceReturnFrom").val());
+                fileData.append('ReturnPlaceTo', $("#txtPlaceReturnTo").val());
+                fileData.append('RegistrationNeeded', $("input[name='RegistrationNeeded']:checked").val());
+
+                fileData.append('IfRegistrationNeededDetails', $("#RegistrationNeededlink").val());
+                fileData.append('ReimbursementByConference', $("input[name='Reimbursement']:checked").val());
+
+                var valuecheck = "";
+                if ($("#CbFlightTickets").prop("checked")) {
+                    valuecheck += "Flight Tickets";
+                }
+                if ($("#CbAccommodation").prop("checked")) {
+                    valuecheck += "Accommodation";
+                }
+                if ($("#CbCabCharges").prop("checked")) {
+                    valuecheck += "Cab Charges";
+                }
+                if ($("#CbRegistrationFee").prop("checked")) {
+                    valuecheck += "Registration Fee";
+                }
+                //IfReimbursementByConference
+                fileData.append('IfReimbursementByConference', valuecheck);
+                fileData.append('SponsoredBy', $("#ddlSponsoredby").val());
+                fileData.append('SpecialNote', "");
+                fileData.append('HODName', $("#txtHodName").val());
+                fileData.append('HODEmpid', $("#txtHodEmpid").val());
+                fileData.append('HODEMail', $("#txtHodEmailId").val());
+                fileData.append('InvitedAs', $("#txtInvitedDetails").val());
+                fileData.append('AccommodationNote', $("#txtAccommodationNote").val());
+                fileData.append('VenuDetails', $("#txtVenuDetails").val());
+                fileData.append('PurposeOfTrip', $("#ddlTravelSubCategory").val());
+                fileData.append('OnwardTime', $("#txtPlaceTime").val());
+                fileData.append('ReturnTime', $("#txtPlaceReturnTime").val());
+                fileData.append('TSMCNO', $("#txtTsmcNo").val());
+
+
+
+
+                fileData.append('ItemDetails', "");
+                $.ajax({
+                    type: "POST",
+                    url: "/TravelDesk/SaveTravelDesk",
+                    contentType: false,
+                    processData: false,
+                    data: fileData,
+                    success: function (data) {
+                        alert(data);
+                        window.location.reload();
+                    },
+                    error: function (err) {
+                        alert(err.statusText);
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        } else {
+            alert("Enter all the required details");
+        }
+    }
+
+    function displaytextbox() {
+        var value = $("#ddlTravelCategory").val();
+        if (value == "Official") {
+            $(".displaytravelcategory").css("display", "table-cell");
+        } else {
+            $(".displaytravelcategory").css("display", "none");
+        }
+    }
+    function inputvalidation(selector, Text) {
+
+        var validate = true;
+        if ($("#" + selector).val() == "") {
+            $("#" + selector).after('<span class="error" style="color:Red;">' + Text + '</span>');
+            $("#" + selector).addClass('css-error');
+            validate = false;
+        }
+        return validate;
+    }
+    function BindSubCategoryName() {
+        $(".categoryName").html($("#ddlTravelSubCategory").val());
+    }
+    function onChangeRadio() {
+        $("#txtempname").val("");
+        $("#txtDesignation").val("");
+        $("#txtMailId").val("");
+        $("#txtPhoneNumber").val("");
+        $("#txtDateofBirth").val("");
+        
+        $.get("/NewUserRequest/GetEmployeeDetails", {
+            empid: $("#txtempId").val(),
+            reqtype: "Other"
+        }, function (data) {
+            if (data != null && data != "") {
+                findReportingManager(data.ReportingManagerId);
+                $("#txtempname").val(data.FirstName);
+                $("#txtDesignation").val(data.Designation);
+                $("#txtMailId").val(data.EmailId);
+                $("#txtPhoneNumber").val(data.PhoneNumber);
+                $("#txtDateofBirth").val(convertDateFormat(data.DateOfBirth));
+            } else {
+                $("#txtempNo").val("");
+            }
+        });
+    }
+    function convertDateFormat(dateStr) {
+        const [year, month, day] = dateStr.split('-');
+        return `${day}/${month}/${year}`;
+    }
+    function findReportingManager(ReportingManagerId) {
+        
+        $.get("/NewUserRequest/GetEmployeeDetails", {
+            empid: ReportingManagerId,
+            reqtype: "Other"
+        }, function (data) {
+            if (data != null && data != "") {
+                $("#txtHodEmpid").val(ReportingManagerId);
+                $("#txtHodName").val(data.FirstName);
+                $("#txtHodEmailId").val(data.EmailId);
+            }
+        });
+    }
+    function formatDate(date) {
+     
+        var day = date.getDate();
+        var month = date.getMonth() + 1; 
+        var year = date.getFullYear();
+
+        day = day < 10 ? '0' + day : day;
+        month = month < 10 ? '0' + month : month;
+
+        return day + '/' + month + '/' + year;
+    }
+    function parseDate(dateString) {
+        var timestamp = parseInt(dateString.match(/\d+/)[0]); 
+        var date = new Date(timestamp);
+
+        return date;
+    }
+
+</script>
+<style>
+    .CpxNewRequest {
+        font-size: 15px;
+    }
+
+    label {
+        color: darkgreen;
+    }
+</style>
+@{
+    string DateOfBirth = "";
+    if (ViewBag.CurrentUser.DateOfBirth != null)
+    {
+        try
+        {
+            DateOfBirth = ViewBag.CurrentUser.DateOfBirth.ToString("dd/MM/yyyy");
+        }
+        catch { }
+    }
+}
+<div class="panel panel-default" style="width:80%;margin:auto;">
+    <div class="panel-heading" style="background: #FEC20E;color:white; font-weight:normal;">
+        <span class="glyphicon glyphicon-arrow-right"></span>&nbsp;New Request
+    </div>
+    <div class="panel-body CpxNewRequest" style="min-height:500px;">
+        <div class="row" style="width:95%;margin:auto;">
+
+            <div class="col-md-12">
+                <div class="block" style="height:auto; margin-bottom:5px;">
+                    <h2 style="text-transform:none;">Basic Details</h2>
+                    <div class="block-middle values" style="min-height:75px;">
+                        <table class="table table-stribbed">
+
+                            <tr>
+                                <td>
+                                    <label>Emp ID<label class="text-danger">*</label> </label>
+                                </td>
+                                <td>
+                                    <input type="text" name="name" id="txtempId" onchange="onChangeRadio();"  autocomplete="off" class="form-control" value="@ViewBag.CurrentUser.EmpId" />
+                                </td>
+                                <td>&nbsp;</td>
+                                <td>
+                                    <label>Name as per Aadhar<label class="text-danger">*</label></label>
+                                </td>
+                                <td>
+                                    <input type="text" name="name" id="txtempname" autocomplete="off" class="form-control" value="@ViewBag.CurrentUser.FirstName" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Mail ID</label>
+                                </td>
+                                <td>
+                                    <input type="text" name="name" id="txtMailId" autocomplete="off" class="form-control" value="@ViewBag.CurrentUser.EmailId" />
+                                </td>
+                                <td>&nbsp;</td>
+                                <td>
+                                    <label>Designation<label class="text-danger">*</label></label>
+                                </td>
+                                <td>
+                                    <input type="text" name="name" id="txtDesignation" autocomplete="off" class="form-control" value="@ViewBag.CurrentUser.Designation" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Date Of Birth</label>
+                                </td>
+                                <td>
+                                    <input type="text" name="name"  autocomplete="off" id="txtDateofBirth" class="form-control" value="@DateOfBirth" />
+                                </td>
+                                <td>&nbsp;</td>
+                                <td>
+                                    <label>Mobile<label class="text-danger">*</label></label>
+                                </td>
+                                <td>
+                                    <input type="text" name="name" id="txtPhoneNumber" autocomplete="off" class="form-control" value="@ViewBag.CurrentUser.PhoneNumber" />
+                                </td>
+                            </tr>
+                            <tr>
+
+                                <td>
+                                    <label>
+                                        Employee Category
+                                    </label>
+                                </td>
+                                <td>
+                                    <select class="form-control" id="ddlEmpCategory">
+                                        <option value="">Select</option>
+                                        <option value="Managing Director">Managing Director</option>
+                                        <option value="CEO">CEO</option>
+                                        <option value="Director and Senior Consultant">Director and Senior Consultant</option>
+                                        <option value="Consultant">Consultant</option>
+                                        <option value="HOD and Manager">HOD and Manager</option>
+                                        <option value="Senior Manager">Senior Manager</option>
+                                        <option value="Asst Manager and Below">Asst Manager and Below</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    &nbsp;
+                                </td>
+                                <td class="displaytravelcategory">
+                                    <label>Purpose of trip</label>
+                                </td>
+                                <td class="displaytravelcategory">
+                                    <select class="form-control" id="ddlTravelSubCategory" onchange="BindSubCategoryName()">
+                                        <option value="">Select</option>
+                                        <option value="Conference">Conference</option>
+                                        <option value="Meeting">Meeting</option>
+                                        <option value="Workshop">Workshop</option>
+                                        <option value="Others">Others</option>
+                                    </select>
+                                    @*<input type="text" autocomplete="off" name="OtherProjectTitle" id="txtOtherCPXProjectTitle" style="display:none;" class="form-control" required />*@
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="display:none;">
+                                    <label>Purpose of trip<label class="text-danger">*</label></label>
+                                </td>
+                                <td style="display:none;">
+                                    <select class="form-control" id="ddlTravelCategory" disabled onchange="displaytextbox();">
+                                        <option value="">Select</option>
+                                        <option value="Official" selected>Official</option>
+                                        <option value="Personal">Personal</option>
+                                    </select>
+
+                                </td>
+
+
+
+
+                                <td>
+                                    <label>
+                                        Mode Of Travel
+                                    </label>
+                                </td>
+                                <td>
+                                    <select class="form-control" id="ddlModeOfTravel">
+                                        <option value="">Select</option>
+                                        <option value="Air-Economy">Air(Economy)</option>
+                                        <option value="Bus" disabled style="color:red;">Bus</option>
+                                        <option value="Bus-Ordinary Deluxe">Bus-Ordinary Deluxe</option>
+                                        <option value="Bus-Ordinary Hitech">Bus-Ordinary Hitech</option>
+                                        <option value="Bus- AC Coach">Bus- AC Coach</option>
+                                        <option value="Bus- Sleeper">Bus- Sleeper</option>
+                                        <option value="Train" disabled style="color:red;">Train</option>
+
+                                        <option value="Train-AC First Class">Train-AC First Class</option>
+                                        <option value="Train-AC 2 Tier">Train-AC 2 Tier</option>
+                                        <option value="Train-AC 3 Tier">Train-AC 3 Tier</option>
+                                        <option value="Train-AC Chair Class">Train-AC Chair Class</option>
+                                        <option value="Train-First Class">Train-First Class</option>
+                                        <option value="Train-Sleeper">Train-Sleeper</option>
+                                        <option value="Train-TATKAL">Train-TATKAL</option>
+                                        <option value="Car">Car</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    &nbsp;
+                                </td>
+                                <td style="display:none;">Sponsored By: </td>
+                                <td style="display:none;">
+                                    <select id="ddlSponsoredby" class="form-control">
+                                        <option value="">Select</option>
+                                        <option value="FF">FF</option>
+                                        <option value="FHERF">FHERF</option>
+                                        <option value="UNICEF">UNICEF</option>
+                                        <option value="Others">Others</option>
+                                    </select>
+                                </td>
+                            </tr>
+
+                        </table>
+                    </div>
+                </div>
+
+                <div class="block" style="height:auto; margin-bottom:5px;">
+                    <h2 style="text-transform:none;">Event Details:</h2>
+                    <div class="block-middle values" style="min-height:75px;">
+                        <table class="table table-stribbed">
+
+                            <tr>
+                                <td>
+                                    <label> Start date <label class="text-danger">*</label>  </label>
+                                </td>
+                                <td>
+                                    <input type="text" readonly="readonly" class="form-control normaldate" autocomplete="off" id="txtEventStartDate" />
+                                </td>
+                                <td>
+                                    &nbsp;
+                                </td>
+                                <td>
+                                    <label> End Date<label class="text-danger">*</label> </label>
+                                </td>
+                                <td>
+                                    <input type="text"  readonly="readonly" class="form-control normaldate" autocomplete="off" id="txtEventEndDate" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Venue details </label>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control" autocomplete="off" id="txtVenuDetails" />
+                                </td>
+                                <td>
+                                    &nbsp;
+                                </td>
+                                <td>
+                                    <label>
+                                        Name Of the <label class="categoryName"></label><label class="text-danger">*</label>
+                                    </label>
+                                </td>
+                                <td>
+                                    <input type="text" id="txtNameOftheConferece" autocomplete="off" name="NewItemDescription" rows="4" rel="7" class="form-control" />
+                                </td>
+
+                            </tr>
+
+                            <tr>
+
+
+                                <td>
+                                    <label>Details of the participation/<br />representation <label class="text-danger">*</label></label>
+                                </td>
+                                <td>
+                                    <textarea id="txtDetailsoftheparticipation" class="form-control"></textarea>
+                                </td>
+                                <td>
+                                    &nbsp;
+                                </td>
+                                <td>
+                                    <label>
+                                        Invited as
+                                    </label>
+                                </td>
+                                <td>
+                                    <select class="form-control" id="txtInvitedDetails">
+                                        <option value="">Select</option>
+                                        <option value="Faculty">Faculty</option>
+                                        <option value="Delegate">Delegate</option>
+                                        <option value="Others">Others</option>
+                                    </select>
+
+                                </td>
+
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>If invited as faculty, please attach the invitation</label>
+                                </td>
+                                <td>
+                                    <input type="file" name="document" id="documnet" class="form-control" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Registration Needed<label class="text-danger">*</label></label>
+                                </td>
+                                <td>
+                                    <input type="radio" name="RegistrationNeeded" value="Yes" id="txtRegistrationNeededYes" />&nbsp;Yes &nbsp;&nbsp;<input type="radio" value="No" name="RegistrationNeeded" id="txtRegistrationNeededNo" />&nbsp;No
+
+                                </td>
+                                <td>&nbsp;</td>
+                                <td>
+                                    <label>If Yes: Please provide the link</label>
+                                </td>
+                                <td>
+                                    <input type="text" id="RegistrationNeededlink" autocomplete="off" class="form-control" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>TSMC No.(Only for Dr's)</label>
+                                </td>
+                                <td>
+                                    <input type="text" id="txtTsmcNo" autocomplete="off" class="form-control" />
+                                </td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                                <td>&nbsp;</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+
+                <div class="block" style="height:auto; margin-bottom:5px;">
+                    <h2 style="text-transform:none;">Travel Booking Details:</h2>
+                    <div class="block-middle values" style="min-height:75px;">
+                        <table class="table table-stribbed">
+                            <tr>
+
+                                <td><b>Onward</b></td>
+                                <td>
+                                    <label> From<label class="text-danger">*</label> :</label>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control" autocomplete="off" id="txtPlaceFrom" />
+                                </td>
+                                <td>
+                                    <label>To<label class="text-danger">*</label> : </label>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control" autocomplete="off" id="txtPlaceTo" />
+                                </td>
+                                <td>
+                                    <label>Date : </label>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control" readonly="readonly" autocomplete="off" id="txtdateofjourney" />
+                                </td>
+                                <td>
+                                    <label>Depature Time: </label>
+                                </td>
+                                <td>
+                                    <input type="time" class="form-control" autocomplete="off" id="txtPlaceTime" />
+                                </td>
+
+                            </tr>
+                            <tr>
+
+                                <td><b>Return</b></td>
+                                <td>
+                                    <label> From<label class="text-danger">*</label> :</label>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control" autocomplete="off" id="txtPlaceReturnFrom" />
+                                </td>
+                                <td>
+                                    <label>To<label class="text-danger">*</label> : </label>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control" autocomplete="off" id="txtPlaceReturnTo" />
+                                </td>
+                                <td>
+                                    <label>Date : </label>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control"  readonly="readonly" autocomplete="off" id="txtdateofreturnjourney" />
+                                </td>
+                                <td>
+                                    <label>Depature Time: </label>
+                                </td>
+                                <td>
+                                    <input type="time" class="form-control" autocomplete="off" id="txtPlaceReturnTime" />
+                                </td>
+
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="block" style="height:auto; margin-bottom:5px;">
+                    <h2 style="text-transform:none;">Accommodation Details:</h2>
+                    <div class="block-middle values" style="min-height:75px;">
+                        <table class="table table-stribbed">
+                            <tr>
+
+
+
+                                <td>
+                                    <label>Accommodation<label class="text-danger">*</label></label>
+                                </td>
+                                <td>
+                                    <input type="radio" name="Accommodation" value="true" id="txtCPXBudgetedYes" />&nbsp;Yes &nbsp;&nbsp;<input type="radio" value="false" name="Accommodation" id="txtCPXBudgetedNo" />&nbsp;No
+                                </td>
+
+                                <td>
+                                    &nbsp;
+                                </td>
+                                <td>
+                                    <label>Accommodation Note (any specific hotel) </label>
+                                </td>
+                                <td>
+                                    <textarea id="txtAccommodationNote" class="form-control"></textarea>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="block" style="height:auto; margin-bottom:5px;">
+                    <h2 style="text-transform:none;">Reimbursement details:</h2>
+                    <div class="block-middle values" style="min-height:75px;">
+                        <table class="table table-stribbed">
+
+                            <tr>
+                                <td>
+                                    <label>Reimbursement By Conference/ Workshop Organisers<label class="text-danger">*</label></label>
+                                </td>
+                                <td>
+                                    <input type="radio" name="Reimbursement" value="Yes" id="txtReimbursementYes" />&nbsp;Yes &nbsp;&nbsp;<input type="radio" value="No" name="Reimbursement" id="txtReimbursementNo" />&nbsp;No
+
+                                </td>
+                                <td>&nbsp;</td>
+                                <td>
+                                    <label>If&nbsp;Yes:</label>
+                                </td>
+                                <td>
+                                    <input type="checkbox" id="CbFlightTickets" />Flight Tickets&nbsp;&nbsp;
+                                    <input type="checkbox" id="CbAccommodation" />Accommodation&nbsp;&nbsp;<br />
+                                    <input type="checkbox" id="CbCabCharges" />Cab Charges&nbsp;&nbsp;
+                                    <input type="checkbox" id="CbRegistrationFee" />Registration Fee
+                                </td>
+                            </tr>
+
+                        </table>
+                    </div>
+                </div>
+
+                <div class="block" style="height:auto; margin-bottom:5px;">
+                    <h2 style="text-transform:none;">HOD/Approver details:</h2>
+                    <div class="block-middle values" style="min-height:75px;">
+                        <table class="table table-stribbed">
+                            <tr>
+                                <td>
+                                    <label>Hod Name<label class="text-danger">*</label></label>
+                                </td>
+                                <td>
+                                    <input autocomplete="off" type="text" name="HodName" id="txtHodName" value="@ViewBag.HodName" class="form-control" rel="6" />
+                                    <input autocomplete="off" type="hidden" name="HodEmpid" id="txtHodEmpid" value="@ViewBag.HodEmpId" class="form-control" rel="6" />
+                                </td>
+                                <td>
+                                    &nbsp;
+                                </td>
+                                <td>
+                                    <label>HOD Mail Id<label class="text-danger">*</label></label>
+                                </td>
+                                <td>
+                                    <input autocomplete="off" type="text" name="HodEmailId" id="txtHodEmailId" value="@ViewBag.HodEmailId" required class="form-control" />
+                                </td>
+                            </tr>
+
+
+
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <br />
+            <div class="form-group col-md-6">
+                <br />
+                <button type="button" class="btn save" onclick="SaveTravelDeskDetails();">SAVE</button>
+
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+<br />

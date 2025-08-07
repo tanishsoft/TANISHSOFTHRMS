@@ -1,0 +1,796 @@
+﻿
+@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .image {
+        transition: .5s ease;
+        backface-visibility: hidden;
+    }
+
+    .middle {
+        transition: .5s ease;
+        opacity: 0;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+        text-align: center;
+    }
+
+    .divcontainer:hover .image {
+        opacity: 0.3;
+    }
+
+    .divcontainer:hover .middle {
+        opacity: 1;
+    }
+
+    .text {
+        background-color: #4CAF50;
+        color: white;
+        font-size: 16px;
+        padding: 16px 32px;
+        cursor: pointer;
+    }
+
+    .card {
+        margin-bottom: 1.875rem;
+        border: none;
+        border-radius: 0;
+        -webkit-box-shadow: 0 10px 40px 0 rgba(62,57,107,.07),0 2px 9px 0 rgba(62,57,107,.06);
+        box-shadow: 0 10px 40px 0 rgba(62,57,107,.07),0 2px 9px 0 rgba(62,57,107,.06)
+    }
+
+        .card .card {
+            -webkit-box-shadow: none !important;
+            box-shadow: none !important
+        }
+
+        .card .card-title {
+            font-weight: 500;
+            letter-spacing: .05rem;
+            font-size: 1.12rem
+        }
+
+        .card .card-bordered {
+            border: 1px solid rgba(0,0,0,.06)
+        }
+
+        .card.card-fullscreen {
+            display: block;
+            z-index: 9999;
+            position: fixed;
+            width: 100% !important;
+            height: 100% !important;
+            top: 0;
+            right: 0;
+            left: 0;
+            bottom: 0;
+            overflow: auto
+        }
+
+        .card .card-body[class*=border-bottom-] {
+            border-bottom-width: 2px !important
+        }
+
+        .card .card-img-overlay.bg-overlay {
+            background: rgba(0,0,0,.45)
+        }
+
+        .card .card-img-overlay .text-muted {
+            color: #1B2942 !important
+        }
+
+        .card.card-minimal {
+            border: none;
+            -webkit-box-shadow: none;
+            box-shadow: none
+        }
+
+    .card-body {
+        -webkit-box-flex: 1;
+        -webkit-flex: 1 1 auto;
+        -moz-box-flex: 1;
+        -ms-flex: 1 1 auto;
+        flex: 1 1 auto;
+        padding: 1.5rem;
+    }
+
+    .table-responsive {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .card-moved .card, .card-moved .card-header {
+        background-color: #FFA87D;
+        color: #FFF
+    }
+
+    .handle, .titleArea {
+        cursor: move
+    }
+
+    .card-header {
+        border-bottom: none
+    }
+
+        .card-header .card-title {
+            margin-bottom: 0
+        }
+
+        .card-header .heading-elements, .card-header .heading-elements-toggle {
+            background-color: inherit;
+            position: absolute;
+            top: 20px;
+            right: 21px
+        }
+
+            .card-header .heading-elements-toggle.heading-top-elements .page-item, .card-header .heading-elements.heading-top-elements .page-item {
+                display: inline-block
+            }
+
+            .card-header .heading-elements a, .card-header .heading-elements-toggle a {
+                padding: 0 8px
+            }
+
+                .card-header .heading-elements a.btn, .card-header .heading-elements-toggle a.btn {
+                    padding-top: 6px;
+                    padding-bottom: 6px
+                }
+
+    .card-footer {
+        border-top: 1px solid #EEE
+    }
+
+    .media {
+        display: flex;
+        -webkit-box-align: start;
+        -webkit-align-items: flex-start;
+        -moz-box-align: start;
+        -ms-flex-align: start;
+        align-items: flex-start
+    }
+
+    .media-body {
+        -webkit-box-flex: 1;
+        -webkit-flex: 1;
+        -moz-box-flex: 1;
+        -ms-flex: 1;
+        flex: 1;
+    }
+
+    .align-items-stretch {
+        -webkit-box-align: stretch !important;
+        -webkit-align-items: stretch !important;
+        -moz-box-align: stretch !important;
+        -ms-flex-align: stretch !important;
+        align-items: stretch !important;
+    }
+
+    .white {
+        color: #FFF !important;
+    }
+
+    .bg-primary {
+        background-color: #00B5B8 !important;
+    }
+
+        .bg-primary.bg-darken-2, .btn-primary.btn-darken-2 {
+            background-color: #008385 !important;
+        }
+
+    .bg-danger.bg-darken-2, .btn-danger.btn-darken-2 {
+        background-color: #FF425C !important;
+    }
+
+    .bg-warning.bg-darken-2, .btn-warning.btn-darken-2 {
+        background-color: #FF864A !important;
+    }
+
+    .bg-success.bg-darken-2, .btn-success.btn-darken-2 {
+        background-color: #11A578 !important;
+    }
+
+    .text-center {
+        text-align: center !important;
+    }
+
+    .p-2 {
+        padding: 1.5rem !important;
+    }
+
+    .font-large-2 {
+        font-size: 5rem !important;
+    }
+
+    .bg-gradient-x-primary {
+        background-image: -webkit-gradient(linear,left top,right top,from(#008385),to(#00E7EB));
+        background-image: -webkit-linear-gradient(left,#008385 0,#00E7EB 100%);
+        background-image: -moz-linear-gradient(left,#008385 0,#00E7EB 100%);
+        background-image: -o-linear-gradient(left,#008385 0,#00E7EB 100%);
+        background-image: linear-gradient(to right,#008385 0,#00E7EB 100%);
+        background-repeat: repeat-x;
+    }
+
+    .h5, h5 {
+        font-size: 1.74rem;
+    }
+
+    .text-bold-400 {
+        font-weight: 400;
+    }
+
+    .mb-0, .my-0 {
+        margin-bottom: 0 !important;
+    }
+
+    .primary {
+        color: #00B5B8 !important
+    }
+
+    .danger {
+        color: #FF7588 !important;
+    }
+
+    .bg-danger {
+        background-color: #FF7588 !important;
+    }
+
+    .success {
+        color: #16D39A !important;
+    }
+
+    .bg-success {
+        background-color: #16D39A !important;
+    }
+
+    .warning {
+        color: #FFA87D !important;
+    }
+
+    .bg-warning {
+        background-color: #FFA87D !important;
+    }
+
+    #container {
+        height: 400px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    /* Link the series colors to axis colors */
+    .highcharts-color-0 {
+        fill: #7cb5ec;
+        stroke: #7cb5ec;
+    }
+
+    .highcharts-axis.highcharts-color-0 .highcharts-axis-line {
+        stroke: #7cb5ec;
+    }
+
+    .highcharts-axis.highcharts-color-0 text {
+        fill: #7cb5ec;
+    }
+
+    .highcharts-color-1 {
+        fill: #90ed7d;
+        stroke: #90ed7d;
+    }
+
+    .highcharts-axis.highcharts-color-1 .highcharts-axis-line {
+        stroke: #90ed7d;
+    }
+
+    .highcharts-axis.highcharts-color-1 text {
+        fill: #90ed7d;
+    }
+
+
+    .highcharts-yaxis .highcharts-axis-line {
+        stroke-width: 2px;
+    }
+
+    .nav-pills li a {
+        color: white;
+    }
+
+        .nav-pills li a:hover {
+            color: black !important;
+        }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+        background-color: rgba(0,0,0,.2) !important;
+    }
+</style>
+<script>
+    $(function () {
+        LoadheadcountofDailyRounds();
+        LoadheadcountofBreakDown();
+        LoadheadcountofPMMonthWise();
+        LoadheadcountofPmbyEmployee();
+        LoadheadcountofBMbyEuipment();
+        
+    });
+    function LoadheadcountofBMbyEuipment() {
+        $.ajax({
+            type: "POST",
+            url: "/Biomedical/GetheadcountofBreakDownByEquipment",
+            //data: "id=",
+            success: function (data) {
+                debugger;
+                var locdata = new Array();
+                for (var i = 0; i < data.length; i++) {
+                    locdata.push({
+                        name: data[i].key,
+                        y: data[i].cnt,
+                        drilldown: true
+                    });
+                }
+                BindheadcountofBMbyEquipment(locdata);
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadheadcountofPmbyEmployee() {
+        $.ajax({
+            type: "POST",
+            url: "/Biomedical/GetheadcountofPMByEmployee",
+            //data: "id=",
+            success: function (data) {
+                debugger;
+                var locdata = new Array();
+                for (var i = 0; i < data.length; i++) {
+                    locdata.push({
+                        name: data[i].key,
+                        y: data[i].cnt,
+                        drilldown: true
+                    });
+                }
+                BindPmListbyEmployee(locdata);
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+
+    function LoadheadcountofDailyRounds() {
+        $.ajax({
+            type: "POST",
+            url: "/Biomedical/GetheadcountofDailyRoundByEmployees",
+            //data: "id=",
+            success: function (data) {
+                debugger;
+                var locdata = new Array();
+                for (var i = 0; i < data.length; i++) {
+                    locdata.push({
+                        name: data[i].key,
+                        y: data[i].cnt,
+                        drilldown: true
+                    });
+                }
+                BindheadcountofEmployeeforDailyRounds(locdata);
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+
+
+    function LoadheadcountofBreakDown() {
+        $.ajax({
+            type: "POST",
+            url: "/Biomedical/GetheadcountofBreakDownByEmployees",
+            //data: "id=",
+            success: function (data) {
+                debugger;
+                var locdata = new Array();
+                for (var i = 0; i < data.length; i++) {
+                    locdata.push({
+                        name: data[i].key,
+                        y: data[i].cnt,
+                        drilldown: true
+                    });
+                }
+                BindheadcountofEmployeeforBreakDown(locdata);
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadheadcountofPMMonthWise() {
+        $.ajax({
+            type: "POST",
+            url: "/Biomedical/GetheadcountofPMByMonth",
+            //data: "id=",
+            success: function (data) {
+                debugger;
+                var locdata = new Array();
+                for (var i = 0; i < data.length; i++) {
+                    locdata.push({
+                        name: data[i].key,
+                        y: data[i].cnt,
+                        drilldown: true
+                    });
+                }
+                BindCountMonthwisePM(locdata);
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+
+    function BindheadcountofEmployeeforDailyRounds(locations) {
+
+        $('#container4').highcharts({
+            chart: {
+                renderTo: 'lineChart',
+                //type: 'line',
+                //events: {
+
+                //},
+            },
+            title: {
+                text: 'Daily Rounds Head Count by Employee'
+            },
+            xAxis: {
+                type: 'category',
+            },
+
+            legend: {
+                enabled: false
+            },
+
+            plotOptions: {
+                series: {
+                    visible: true,
+                    dataLabels: {
+                        enabled: true,
+                        step: 'left'
+                    }
+                }
+            },
+
+            series: [{
+                name: 'Dalily Rounds Head Count',
+                colorByPoint: true,
+                lineWidth: 2,
+                connectNulls: true,
+                data: locations
+            }],
+        });
+
+
+
+    }
+    function BindheadcountofEmployeeforBreakDown(locations) {
+
+        $('#container5').highcharts({
+            chart: {
+                renderTo: 'lineChart',
+                //type: 'line',
+                //events: {
+
+                //},
+            },
+            title: {
+                text: 'BreakDown Head Count by Employee'
+            },
+            xAxis: {
+                type: 'category',
+            },
+
+            legend: {
+                enabled: false
+            },
+
+            plotOptions: {
+                series: {
+                    visible: true,
+                    dataLabels: {
+                        enabled: true,
+                        step: 'left'
+                    }
+                }
+            },
+
+            series: [{
+                name: 'BreakDown Head Count',
+                colorByPoint: true,
+                lineWidth: 2,
+                connectNulls: true,
+                data: locations
+            }],
+        });
+
+
+
+    }
+    function BindheadcountofBMbyEquipment(locations) {
+
+        $('#container6').highcharts({
+            chart: {
+                renderTo: 'lineChart',
+                //type: 'line',
+                //events: {
+
+                //},
+            },
+            title: {
+                text: 'BreakDown Head Count by Equipments'
+            },
+            xAxis: {
+                type: 'category',
+            },
+
+            legend: {
+                enabled: false
+            },
+
+            plotOptions: {
+                series: {
+                    visible: true,
+                    dataLabels: {
+                        enabled: true,
+                        step: 'left'
+                    }
+                }
+            },
+
+            series: [{
+                name: 'Break Down Head Count',
+                colorByPoint: true,
+                lineWidth: 2,
+                connectNulls: true,
+                data: locations
+            }],
+        });
+
+
+
+    }
+    function BindCountMonthwisePM(locations) {
+        $('#container').highcharts({
+            chart: {
+                type: 'column',
+                events: {
+                    drilldown: function (e) {
+                        if (!e.seriesOptions) {
+
+                            var chart = this;
+                            chart.showLoading('Simulating Ajax ...');
+                            // var series = GetseriesDepttomorrow(e.point.name, chart, e.point);
+                            // Show the loading label
+
+                        }
+                    }
+                }
+            },
+            title: {
+                text: 'Month wise PM'
+            },
+            xAxis: {
+                type: 'category'
+            },
+
+            legend: {
+                enabled: false
+            },
+
+            plotOptions: {
+                series: {
+                    borderWidth: 0,
+                    dataLabels: {
+                        enabled: true
+                    }
+                }
+            },
+
+            series: [{
+                name: 'Months',
+                colorByPoint: true,
+                data: locations
+            }],
+
+            drilldown: {
+                series: []
+            }
+        });
+    }
+
+    function BindPmListbyEmployee(locations) {
+
+        $('#container3').highcharts({
+            chart: {
+                type: 'column',
+                events: {
+                    drilldown: function (e) {
+                        if (!e.seriesOptions) {
+
+                            var chart = this;
+                            chart.showLoading('Simulating Ajax ...');
+                            // var series = GetseriesDepttomorrow(e.point.name, chart, e.point);
+                            // Show the loading label
+
+                        }
+                    }
+                }
+            },
+            title: {
+                text: 'Pm List By Employees'
+            },
+            xAxis: {
+                type: 'category'
+            },
+
+            legend: {
+                enabled: false
+            },
+
+            plotOptions: {
+                series: {
+                    borderWidth: 0,
+                    dataLabels: {
+                        enabled: true
+                    }
+                }
+            },
+
+            series: [{
+                name: 'PM',
+                colorByPoint: true,
+                data: locations
+            }],
+
+            drilldown: {
+                series: []
+            }
+        });
+    }
+</script>
+<div class="panel panel-default" id="myleaestableshow">
+    <div class="panel-heading" id="titleofpage">Dashboard</div>
+    <div class="panel-body">
+        <div id="partialDiv">
+            <div id="page-wrapper">
+                <div class="row">
+                    <div class="col-xl-3 col-lg-3 col-12">
+                        <div class="card">
+                            <div class="card-content">
+                                <div class="media align-items-stretch">
+                                    <div class="p-2 text-center bg-primary bg-darken-2">
+                                        <i class="glyphicon glyphicon-camera font-large-2 white"></i>
+                                    </div>
+                                    <div class="p-2 bg-gradient-x-primary white media-body">
+                                        <h5>Asset</h5>
+                                        <h5 class="text-bold-400 mb-0"><i class="glyphicon glyphicon-th-list"></i>&nbsp;@ViewBag.AssetCount</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-12">
+                        <div class="card">
+                            <div class="card-content">
+                                <div class="media align-items-stretch">
+                                    <div class="p-2 text-center bg-danger bg-darken-2">
+                                        <i class="glyphicon glyphicon-user font-large-2 white"></i>
+                                    </div>
+                                    <div class="p-2 bg-gradient-x-danger white media-body">
+                                        <h5>Total Registrations</h5>
+                                        <h5 class="text-bold-400 mb-0"><i class="glyphicon glyphicon-zoom-in"></i>&nbsp;100</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-12">
+                        <div class="card">
+                            <div class="card-content">
+                                <div class="media align-items-stretch">
+                                    <div class="p-2 text-center bg-warning bg-darken-2">
+                                        <i class="glyphicon glyphicon-shopping-cart font-large-2 white"></i>
+                                    </div>
+                                    <div class="p-2 bg-gradient-x-warning white media-body">
+                                        <h5>Total tranfer</h5>
+                                        <h5 class="text-bold-400 mb-0"><i class="glyphicon glyphicon-search"></i>&nbsp;10</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-12">
+                        <div class="card">
+                            <div class="card-content">
+                                <div class="media align-items-stretch">
+                                    <div class="p-2 text-center bg-success bg-darken-2">
+                                        <i class="glyphicon glyphicon-th font-large-2 white"></i>
+                                    </div>
+                                    <div class="p-2 bg-gradient-x-success white media-body">
+                                        <h5>Total Disposal</h5>
+                                        <h5 class="text-bold-400 mb-0"><i class="glyphicon glyphicon-bookmark"></i>&nbsp;10</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title"> Daily Round Head Count by Employees</h3>
+                            </div>
+                            <div class="panel-body" style="height:400px;">
+                                <div style="min-width: 310px; height: 400px; margin: 0 auto" id="container4">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title"> BreakDown Head Count by Employees</h3>
+                            </div>
+                            <div class="panel-body" style="height:400px;">
+                                <div style="min-width: 310px; height: 400px; margin: 0 auto" id="container5">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title"> BreakDown Head Count by Equipment</h3>
+                            </div>
+                            <div class="panel-body" style="height:400px;">
+                                <div style="min-width: 310px; height: 400px; margin: 0 auto" id="container6">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+              
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">Employee Wise Pm List</h3>
+                            </div>
+                            <div class="panel-body" style="height:400px;">
+                                <div style="min-width: 310px; height: 400px; margin: 0 auto" id="container3">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">PM Count by Month</h3>
+                            </div>
+                            <div class="panel-body">
+                                <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+

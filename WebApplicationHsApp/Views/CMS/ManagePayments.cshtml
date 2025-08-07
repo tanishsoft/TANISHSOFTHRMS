@@ -1,0 +1,290 @@
+﻿
+<script>
+    var validate = true;
+    var eId = 0;
+    $(document).ready(function () {
+        $('.error1').hide();
+        LoadData();
+        LoadCanteens();
+        EmployeeSearch();
+    });
+    function EmployeeSearch() {
+        $(".EmpId").select2({
+            ajax: {
+                url: "/Home/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+                data: function (params) {
+                    return {
+                        searchTerm: params.term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            width: 'element',
+            minimumInputLength: 3
+        });
+    }
+    function LoadCanteens() {
+        $.ajax({
+            type: "POST",
+            url: "/CMS/GetStore",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select  Canteen-</option>');
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].TypeOf == "Canteen") {
+                        options.push('<option value="' + data[i].StoreId + '">' + data[i].StoreName + '</option>');
+                    }
+                }
+                $("#ddlCanteen").html(options.join(''));
+            },
+            error: function () {
+                alert("error");
+            }
+        });
+    }
+    function LoadData() {
+        $('#tblCategory').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/CMS/AjaxGetPayment",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "PaymentId" },
+                { "sName": "PaymentDate" },
+                { "sName": "CanteenName" },
+                { "sName": "TotalAmount" },
+                { "sName": "ReceivedAmount" },
+                { "sName": "EmpId" },
+                { "sName": "Name" },
+                { "sName": "EmpId" },
+                { "sName": "Name" },
+                { "sName": "Remarks" },
+                {
+                    "sName": "PaymentId",
+                    "bSortable": false,
+                    "render": function (data, row, r) {
+                               var name = "'" + r[1] + "'";
+                               var des = "'" + r[2] + "'";
+                               var checked = "'" + r[4] + "'";
+                               //console.log(r);
+                               return '<div class="btn-group">' +
+                                   '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                                   '<ul class="dropdown-menu dropdown-menu-right">' +
+                                   '<li><a href="javascript:void(0);"  onclick="onEditPayment(' + data + ')">Edit</a></li>' +
+                                   '<li><a href="javascript:void(0);"  onclick="onDelete(' + data + ')">Delete</a></li>' +
+                                   '</ul></div>';
+                     }
+                }
+            ]
+        });
+        $("#tblCategory_length").addClass("col-md-6");
+        $("#tblCategory_length").addClass("col-md-6");
+    }
+    function OnclickSaveCategory() {
+        validateCategory();
+        if (validate) {
+            var task = {
+                CategoryId:eId,
+                CanteenId: $("#ddlCanteen").val(),
+                TotalAmount: $("#TotalAmount").val(),
+                ReceivedAmount: $("#ReceivedAmount").val(),
+                PaidByEmpId: $("#PaidEmpId").val(),
+                ReceivedByEmpId: $("#ReceivedEmpId").val(),
+                Remarks: $("#Remarks").val(),
+                IsActive: true
+            };
+            $.ajax({
+                type: "POST",
+                url: "/CMS/SavePayment",
+                data: task,
+                success: function (data) {
+                    $("#myModalCategoryType").modal('hide');
+                    //alert(data);
+                    clearAll();
+                    LoadData();
+                    console.log("category added successfully")
+                }
+            });
+        }
+    }
+    function validateCategory() {
+        validate = true;
+        setTimeout(function () { $('.error1').fadeOut('fast'); }, 5000);
+        $(".css-error").removeClass('css-error');
+        if ($("#ddlCanteen").val() == "") {
+            $("#ddlCanteen").addClass('css-error');
+            validate = false;
+        }
+        if ($("#TotalAmount").val() == "") {
+            $("#TotalAmount").addClass('css-error');
+            validate = false;
+        }
+        if ($("#ReceivedAmount").val() == "") {
+            $("#ReceivedAmount").addClass('css-error');
+            validate = false;
+        }
+        if ($("#PaidEmpId").val() == null) {
+            $('.error1').show();
+            $('.error1').text("Select Paid Employee");
+            validate = false;
+        }
+        else if ($("#ReceivedEmpId").val() == null) {
+            $('.error1').show();
+            $('.error1').text("Select Recived Employee");
+            validate = false;
+        }
+        else if ($("#PaidEmpId").val() == $("#ReceivedEmpId").val()) {
+            $('.error1').show();
+            $('.error1').text("Paid Employee and Received Employee should not be Same.");
+            validate = false;
+        }
+        if ($("#Remarks").val() == "") {
+            $("#Remarks").addClass('css-error');
+            validate = false;
+        }
+    }
+    function onEditPayment(id) {
+        eId = id;
+        $.get("/CMS/GetCMS_Payment_ById?id=" + id, function (res) {
+            debugger;
+            $("#PaidEmpId").select2("trigger", "select", { data: { id: res.model.PaidByEmpId, text: res.PaidEmp } });
+            $("#ReceivedEmpId").select2("trigger", "select", { data: { id: res.model.ReceivedByEmpId, text: res.ReceivedEmp } });
+            $("#ddlCanteen").val(res.model.CanteenId);
+            $("#TotalAmount").val(res.model.TotalAmount);
+            $("#ReceivedAmount").val(res.model.ReceivedAmount);
+            $("#Remarks").val(res.model.Remarks);
+            $("#myModalCategoryType").modal('show');
+            $("#header").text("Update");
+        });
+    }
+    function onDelete(id) {
+        if (confirm('Are you sure you want to delete?')) {
+            $.getJSON("@Url.Action("DeleteCMCategory", "CMS")", { id: id }, function (data) {
+                clearAll();
+                LoadData();
+            });
+        }
+        return false;
+    }
+    function onEdit(a, b, c) {
+        clearAll();
+        eId = b;
+        $("#Name").val(a);
+        $("#Description").val(c);
+        $("#myModalCategoryType").modal('show');
+        $("#header").text("Update");
+    }
+    function clearAll() {
+        $("#header").text("Add New");
+        $("#ddlCanteen").val("");
+        $("#TotalAmount").val("");
+        $("#ReceivedAmount").val("");
+        $("#PaidEmpId").select2("trigger", "select", { data: { id: "", text: "" } });
+        $("#ReceivedEmpId").select2("trigger", "select", { data: { id: "", text: "" } });
+      
+      
+        $("#Remarks").val("");
+        eId = 0;
+    }
+
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading"  style="height:35px;background: #FEC20E;"><a href="#" data-toggle="modal" class="pull-right" style="color:white;" data-target="#myModalCategoryType">New Payment</a></div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblCategory">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Payment Date</th>
+                    <th>Canteen</th>
+                    <th>Total Amount</th>
+                    <th>Received Amount</th>
+                    <th>Paid Emp Id</th>
+                    <th>Paid Emp Name</th>
+                    <th>Received Emp Id</th>
+                    <th>Received Emp Name</th>
+                    <th>Remarks</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="myModalCategoryType" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="clearAll();">×</button>
+                <h4 class="modal-title" id="header">Add New Payment</h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger error1" role="alert">
+
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="ddlCanteen">Canteen<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select id="ddlCanteen" class="form-control">
+                            <option value="">Select</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="TotalAmount">Total Amount<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="number" id="TotalAmount" class="form-control" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="ReceivedAmount">Received Amount<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="number" id="ReceivedAmount" class="form-control" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="PaidEmpId">Paid By<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select id="PaidEmpId" style="width: 280px;" class="form-control typeahead EmpId" name="query" data-provide="typeahead" autocomplete="off"></select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="ReceivedEmpId">Received By<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select id="ReceivedEmpId" style="width: 280px;" class="form-control typeahead EmpId" name="query" data-provide="typeahead" autocomplete="off"></select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="Remarks">Remarks<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="Remarks" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" onclick="OnclickSaveCategory();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearAll();">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

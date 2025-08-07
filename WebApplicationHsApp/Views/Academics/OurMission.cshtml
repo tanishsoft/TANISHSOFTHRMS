@@ -1,0 +1,109 @@
+﻿
+@{
+    ViewBag.Title = "OurMission";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<br />
+<div class="tz-gallery">
+    <div class="row" style="min-height:400px;">
+        <div class="col-md-3" style="text-align:center; height:225px;">
+
+            <a class="lightbox" href="/images/OurMissionimage001.jpg">
+                <img alt="img" style="height: 200px; width:250px;cursor:pointer;" src="/images/OurMissionimage001.jpg" />
+            </a>
+
+        </div>
+        <div class="col-md-3" style="text-align:center; height:225px;">
+            <a class="lightbox" href="/images/OurMissionimage002.jpg">
+                <img alt="img" style="height: 200px; width:250px; cursor:pointer;" src="/images/OurMissionimage002.jpg" />
+            </a>
+        </div>
+        <div class="col-md-3" style="text-align:center; height:225px;">
+            <a class="lightbox" href="/images/OurMissionimage003.jpg">
+                <img alt="img" style="height: 200px; width:250px; cursor:pointer;" src="/images/OurMissionimage003.jpg" />
+            </a>
+        </div>
+        <div class="col-md-3" style="text-align:center; height:225px;">
+            <a class="lightbox" href="/images/OurMissionimage004.jpg">
+                <img alt="img" style="height: 200px; width:250px; cursor:pointer;" src="/images/OurMissionimage004.jpg" />
+            </a>
+        </div>
+        <div class="col-md-3" style="text-align:center; height:225px;">
+            <a class="lightbox" href="/images/OurMissionimage005.jpg">
+                <img alt="img" style="height: 200px; width:250px; cursor:pointer;" src="/images/OurMissionimage005.jpg" />
+            </a>
+        </div>
+        <div class="col-md-3" style="text-align:center; height:225px;">
+            <a class="lightbox" href="/images/OurMissionimage006.jpg">
+                <img alt="img" style="height: 200px; width:250px; cursor:pointer;" src="/images/OurMissionimage006.jpg" />
+            </a>
+        </div>
+        <div class="col-md-3" style="text-align:center; height:225px;">
+            <a class="lightbox" href="/images/OurMissionimage007.jpg">
+                <img alt="img" style="height: 200px; width:250px; cursor:pointer;" src="/images/OurMissionimage007.jpg" />
+            </a>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.8.1/baguetteBox.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/baguettebox.js/1.8.1/baguetteBox.min.js"></script>
+<script>baguetteBox.run('.tz-gallery');</script>
+
+<style>
+
+
+    .tz-gallery {
+        padding: 20px;
+    }
+
+        /* Override bootstrap column paddings */
+        .tz-gallery .row > div {
+            padding: 2px;
+        }
+
+        .tz-gallery .lightbox img {
+            width: 100%;
+            border-radius: 0;
+            position: relative;
+        }
+
+        .tz-gallery .lightbox:before {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -13px;
+            margin-left: -13px;
+            opacity: 0;
+            color: #fff;
+            font-size: 26px;
+            font-family: 'Glyphicons Halflings';
+            content: '\e003';
+            pointer-events: none;
+            z-index: 9000;
+            transition: 0.4s;
+        }
+
+
+        .tz-gallery .lightbox:after {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            background-color: rgba(46, 132, 206, 0.7);
+            content: '';
+            transition: 0.4s;
+        }
+
+        .tz-gallery .lightbox:hover:after,
+        .tz-gallery .lightbox:hover:before {
+            opacity: 1;
+        }
+
+    .baguetteBox-button {
+        background-color: transparent !important;
+    }
+</style>

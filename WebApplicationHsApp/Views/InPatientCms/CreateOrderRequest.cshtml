@@ -1,0 +1,413 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    var eId = 0;
+    //  var orderDate = new Date();
+    $(document).ready(function () {
+        LoadDietTypesNew();
+        LoadLocations();
+        LoadMealType();
+        debugger;
+        //var now = getMinutesNow();
+        //var start = getMinutes('04:00');
+        //var end = getMinutes('9:30');
+        //if (start > end) end += getMinutes('24:00');
+
+        //if ((now > start) && (now < end)) {
+        //    $("#RequestType").val("To Kitchen");
+        //}
+        //start = getMinutes('10:00');
+        //end = getMinutes('11:30');
+        //if (start > end) end += getMinutes('24:00');
+        //if ((now > start) && (now < end)) {
+        //    $("#RequestType").val("To Kitchen");
+        //}
+        //start = getMinutes('12:00');
+        //end = getMinutes('13:30');
+        ////if (start > end) end += getMinutes('24:00');
+        //if ((now > start) && (now < end)) {
+        //    $("#RequestType").val("To Kitchen");
+        //}
+        //start = getMinutes('15:00');
+        //end = getMinutes('19:00');
+        ////if (start > end) end += getMinutes('24:00');
+        //if ((now > start) && (now < end)) {
+        //    $("#RequestType").val("To Kitchen");
+        //    //  orderDate.setDate(orderDate.getDate() + 1);
+        //}
+        $("#txtDateOfOrder").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-1:+1",
+            Edit: true
+        });
+
+    });
+    function getMinutes(str) {
+        var time = str.split(':');
+        return time[0] * 60 + time[1] * 1;
+    }
+    function getMinutesNow() {
+        var timeNow = new Date();
+        return timeNow.getHours() * 60 + timeNow.getMinutes();
+    }
+    function LoadData() {
+        $('#tblPatients').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/InPatientCms/AjaxGetCMSPatientsbyLocandFloor",
+            "bProcessing": true,
+            "bDestroy": true,
+            "scrollX": true,
+            "autoWidth": false,
+            "aLengthMenu": [[100, 200, 300, 500, -1], [100, 200, 300, 500, "All"]],
+            "aoColumns": [
+                /*  { "sName": "Id" },*/
+                {
+                    "sName": "Id",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<input type="checkbox" id="cb_' + data + '" checked="checked" class="assigncheck" /> ' + data;
+                    }
+                },
+                { "sName": "Name" },
+                { "sName": "Mr No" },
+                { "sName": "Room No" },
+                { "sName": "Mobile" },
+                {
+                    "sName": "DietPlan",
+                    "bSortable": false,
+                    "render": function (data, row, r) {
+                        //console.log(r);
+                        return LoadDietPlans(data);;
+                    }
+                },
+                {
+                    "sName": "Notes",
+                    "bSortable": false,
+                    "render": function (data, row, r) {
+                        //console.log(r);
+                        return '<textarea class="form-control" id="notes' + data + '"></textarea>';
+                    }
+                }
+                //{
+                //    "sName": "Id",
+                //    "bSortable": false,
+                //    "render": function (data) {
+
+                //        return '<select class="form-control clsAttenderMeal" id="AttenderMeal_' + data + '"><option value="">Select</option><option value="No">No</option><option value="Yes">Yes</option><select>';
+                //    }
+                //},
+            ],
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "floor", "value": $("#FloorId").val() },
+                    { "name": "MealType", "value": $("#MealTypeId").val() },
+                    { "name": "FormType", "value": $("#ddlPatientType").val() },
+                    { "name": "fromdate", "value": $("#txtDateOfOrder").val() },
+                    
+                );
+            }
+        });
+        $("#tblPatients_length").addClass("col-md-6");
+        $("#tblPatients_length").addClass("col-md-6");
+        LoadDietPlans();
+    }
+    var DietTypes;
+    function LoadDietTypesNew() {
+        $.ajax({
+            type: "POST",
+            url: "/InPatientCms/GetDiets",
+            success: function (data) {
+                DietTypes = data;
+                LoadData();
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadDietPlans(data) {
+        //$.ajax({
+        //    type: "POST",
+        //    url: "/InPatientCms/GetDiets",
+        //    success: function (data) {
+        var options = [];
+        options.push('<option value="">- Select Diet -</option>');
+        var data2 = DietTypes;
+        for (var i = 0; i < data2.length; i++) {
+            if (data2[i].DietType != "Liquid") {
+                options.push('<option value="' + data2[i].DietId + '">' + data2[i].DietName + '</option>');
+            }
+        }
+        //        $(".DietPlan").html(options.join(''));
+        //    },
+        //    error: function () {
+        //        alert("error")
+        //    }
+        //});
+        return '<select class="form-control DietPlan" id="DietPlan' + data + '">' + options.join('') + '<select>';
+    }
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/InPatientCms/GetCMSP_Location",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#LocationId").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadFloorByLocations() {
+        var id = $("#LocationId").val();
+        if (id != "") {
+            $.ajax({
+                type: "POST",
+                url: "/InPatientCms/GetCMSP_FloorByLocation?id=" + id,
+                //data: "id=",
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- Select Floor -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].FloorNo + '">' + data[i].FloorNo + '</option>');
+                    }
+                    $("#FloorId").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#FloorId").html('<option value="">- Select Floor -</option>');
+        }
+    }
+    function LoadMealType() {
+        $.ajax({
+            type: "POST",
+            url: "/CMS/GetMealType",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select MealType -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].MealTypeId + '">' + data[i].MealTypeName + '</option>');
+                }
+                $("#MealTypeId").html(options.join(''));
+                $("#MealTypeId").val($("#hidMealtypeId").val());
+                $("#RequestType").val($("#hidRequestType").val());
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function validatedetails() {
+        setTimeout(function () { $('.error1').fadeOut('fast'); }, 5000);
+        var valid = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#LocationId").val() == "") {
+            $("#LocationId").addClass('css-error');
+            valid = false;
+        }
+        else if ($("#FloorId").val() == "") {
+            $("#FloorId").addClass('css-error');
+            valid = false;
+        }
+        if ($("#MealTypeId").val() == "") {
+            $("#MealTypeId").addClass('css-error');
+            valid = false;
+        }
+        if ($("#txtDateOfOrder").val() == "" || $("#txtDateOfOrder").val() == null) {
+            $("#txtDateOfOrder").addClass('css-error');
+            valid = false;
+        }
+        var table = $('#tblPatients').DataTable();
+        table.column(0).data().each(function (value, index) {
+            var patientid = parseInt(value);
+            if ($('#cb_' + patientid).prop("checked") == true) {
+                if ($("#DietPlan" + value).val() == "") {
+                    $("#DietPlan" + value).addClass('css-error');
+                    valid = false;
+                }
+            }
+        });
+        return valid;
+    }
+    function Save() {
+        var valid = validatedetails();
+        if (valid) {
+            var task = {
+                OrderRequestId: eId,
+                MealTypeId: $("#MealTypeId").val(),
+                LocationId: $("#LocationId option:selected").text(),
+                FloorId: $("#FloorId option:selected").text(),
+                RequestType: $("#RequestType").val(),
+                RequestNotes: $("#RequestNotes").val(),
+                CurrentStatus: "InDietitian",
+                ModifiedBy: $("#txtDateOfOrder").val(),
+                IsActive: true
+            };
+            $.ajax({
+                type: "POST",
+                url: "/InPatientCms/SaveCMSPOrderRequest",
+                data: task,
+                success: function (data) {
+                    SavePatients(data);
+                }
+            });
+        }
+    }
+    function SavePatients(id) {
+        var PatientsList = [];
+        var table = $('#tblPatients').DataTable();
+        table.column(0).data().each(function (value, index) {
+            var patientid = parseInt(value);
+            if ($('#cb_' + patientid).prop("checked") == true) {
+                PatientsList.push({
+                    PatientId: patientid,
+                    DietId: parseInt($("#DietPlan" + value).val()),
+                    Notes: $("#notes" + value).val(),
+                    MealtypeId: $("#MealTypeId").val(),
+                    //AttendantMeal: $("#AttenderMeal_" + value).val(),
+                    OrderRequestId: id
+                });
+            }
+        });
+        $.post("/InPatientCms/SaveOrderRequestPatientsList", { model: PatientsList }, function (res) {
+            alert("Successfully Saved");
+            Cancel();
+        });
+    }
+    function Cancel() {
+        window.location.href = "/InPatientCms/ManageOrders";
+    }
+    function cbattendermeal() {
+        if ($("#chekforallatte").prop('checked')) {
+            $(".clsAttenderMeal").val("Yes");
+        } else {
+            $(".clsAttenderMeal").val("No");
+        }
+    }
+</script>
+<input type="hidden" id="hidMealtypeId" value="@ViewBag.MealTypeId" />
+<input type="hidden" id="hidRequestType" value="@ViewBag.RequestType" />
+<div class="row">
+    <div class="col-md-10">
+        <div style="min-height:500px;">
+            <div class="panel panel-success">
+                <div class="panel-heading"><span class="glyphicon glyphicon-plane"></span>&nbsp;Place Order Request</div>
+                <div class="panel-body">
+                    <form>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <label>Location :<span style="color:red;">*</span></label>
+                                <select class="form-control" id="LocationId" onchange="LoadFloorByLocations();"></select>
+                            </div>
+                            <div class="col-md-2" style="display:none;">
+                                <label>Type :<span style="color:red;">*</span></label>
+                                <select class="form-control" id="ddlPatientType">
+                                    <option value="" selected>All</option>
+                                    <option value="Normal">Normal</option>
+                                    <option value="POW">POW</option>
+                                    <option value="LW">LW</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label>Floor :<span style="color:red;">*</span></label>
+                                <select class="form-control" id="FloorId" onchange="LoadData();"></select>
+                            </div>
+                            <div class="col-md-2">
+                                <label>Meal Type :<span style="color:red;">*</span></label>
+                                <select class="form-control" id="MealTypeId" onchange="LoadData();"></select>
+                            </div>
+                            <div class="col-md-2" style="display:none;">
+                                <label>Comments :</label>
+                                <input type="text" class="form-control" id="RequestNotes" />
+                            </div>
+                            <div class="col-md-2">
+                                <label>Request Type :<span style="color:red;">*</span></label>
+                                <select class="form-control" id="RequestType" disabled>
+                                    <option value="To Kitchen">To Kitchen</option>
+                                    <option value="To Cafeteria" selected>To Cafeteria</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <label>Order Date :<span style="color:red;">*</span></label>
+                                <input type="text" class="form-control" autocomplete="off" readonly="readonly" placeholder="Order Date" id="txtDateOfOrder" />
+                            </div>
+                            <div class="col-md-2">
+                              <br />
+                                <input type="button" id="btngo" value="Go" class="btn btn-sm btn-primary" onclick="LoadData();" />
+                            </div>
+                        </div>
+                        <div class="row" style="padding:10px;">
+                            <table class="table table-striped table-bordered  nowrap display" style="width:100%; text-align:center; " id="tblPatients">
+                                <thead>
+                                    <tr style="background-color:chocolate;color:white;">
+                                        <th>Patient Id</th>
+                                        <th>Name</th>
+                                        <th>Mr No</th>
+                                        <th>Room No</th>
+                                        <th>Mobile</th>
+                                        <th>Diet Plan<span style="color:red;">*</span></th>
+                                        <th>Customization Note</th>
+                                        @*<th>Attendant Meal <input type="checkbox" id="chekforallatte" onchange="cbattendermeal()" /></th>*@
+                                        @*<th>Actions</th>*@
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <p style="font-size:13px; color:orange;text-align:right;">Note: Only Selected Patients will place the order : </p>
+                            <button type="button" class="btn save" onclick="Save();">SAVE</button>
+                            <button type="button" onclick="Cancel();" class="btn cancel">Cancel</button>
+                        </div>
+                        <div class="clearfix"></div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="panel panel-warning">
+            <div class="panel-heading">&nbsp;Timings</div>
+            <div class="panel-body">
+                <table class="table table-bordered" style="font-weight:bold;">
+                    <tr>
+                        <td>Lunch</td>
+                        <td>4:00 to 9:00 AM</td>
+                    </tr>
+                    <tr>
+                        <td>Evening Snacks</td>
+                        <td>10:00 to 11:30 AM</td>
+                    </tr>
+                    <tr>
+                        <td>Dinner</td>
+                        <td>
+                            12:00 to 1:30 PM
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Breakfast</td>
+                        <td>03:00 to 5:00 PM</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

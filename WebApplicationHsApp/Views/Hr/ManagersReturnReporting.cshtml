@@ -1,0 +1,96 @@
+﻿
+@{
+    ViewBag.Title = "ManagersReturnReporting";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {       
+        LoadReportingManagers();        
+    });
+    function LoadReportingManagers() {
+        $('#myDataTable').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Hr/AjaxRetunReportingManagers",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aoColumns": [
+
+                            { "sName": "LocationName" },
+                            { "sName": "DepartmentName" },
+                            { "sName": "SubDepartmentName" },
+                            { "sName": "UserName" },
+                            { "sName": "IsHod" },
+                            { "sName": "IsHodOfHod" },
+                            { "sName": "IsManagerOfHod" },
+                            {
+                                "sName": "ReportingManagerId",
+                                "bSortable": false,
+                                "render": function (data) {
+
+                                    return '<div class="btn-group">' +
+  '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+  '<ul class="dropdown-menu dropdown-menu-right">' +
+    ' <li><a href="#" id="' + data + '" onclick="SaveReporting(this.id);">Return</a></li>' +
+  '</ul></div>';
+                                }
+                            }
+
+            ],
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, 500, 1000], [10, 20, 30, 50, 100, 150, 200, 500, 1000]],
+            "sDom": 'T<"clear">lfrtip',
+            "oTableTools": {
+                "sSwfPath": "/swf/copy_csv_xls_pdf.swf",
+                "aButtons": [
+                    "copy", "xls", "pdf"
+                ]
+            }
+
+        }); Applyclassdt();
+    }
+    function Applyclassdt() {
+        $("#myDataTable_length").addClass("col-md-6");
+        $("#myDataTable_info").addClass("col-md-6");
+    }
+    function SaveReporting(ReportingManagerId) {
+        var data = {
+            ReportingManagerId: ReportingManagerId,
+        }
+        $.ajax({
+            type: "GET",
+            url: "/Hr/UpdateOfReportmenager",
+            data: data,
+            success: function (data) {
+                OpenSuccessAlertPopUpBox_ConfirmPopUpJS(data);
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+</script>
+<div class="panel panel-default StatusApplyLeave">
+    <div class="panel-heading">  Manage Restun Reporting<a href="#" data-toggle="modal" class="pull-right" data-target="#myModalNew">New  </a></div>
+    <div class="panel-body">
+        <table id="myDataTable" class="table table-striped table-bordered  dt-responsive " style="width:100%;">
+            <thead>
+                <tr>
+                    <th>Location </th>
+                    <th>Department</th>
+                    <th>Sub Department</th>
+                    <th>User Name  </th>
+                    <th>
+                        Is Hod
+                    </th>
+                    <th>
+                        Is Head of Hod
+                    </th>
+                    <th>Is Manager Of Hod</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+

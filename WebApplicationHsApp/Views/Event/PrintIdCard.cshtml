@@ -1,0 +1,27 @@
+﻿
+@{
+    ViewBag.Title = "PrintIdCard";
+    Layout = "~/Views/Shared/_LayoutEmpty.cshtml";
+}
+@if (Model.Document2 != null)
+{
+    <div style="background:url(/Uploads/@Model.Document2);width:219px; text-align:center;height:300px;">
+        <div style="padding-top: 107px;">
+            <p style="color:green; font-weight:bold;">@ViewBag.DelegateName</p>
+            @*<p style="color:red;">@ViewBag.Address</p>*@
+            <img src="@ViewBag.BarcodePath" alt="NA" style="width:123px;height:70px;" />
+            <p style="margin: 0px;font-size: 10px;"> @ViewBag.FullEventDelegateId </p>
+        </div>
+    </div>
+}
+else
+{
+    <div style="background:url(/Images/Delegate.jpg);width:219px; text-align:center;height:300px;">
+        <div style="padding-top:107px;">
+            <p style="color:green; font-weight:bold;">@ViewBag.DelegateName</p>
+            @*<p style="color:red;">@ViewBag.Address</p>*@
+            <img src="@ViewBag.BarcodePath" alt="NA" style="width:123px;height:70px;" />
+            <p style="margin: 0px;font-size: 10px;"> @ViewBag.FullEventDelegateId </p>
+        </div>
+    </div>
+}

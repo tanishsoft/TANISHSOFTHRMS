@@ -1,0 +1,16 @@
+﻿
+@{
+    ViewBag.Title = "BarcodeRead";
+    Layout = "~/Views/Shared/_LayoutEmpty.cshtml";
+}
+
+
+@{
+    if (Model != null)
+    {
+        <div>
+            <img src="@String.Format("data:image/png;base64,{0}", Convert.ToBase64String(Model))" style=" width: 50mm; height:30mm;" /><br />
+            @ViewBag.label
+        </div>
+    }
+}

@@ -1,0 +1,1139 @@
+﻿
+@{
+    ViewBag.Title = "ManagePM";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+
+    input[type='checkbox'][disabled][checked] {
+        width: 0px;
+        height: 0px;
+    }
+
+        input[type='checkbox'][disabled][checked]:after {
+            content: '\e013';
+            position: absolute;
+            margin-top: -10px;
+            opacity: 1 !important;
+            margin-left: -5px;
+            font-family: 'Glyphicons Halflings';
+            font-style: normal;
+            font-weight: normal;
+        }
+</style>
+<script src="~/Scripts/jquery.signature.js"></script>
+<script>
+    var eId = 0;
+    var oTable;
+    function ChangeCallStatus() {
+        if ($("#CallStatus").val() == "Completed") {
+            $('.EndDate').show();
+            $('.divCommentsCallstatus').hide();
+            $("#AdminComments").val("");
+        } else {
+            $('.divCommentsCallstatus').show();
+            $('.EndDate').hide();
+            $("#EndDate").val("");
+            $("#EndTime").val("");
+        }
+    }
+    $(document).ready(function () {
+        EmployeeSearch();
+        LoadLocations();
+        $('.EndDate').hide();
+        LoadData();
+        LoadCheckList();
+        $(".date").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            minDate: -1000,
+            Edit: true
+        });
+        $("#Ftxtfromdate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            Edit: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            onSelect: function (dateText, inst) {
+                $("#Ftxttodate").datepicker("option", "minDate", $("#Ftxtfromdate").datepicker("getDate"));
+            }
+        });
+        $("#Ftxttodate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            Edit: true
+        });
+        $("#StartDate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            Edit: true,
+            dateFormat: "dd/mm/yy",
+            minDate: -1000,
+            yearRange: "-30:+30",
+            onSelect: function (dateText, inst) {
+                $("#EndDate").datepicker("option", "minDate", $("#StartDate").datepicker("getDate"));
+            }
+        });
+        $("#EndDate")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                yearRange: "-30:+30",
+                Edit: true
+            });
+        $('.time').timepicker({
+            minuteStep: 5
+        });
+    });
+    function LoadCheckList() {
+        $.ajax({
+            type: "POST",
+            url: "/Biomedical/GetCheckLists",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select CheckList -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].PreventiveCheckListId + '">' + data[i].CheckListName + '</option>');
+                }
+                $("#CheckList").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadData() {
+        oTable = $('#tbl_pm').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Biomedical/AjaxGetPM",
+            "bProcessing": true,
+            "scrollX": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "id" },
+                { "sName": "locationId" },
+                { "sName": "departmentId" },
+                { "sName": "subDepartmentId" },
+                { "sName": "callStatus" },
+                { "sName": "workDone" },
+                { "sName": "startDate" },
+                { "sName": "workDone" },
+                {
+                    "sName": "View Document",
+                    //"bSortable": false,
+                    "render": function (data) {
+                        if (data != null)
+                            return "<a target='_blank' href='/Documents/" + data + "'>View Document</a> <br />";
+                        else
+                            return "No Document";
+                    }
+                },
+                //{ "sName": "isActive" },
+                { "sName": "CallStatus" },
+                { "sName": "inchargeverification" },
+                {
+                    "sName": "Id",
+                    "bSortable": false,
+                    "render": function (data) {
+                        if ($("#BioMedicalTeam").val() == "Yes" || $("#LoginEmployeeType").val()=="Admin") {
+                            var Status = data.split('-')[1];
+                            var UserSignOff = data.split('-')[2];
+                            var id = data.split('-')[0];
+                            var html = '<div class="btn-group">' +
+                                '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                                '<ul class="dropdown-menu dropdown-menu-right">';
+
+                            html += '<li><a href="javascript:void(0);" id="' + id + '" onclick="Edit(this.id);">Edit</a></li>';
+                            html += '<li><a href="javascript:void(0);" id="' + id + '" onclick="NeedInfo(this.id);">Pm Checklist</a></li>';
+                            html += '<li><a href="javascript:void(0);" id="' + id + '" onclick="ViewDetails(this.id);">ViewDetails</a></li>';
+                            html += '<li><a href="javascript:void(0);" id="' + id + '" onclick="DeleteDetails(this.id);">Delete</a></li>';
+                           // if (Status != "Completed") {
+                                html += '<li><a href="javascript:void(0);" id="' + id + '" onclick="MarkComplete(this.id);">Mark Complete</a></li>';
+                            //}
+                            if (UserSignOff != "Done") {
+                                html += '<li><a href="javascript:void(0);" id="' + id + '" onclick="TakeUserConfirmation(this.id);">Incharge SignOff</a></li>';
+                            }
+                            html += '</ul></div>';
+                            return html;
+                        } else {
+                            var Status = data.split('-')[1];
+                            var UserSignOff = data.split('-')[2];
+                            var id = data.split('-')[0];
+                            var html = '<div class="btn-group">' +
+                                '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                                '<ul class="dropdown-menu dropdown-menu-right">';
+                            if (UserSignOff != "Done") {
+                                html += '<li><a href="javascript:void(0);" id="' + id + '" onclick="TakeUserConfirmation(this.id);">Incharge SignOff</a></li>';
+                            }
+                            html += '</ul></div>';
+                            return html;
+                        }
+                    }
+                }
+            ],
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "category", "value": $("#FddlCategoryTypeForFilter").val() },
+                    { "name": "fromdate", "value": $("#Ftxtfromdate").val() },
+                    { "name": "todate", "value": $("#Ftxttodate").val() },
+                    { "name": "Emp", "value": $("#FAssignTo").val() },
+                    { "name": "locationid", "value": $("#LocationIdfilter").val() },
+                    { "name": "departmentid", "value": $("#DepartmentIdfilter").val() },
+                    { "name": "subdepartmentid", "value": $("#SubDepartmentIdfliter").val() },
+                    { "name": "equipment", "value": $("#EquipmentNamefilter").val() },
+                    { "name": "AssetTypeId", "value": $("#AssetNumberfliter").val() },
+                    { "name": "FormType", "value": $("#FddlInchargeVeificationForFilter").val() },
+
+                );
+            }
+        });
+        $("#tbl_pm_length").addClass("col-md-6");
+        $("#tbl_pm_length").addClass("col-md-6");
+    }
+    function NeedInfo(id) {
+        eId = id;
+        $.get("/Biomedical/GetPm", { id: id }, function (data) {
+            $("#CheckList").val(data.PreventiveCheckListId);
+            //$("#LocationId").val(data.LocationId);
+            //LoadDepartment(data.DepartmentId);
+            //// $("#DepartmentId").val(data.DepartmentId);
+            //$("#SubDepartmentId").val(data.SubDepartmentId);
+            //$("#AssetNumber").val(data.AssetNumber);
+            //$("#EquipmentName").val(data.EquipmentName);
+            //$("#ProblemReported").val(data.ProblemReported);
+            $("#WorkDoneDescription").val(data.WorkDoneDescription);
+            $("#SpareReplaced").val(data.SpareReplaced);
+            $("#JobDoneby").val(data.JobDoneby);
+            $("#CallStatus").val(data.CallStatus);
+            BindCheckList(id);
+            //$("#Document1").val(data.Document1);
+            if (data.StartDate != null && data.StartDate != "") {
+                var start = data.StartDate.split("-");
+                $("#StartDate").datepicker().datepicker("setDate", new Date(parseInt(start[2]), parseInt(start[1]) - 1, parseInt(start[0])));
+            }
+            $("#EndDate").datepicker("option", "minDate",
+                $("#StartDate").datepicker("getDate"));
+            if (data.EndDate != null && data.EndDate != "") {
+                var end = data.EndDate.split("-");
+                $("#EndDate").datepicker().datepicker("setDate", new Date(parseInt(end[2]), parseInt(end[1]) - 1, parseInt(end[0])));
+            }
+            $("#StartTime").val(data.StartTime);
+            $("#EndTime").val(data.EndTime);
+
+        });
+        $("#myModalBreakDown").modal('show');
+    }
+    function LoadAssetId(val) {
+        if ($("#EquipmentName").val() != null && $("#EquipmentName").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Biomedical/GetAssertAutoComplete?id=" + $("#EquipmentName").val() + "&locationId=" + $("#LocationId").val() + "&departmentId=" + $("#DepartmentId").val() + "&subDepartmentId=" + $("#SubDepartmentId").val(),
+                //data: "id=",
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- Select Asset -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].id + '">' + data[i].text + '</option>');
+                    }
+                    $("#AssetNumber").html(options.join(''));
+                    if (val != "") {
+                        $("#AssetNumber").val(val);
+                    }
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#AssetNumber").html('<option value="">- Select Asset -</option>');
+        }
+    }
+    function onlyOne(checkbox) {
+
+        var checkboxes = document.getElementsByName(checkbox.name)
+        checkboxes.forEach((item) => {
+            if (item !== checkbox) item.checked = false
+        })
+    }
+    function BindCheckList(pcId) {
+
+        var id = $("#CheckList").val();
+
+        $.get("/Biomedical/GetCheckListAndItems", { id: id }, function (res) {
+            var Visualhtml = '<div class="table-responsive"><table class="table" id="tblVisual"><thead><tr><th colspan="3">Visual Check</th></tr><tr><th>check/Test</th><th>pass</th><th>Faill</th><th>NA</th></tr></thead><tbody>';
+            var row = 2;
+            for (var i = 0; i < res.checkListItems.length; i++) {
+                if (res.checkListItems[i].CheckListType == "Visual Check") {
+                    Visualhtml += '<tr><td id=vid' + row + ' style="display:none;">0</td><td id=vItemid' + row + ' style="display:none;">' + res.checkListItems[i].Id + '</td> <td>' + res.checkListItems[i].SubName + '</td><td><input type="checkbox" name="Item' + res.checkListItems[i].Id + '" class="checkbox" onclick="onlyOne(this)" value="1"></td><td><input type="checkbox" name="Item' + res.checkListItems[i].Id + '" class="checkbox" onclick="onlyOne(this)" value="0"></td><td><input type="checkbox" name="Item' + res.checkListItems[i].Id + '" class="checkbox" onclick="onlyOne(this)" value="2"></td>';
+                    row++;
+                }
+            }
+            Visualhtml += '</tbody></table></div>'
+            $("#divVisualCheck").html(Visualhtml);
+            var functionalhtml = '<div class="table-responsive"><table class="table" id="tblfunctional"><thead><tr><th colspan="3">Functional Check</th></tr><tr><th>check/Test</th><th>pass</th><th>Faill</th><th>NA</th></tr></thead><tbody>';
+            var row = 2;
+            for (var i = 0; i < res.checkListItems.length; i++) {
+                if (res.checkListItems[i].CheckListType == "Functional Check") {
+                    functionalhtml += '<tr><td id=fid' + row + ' style="display:none;">0</td><td id=fItemid' + row + ' style="display:none;">' + res.checkListItems[i].Id + '</td> <td>' + res.checkListItems[i].SubName + '</td><td><input type="checkbox" name="Item' + res.checkListItems[i].Id + '" class="checkbox" onclick="onlyOne(this)" value="1"></td><td><input type="checkbox" name="Item' + res.checkListItems[i].Id + '" class="checkbox" onclick="onlyOne(this)" value="0"></td><td><input type="checkbox" name="Item' + res.checkListItems[i].Id + '" class="checkbox" onclick="onlyOne(this)" value="2"></td>';
+                    row++;
+                }
+            }
+            functionalhtml += '</tbody></table></div>'
+            $("#divFunctionalCheck").html(functionalhtml);
+            if (pcId != "") {
+                GetChecklistItems(pcId);
+            }
+        });
+    }
+    function GetChecklistItems(id) {
+        $.get("/Biomedical/GetPmCheckListItems", { id: id }, function (data) {
+
+            for (var i = 0; i < data.length; i++) {
+                var chkboxName = 'Item' + data[i].CheckListItem;
+                var value = data[i].SelectedOption;
+                $('input:checkbox[name="' + chkboxName + '"][value="' + value + '"]')
+                    .attr('checked', 'checked');
+
+            }
+
+        });
+    }
+    function SaveNeedInfo() {
+        var validate = validateinput();
+        if (validate) {
+
+            if (window.FormData !== undefined) {
+
+                var files = "";
+                // Create FormData object
+                var fileData = new FormData();
+                var fileUpload = $("#Document1").get(0);
+                files = fileUpload.files;
+                for (var i = 0; i < files.length; i++) {
+                    fileData.append('UploadDocument', files[i]);
+                }
+
+                // Looping over all files and add it to FormData object
+                // Adding one more key to FormData object
+                fileData.append('PreventiveMaintenanceId', eId);
+                fileData.append('WorkDoneDescription', $("#WorkDoneDescription").val());
+                fileData.append('PreventiveCheckListId', $("#CheckList").val());
+                fileData.append('SpareReplaced', $("#SpareReplaced").val());
+                fileData.append('JobDoneby', $("#JobDoneby").val());
+                fileData.append('StartDate', $("#StartDate").val());
+                fileData.append('StartTime', $("#StartTime").val());
+                fileData.append('EndDate', $("#EndDate").val());
+                fileData.append('EndTime', $("#EndTime").val());
+                fileData.append('CallStatus', $("#CallStatus").val());
+                fileData.append('AdminComments', $("#AdminComments").val());
+                $.ajax({
+                    type: "POST",
+                    url: "/Biomedical/Save_Update_PmWithChecklist",
+                    contentType: false,
+                    processData: false,
+                    data: fileData,
+                    success: function (data) {
+
+                        SaveItem(data);
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+    }
+    function SaveItem(id) {
+
+        var ItemList = [];
+        var table = document.getElementById("tblVisual");
+
+        var table_len = (table.rows.length);
+        for (var i = 2; i < table_len; i++) {
+            var SelectedOption = true;
+            var iId = parseInt($("#vItemid" + i).text());
+            $.each($("input[name='Item" + iId + "']:checked"), function () {
+                SelectedOption = $(this).val();
+            });
+
+            ItemList.push({
+
+                Id: parseInt($("#vid" + i).text()),
+                PreventiveMaintenanceId: parseInt(id),
+                CheckListItem: parseInt($("#vItemid" + i).text()),
+                SelectedOption: SelectedOption
+            });
+
+
+
+        }
+        var table = document.getElementById("tblfunctional");
+
+        var table_len = (table.rows.length);
+        for (var i = 2; i < table_len; i++) {
+            var SelectedOption = true;
+            var iId = parseInt($("#fItemid" + i).text());
+            $.each($("input[name='Item" + iId + "']:checked"), function () {
+                SelectedOption = $(this).val();
+            });
+
+            ItemList.push({
+
+                Id: parseInt($("#fid" + i).text()),
+                PreventiveMaintenanceId: parseInt(id),
+                CheckListItem: parseInt($("#fItemid" + i).text()),
+                SelectedOption: SelectedOption
+            });
+
+
+
+        }
+
+        $.post("/BioMedical/Save_UpdatePMCheckListItems", { model: ItemList }, function (res) {
+            alert("Success");
+            $("#myModalBreakDown").modal('hide');
+            oTable.api().ajax.reload(null, false);
+        });
+    }
+    function validateinput() {
+        var validate = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#SpareReplaced").val() == "") {
+
+            $("#SpareReplaced").addClass('css-error');
+            validate = false;
+        }
+        if ($("#CallStatus").val() == "") {
+            $("#CallStatus").after('<span class="error" style="color:Red;">Select Call Status</span>');
+            $("#CallStatus").addClass('css-error');
+            validate = false;
+        }
+        else if ($("#CallStatus").val() == "Completed") {
+            if ($("#EndDate").val() == "") {
+                $("#EndDate").after('<span class="error" style="color:Red;">Select EndDate</span>');
+                $("#EndDate").addClass('css-error');
+                validate = false;
+            }
+            if ($("#EndTime").val() == "") {
+                $("#EndTime").after('<span class="error" style="color:Red;">Select EndTime</span>');
+                $("#EndTime").addClass('css-error');
+                validate = false;
+            }
+        }
+        else {
+            if ($("#AdminComments").val() == "") {
+                $("#AdminComments").after('<span class="error" style="color:Red;">Enter Comments</span>');
+                $("#AdminComments").addClass('css-error');
+                validate = false;
+            }
+        }
+        if ($("#CheckList").val() == "") {
+
+            $("#CheckList").addClass('css-error');
+            validate = false;
+        }
+        if ($("#JobDoneby").val() == "") {
+            $("#JobDoneby").addClass('css-error');
+            validate = false;
+        }
+        //if ($("#Document1").val() == "") {
+        //    $("#Document1").after('<span class="error" style="color:Red;">Select Document</span>');
+        //    $("#Document1").addClass('css-error');
+        //    validate = false;
+        //}
+        if ($("#StartDate").val() == "") {
+            $("#StartDate").after('<span class="error" style="color:Red;">Seelct startDate</span>');
+            $("#StartDate").addClass('css-error');
+            validate = false;
+        }
+        if ($("#StartTime").val() == "") {
+            $("#StartTime").after('<span class="error" style="color:Red;">Select StartTime</span>');
+            $("#StartTime").addClass('css-error');
+            validate = false;
+        }
+        //if ($("#EndDate").val() == "") {
+        //    $("#EndDate").after('<span class="error" style="color:Red;">Select EndDate</span>');
+        //    $("#EndDate").addClass('css-error');
+        //    validate = false;
+        //}
+        //if ($("#EndTime").val() == "") {
+        //    $("#EndTime").after('<span class="error" style="color:Red;">Select EndTime</span>');
+        //    $("#EndTime").addClass('css-error');
+        //    validate = false;
+        //}
+
+        return validate;
+    }
+    function New() {
+        window.location.replace("/Biomedical/BookPM");
+    }
+    function Edit(id) {
+        window.location.replace("/Biomedical/CreatePM?id=" + id);
+    }
+    function MarkComplete(id) {
+        eId = id;
+
+        $("#myModalMarkasComplete").modal("show");
+    }
+    function MValidation() {
+        var MValidate = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#MEndDate").val() == "") {
+            $("#MEndDate").after('<span class="error" style="color:Red;">Select EndDate</span>');
+            $("#MEndDate").addClass('css-error');
+            MValidate = false;
+        }
+        if ($("#MEndTime").val() == "") {
+            $("#MEndTime").after('<span class="error" style="color:Red;">Select EndTime</span>');
+            $("#MEndTime").addClass('css-error');
+            validate = false;
+        }
+        return MValidate;
+    }
+    function SaveMarkComplete() {
+        var valid = MValidation();
+        if (valid) {
+            $.get('/Biomedical/CompletedPM?endDate=' + $("#MEndDate").val() + '&endTime=' + $("#MEndTime").val() + '&id=' + eId, function (data) {
+                alert("Successfully mark as completed");
+            });
+        } else {
+            alert("FormData is not supported.");
+        }
+    }
+    function ClearMarkComplete() {
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        $("#MEndTime").val("");
+        $("#MEndDate").val("");
+    }
+    function TakeUserConfirmation(id) {
+        eId = id;
+        //window.location.replace("/Biomedical/PMUserSignOff?id=" + id);
+        //$('#captureSignature').signature({ syncField: '#signatureJSON' });
+        //$('#captureSignature').signature('option', 'syncFormat', 'PNG');
+        //$('#clear2Button').click(function () {
+        //    $('#captureSignature').signature('clear');
+        //});
+        $("#myModalUserSignoff").modal("show");
+    }
+    function EmployeeSearch() {
+        $(".EmpId").select2({
+            ajax: {
+                url: "/Biomedical/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term,
+                        id: eId,
+                        table: "PM"// search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            width: 'element',
+            minimumInputLength: 2
+        });
+        $("#FAssignTo").select2({
+            ajax: {
+                url: "/Home/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            width: 'element',
+            minimumInputLength: 2
+        });
+    }
+    //function ExportToExcel() {
+
+    //}
+    var empid = 0;
+    function SaveUserSignoff() {
+        var model = {
+            id: eId,
+            signature: empid,
+            userempId: $("#signoffUser").val()
+        }
+        $.post('/Biomedical/SaveUsersignPM', model, function (data) {
+            alert("Successfully mark as completed");
+            $("#myModalUserSignoff").modal("hide");
+            oTable.api().ajax.reload(null, false);
+        });
+    }
+    function loadSignature() {
+        $.get("/Biomedical/GetEmpIdByUserId?UserId=" + $("#signoffUser").val(), function (data) {
+            empid = data;
+            $("#captureSignature").html("<img src='/Images/signatures/" + data + ".jpg' />");
+        });
+    }
+    function ExportToExcel() {
+        validateDate();
+
+        if (validate) {
+            var id = 0;
+            FromDate = $("#Ftxtfromdate").val();
+            ToDate = $("#Ftxttodate").val();
+            var url = '/Biomedical/ExportExcelPM?FromDate=' + FromDate + '&ToDate=' + ToDate;
+            if ($("#FddlCategoryTypeForFilter").val() != null && $("#FddlCategoryTypeForFilter").val() != "")
+                url += '&callStatus=' + $("#FddlCategoryTypeForFilter").val();
+            if ($("#LocationIdfilter").val() != null && $("#LocationIdfilter").val() != "")
+                url += '&locationId=' + $("#LocationIdfilter").val();
+            if ($("#DepartmentIdfilter").val() != null && $("#DepartmentIdfilter").val() != "")
+                url += '&departmentId=' + $("#DepartmentIdfilter").val();
+            if ($("#SubDepartmentIdfliter").val() != null && $("#SubDepartmentIdfliter").val() != "")
+                url += '&subdepartmentId=' + $("#SubDepartmentIdfliter").val();
+            if ($("#FAssignTo").val() != null && $("#FAssignTo").val() != "") {
+                url += '&id=' + $("#FAssignTo").val();
+            }
+            if ($("#EquipmentNamefilter").val() != null && $("#EquipmentNamefilter").val() != "") {
+                url += '&equipment=' + $("#EquipmentNamefilter").val();
+            }
+            if ($("#AssetNumberfliter").val() != null && $("#AssetNumberfliter").val() != "") {
+                url += '&assetId=' + $("#AssetNumberfliter").val();
+            }
+            window.location = url;
+            $("#Ftxtfromdate").val("");
+            $("#Ftxttodate").val("");
+        }
+    }
+    function validateDate() {
+
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#Ftxtfromdate").val() == "") {
+            $("#Ftxtfromdate").addClass('css-error');
+            validate = false;
+        }
+        if ($("#Ftxttodate").val() == "") {
+            $("#Ftxttodate").addClass('css-error');
+            validate = false;
+        }
+    }
+
+    function ViewDetails(id) {
+        var html = "";
+        $.get("/Biomedical/GetPm?id=" + id, function (data) {
+            html = "<table class='table table-bordered table-striped'>";
+            html += "<tr><td style='color:darkgoldenrod;'>Id</td><td>" + data.PreventiveMaintenanceId + "</td></tr><tr><td style='color:darkgoldenrod;'>Assign To Name</td><td>" + data.AssignToName + "</td></tr>";
+            html += "<tr><td style='color:darkgoldenrod;'>Location</td><td>" + data.LocationName + "</td></tr><tr><td style='color:darkgoldenrod;'>Month</td><td>" + data.Month + "</td></tr>";
+            html += "<tr><td style='color:darkgoldenrod;'>Department</td><td>" + data.DepartmentName + "</td></tr><tr><td style='color:darkgoldenrod;'>Sub Department</td><td>" + data.SubDepartmentName + "</td></tr>";
+            html += "<tr><td style='color:darkgoldenrod;'>Work Done Description</td><td>" + data.WorkDoneDescription + "</td></tr><tr><td style='color:darkgoldenrod;'>Call Status</td><td>" + data.CallStatus + "</td></tr>";
+            html += "<tr><td style='color:darkgoldenrod;'>Start Date & Time</td><td>" + data.StartDate + " " + data.StartTime + "</td></tr><tr><td style='color:darkgoldenrod;'>End Date & Time</td><td>" + data.EndDate + " " + data.EndTime + "</td></tr>";
+            html += "<tr><td style='color:darkgoldenrod;'>Next Due Date</td><td>" + data.NextDueDate + "</td></tr>";
+            html += "<tr><td style='color:darkgoldenrod;'>Admin Comments</td><td>" + data.AdminComments + "</td></tr><tr><td style='color:darkgoldenrod;'>Equipment</td><td>" + data.Equipment + "</td></tr>";
+            html += "<tr><td style='color:darkgoldenrod;'>Job Done by</td><td>" + data.JobDoneby + "</td></tr><tr><td style='color:darkgoldenrod;'>Spare Replaced</td><td>" + data.SpareReplaced + "</td></tr>";
+            html += "<tr><td style='color:darkgoldenrod;'>Asset Number</td><td>" + data.AssetNumber + "</td></tr><tr><td style='color:darkgoldenrod;'>Serial Number</td><td>" + data.SerialNumber + "</td></tr>";
+            html += "<tr><td style='color:darkgoldenrod;'>Model</td><td>" + data.Model + "</td></tr><tr><td style='color:darkgoldenrod;'>Manufacture</td><td>" + data.Manufacture + "</td></tr>";
+            
+            html += "<tr>";
+
+            if (data.Document1 != null) {
+                html += "<td style='color:darkgoldenrod;'>Document</td> <td><a target='_blank' style='color:green;' href='/Documents/" + data.Document1 + "'>View Document</a></td></tr> ";
+            }
+
+            else {
+                html += "<td style='color:darkgoldenrod;'>Document</td><td>N/A</td></tr > ";
+            }
+            if (data.PreventiveCheckListId != null) {
+                html += "<td style='color:darkgoldenrod;'>Check List Name</td> <td>" + data.PreventiveCheckList + "</td></tr> ";
+            }
+
+            else {
+                html += "<td style='color:darkgoldenrod;'>Check List Name</td><td>N/A</td></tr > ";
+            }
+            html += "</table>";
+            html += '  <div class="col-md-6" id="ViewdivVisualCheck"></div ><div class="row"><div class="col-md-6" id="ViewdivFunctionalCheck"></div></div>';
+            html += "<table class='table table-bordered table-striped'><tr><td>Completed by : </td><td>" + data.AssignToName +"</td></tr><tr><td style='color:darkgoldenrod;'>Incharge verification signature</td><td><img style='width:100px;height:100px;' src='/Images/signatures/" + data.UserEmpId + ".jpg' /></td></tr></table>";
+
+            $("#divfullrequestdetails").html(html);
+            if (data.PreventiveCheckListId != null) {
+
+                ViewBindCheckList(id, data.PreventiveCheckListId);
+            }
+            $("#myModalFullrequest").modal("show");
+        });
+    }
+    function ViewBindCheckList(pcId, id) {
+
+
+        $.get("/Biomedical/GetCheckListAndItems", { id: id }, function (res) {
+            var Visualhtml = '<div class="table-responsive"><table class="table" id="tblVisualView"><thead><tr><th colspan="3">Visual Check</th></tr><tr><th>check/Test</th><th>pass</th><th>Faill</th><th>NA</th></tr></thead><tbody>';
+            var row = 2;
+            for (var i = 0; i < res.checkListItems.length; i++) {
+                if (res.checkListItems[i].CheckListType == "Visual Check") {
+                    Visualhtml += '<tr><td id=vid' + row + ' style="display:none;">0</td><td id=vItemid' + row + ' style="display:none;">' + res.checkListItems[i].Id + '</td> <td>' + res.checkListItems[i].SubName + '</td><td><input type="checkbox" name="Item' + res.checkListItems[i].Id + '" class="checkbox" onclick="onlyOne(this)" value="1"></td><td><input type="checkbox" name="Item' + res.checkListItems[i].Id + '" class="checkbox" onclick="onlyOne(this)" value="0"></td><td><input type="checkbox" name="Item' + res.checkListItems[i].Id + '" class="checkbox" onclick="onlyOne(this)" value="2"></td>';
+                    row++;
+                }
+            }
+
+
+            Visualhtml += '</tbody></table></div>'
+            $("#ViewdivVisualCheck").html(Visualhtml);
+            var functionalhtml = '<div class="table-responsive"><table class="table" id="tblfunctionalView"><thead><tr><th colspan="3">Functional Check</th></tr><tr><th>check/Test</th><th>pass</th><th>Faill</th><th>NA</th></tr></thead><tbody>';
+            var row = 2;
+            for (var i = 0; i < res.checkListItems.length; i++) {
+                if (res.checkListItems[i].CheckListType == "Functional Check") {
+                    functionalhtml += '<tr><td id=fid' + row + ' style="display:none;">0</td><td id=fItemid' + row + ' style="display:none;">' + res.checkListItems[i].Id + '</td> <td>' + res.checkListItems[i].SubName + '</td><td><input type="checkbox" name="Item' + res.checkListItems[i].Id + '" class="checkbox" onclick="onlyOne(this)" value="1"></td><td><input type="checkbox" name="Item' + res.checkListItems[i].Id + '" class="checkbox" onclick="onlyOne(this)" value="0"></td><td><input type="checkbox" name="Item' + res.checkListItems[i].Id + '" class="checkbox" onclick="onlyOne(this)" value="2"></td>';
+                    row++;
+                }
+            }
+
+
+            functionalhtml += '</tbody></table></div>'
+            $("#ViewdivFunctionalCheck").html(functionalhtml);
+
+            if (pcId != "") {
+                ViewGetChecklistItems(pcId);
+            }
+        });
+    }
+    function ViewGetChecklistItems(id) {
+        $.get("/Biomedical/GetPmCheckListItems", { id: id }, function (data) {
+
+            for (var i = 0; i < data.length; i++) {
+                var chkboxName = 'Item' + data[i].CheckListItem;
+                var value = data[i].SelectedOption;
+                $('input:checkbox[name="' + chkboxName + '"][value="' + value + '"]')
+                    .attr('checked', 'checked');
+
+            }
+            $('table#tblfunctionalView input[type=checkbox]').attr('disabled', 'true');
+            $('table#tblVisualView input[type=checkbox]').attr('disabled', 'true');
+        });
+    }
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#LocationId").html(options.join(''));
+                $("#LocationIdfilter").html(options.join(''));
+                $("#LocationIdPM").html(options.join(''));
+                $("#ddltLocation").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadDepartment() {
+        var options = [];
+        options.push('<option value="0">- Select Department -</option>');
+        if ($("#LocationIdfilter").val() != "") {
+            LoadEquipmentFilter();
+            $.ajax({
+                type: "POST",
+                url: "/Biomedical/GetDepartmentByLocation",
+                data: "id=" + $("#LocationIdfilter").val(),
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                    }
+                    $("#DepartmentIdfilter").html(options.join(''));
+
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#DepartmentIdfilter").html(options.join(''));
+        }
+
+    }
+    function DepartmentChange() {
+        var options = [];
+        options.push('<option value="0">- Select Sub Department -</option>');
+        if ($("#DepartmentIdfilter").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Biomedical/GetSubDepartmentByDepartment",
+                data: "id=" + $("#DepartmentIdfilter").val(),
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].SubDepartmentId + '">' + data[i].Name + '</option>');
+                    }
+                    $("#SubDepartmentIdfliter").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#SubDepartmentIdfliter").html(options.join(''));
+        }
+    }
+    function LoadEquipmentFilter() {
+        var options = [];
+        options.push('<option value="">- Select Equipment -</option>');
+        /* if ($("#SubDepartmentIdfliter").val() != "") {*/
+        $.ajax({
+            type: "POST",
+            url: "/Biomedical/GetEquipmentByDepartments",
+            data: "locationid=" + $("#LocationIdfilter").val() + "&departmentid=" + $("#DepartmentIdfilter").val() + "&subdepartmentId=" + $("#SubDepartmentIdfliter").val(),
+            success: function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i] + '">' + data[i] + '</option>');
+                }
+                $("#EquipmentNamefilter").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+        //}
+        //else {
+        //    $("#EquipmentNamefilter").html(options.join(''));
+        //}
+
+    }
+    function LoadAssetIdFilter() {
+        var options = [];
+        options.push('<option value="">- Select Asset -</option>');
+        if ($("#EquipmentNamefilter").val() != null && $("#EquipmentNamefilter").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Biomedical/GetAssertAutoComplete?id=" + $("#EquipmentNamefilter").val() + "&locationId=" + $("#LocationIdfilter").val() + "&departmentId=" + $("#DepartmentIdfilter").val() + "&subDepartmentId=" + $("#SubDepartmentIdfliter").val(),
+                //data: "id=",
+                success: function (data) {
+
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].id + '">' + data[i].text + '</option>');
+                    }
+                    $("#AssetNumberfliter").html(options.join(''));
+
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#AssetNumberfliter").html('<option value="">- Select Asset -</option>');
+        }
+    }
+    function DeleteDetails(id) {
+        if (confirm("Are you sure you want to delete?")) {
+            $.get("/Biomedical/DeletePreventiveMaintenance?id=" + id, function (data) {
+                alert(data);
+                if (data == "Success") {
+                    LoadData();
+                }
+            });
+        }
+    }
+</script>
+<style>
+    /* Styles for signature plugin v1.2.0. */
+    .kbw-signature {
+        display: inline-block;
+        border: 1px solid #a0a0a0;
+        -ms-touch-action: none;
+    }
+
+    .kbw-signature-disabled {
+        opacity: 0.35;
+    }
+</style>
+<style>
+    /* Styles for signature plugin v1.2.0. */
+    .kbw-signature {
+        display: inline-block;
+        border: 1px solid #a0a0a0;
+        -ms-touch-action: none;
+    }
+
+    .kbw-signature-disabled {
+        opacity: 0.35;
+    }
+</style>
+<input type="hidden" id="BioMedicalTeam" value="@ViewBag.BioMedicalTeam" />
+<div class="panel panel-default">
+    <div class="panel-heading">Manage Preventive Maintenance<a href="#" data-toggle="modal" class="pull-right" onclick="New();">New </a></div>
+    <div class="panel-body">
+        <div class="form-row">
+            <div class="col-md-2">
+                <select class="form-control maxwidth" id="LocationIdfilter" onchange="LoadDepartment();"></select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-control maxwidth" id="DepartmentIdfilter" onchange="DepartmentChange(); ">
+                    <option value="0">- Select Department -</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-control maxwidth" id="SubDepartmentIdfliter" onchange="LoadEquipmentFilter();">
+                    <option value="0">- Select Sub Department -</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-control maxwidth" id="EquipmentNamefilter" onchange="LoadAssetIdFilter();">
+                    <option value="">- Select Equipment -</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <select id="AssetNumberfliter" class="form-control maxwidth"><option value="">- Select Asset -</option></select>
+            </div>
+            <div class="form-group col-md-2">
+                <select id="FAssignTo" style="width: 100%" class="form-control typeahead" name="query" data-provide="typeahead" autocomplete="off">
+                    <option value="">Select Assign To</option>
+                </select>
+            </div>
+            <div class="form-group col-md-2">
+                <input type="text" class="form-control" autocomplete="off" placeholder="From Date" id="Ftxtfromdate" />
+            </div>
+            <div class="form-group col-md-2">
+                <input type="text" class="form-control" autocomplete="off" placeholder="To Date" id="Ftxttodate" />
+            </div>
+            <div class="form-group col-md-2">
+                <select id="FddlCategoryTypeForFilter" class="form-control">
+                    <option value="">Select Status</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Hold">Hold</option>
+                    <option value="Completed">Completed</option>
+                </select>
+            </div>
+            <div class="form-group col-md-2">
+                <select id="FddlInchargeVeificationForFilter" class="form-control">
+                    <option value="">Incharge Verification</option>
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                </select>
+            </div>
+            <div class="form-group col-md-2">
+                <button type="button" class="btn btn-sm btn-default" value="Export To Excel" onclick="ExportToExcel();"><span class="glyphicon glyphicon-download" style="vertical-align:middle;"></span>&nbsp;Export To Excel</button>
+                <button type="button" class="btn btn-sm btn-success" value="Go" onclick="LoadData();"><span class="glyphicon glyphicon-search" style="vertical-align:middle;"></span>&nbsp;Go</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped table-bordered nowrap" style="width:100%;" id="tbl_pm">
+                    <thead>
+                        <tr style="background-color: #786C67;color: white;">
+                            <th> Id</th>
+                            <th>Location</th>
+                            <th>Department</th>
+                            <th>Sub Department</th>
+                            <th>Asset Number</th>
+                            <th>Equipment Name</th>
+                            <th>Month</th>
+                            <th>Assign To</th>
+                            <th>Document</th>
+                            <th>Status</th>
+                            <th>Incharge Verification</th>
+                            @*<th>Is Active</th>*@
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalBreakDown" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header dark">
+                <button type="button" class="close" data-dismiss="modal" onclick="clearAll();">×</button>
+                <h4 class="modal-title">Preventive Maintenance</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+
+
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <span class="form-label">WorkDone Description<span style="color:red;">*</span></span>
+                        </div>
+
+                        <div class="form-group">
+
+                            <textarea class="form-control maxwidth" placeholder="ENTER WORK DONE DESCRIPTION" id="WorkDoneDescription"></textarea>
+                        </div>
+
+                    </div>
+
+
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-sm-12">
+                        <label>Check List<span style="color:red;">*</span></label>
+                        <select class="form-control maxwidth" id="CheckList" onchange="BindCheckList();">
+                            <option value="">Select Check List</option>
+
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6" id="divVisualCheck">
+
+                </div>
+                <div class="row">
+                    <div class="col-md-6" id="divFunctionalCheck">
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-6">
+                        <label>Job Done By<span style="color:red;">*</span></label>
+                        <select class="form-control" id="JobDoneby">
+                            <option value="INHOUSE">InHouse</option>
+                            <option value="VENDOR">Vendor</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Spare Replaced<span style="color:red;">*</span></label>
+                        <input type="text" class="form-control maxwidth" id="SpareReplaced" />
+                    </div>
+                </div>
+
+
+                <div class="row" style="padding:5px;">
+
+                    <div class="col-md-3">
+                        <label>Start Date</label>
+                        <input type="text" name="startDate" class="form-control date" readonly="readonly" autocomplete="off" id="StartDate" />
+                    </div>
+                    <div class="col-md-3 bootstrap-timepicker timepicker">
+                        <label>Start Time</label>
+                        <input type="text" name="startTime" class="form-control time" readonly="readonly" autocomplete="off" id="StartTime" />
+                    </div>
+                    <div class="col-md-3 EndDate">
+                        <label>End Date<span style="color:red;">*</span></label>
+                        <input type="text" name="enddate" class="form-control date" readonly="readonly" autocomplete="off" id="EndDate" />
+                    </div>
+                    <div class="col-md-3 bootstrap-timepicker timepicker EndDate">
+                        <label>End Time<span style="color:red;">*</span></label>
+                        <input type="text" name="endtime" class="form-control time" readonly="readonly" autocomplete="off" id="EndTime" />
+                    </div>
+                </div>
+                <div class="row" style="padding:10px;">
+                    <div class="col-md-6">
+                        <label>Call Status<span style="color:red;">*</span></label>
+                        <select class="form-control maxwidth" id="CallStatus" onchange="ChangeCallStatus()">
+                            <option value="">Select Call Status</option>
+                            <option value="pending">Pending From Engineer</option>
+                            <option value="Hold">Pendings For Incharge Sign Off</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label> Document</label>
+                        <input type="file" id="Document1" class="form-control maxwidth" />
+                    </div>
+                    <div class="form-group col-md-12 divCommentsCallstatus" style="display:none;">
+                        <span class="form-label">Comments</span>
+                        <textarea class="form-control maxwidth" rows="3" placeholder="Enter" id="AdminComments"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" onclick="SaveNeedInfo();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearAll();">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalMarkasComplete" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" id="header">Mark as Complete</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:15px;">
+                    <div class="form-group col-md-3">
+                        <label>End Date<span style="color:red;">*</span></label>
+                        <input type="text" name="EndDate" class="form-control date" id="MEndDate" />
+                    </div>
+                    <div class="form-group col-md-3  bootstrap-timepicker timepicker">
+                        <label>End Time<span style="color:red;">*</span></label>
+                        <input type="text" name="EndTIme" class="form-control time" id="MEndTime" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" onclick="SaveMarkComplete();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="ClearMarkComplete();">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalUserSignoff" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Incharge SignOff<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:15px;">
+                    <div class="form-group col-md-12">
+                        <div style="width:400px; margin-left:15%;margin-bottom:5px;">
+                            <label>Employee</label><br />
+                            <select id="signoffUser" style="width:300px" class="form-control typeahead EmpId" name="query" data-provide="typeahead" autocomplete="off" onchange="loadSignature();"></select>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label style="margin-left:15%;margin-bottom:5px;">Signature</label><br />
+                        <div id="captureSignature" style="width:300px; ">
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" onclick="SaveUserSignoff();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="myModalFullrequest" role="dialog">
+    <div class="form-block">
+        <h3>View PM<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <div id="divfullrequestdetails" style="height:500px;overflow-x:auto;">
+        </div>
+    </div>
+</div>

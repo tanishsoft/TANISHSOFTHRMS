@@ -1,0 +1,160 @@
+﻿
+@{
+    ViewBag.Title = "EventWelcomeKit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<input type="hidden" id="hideventid" value="@ViewBag.EventId" />
+@*<h2>EventWelcomeKit</h2>*@
+<script>
+    $(document).ready(function () {
+        GetEventDelegateDetails();
+
+    });
+    function GivenWelcomeKit() {
+        //alert($("#txtWelComeKit").val());
+        var str = $("#txtWelComeKit").val();
+        if (str != "") {
+            var n = str.includes("-");
+            if (n) {
+                var m = str.split("-");
+                $.ajax({
+                    type: "POST",
+                    url: "/Event/EDelegatewelcomekit?EventdelegateId=" + m[3] + "&eventId=" + $("#hideventid").val(),
+                    dataType: "json",
+                    contentType: "application/json",
+                    success: function (data) {
+                        //$('#Welcomekitdiv').hide();
+                        $('#WelcomekitMessage').html(data);
+                        $('#WelcomekitMessage').show();
+                        if (data == "Welcome kit received") {
+                            location.reload();
+                        }
+                        else {
+                            alert(data);
+                        }
+                    }
+                });
+            } else {
+                $.ajax({
+                    type: "POST",
+                    url: "/Event/EDelegatewelcomekit?EventdelegateId=" + $("#txtWelComeKit").val() + "&eventId=" + $("#hideventid").val(),
+                    dataType: "json",
+                    contentType: "application/json",
+                    success: function (data) {
+                        //$('#Welcomekitdiv').hide();
+                        $('#WelcomekitMessage').html(data);
+                        $('#WelcomekitMessage').show();
+                        if (data == "Welcome kit received")
+                            location.reload();
+                    }
+                });
+            }
+        }
+        else {
+            $("#txtWelComeKit").addClass('css-error');
+        }
+    }
+    function GetEventDelegateDetails() {
+        $('#tblEventWelComeKit').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Event/GetEventDelegateDetailsWelcome?eventId=" + $("#hideventid").val(),
+            "bSortable": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "DelegateId" },
+                { "sName": "Name" },
+                { "sName": "Name" },
+                { "sName": "BookingFromDate" },
+                { "sName": "BookingToDate" },
+                { "sName": "Comments" },
+                { "sName": "Workshop" },
+                { "sName": "Conference" },
+                { "sName": "PaymentType" },
+                { "sName": "FinalBlanceTopay" },
+                { "sName": "IsActive" },
+                {
+                    "sName": "EventDelegateId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="Barcode(this.id);">Barcode</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="DelegatePayment(this.id);">Payments</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="DelegateMealType(this.id);">Meal Types</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="MealHistory(this.id);">Meal History</a></li>' +
+                            '<li><a href="/Event/PrintIdCard/' + data + '" id="' + data + '">Generate Id Card</a></li>' +
+                            '</ul></div>';
+                    }
+                }
+            ],
+            "fnRowCallback": function (nRow, aData, iDisplayIndex) {
+                $("td:nth-child(1)", nRow).html(iDisplayIndex + 1);
+                return nRow;
+            }
+        });
+        $("#tblEventWelComeKit_length").addClass("col-md-6");
+        $("#tblEventWelComeKit_length").addClass("col-md-6");
+    }
+    function Exportexcel() {
+        var tab_text = "<h3>Welcome Kit Deatils</h3><table border='2px'><tr bgcolor='#87AFC6'>";
+        tab = document.getElementById('tblEventWelComeKit'); // id of table
+
+        for (j = 0; j < tab.rows.length; j++) {
+            tab.rows[j] = tab.rows[j].lastChild.remove();
+            tab_text = tab_text + tab.rows[j].innerHTML + "</tr>";
+        }
+        window.open('data:application/vnd.ms-excel,' + encodeURIComponent(tab_text));
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title" style="color:#c4122f;">
+            Welcome Kit
+        </h3>
+    </div>
+    <div class="panel-body" style="text-align:center;">
+        <label id="WelcomekitMessage" style="color:teal"></label>
+        <div class="row" id="Welcomekitdiv">
+
+            <div class="col-md-3">
+                Welcome Kit:
+
+            </div>
+            <div class="col-md-3">
+                <input type="text" id="txtWelComeKit" onchange="GivenWelcomeKit();" class="form-control" placeholder="Select and Read from Barcode" />
+            </div>
+            <div class="col-md-3">
+                <input type="button" id="btngo" class="btn btn-sm btn-primary" value="Go" onclick="GivenWelcomeKit();" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <input type="button" id="btnExport" class="btn btn-sm btn-success float-right" value="Export Excel" onclick="Exportexcel();" />
+            </div>
+        </div>
+        <br /><br />
+
+        <table class="table table-striped" id="tblEventWelComeKit" style="width:100%;">
+            <thead>
+                <tr>
+                    <th>SL.No</th>
+                    <th>Event Name</th>
+                    <th>Delegate Name</th>
+                    <th>StartDate</th>
+                    <th>End Date</th>
+                    <th>Comments</th>
+                    <th>Workshop</th>
+                    <th>Conference</th>
+                    <th>Payment Type</th>
+                    <th>Final Amount</th>
+                    <th>Welcome Kit?</th>
+                    <th>Action</th>
+
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+    </div>
+</div>

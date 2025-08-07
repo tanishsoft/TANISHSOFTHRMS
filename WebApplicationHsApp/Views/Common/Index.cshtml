@@ -1,0 +1,71 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    function UpdatePasswordToEmployee() {
+        if ($("#inputPassword").val() == $("#ConfirmPassword").val()) {
+            var dataparam = {
+                UserId: $("#UserId").val(),
+                Password: $("#inputPassword").val(),
+                ConfirmPassword: $("#ConfirmPassword").val()
+            }
+            $.ajax({
+                type: "POST",
+                url: "/Account/UpdatePasswordFromAdmin",
+                data: dataparam,
+                //data: JSON.stringify({UpdatePasswordToEmployee:dataparam}),
+                success: function (data) {
+                    $("#UserId").val('');
+                    $("#inputPassword").val('');
+                    $("#ConfirmPassword").val('');
+
+                    alert(data);
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        } else {
+            alert("Please Check Password and Confirm Password should be same");
+        }
+    }
+</script>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Change Password Of Employee</h3>
+    </div>
+    <div class="panel-body">
+        <form class="form-horizontal">
+            <fieldset>
+                <legend>Legend</legend>
+                <div class="form-group">
+                    <label for="inputEmail" class="col-lg-2 control-label">User Id</label>
+                    <div class="col-lg-10">
+                        <input type="text" class="form-control" id="UserId" placeholder="User Id" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputPassword" class="col-lg-2 control-label">Password</label>
+                    <div class="col-lg-10">
+                        <input type="password" class="form-control" id="inputPassword" placeholder="Password" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputPassword" class="col-lg-2 control-label">Confirm Password</label>
+                    <div class="col-lg-10">
+                        <input type="password" class="form-control" id="ConfirmPassword" placeholder="ConfirmPassword" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-lg-10 col-lg-offset-2">
+                        <button type="button" onclick="UpdatePasswordToEmployee();" class="btn btn-primary">Submit</button>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</div>

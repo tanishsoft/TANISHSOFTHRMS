@@ -1,0 +1,188 @@
+﻿@{
+    ViewBag.Title = "BrandMerchandise";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<style>
+    .image {
+        /*opacity: 1;
+        display: block;
+        width: 100%;
+        height: auto;*/
+        transition: .5s ease;
+        backface-visibility: hidden;
+    }
+
+    .middle {
+        transition: .5s ease;
+        opacity: 0;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+        text-align: center;
+    }
+
+    .divcontainer:hover .image {
+        opacity: 0.3;
+    }
+
+    .divcontainer:hover .middle {
+        opacity: 1;
+    }
+
+    .text {
+        background-color: #4CAF50;
+        color: white;
+        font-size: 16px;
+        padding: 16px 32px;
+        cursor: pointer;
+    }
+</style>
+<script>
+    function ShowAddtocart(product) {
+        $("#myModalBrandedMerchandise").modal('show');
+        $("#BrandProduct").val(product);
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a href="/Hospital/OurBrand" style="color:gray;">Go Back</a>    Brand Merchandise</h3>
+    </div>
+    <div class="panel-body" style="text-align:center;min-height:450px;">
+        <div class="block-middle brand">
+            <div class="row">
+                <div class="col-md-3 divcontainer" style="text-align:center; height:225px;">
+                    <img src="~/Images/FF_Branding_Mug.jpg" class="image" style="width:200px; height:200px; border-radius:60px;" />
+                    <span>Coffee Mugs</span>
+                    <div class="middle">
+                        <div class="text" onclick="ShowAddtocart('Branding Mug');">Add to Cart</div>
+                    </div>
+                </div>
+                <div class="col-md-3 divcontainer" style="text-align:center; height:225px;">
+                    <img src="~/Images/FF_Branding_Mug.jpg" class="image" style="width:200px; height:200px; border-radius:60px;" />
+                    <span>Pens</span>
+                    <div class="middle">
+                        <div class="text" onclick="ShowAddtocart('Branding Pen');">Add to Cart</div>
+                    </div>
+                </div>
+                <div class="col-md-3 divcontainer" style="text-align:center; height:225px;">
+                    <img src="~/Images/FF_Branding_Mug.jpg" class="image" style="width:200px; height:200px; border-radius:60px;" />
+                    <span>Folders</span>
+                    <div class="middle">
+                        <div class="text" onclick="ShowAddtocart('File Folder');">Add to Cart</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModalBrandedMerchandise" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="clearAll();">×</button>
+                <h4 class="modal-title">Branded Merchandise Order Place</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Employee Id<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="EmployeeId" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Employee Name<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="EmployeeName" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Brand Product<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="BrandProduct" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Required quantity<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <input type="number" value="1" class="form-control" id="requiredquantity" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Comments<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <textarea class="form-control" id="Comments"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Submit Order" onclick="SendEmail();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearAll();">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    var validate = true;
+    function SendEmail() {
+        validateDetails();
+        if (validate) {
+            var mailbody = "";
+            //mailbody = "<p style='font-family:verdana'>HI Team,";
+            mailbody += $("#EmployeeId").val() + "," + $("#EmployeeName").val() + "," + $("#BrandProduct").val() + "," + $("#requiredquantity").val() + "," + $("#Comments").val();
+            $.ajax({
+                type: 'GET',
+                url: "/Hospital/SendBrandedMerchandise",
+                contentType: "application/json; charset=utf-8",
+                data: { details: mailbody },
+                success: function (data) {
+                    $("#myModalBrandedMerchandise").modal('hide');
+                    clearAll();
+                    alert("Your order placed successfully");
+                }
+            });
+        }
+    }
+    function clearAll() {
+
+        $("#EmployeeId").val("");
+        $("#EmployeeName").val("");
+        $("#BrandProduct").val("");
+        $("#requiredquantity").val("1");
+        $("#Comments").val("");
+    }
+    function validateDetails() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#EmployeeId").val() == "") {
+            $("#EmployeeId").addClass('css-error');
+            validate = false;
+        }
+        if ($("#EmployeeName").val() == "") {
+            $("#EmployeeName").addClass('css-error');
+            validate = false;
+        }
+        if ($("#BrandProduct").val() == "") {
+            $("#BrandProduct").addClass('css-error');
+            validate = false;
+        }
+        if ($("#requiredquantity").val() == "") {
+            $("#requiredquantity").addClass('css-error');
+            validate = false;
+        }
+        if ($("#Comments").val() == "") {
+            $("#Comments").addClass('css-error');
+            validate = false;
+        }
+
+    }
+</script>

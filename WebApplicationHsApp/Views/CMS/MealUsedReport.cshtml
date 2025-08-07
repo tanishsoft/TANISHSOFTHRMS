@@ -1,0 +1,147 @@
+﻿
+<script>
+    $(document).ready(function () {
+
+        LoadData();
+        $("#FFromDate")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                Edit: true,
+                minDate: 0
+
+            })
+        $("#FToDate")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                Edit: true,
+                minDate: 0
+
+            })
+        LoadLocation();
+   
+    });
+    function LoadLocation() {
+        $.ajax({
+            type: "GET",
+            url: "/Admin/GetLocationView",
+            //data: "id=",
+            success: function (data) {
+                //data = data.aaData;
+                //console.log(data);
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#FLocation").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    
+    function LoadData() {
+        $('#tblAssetMaster').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/CMS/AjaxGetMealReport",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "Location" },
+                { "sName": "Date" },
+                { "sName": "BreakFast Delivered" },
+                { "sName": "BreakFast Used" },
+                { "sName": "Lunch Delivered" },
+                { "sName": "Lunch Used" },
+                { "sName": "Dinner Delivered" },
+                { "sName": "Dinner Used" },
+                {
+                    "sName": "Id",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<a href="javascript:void(0);" id="' + data + '" class="btn btn-success" onclick="Edit(this.id);"><span class="glyphicon glyphicon-list-alt"></span></a>&nbsp';
+                    }
+                }],
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "locationid", "value": $("#FLocation").val() },
+                    { "name": "fromdate", "value": $("#FFromDate").val() },
+                    { "name": "todate", "value": $("#FToDate").val() }
+                );
+            }
+        });
+        $("#tblAssetMaster_length").addClass("col-md-6");
+        $("#tblAssetMaster_length").addClass("col-md-6");
+    }
+
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading">Manage Asset<a href="/Asset/CreateAsset?id=0" class="pull-right">New Asset </a></div>
+    <div class="panel-body">
+        <div class="row">
+
+            <table class="table">
+                <tr>
+                    <td>
+                        <div>
+                            <label>Location</label>
+                        </div>
+                        <div>
+                            <select id="FLocation" class="form-control">
+                                <option value="">Select Location</option>
+                            </select>
+                        </div>
+                        
+                    </td>
+                    
+                    <td>
+                        <div>
+                            <label>From Date</label>
+                        </div>
+                        <div>
+                            <input class="form-control" autocomplete="off" type="text" placeholder="From Date" id="FFromDate" />
+
+                        </div>
+                    </td>
+                   
+                    <td>
+                        <div>
+                            <label>To Date</label>
+                        </div>
+                        <div>
+                            <input class="form-control" autocomplete="off" type="text" placeholder="To Date" id="FToDate" />   
+                            <input type="button" class="btn btn-danger" style="margin-top:-30px" id="btnGo" onclick="LoadData();" value="Go" />
+
+                        </div>
+
+                    </td>
+                </tr>
+            </table>
+
+
+
+        </div>
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblAssetMaster">
+            <thead>
+                <tr>
+                    <th>Location</th>
+                    <th>Date</th>
+                    <th>Break Fast Delivered</th>
+                    <th>Break Fast Used</th>
+                    <th>Lunch Delivered</th>
+                    <th>Lunch Used</th>
+                    <th>Dinner Deliverd</th>
+                    <th>Dinner Used</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>

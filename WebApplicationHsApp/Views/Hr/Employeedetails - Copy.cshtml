@@ -1,0 +1,700 @@
+﻿@model WebApplicationHsApp.DataModel.tbl_EmployeeDetails
+
+@{
+    ViewBag.Title = "Employeedetails";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .form-label {
+        color: teal;
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+    input, select, textarea {
+        max-width: 100%;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        $("#EmpDOB").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd-mm-yy",
+            Edit: true,
+            yearRange: "1900:9999",
+            maxDate: 0,
+            onSelect: function () {
+                debugger;
+                var start = $(this).datepicker('getDate');
+                var end = new Date();
+                var age_year = Math.floor((end - start) / 31536000000);
+                //var age_month = Math.floor(((end - start) % 31536000000) / 2628000000);
+                //var age_day = Math.floor((((end - start) % 31536000000) % 2628000000) / 86400000);
+                $('#lblEmpAge').text(age_year);
+            }
+        })
+        $("#SpouseDOB").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd-mm-yy",
+            Edit: true,
+            yearRange: "1900:9999",
+            maxDate: 0,
+            onSelect: function () {
+                debugger;
+                var start = $(this).datepicker('getDate');
+                var end = new Date();
+                var age_year = Math.floor((end - start) / 31536000000);
+                //var age_month = Math.floor(((end - start) % 31536000000) / 2628000000);
+                //var age_day = Math.floor((((end - start) % 31536000000) % 2628000000) / 86400000);
+                $('#lblSpouseAge').text(age_year);
+            }
+        })
+        $("#Child1DOB").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd-mm-yy",
+            Edit: true,
+            yearRange: "1900:9999",
+            maxDate: 0,
+            onSelect: function () {
+                debugger;
+                var start = $(this).datepicker('getDate');
+                var end = new Date();
+                var age_year = Math.floor((end - start) / 31536000000);
+                if (age_year < 21) {
+                    //var age_month = Math.floor(((end - start) % 31536000000) / 2628000000);
+                    //var age_day = Math.floor((((end - start) % 31536000000) % 2628000000) / 86400000);
+                    $('#lblChild1Age').text(age_year);
+                } else {
+                    $("#Child1DOB").val('');
+                    alert("Children Age should be less than 21 years");
+                }
+            }
+        })
+        $("#Child2DOB").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd-mm-yy",
+            Edit: true,
+            yearRange: "1900:9999",
+            maxDate:0,
+            onSelect: function () {
+                debugger;
+                var start = $(this).datepicker('getDate');
+                var end = new Date();
+                var age_year = Math.floor((end - start) / 31536000000);
+                if (age_year < 21) {
+                    //var age_month = Math.floor(((end - start) % 31536000000) / 2628000000);
+                    //var age_day = Math.floor((((end - start) % 31536000000) % 2628000000) / 86400000);
+                    $('#lblChild2Age').text(age_year);
+                } else {
+                    $("#Child2DOB").val('');
+                    alert("Children Age should be less than 21 years");
+                }
+            }
+        })
+        Load();
+    });
+    function Load() {
+        var Url = "/Hr/GetEmployeeDetails?EmpId=-1";
+        $.ajax({
+            type: "GET",
+            url: Url,
+            success: function (data) {
+                debugger;
+                var obj = data;
+                if (obj.hasOwnProperty("EmpCode")) {
+                    $('#EmpId').val(EmpId);
+                    $('#lblEmpCode').text(obj.EmpCode);
+                    $('#lblEmpName').val(obj.EmpName);
+                    $('#lblEmpDepart').val(obj.EmpDepartmentId);
+                    $('#lblEmpLoc').val(obj.EmpLocationId);
+                    $('#EmpDOB').val(obj.EmpDOB);
+                    $('#EmpGender').val(obj.Gender);
+                    $('#lblEmpAge').text(obj.EmpAge);
+                    $('#txtSpouseName').val(obj.EmpSpouseName);
+                    $('#SpouseGender').val(obj.EmpSpouseGender);
+                    $('#SpouseDOB').val(obj.EmpSpouseDOB);
+                    if (obj.EmpSpouseAge != null)
+                        $('#lblSpouseAge').text(obj.EmpSpouseAge);
+                    $('#txtChild1Name').val(obj.EmpChild1Name);
+                    $('#Chlid1Gender').val(obj.EmpChild1Gender);
+                    $('#Child1DOB').val(obj.EmpChild1DOB);
+                    if (obj.EmpChild1Age != null)
+                        $('#lblChild1Age').text(obj.EmpChild1Age);
+                    $('#txtChild2Name').val(obj.EmpChild2Name);
+                    $('#Chlid2Gender').val(obj.EmpChild2Gender);
+                    $('#Child2DOB').val(obj.EmpChild2DOB);
+                    if (obj.EmpChild2Age != null)
+                        $('#lblChild2Age').text(obj.EmpChild2Age);
+                    $('#txtRemarks').val(obj.EmpRemarks);
+                    $("#Divbody").find("*").prop("disabled", true);
+
+                    $("#ddivpreview").hide();
+                }
+                else {
+                    debugger;
+                    var dob = new Date(obj.DateOfBirth.replace(/(\d{2})-(\d{2})-(\d{4})/, "$2/$1/$3"));
+                    var today = new Date();
+                    var age_year = Math.floor((today - dob) / 31536000000);
+                    $('#EmpId').val(0);
+                    $('#lblEmpCode').text(obj.CustomUserId);
+                    $('#lblEmpName').val(obj.FirstName + '' + obj.LastName);
+                    $('#lblEmpDepart').val(obj.DepartmentName);
+                    $('#lblEmpLoc').val(obj.LocationName);
+                    $('#EmpDOB').val(obj.DateOfBirth);
+                    $('#EmpGender').val(obj.Gender);
+                    $('#lblEmpAge').text(age_year);
+                }
+            }
+        })
+    }
+    function OnclickSaveDetails() {
+        debugger;
+        validateDetails();
+        if (validate) {
+            $("#myModalPreview").modal("hide");
+            var task = {
+                EmpId: $('#EmpId').val(),
+                EmpCode: $('#preEmpCode').text(),
+                EmpName: $('#preEmpName').text(),
+                EmpDepartmentId: $('#preEmpDepart').text(),
+                EmpLocationId: $('#preEmpLoc').text(),
+                EmpDOB: $('#preEmpDOB').text(),
+                EmpAge: $('#preEmpAge').text(),
+                Gender: $('#preEmpGender').text(),
+                EmpSpouseName: $('#preSpouseName').text(),
+                EmpSpouseGender: $('#preSpouseGender').text(),
+                EmpSpouseDOB: $('#preSpouseDOB').text(),
+                EmpSpouseAge: $('#preSpouseAge').text(),
+                EmpChild1Name: $('#preChild1Name').text(),
+                EmpChild1Gender: $('#preChlid1Gender').text(),
+                EmpChild1DOB: $('#preChild1DOB').text(),
+                EmpChild1Age: $('#preChild1Age').text(),
+                EmpChild2Name: $('#preChild2Name').text(),
+                EmpChild2Gender: $('#preChlid2Gender').text(),
+                EmpChild2DOB: $('#preChild2DOB').text(),
+                EmpChild2Age: $('#preChild2Age').text(),
+                EmpRemarks: $('#preRemarks').text(),
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Hr/SaveEmployeeDetails",
+                data: task,
+                success: function (data) {
+                    $(".error").hide();
+                    $(".css-error").removeClass('css-error');
+                    alert(data);
+                    Load();
+                }
+            });
+        }
+    }
+    function validateDetails() {
+        validate = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+
+        if ($("#txtRemarks").val() == "") {
+            $("#txtRemarks").after('<span class="error" style="color:Red;">Enter Remarks</span>');
+            $("#txtRemarks").addClass('css-error');
+            validate = false;
+        }
+        if ($("#EmpDOB").val() == "") {
+            $("#EmpDOB").after('<span class="error" style="color:Red;">select Emp DOB</span>');
+            $("#EmpDOB").addClass('css-error');
+            validate = false;
+        }
+        if ($("#EmpGender").val() == "") {
+            $("#EmpGender").after('<span class="error" style="color:Red;">select Gender</span>');
+            $("#EmpGender").addClass('css-error');
+            validate = false;
+        }
+        if ($("#lblEmpName").val() == "") {
+            $("#lblEmpName").after('<span class="error" style="color:Red;">Enter Name</span>');
+            $("#lblEmpName").addClass('css-error');
+            validate = false;
+        }
+
+        if ($("#lblEmpDepart").val() == "") {
+            $("#lblEmpDepart").after('<span class="error" style="color:Red;">Enter Department</span>');
+            $("#lblEmpDepart").addClass('css-error');
+            validate = false;
+        }
+        if ($("#lblEmpLoc").val() == "") {
+            $("#lblEmpLoc").after('<span class="error" style="color:Red;">Enter Location</span>');
+            $("#lblEmpLoc").addClass('css-error');
+            validate = false;
+        }
+    }
+    function OnclickPreview() {
+        validateDetails();
+        if (validate) {
+            debugger;
+            $('#preEmpCode').text($('#lblEmpCode').text());
+            $('#preEmpName').text($('#lblEmpName').val());
+            $('#preEmpDepart').text($('#lblEmpDepart').val());
+            $('#preEmpLoc').text($('#lblEmpLoc').val());
+            $('#preEmpDOB').text($('#EmpDOB').val());
+            $('#preEmpGender').text($('#EmpGender').val());
+            $('#preEmpAge').text($('#lblEmpAge').text());
+            $('#preSpouseName').text($('#txtSpouseName').val());
+            $('#preSpouseGender').text($('#SpouseGender').val());
+            $('#preSpouseDOB').text($('#SpouseDOB').val());
+            if ($('#lblSpouseAge').text() != null)
+                $('#preSpouseAge').text($('#lblSpouseAge').text());
+            $('#preChild1Name').text($('#txtChild1Name').val());
+            $('#preChlid1Gender').text($('#Chlid1Gender').val());
+            $('#preChild1DOB').text($('#Child1DOB').val());
+            if ($('#lblChild1Age').text() != null)
+                $('#preChild1Age').text($('#lblChild1Age').text());
+            $('#preChild2Name').text($('#txtChild2Name').val());
+            $('#preChlid2Gender').text($('#Chlid2Gender').val());
+            $('#preChild2DOB').text($('#Child2DOB').val());
+            if ($('#lblChild2Age').text() != null)
+                $('#preChild2Age').text($('#lblChild2Age').text());
+            $('#preRemarks').text($('#txtRemarks').val());
+            $("#myModalPreview").modal("show");
+        }
+    }
+</script>
+<div class="panel panel-danger">
+    <div class="panel-heading">Insurance renewal Nominations Form – @DateTime.Now.Year – @(DateTime.Now.Year+1)</div>
+    <div class="panel-body">
+        <div class="row" style="width:60%;margin:auto;">
+            <div style="border-bottom:solid 2px #a71f23;font-size:16px; color:teal; font-weight:bold;">Personal Information</div><br />
+
+        </div>
+        <div style="width:50%;margin:auto;">
+          
+            <div class="row">
+                <input type="hidden" id="EmpId" />
+                <div class="col-sm-4">
+
+                    <div class="row">
+                        <div class="form-group">
+                            <span class="form-label">Employee Code</span>
+                            <label id="lblEmpCode" class="form-control"></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="row">
+                        <div class="form-group">
+                            <span class="form-label">Employee Name</span>
+                            <input type="text" id="lblEmpName" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="row">
+                        <div class="form-group">
+                            <span class="form-label">Employee Location</span>
+                            <input type="text" id="lblEmpLoc" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+
+                    <div class="row">
+                        <div class="form-group">
+                            <span class="form-label">Employee Department</span>
+                            <input type="text" id="lblEmpDepart" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="row">
+                        <div class="form-group">
+                            <span class="form-label">Employee Date Of Birth</span>
+                            <input class="date form-control" type="text" placeholder="Select Date of Birth" id="EmpDOB" readonly="readonly" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-1">
+                    <div class="row">
+                        <div class="form-group">
+                            <span class="form-label">Age</span>
+                            <label id="lblEmpAge" class="form-control"></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="row">
+                        <div class="form-group">
+                            <span class="form-label">Employee Gender</span>
+                            <select class="form-control" id="EmpGender">
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <div class="row" style="width:60%;margin:auto;">
+            <br />
+            <div style="border-bottom:solid 2px #a71f23;font-size:16px;color:teal; font-weight:bold;">Immediate dependent Nominees</div><br />
+        </div>
+        <div style="width:50%;margin:auto;">
+
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="row">
+                        <div class="form-group">
+                            <span class="form-label">Spouse Name</span>
+                            <input type="text" id="txtSpouseName" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="row">
+                        <div class="form-group">
+                            <span class="form-label">Spouse Date Of Birth</span>
+                            <input class="date form-control" type="text" placeholder="Select Date of Birth" id="SpouseDOB" readonly="readonly" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-1">
+                    <div class="row">
+                        <div class="form-group">
+                            <span class="form-label">Age</span>
+                            <label id="lblSpouseAge" class="form-control"></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="row">
+                        <div class="form-group">
+                            <span class="form-label">Spouse Gender</span>
+                            <select class="form-control" id="SpouseGender">
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <div class="row" style="width:60%;margin:auto;">
+            <br />
+            <div style="border-bottom:solid 2px #a71f23;font-size:16px;color:teal; font-weight:bold;"> Children Info</div><br />
+        </div>
+        <div style="width:50%;margin:auto;">
+
+            <div class="row">
+                <div class="col-sm-4">
+
+                    <div class="row">
+                        <div class="form-group">
+                            <span class="form-label">Child1 Name</span>
+                            <input type="text" id="txtChild1Name" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="row">
+                        <div class="form-group">
+                            <span class="form-label">Child1 Date Of Birth</span>
+                            <input class="date form-control" type="text" placeholder="Select Date of Birth" id="Child1DOB" readonly="readonly" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-1">
+                    <div class="row">
+                        <div class="form-group">
+                            <span class="form-label">Age</span>
+                            <label id="lblChild1Age" class="form-control"></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="row">
+                        <div class="form-group">
+                            <span class="form-label">Child1 Gender</span>
+                            <select class="form-control" id="Chlid1Gender">
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+
+                    <div class="row">
+                        <div class="form-group">
+                            <span class="form-label">Child2 Name</span>
+                            <input type="text" id="txtChild2Name" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="row">
+                        <div class="form-group">
+                            <span class="form-label">Child2 Date Of Birth</span>
+                            <input class="date form-control" type="text" placeholder="Select Date of Birth" id="Child2DOB" readonly="readonly" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-1">
+                    <div class="row">
+                        <div class="form-group">
+                            <span class="form-label">Age</span>
+                            <label id="lblChild2Age" class="form-control"></label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="row">
+                        <div class="form-group">
+                            <span class="form-label">Child2 Gender</span>
+                            <select class="form-control" id="Chlid2Gender">
+                                <option value="">Select Gender</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+
+                    <div class="row">
+                        <div class="form-group">
+                            <span class="form-label">Remarks</span>
+                            <textarea class="form-control" id="txtRemarks"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="text-align:center" id="ddivpreview">
+                <p style="font-size:12px;color:teal;">Note : once you save the details. the details Can't be edit after that you need contact hr team for modifications.</p>
+                <button type="button" class="btn  btn-warning" onclick="OnclickPreview();">Preview</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div id="myModalPreview" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title text-info"><b>Preview</b></h4>
+            </div>
+            <div class="modal-body">
+                <form style="width:100%;margin:auto;">
+                    <div class="row">
+                        <div class="col-sm-4">
+
+                            <div class="row">
+                                <div class="form-group">
+                                    <span class="form-label">Employee Code</span>
+                                    <label id="preEmpCode" class="form-control"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="row">
+                                <div class="form-group">
+                                    <span class="form-label">Employee Name</span>
+                                    <label id="preEmpName" class="form-control"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="row">
+                                <div class="form-group">
+                                    <span class="form-label">Employee Location</span>
+                                    <label id="preEmpLoc" class="form-control"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+
+                            <div class="row">
+                                <div class="form-group">
+                                    <span class="form-label">Employee Department</span>
+                                    <label id="preEmpDepart" class="form-control"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="row">
+                                <div class="form-group">
+                                    <span class="form-label">Employee Date Of Birth</span>
+                                    <label id="preEmpDOB" class="form-control"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-1">
+                            <div class="row">
+                                <div class="form-group">
+                                    <span class="form-label">Age</span>
+                                    <label id="preEmpAge" class="form-control"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="row">
+                                <div class="form-group">
+                                    <span class="form-label">Employee Gender</span>
+                                    <label id="preEmpGender" class="form-control"></label>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="row">
+                                <div class="form-group">
+                                    <span class="form-label">Spouse Name</span>
+                                    <label id="preSpouseName" class="form-control"></label>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="row">
+                                <div class="form-group">
+                                    <span class="form-label">Spouse Date Of Birth</span>
+                                    <label id="preSpouseDOB" class="form-control"></label>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-1">
+                            <div class="row">
+                                <div class="form-group">
+                                    <span class="form-label">Age</span>
+                                    <label id="preSpouseAge" class="form-control"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="row">
+                                <div class="form-group">
+                                    <span class="form-label">Spouse Gender</span>
+                                    <label id="preSpouseGender" class="form-control"></label>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+
+                            <div class="row">
+                                <div class="form-group">
+                                    <span class="form-label">Child1 Name</span>
+                                    <label id="preChild1Name" class="form-control"></label>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="row">
+                                <div class="form-group">
+                                    <span class="form-label">Child1 Date Of Birth</span>
+                                    <label id="preChild1DOB" class="form-control"></label>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-1">
+                            <div class="row">
+                                <div class="form-group">
+                                    <span class="form-label">Age</span>
+                                    <label id="preChild1Age" class="form-control"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="row">
+                                <div class="form-group">
+                                    <span class="form-label">Child1 Gender</span>
+                                    <label id="preChlid1Gender" class="form-control"></label>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+
+                            <div class="row">
+                                <div class="form-group">
+                                    <span class="form-label">Child2 Name</span>
+                                    <label id="preChild2Name" class="form-control"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="row">
+                                <div class="form-group">
+                                    <span class="form-label">Child2 Date Of Birth</span>
+                                    <label id="preChild2DOB" class="form-control"></label>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-1">
+                            <div class="row">
+                                <div class="form-group">
+                                    <span class="form-label">Age</span>
+                                    <label id="preChild2Age" class="form-control"></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="row">
+                                <div class="form-group">
+                                    <span class="form-label">Child2 Gender</span>
+                                    <label class="form-control" id="preChlid2Gender"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-12">
+
+                            <div class="row">
+                                <div class="form-group">
+                                    <span class="form-label">Remarks</span>
+                                    <label class="form-control" id="preRemarks"></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn  btn-warning" onclick="OnclickSaveDetails();">Submit</button>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+</div>

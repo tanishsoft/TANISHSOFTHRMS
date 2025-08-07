@@ -1,0 +1,424 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    var oTable;
+    $(document).ready(function () {
+        LoadData();
+        $(".date").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-50:+50",
+            Edit: true
+            //  minDate: 0
+        });
+        LoadLocations();
+    });
+    function LoadLocations() {
+        $.ajax({
+            type: "GET",
+            url: "/Common/GetLocations",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#ddlLocation").html(options.join(''));
+            },
+            error: function () {
+                alert("error");
+            }
+        });
+    }
+    function LoadData() {
+        oTable = $('#myDataTable').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/ConcessionForm/AjaxGetConcessions",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aoColumns": [
+                { "sName": "ConcessionId" },
+                { "sName": "LocationName" },                
+                { "sName": "IPNumber" },
+                { "sName": "PatientName" },
+                { "sName": "DateOfSubmit" },
+                { "sName": "Category" },
+                { "sName": "ConcessionAdvised" },
+                { "sName": "Justification" },
+                { "sName": "BillNo" },
+                { "sName": "TotalBillAmount" },
+                { "sName": "TotalConcessionAmount" },
+                { "sName": "ConcessionType" },
+                { "sName": "Approver" },
+                { "sName": "ApproverStatus" },
+                { "sName": "Document" },
+                {
+                    "sName": "ConcessionId",
+                    "bSortable": false,
+                    "render": function (data, row, r) {
+                        var htmlcontect = "";
+                        htmlcontect += '<div class="btn-group">';
+                        htmlcontect += '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>';
+                        htmlcontect += '<ul class="dropdown-menu dropdown-menu-right">';
+
+                        var type = r[11];
+                        if ($("#currentusername").val() == "1409" || $("#currentusername").val() == "2586" || $("#currentusername").val() == "2106" || $("#currentusername").val() == "5531" || $("#currentusername").val() == "5274" || $("#currentusername").val() == "900194" || $("#LoginEmployeeType").val() == "Admin" || $("#currentusername").val() == "4053") {
+
+
+                            htmlcontect += '<li><a href="javascript:void(0);" style="cursor: pointer; color: green;" id="' + data + '" onclick="EditandApprove(this.id);">Approve</a></li>';
+                            htmlcontect += '<li><a href="javascript:void(0);" style="cursor:pointer;color:orange;" id="' + data + '" onclick="Reject(this.id);">Reject</a></li>';
+                        } else {
+
+                        }
+                        //html = html + "<span id='" + data + "' style='cursor:pointer;color:orange;' onclick='View(this.id)'>View</span>";
+                        htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="View(this.id);">View</a></li>';
+                        htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="Edit(this.id);">Edit</a></li>';
+                        if (type == "IPD") {
+                            //html = html + "<span id='" + data + "' style='cursor:pointer;color:green;' onclick='PrintIPD(this.id)'>Print</span>";
+                            htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="PrintIPD(this.id);">Print</a></li>';
+                        }
+                        else {
+                            htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="PrintOPD(this.id);">Print</a></li>';
+                            //html = html + "<span id='" + data + "' style='cursor:pointer;color:green;' onclick='PrintOPD(this.id)'>Print</span>";
+
+                        }
+                        htmlcontect += '</ul></div>';
+                        return htmlcontect;
+                    }
+                }
+            ],
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, 500, 1000], [10, 20, 30, 50, 100, 150, 200, 500, 1000]],
+            "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                if (aData[14] != null && aData[14] != "") {
+                    $('td:eq(14)', nRow).html('<a href="/ExcelUplodes/' + aData[14] + '" target="_blank" id="' + aData[14] + '">View</a>');
+                } else {
+                    $('td:eq(14)', nRow).html('NA');
+                }
+                if (aData[13] == "Waiting") {
+                    $('td', nRow).css("background-color","#FFD580 !important");
+                }
+
+            },
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "locationid", "value": $("#ddlLocation").val() },
+                    { "name": "category", "value": $("#ddlCategory").val() },
+                    { "name": "SubCategory", "value": $("#ddlSubCategory").val() },
+                    { "name": "Emp", "value": $("#txtConcessionAdvised").val() },
+                    { "name": "fromdate", "value": $("#FromDateExcel").val() },
+                    { "name": "todate", "value": $("#ToDateExcel").val() }
+                );
+            },
+        });
+    }
+    function Edit(id) {
+        $.get("/ConcessionForm/GetConcession?id=" + id, function (data) {
+            if (data.Status == "Approval Waiting") {
+                window.location = "/ConcessionForm/NewConcession?id=" + id;
+            } else {
+                alert("Only pending for approval Concessions can edit");
+            }
+        });
+    }
+    function PrintIPD(id) {
+
+        url = "";
+        url = "/ConcessionForm/PrintIPD?id=" + id;
+        $("<a>").prop({
+            target: "_blank",
+            href: url
+        })[0].click();
+    }
+    function PrintOPD(id) {
+
+        url = "";
+        url = "/ConcessionForm/PrintOPD?id=" + id;
+        $("<a>").prop({
+            target: "_blank",
+            href: url
+        })[0].click();
+    }
+    function Reject(id) {
+        if (confirm("Are you sure you want to Reject?")) {
+            $.get("/ConcessionForm/Reject?id=" + id + "&comments=ok&user=" + $("#currentusername").val(), function (data) {
+                alert(data);
+                oTable.api().ajax.reload(null, false);
+            });
+        }
+    }
+    var currentid;
+    function EditandApprove(id) {
+        currentid = id;
+        $.get("/ConcessionForm/GetConcession?id=" + id, function (data) {
+            var html = " <table class='table table-bordered'>";
+            html += "<tr><td>Date Of Submit</td><td>" + data.DateOfSubmit + "</td>";
+            html += "<td>MR/IP Number</td><td>" + data.IPNumber + "</td></tr>";
+            html += "<tr><td>Patient Name</td><td>" + data.PatientName + "</td>";
+            html += "<td>Concession Category</td><td>" + data.Category + " " + data.SubCategory + "</td></tr>";
+            html += "<tr><td>Concession Advised</td><td> <input type='text' id='ConcessionAdvised' class='form-control' value='" + data.ConcessionAdvised + "'  /></td>";
+            html += "<td>Justification</td><td> <input type='text' id='Justification' class='form-control' value='" + data.Justification + "'  /></td></tr>";
+            html += "<tr><td>Total Bill Amount</td><td> <input type='text' id='TotalBillAmount' class='form-control' value='" + data.TotalBillAmount + "'  /></td>";
+            html += "<td>Total Concession in Amount</td><td> <input type='text' id='TotalConcessionAmount' class='form-control' value='" + data.TotalConcessionAmount + "'  /></td></tr>";
+            html += "<tr><td>Bill No</td><td>" + data.BillNo + "</td>";
+            html += "<td>Concession Type</td><td>" + data.ConcessionType + " <input type='hidden' id='ConcessionType' value='" + data.ConcessionType + "' /> </td></tr>";
+            if (data.ConcessionType == "IPD") {
+                html += "<tr><td>Package</td><td> <input type='text' id='Package' class='form-control' value='" + data.Package + "'  /></td>";
+                html += "<td>Paid By Patient</td><td> <input type='text' id='PaidByPatient' class='form-control' value='" + data.PaidByPatient + "'  /></td></tr>";
+                html += "<tr><td>DateOfAdmission</td><td>" + data.DateOfAdmission + "</td><td>DateOfDischarge</td><td>" + data.DateOfDischarge + "</td></tr>";
+            } else {
+
+                html += "<tr><td>Service</td><td> <input type='text' id='Service' class='form-control' value='" + data.Service + "' /></td>";
+                html += "<td>Consultation</td><td> <input type='text' id='Consultation' class='form-control' value='" + data.Consultation + "' /></td></tr>";
+                html += "<tr><td>Scan</td><td> <input type='text' id='Scan' class='form-control' value='" + data.Scan + "' /></td>";
+                html += "<td>Investigations</td><td> <input type='text' id='Investigations' class='form-control' value='" + data.Investigations + "' /></td></tr>";
+                html += "<tr><td>Procedure</td><td> <input type='text' id='ProcedureName' class='form-control' value='" + data.ProcedureName + "' /></td><td></td><td></td></tr>";
+                html += "<tr><td>Pharmacy</td><td>" + data.Pharmacy + "</td><td>NST</td><td>" + data.NST + "</td></tr>";
+            }
+            html += "<tr><td>Status</td><td>" + data.Status + "</td><td>Validity</td><td>" + data.Validity + "</td></tr>";
+
+
+            html += "<tr><td></td><td></td><td colspan='2'><input type='button' id='btnapprove' onclick='ApproveConcession()' class='btn btn-primary' value='Approve' /></td></tr>";
+            html += "</table>";
+            $("#divbinddataEdit").html(html);
+            $("#myModalEdit").modal('show');
+        });
+    }
+    function ApproveConcession() {
+        if (confirm("Are you sure you want to Approve?")) {
+            var ConcessionAdvised = $("#ConcessionAdvised").val();
+            var Justification = $("#Justification").val();
+            var TotalBillAmount = $("#TotalBillAmount").val();
+            var TotalConcessionAmount = $("#TotalConcessionAmount").val();
+            var Package = "";
+            var Service = "";
+            var Consultation = "";
+            var Scan = "";
+            var Investigations = "";
+            var ProcedureName = "";
+            var ConcessionType = $("#ConcessionType").val();
+            if (ConcessionType == "IPD") {
+                Package = $("#Package").val();
+                Service = $("#Service").val();
+            } else {
+                Consultation = $("#Consultation").val();
+                Scan = $("#Scan").val();
+                Investigations = $("#Investigations").val();
+                ProcedureName = $("#ProcedureName").val();
+            }
+            $.get("/ConcessionForm/Approve?id=" + currentid + "&comments=ok&user=" + $("#currentusername").val() + "&ConcessionAdvised=" + ConcessionAdvised + "&Justification=" + Justification
+                + "&TotalBillAmount=" + TotalBillAmount + "&TotalConcessionAmount=" + TotalConcessionAmount + "&Package=" + Package + "&Service="
+                + "&Consultation=" + Consultation + "&Scan=" + Scan + "&Investigations=" + Investigations + "&ProcedureName=" + ProcedureName, function (data) {
+                    alert(data);
+                    oTable.api().ajax.reload(null, false);
+                });
+        }
+    }
+    function View(id) {
+        $.get("/ConcessionForm/GetConcession?id=" + id, function (data) {
+            var html = " <table class='table table-bordered'>";
+            html += "<tr><td>Date Of Submit</td><td>" + data.DateOfSubmit + "</td>";
+            html += "<td>MR/IP Number</td><td>" + data.IPNumber + "</td></tr>";
+            html += "<tr><td>Patient Name</td><td>" + data.PatientName + "</td>";
+            html += "<td>Concession Category</td><td>" + data.Category + " " + data.SubCategory + "</td></tr>";
+            html += "<tr><td>Concession Advised</td><td>" + data.ConcessionAdvised + "</td>";
+            html += "<td>Justification</td><td>" + data.Justification + "</td></tr>";
+            html += "<tr><td>Total Bill Amount</td><td>" + data.TotalBillAmount + "</td>";
+            html += "<td>Total Concession in Amount</td><td>" + data.TotalConcessionAmount + "</td></tr>";
+
+            html += "<tr><td>Total Concession in Percentage</td><td>" + data.TotalConcessionPercentage + "</td><td>Status</td><td>" + data.Status + "</td></tr>";
+            html += "<tr><td>Bill No</td><td>" + data.BillNo + "</td>";
+            html += "<td>Concession Type</td><td>" + data.ConcessionType + "</td></tr>";
+            if (data.ConcessionType == "IPD") {
+                html += "<tr><td>Package</td><td>" + data.Package + "</td>";
+                html += "<td>Paid By Patient</td><td>" + data.PaidByPatient + "</td></tr>";
+            } else {
+                html += "<tr><td>Service</td><td>" + data.Service + "</td>";
+                html += "<td>Consultation</td><td>" + data.Consultation + "</td></tr>";
+                html += "<tr><td>Scan</td><td>" + data.Scan + "</td>";
+                html += "<td>Investigations</td><td>" + data.Investigations + "</td></tr>";
+                html += "<tr><td>Procedure</td><td>" + data.ProcedureName + "</td><td>Validity</td><td>" + data.Validity + "</td></tr>";
+            }
+            html += "</table>";
+            $("#divbinddata").html(html);
+            $("#myModalView").modal('show');
+        });
+    }
+    function categorychange() {
+        $(".ConcessionSubcategory").hide();
+        $("." + $("#ddlCategory").val()).show();
+    }
+    function ExportExcelData() {
+        var params = "FromDate=" + $("#FromDateExcel").val() + "&ToDate=" + $("#ToDateExcel").val();
+        if ($("#ddlLocation").val() != null && $("#ddlLocation").val() != "") {
+            params += "&LocationId=" + $("#ddlLocation").val();
+        }
+        if ($("#ddlCategory").val() != null && $("#ddlCategory").val() != "") {
+            params += "&Category=" + $("#ddlCategory").val();
+        } 
+        if ($("#ddlSubCategory").val() != null && $("#ddlSubCategory").val() != "") {
+            params += "&SubCategory=" + $("#ddlSubCategory").val();
+        }
+
+        params += "&ConcessionAdvised=" + $("#txtConcessionAdvised").val();
+    
+        window.location = "/ConcessionForm/Concessions_ExportToExcel?" + params;
+    }
+</script>
+<input type="hidden" id="currentusername" value="@User.Identity.Name" />
+<style>
+    th {
+        font-weight: normal !important;
+    }
+</style>
+<div class="panel panel-default">
+    <div class="panel-heading" style=" font-weight:normal;">
+        <span class="glyphicon glyphicon-arrow-right"></span>&nbsp; Concession Form
+        <a href="/ConcessionForm/NewConcession" style="float:right;">New</a>
+    </div>
+    <div class="panel-body" style="min-height:600px;">
+        <div class="row" style="margin-bottom:5px;">
+            <div class="col-md-2">
+                <select class="form-control" id="ddlLocation">
+                    <option value="">Select Location</option>
+               
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-control" id="ddlCategory" onchange="categorychange();">
+                    <option value="">Select Category</option>
+                    <option value="Non-Paying">Non-Paying</option>
+                    <option value="CRM">CRM</option>
+                    <option value="PUBLIC_SERVANTS">PUBLIC SERVANTS</option>
+                    <option value="Other">Others</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-control" id="ddlSubCategory">
+                    <option value="">Select Sub Category</option>
+                    <option class="ConcessionSubcategory Other" value="Doctors">Doctors</option>
+                    <option class="ConcessionSubcategory Other" value="Staff Nurse">Staff Nurse</option>
+                    <option class="ConcessionSubcategory Other" value="Staff">Staff</option>
+                    <option class="ConcessionSubcategory Other" value="DNB/KNR Examinations">DNB/KNR Examinations</option>
+                    <option class="ConcessionSubcategory Other" value="Insurance">Insurance</option>
+                    <option class="ConcessionSubcategory Other" value="N/A of Rooms">N/A of Rooms</option>
+                    <option class="ConcessionSubcategory Other" value="Academic Scans">Academic Scans</option>
+                    <option class="ConcessionSubcategory Other" value="Requested by Consultant">Requested by Consultant</option>
+                    <option class="ConcessionSubcategory Other" value="Requested by Patient">Requested by Patient</option>
+                    <option class="ConcessionSubcategory CRM" value="Medical Issues">Medical Issues</option>
+
+                    <option class="ConcessionSubcategory PUBLIC_SERVANTS" value="Armed Forces">Armed Forces</option>
+                    <option class="ConcessionSubcategory PUBLIC_SERVANTS" value="Bureaucrats">Bureaucrats</option>
+                    <option class="ConcessionSubcategory PUBLIC_SERVANTS" value="Police Personal">Police Personal</option>
+                    <option class="ConcessionSubcategory Non-Paying" value="RVD (+ve)">RVD (+ve)</option>
+                    <option class="ConcessionSubcategory Non-Paying" value="Nireekshana (Ret+ve)">Nireekshana (Ret+ve)</option>
+                    <option class="ConcessionSubcategory Non-Paying" value="IRHS">IRHS</option>
+                    <option class="ConcessionSubcategory Non-Paying" value="NIMS">NIMS</option>
+                    <option class="ConcessionSubcategory Non-Paying" value="Nun Sisters">Nun Sisters</option>
+                    <option class="ConcessionSubcategory Non-Paying" value="Rosary Convent">Rosary Convent</option>
+                    <option class="ConcessionSubcategory Non-Paying" value="Heal A Child">Heal A Child</option>
+                    <option class="ConcessionSubcategory Non-Paying" value="Home for the Aged">Home for the Aged</option>
+                    <option class="ConcessionSubcategory Non-Paying" value="Home for Disable">Home for Disable</option>
+                    <option class="ConcessionSubcategory Non-Paying" value="General Ward Concession">General Ward Concession</option>
+                    <option class="ConcessionSubcategory Non-Paying" value="Poor Financial Condition of Patient">Poor Financial Condition of Patient</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-control" id="txtConcessionAdvised">
+                    <option value="">Select Concession Advised</option>
+                    <option value="Dr. Evita">Dr. Evita</option>
+                    <option value="Dr. Pramod">Dr. Pramod</option>
+                    <option value="Dr. Tarakeshwari">Dr. Tarakeshwari</option>
+                    <option value="Dr. Padmaja">Dr. Padmaja</option>
+                    <option value="Dr. Tejopratap">Dr. Tejopratap</option>
+                    <option value="Dr. Sunil Pawar">Dr. Sunil Pawar</option>
+                    <option value="Dr. Sai Kiran">Dr. Sai Kiran</option>
+                    <option value="Dr. Rajeev">Dr. Rajeev</option>
+                    <option value="Dr. Sowjanya">Dr. Sowjanya</option>
+                    <option value="Dr. Tejaswini">Dr. Tejaswini</option>
+                    <option value="Dr. Ashraf">Dr. Ashraf</option>
+                    <option value="Ms. Shirley">Ms. Shirley</option>
+                    <option value="Ms. Satya Durga">Ms. Satya Durga</option>
+                    <option value="Ms.Swathi.B">Ms.Swathi.B</option>
+                    <option value="Hospital Policy">Hospital Policy</option>
+                </select>
+            </div>
+            <div class="col-md-1">
+                <input class="date form-control" autocomplete="off" type="text" placeholder="From Date" id="FromDateExcel" />
+            </div>
+            <div class="col-md-1">
+                <input class="date form-control" autocomplete="off" type="text" placeholder="To Date" id="ToDateExcel" />
+            </div>
+            <div class="col-md-2">
+                <input type="button" id="btnExport" value="Export Excel" class="btn btn-link" onclick="ExportExcelData()" />
+                <input type="button" class="btn btn-danger" id="btnGo" onclick="LoadData();" value="Go" />
+            </div>
+
+        </div>
+        <table class="table table-bordered" id="myDataTable">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>No.</th>
+                    <th>Location</th>
+                    <th>MR/IP No</th>
+                    <th>Patient Name</th>
+                    <th>Date of Submit</th>
+                    <th>Category</th>
+                    <th>Concession Advised</th>
+                    <th>Justification</th>
+                    <th>Bill No</th>
+                    <th>Total Amount</th>
+                    <th>Concession Amount</th>
+                    <th>Type</th>
+                    <th>Approver</th>
+                    <th>Status</th>
+                    <th>Document</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+
+<div id="myModalView" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" style="color:white;">View</h4>
+            </div>
+            <div class="modal-body">
+                <div id="divbinddata">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalEdit" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" style="color:white;">Edit & Approve</h4>
+            </div>
+            <div class="modal-body">
+                <div id="divbinddataEdit">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+

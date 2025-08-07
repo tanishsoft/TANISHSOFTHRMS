@@ -1,0 +1,114 @@
+﻿
+@{
+    ViewBag.Title = "LifeCellUpdate";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+</style>
+
+<script src="~/Scripts/jSignature.min.js"></script>
+<!--[if lt IE 9]>
+<script  type="text/javascript" src="~/Scripts/flashcanvas.js"></script>
+    <![endif]-->
+<script>
+    var $sigdiv, $sigdiv2, id = 0;
+    $(document).ready(function () {
+        $sigdiv = $("#captureSignature").jSignature({ 'UndoButton': true });
+        ViewDetails();
+    });
+    function Cancel() {
+        window.location.replace("/Register/LifeCell");
+    }
+    function SaveUserSignoff() {
+        var model = {
+            id: $("#hidBreakdownid").val(),
+            signature: "data:" + $sigdiv.jSignature('getData', 'image').toString(),
+          
+            remarks: $("#txtremarks").val()
+        }
+        $.post('/Register/SaveLifeCellUpdate', model, function (data) {
+            alert("Successfully updated");
+            window.location.replace("/Register/LifeCell");
+        });
+    }
+    function GetDatestr(date) {
+        var d = new Date(parseInt(date.substr(6)));
+        return d.toLocaleString("en-GB");
+    }
+    function ViewDetails() {
+        $.get("/Register/GetRegister_LifeCell?id=" + $("#hidBreakdownid").val(), function (data) {
+            var html = "<table class='table table-bordered'>";
+            //html += "<tr><td>Location</td><td>" + getlocationame(data.LocationId) + "</td></tr>";
+            html += "<tr><td>Patient Mr No</td><td>" + data.PatientMRNo + "</td></tr>";
+            html += "<tr><td>Patient Name</td><td>" + data.NameOfPatient + "</td></tr>";
+            html += "<tr><td>Mobile No</td><td>" + data.PatientContactNumber + "</td></tr>";
+            html += "<tr><td>Room No</td><td>" + data.RoomNo + "</td></tr>";
+            html += "<tr><td>Company Name</td><td>" + data.CompanyName + "</td></tr>";
+            html += "<tr><td>Paramedic Name</td><td>" + data.ParamedicName + "</td></tr>";
+            html += "<tr><td>Paramedic Contact No</td><td>" + data.ContactNumber + "</td></tr>";
+            html += "<tr><td>Security</td><td>" + data.Security + "</td></tr>";
+            html += "<tr><td>In Remarks</td><td>" + data.InRemarks + "</td></tr>";
+            html += "<tr><td>In Date</td><td>" + GetDatestr(data.InDateTime) + "</td></tr>";
+            if (data.InSign != null && data.InSign != "") {
+                html += "<tr><td>In Sign</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.InSign + "' /></td></tr>";
+            }
+            if (data.OutSign != null && data.OutSign != "") {
+                html += "<tr><td>Out Date</td><td>" + GetDatestr(data.OutDateTime) + "</td></tr>";
+                html += "<tr><td>Out Remarks</td><td>" + data.OutRemarks + "</td></tr>";
+                html += "<tr><td>Out Signature</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.OutSign + "' /></td></tr>";
+            }
+            html += "</table>";
+            $("#tableview").html(html);
+        });
+    }
+</script>
+
+<style>
+    #captureSignature {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+</style>
+<input type="hidden" id="hidBreakdownid" value="@ViewBag.Id" />
+<div class="panel panel-default">
+    <div class="panel-heading">Life Cell Update</div>
+    <div class="panel-body">
+        <div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="tableview">
+
+                    </div>
+                </div>
+            </div>
+           
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    Remarks
+                </div>
+                <div class="col-md-10">
+                    <textarea id="txtremarks" rows="2" class="form-control" style="width:100%"></textarea>
+                </div>
+            </div>
+            <div class="row" style="padding:15px;">
+
+                <div class="form-group col-md-12">
+                    <label style="margin-bottom:5px;">Out Signature</label><br />
+                    <div id="captureSignature">
+                    </div>
+
+                </div>
+            </div>
+           
+        </div>
+        <div>
+            <input type="button" id="btnasigntask" value="Save" onclick="SaveUserSignoff();" class="btn btn-primary">
+            <button type="button" class="btn btn-default" onclick="Cancel();">Cancel</button>
+        </div>
+    </div>
+</div>

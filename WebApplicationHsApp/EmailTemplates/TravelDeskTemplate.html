@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Request</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f8f8;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            margin: 2rem auto;
+            width: 80%;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+
+        .header {
+            /*font-size: 1.1rem;*/
+            font-weight: bold;
+            color: #ff8c00;
+            margin-bottom: 1rem;
+        }
+
+        .content {
+            /*font-size: .725rem;*/
+            margin-bottom: 1.5rem;
+        }
+
+        .approval-box {
+            background-color: #ffebcc;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+            .buttons a {
+                flex: 0 0 48%;
+                text-align: center;
+                padding: 0.75rem;
+                border-radius: 4px;
+                text-decoration: none;
+                font-size: 1rem;
+                font-weight: bold;
+                color: #fff;
+                transition: all 0.3s ease;
+            }
+
+            .buttons .reject {
+                background-color: #dc3545;
+                border: 1px solid #dc3545;
+            }
+
+            .buttons .approve {
+                background-color: #28a745;
+                border: 1px solid #28a745;
+            }
+
+        .details-box {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+            .details-box table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            .details-box th,
+            .details-box td {
+                padding: 0.75rem;
+                text-align: left;
+                border-bottom: 1px solid #e0e0e0;
+            }
+
+            .details-box th {
+                background-color: #ff8c00;
+                color: #fff;
+                font-weight: 500;
+            }
+
+            .details-box .label {
+                font-weight: 500;
+                color: brown;
+            }
+
+        .view-details {
+            text-align: center;
+        }
+
+            .view-details a {
+                text-decoration: none;
+                color: #007bff;
+                font-weight: bold;
+                border: 1px solid #007bff;
+                padding: 0.5rem 1rem;
+                border-radius: 4px;
+                transition: all 0.3s ease;
+            }
+
+                .view-details a:hover {
+                    background-color: #007bff;
+                    color: #fff;
+                }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            Travel Request
+        </div>
+
+        <div class="content">
+            Hi [[ApproverName]],
+        </div>
+
+        <div class="content">
+            [[TravelUser]] has requested a Travel booking to <b>[[TravelLocation]]</b> scheduled on <b>[[DateOfTravel]]</b>, which needs your approval.
+        </div>
+
+        <div class="approval-box">
+            On approval, <b>the booking will be automatically confirmed</b> & the details will be shared with [[TravelUser]].
+        </div>
+
+        <div class="buttons">
+            <a href="[[RejectUrl]]" target="_blank" class="reject">REJECT</a>
+            <a href="[[ApproveUrl]]" target="_blank" class="approve">APPROVE</a>
+        </div>
+
+        <div class="details-box">
+            <table style="border-collapse: collapse; width: 100%;">
+                <tr>
+                    <th colspan="2" style="border: 1px solid black; padding: 8px;">Travel Details</th>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">Emp ID</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[EmpId]]</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">Name as per Aadhar</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[EmpName]]</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">Mail ID</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[MailId]]</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">Date Of Birth</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[DateOfBirth]]</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">Mobile</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[Mobile]]</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">Employee Category</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[EmployeeCategory]]</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">Purpose of trip</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[PurposeOfTrip]]</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">Mode Of Travel</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[ModeOfTravel]]</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">Event Start date</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[EventStartDate]]</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">Event End Date</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[EventEndDate]]</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">Venue details</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[VenuDetails]]</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">Name Of the [[PurposeOfTrip]]</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[NameOfConference]]</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">Details of the participation/representation</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[Detailsoftheparticipation]]</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">Invited as</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[InvitedAs]]</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">Registration Needed</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[RegistrationNeeded]]</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">If Yes</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[IfRegistrationNeededDetails]]</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">TSMC No</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[TSMCNO]]</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">Onward From</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[PlaceFrom]]</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">Onward To</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[PlaceTo]]</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">Onward Date</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[DateOfJourney]]</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">Onward Time</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[OnwardTime]]</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">Return From</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[ReturnPlaceFrom]]</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">Return To</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[ReturnPlaceTo]]</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">Return Date</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[DateOfReturnJourney]]</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">Return Time</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[ReturnTime]]</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">Accommodation</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[Accommodation]]</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">Accommodation Note</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[AccommodationNote]]</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">Reimbursement By Conference/ Workshop Organisers</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[ReimbursementByConference]]</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">If Reimbursement</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[IfReimbursementByConference]]</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">Traveller(s)</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[TravelUser]] (1 Adult)</td>
+                </tr>
+                <tr>
+                    <td class="label" style="border: 1px solid black; padding: 8px;">Reasons for travel</td>
+                    <td style="border: 1px solid black; padding: 8px;">[[ReasonForTravel]]</td>
+                </tr>
+            </table>
+
+        </div>
+
+        <div class="view-details">
+            <a href="https://infonet.fernandezhospital.com/" target="_blank">VIEW REQUEST DETAILS</a>
+        </div>
+    </div>
+</body>
+
+</html>

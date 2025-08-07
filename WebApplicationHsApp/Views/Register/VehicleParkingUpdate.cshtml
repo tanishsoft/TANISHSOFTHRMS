@@ -1,0 +1,170 @@
+﻿
+@{
+    ViewBag.Title = "VehicleParkingUpdate";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+</style>
+
+<script src="~/Scripts/jSignature.min.js"></script>
+<!--[if lt IE 9]>
+<script  type="text/javascript" src="~/Scripts/flashcanvas.js"></script>
+    <![endif]-->
+<script>
+    var $sigdiv, $sigdiv2, id = 0;
+    $(document).ready(function () {
+        $sigdiv = $("#captureSignature").jSignature({ 'UndoButton': true });
+        $sigdiv2 = $("#captureSignatureSecurity").jSignature({ 'UndoButton': true });
+
+        $("#txtReturnNumber").change(function () {
+            $.get("/Custom/GetUserDetailsByEmpId?id=" + $("#txtReturnNumber").val(), function (data) {
+                if (data != "Enter Valid Request ID") {
+                    $("#txtstaffName").html(data.FirstName + ' ' + data.DepartmentName);
+                }
+            });
+        });
+        ViewDetails();
+        LoadDropdownvalues();
+    });
+    function Cancel() {
+        window.location.replace("/Register/VehicleParking");
+    }
+    function LoadDropdownvalues() {
+        $.get("/Common/GetCommonDropdownValues?dtype=Driver", function (data) {
+            var options = [];
+            options.push('<option value="">- Select -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].Name + '">' + data[i].Name + '</option>');
+            }
+            $("#txtOutDriver").html(options.join(''));
+        });
+    }
+    function OnLocationchng(id) {
+        $.get("/Register/GetSecurityDetails?locationId=" + id, function (data) {
+            var options = [];
+            options.push('<option value="">- Select Security -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].FirstName + '">' + data[i].FirstName + '</option>');
+            }
+            $("#txtTakingSecurity").html(options.join(''));
+        });
+    }
+    function SaveUserSignoff() {
+        var model = {
+            id: $("#hidBreakdownid").val(),
+            OutDriverSign: "data:" + $sigdiv.jSignature('getData', 'image').toString(),
+            OutSecuritySign: "data:" + $sigdiv2.jSignature('getData', 'image').toString(),
+            OutDriver: $("#txtOutDriver").val(),
+            OutSecurity: $("#txtTakingSecurity").val()
+        }
+        $.post('/Register/SaveVehicleParkingUpdate', model, function (data) {
+            alert("Successfully updated");
+            window.location.replace("/Register/VehicleParking");
+        });
+    }
+    function GetDatestr(date) {
+        var d = new Date(parseInt(date.substr(6)));
+        return d.toLocaleString("en-GB");
+    }
+    function ViewDetails() {
+        $.get("/Register/GetRegister_VehicleParking?id=" + $("#hidBreakdownid").val(), function (data) {
+            var html = "<table class='table table-bordered'>";
+            OnLocationchng(data.LocationId);
+            /* html += "<tr><td>Location</td><td>" + getlocationame(data.LocationId) + "</td></tr>";*/
+            html += "<tr><td>Parking Location</td><td>" + data.ParkingLocation + "</td></tr>";
+            html += "<tr><td>Wheeler Type</td><td>" + data.WheelerType + "</td></tr>";
+            html += "<tr><td>Vehicle</td><td>" + data.VehicleNameOrNumber + "</td></tr>";
+            html += "<tr><td>Mobile No</td><td>" + data.MobileNo + "</td></tr>";
+            html += "<tr><td>In Driver</td><td>" + data.InDriver + "</td></tr>";
+            html += "<tr><td>In Security</td><td>" + data.InSecurity + "</td></tr>";
+            html += "<tr><td>In Time</td><td>" + GetDatestr(data.InTime) + "</td></tr>";
+            html += "<tr><td>Remarks</td><td>" + data.Remarks + "</td></tr>";
+            html += "<tr><td>Purpose</td><td>" + data.Purpose + "</td></tr>";
+            if (data.OutTime != null && data.OutTime != "") {
+                html += "<tr><td>Out DateTime </td><td>" + GetDatestr(data.OutTime) + "</td></tr>";
+                html += "<tr><td>Out Security </td><td>" + data.OutSecurity + "</td></tr>";
+                html += "<tr><td>Out Driver </td><td>" + data.OutDriver + "</td></tr>";
+            }
+
+
+            if (data.InSecuritySign != null && data.InSecuritySign != "") {
+                html += "<tr><td>In Security Sign</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.InSecuritySign + "' /></td></tr>";
+            }
+            if (data.InDriverSign != null && data.InDriverSign != "") {
+                html += "<tr><td>In Driver Sign</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.InDriverSign + "' /></td></tr>";
+            }
+            if (data.OutSecuritySign != null && data.OutSecuritySign != "") {
+                html += "<tr><td>Out Security Sign</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.OutSecuritySign + "' /></td></tr>";
+            }
+            if (data.OutDriverSign != null && data.OutDriverSign != "") {
+                html += "<tr><td>Out Driver Sign</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.OutDriverSign + "' /></td></tr>";
+            }
+            html += "</table>";
+
+            $("#tableview").html(html);
+        });
+    }
+</script>
+
+
+<input type="hidden" id="hidBreakdownid" value="@ViewBag.Id" />
+<div class="panel panel-default">
+    <div class="panel-heading">Vehicle Parking Update</div>
+    <div class="panel-body">
+        <div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="tableview">
+
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    Out Driver
+                </div>
+                <div class="col-md-4">
+                    <select id="txtOutDriver" class="form-control">
+                        <option value="">Select Driver</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    Out Security
+                </div>
+                <div class="col-md-4">
+                    <select id="txtTakingSecurity" class="form-control">
+                        <option value="">Select Security</option>
+                    </select>
+                </div>
+            </div>
+         
+            <div class="row" style="padding:15px;">
+
+                <div class="form-group col-md-6">
+                    <label style="margin-bottom:5px;">Out Driver Signature</label><br />
+                    <div id="captureSignature">
+                    </div>
+
+                </div>
+           
+
+                <div class="form-group col-md-6">
+                    <label style="margin-bottom:5px;">Out Security Signature</label><br />
+                    <div id="captureSignatureSecurity">
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div>
+            <input type="button" id="btnasigntask" value="Save" onclick="SaveUserSignoff();" class="btn btn-primary">
+            <button type="button" class="btn btn-default" onclick="Cancel();">Cancel</button>
+        </div>
+    </div>
+</div>

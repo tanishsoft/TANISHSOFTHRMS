@@ -1,0 +1,1067 @@
+﻿@model WebApplicationHsApp.DataModel.tbl_Doctor_RegistrationFrom
+
+@{
+    ViewBag.Title = "DoctorRegistration";
+}
+
+<h2>DoctorRegistration</h2>
+
+<script>
+    $(document).ready(function () {
+        LoadData();
+        $(".date")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd-mm-yy",
+                Edit: true
+
+            })
+    });
+    function isNumber(evt) {
+
+        var iKeyCode = (evt.which) ? evt.which : evt.keyCode
+        if (iKeyCode != 46 && iKeyCode > 31 && (iKeyCode < 48 || iKeyCode > 57)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    function LoadData() {
+        var oTable = $('#tblDoctorRegistration').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Doctor/AjaxGetDoctorRegistration",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "DR_Id" },
+                { "sName": "DR_FirstName" },
+                { "sName": "DR_mobileNo" },
+                { "sName": "DR_Email" },
+                { "sName": "DR_DateOfBirth" },
+                { "sName": "DR_Gender" },
+                { "sName": "DR_Qualification" },
+                { "sName": "DR_specialization" },
+                {
+                    "sName": "DR_Id",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="Edit(this.id);">Edit</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="Delete(this.id);">Delete</a></li>' +
+                            '</ul></div>';
+                    }
+                }
+            ]
+        });
+        $("#tblDoctorRegistration_length").addClass("col-md-6");
+        $("#tblDoctorRegistration_length").addClass("col-md-6");
+    }
+    function AjaxPost() {
+        debugger;
+        validateNew();
+        if (validate) {
+            $(".error").hide();
+            $(".css-error").removeClass('css-error');
+            // Checking whether FormData is available in browser
+            if (window.FormData !== undefined) {
+                // Create FormData object
+                var fileData = new FormData();
+
+                // Adding one more key to FormData object
+                fileData.append('DR_Title', $('input[name=RadioTitle]:checked').val());
+                fileData.append('DR_FirstName', $("#FirstName").val());
+                fileData.append('DR_LastName', $("#LastName").val());
+                fileData.append('DR_DateOfBirth', $("#DateofBirth").val());
+                fileData.append('DR_Gender', $('input[name=RadioGender]:checked').val());
+                fileData.append('DR_BloodGroup', $("#BloodGroup").val());
+                fileData.append('DR_Nationality', $("#Nationality").val());
+                fileData.append('DR_mobileNo', $("#Mobile").val());
+                fileData.append('DR_Email', $("#Email").val());
+                fileData.append('DR_Qualification', $("#Qualification").val());
+                fileData.append('DR_RegistrationNumber', $("#RegistrationNo").val());
+                fileData.append('DR_RegistrationState', $("#RegistrationState").val());
+                fileData.append('DR_Experience', $("#Experience").val());
+                fileData.append('DR_specialization', $("#Specialication").val());
+                fileData.append('DR_residence_FlotNo', $("#FlatNo").val());
+                fileData.append('DR_residence_RoadName', $("#RoadNo").val());
+                fileData.append('DR_residence_locality', $("#Area").val());
+                fileData.append('DR_residence_city', $("#City").val());
+                fileData.append('DR_residence_State', $("#state").val());
+                fileData.append('DR_residence_country', $("#Country").val());
+                fileData.append('DR_residence_PhoneNo', $("#Telephone").val());
+                fileData.append('DR_residence_office', $("#Office").val());
+                fileData.append('DR_residence_fax', $("#fax").val());
+                fileData.append('DR_residence_pincode', $("#pincode").val());
+                $.ajax({
+                    type: "POST",
+                    url: "/Doctor/SaveDOctorRegistration",
+                    contentType: false, // Not to set any content header
+                    processData: false, // Not to process data
+                    data: fileData,
+                    success: function (result) {
+                        alert(result);
+                        clearAll();
+
+                    },
+                    error: function (err) {
+                        alert(err.statusText);
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+        else {
+            return false;
+        }
+
+    }
+    function Edit(DorId) {
+        debugger;
+        var Url = "/Doctor/GetDoctorById?DRId=" + DorId;
+        $.ajax({
+            type: "GET",
+            url: Url,
+            success: function (data) {
+                $("#myModalEdit").modal('show');
+                var obj = data;
+                $("[name=eRadioTitle]").val([obj.DR_Title]);
+                $("#eID").val(obj.DR_Id);
+                $("#eFirstName").val(obj.DR_FirstName);
+                $("#eLastName").val(obj.DR_LastName);
+                $("#eDateofBirth").val(obj.DR_DateOfBirth);
+                $("[name=eRadioGender]").val([obj.DR_Gender]);
+                $("#eBloodGroup").val(obj.DR_BloodGroup);
+                $("#eNationality").val(obj.DR_Nationality);
+                $("#eMobile").val(obj.DR_mobileNo);
+                $("#eEmail").val(obj.DR_Email);
+                $("#eQualification").val(obj.DR_Qualification);
+                $("#eRegistrationNo").val(obj.DR_RegistrationNumber);
+                $("#eRegistrationState").val(obj.DR_RegistrationState);
+                $("#eExperience").val(obj.DR_Experience);
+                $("#eSpecialication").val(obj.DR_specialization);
+                $("#eFlatNo").val(obj.DR_residence_FlotNo);
+                $("#eRoadNo").val(obj.DR_residence_RoadName);
+                $("#eArea").val(obj.DR_residence_locality);
+                $("#eCity").val(obj.DR_residence_city);
+                $("#estate").val(obj.DR_residence_State);
+                $("#eCountry").val(obj.DR_residence_country);
+                $("#eTelephone").val(obj.DR_residence_PhoneNo);
+                $("#eOffice").val(obj.DR_residence_office);
+                $("#epincode").val(obj.DR_residence_pincode);
+                $("#efax").val(obj.DR_residence_fax);
+            }
+        })
+
+    }
+    function clearAll() {
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        $("[name=RadioTitle]").val([""]);
+        $("#ID").val("");
+        $("#FirstName").val("");
+        $("#LastName").val("");
+        $("#DateofBirth").val("");
+        $("[name=RadioGender]").val([""]);
+        $("#BloodGroup").val("");
+        $("#Nationality").val("");
+        $("#Mobile").val("");
+        $("#Email").val("");
+        $("#Qualification").val("");
+        $("#RegistrationNo").val("");
+        $("#RegistrationState").val("");
+        $("#Experience").val("");
+        $("#Specialication").val("");
+        $("#FlatNo").val("");
+        $("#RoadNo").val("");
+        $("#Area").val("");
+        $("#City").val("");
+        $("#state").val("");
+        $("#Country").val("");
+        $("#Telephone").val("");
+        $("#Office").val("");
+        $("#pincode").val("");
+        $("#fax").val("");
+    }
+    function AjaxPostUpdate() {
+        debugger;
+        validateUpdate();
+        if (validate) {
+            $(".error").hide();
+            $(".css-error").removeClass('css-error');
+            // Checking whether FormData is available in browser
+            if (window.FormData !== undefined) {
+                var fileData = new FormData();
+
+                // Adding one more key to FormData object
+                fileData.append('DR_Id', $("#eID").val());
+                fileData.append('DR_Title', $('input[name=eRadioTitle]:checked').val());
+                fileData.append('DR_FirstName', $("#eFirstName").val());
+                fileData.append('DR_LastName', $("#eLastName").val());
+                fileData.append('DR_DateOfBirth', $("#eDateofBirth").val());
+                fileData.append('DR_Gender', $('input[name=eRadioGender]:checked').val());
+                fileData.append('DR_BloodGroup', $("#eBloodGroup").val());
+                fileData.append('DR_Nationality', $("#eNationality").val());
+                fileData.append('DR_mobileNo', $("#eMobile").val());
+                fileData.append('DR_Email', $("#eEmail").val());
+                fileData.append('DR_Qualification', $("#eQualification").val());
+                fileData.append('DR_RegistrationNumber', $("#eRegistrationNo").val());
+                fileData.append('DR_RegistrationState', $("#eRegistrationState").val());
+                fileData.append('DR_Experience', $("#eExperience").val());
+                fileData.append('DR_specialization', $("#eSpecialication").val());
+                fileData.append('DR_residence_FlotNo', $("#eFlatNo").val());
+                fileData.append('DR_residence_RoadName', $("#eRoadNo").val());
+                fileData.append('DR_residence_locality', $("#eArea").val());
+                fileData.append('DR_residence_city', $("#eCity").val());
+                fileData.append('DR_residence_State', $("#estate").val());
+                fileData.append('DR_residence_country', $("#eCountry").val());
+                fileData.append('DR_residence_PhoneNo', $("#eTelephone").val());
+                fileData.append('DR_residence_office', $("#eOffice").val());
+                fileData.append('DR_residence_fax', $("#efax").val());
+                fileData.append('DR_residence_pincode', $("#epincode").val());
+                $.ajax({
+                    type: "POST",
+                    url: "/Doctor/UpdateDoctorRegistration",
+                    contentType: false, // Not to set any content header
+                    processData: false, // Not to process data
+                    data: fileData,
+                    success: function (result) {
+                        alert(result);
+
+                    },
+                    error: function (err) {
+                        alert(err.statusText);
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+        else {
+                return false;
+            }
+
+    }
+    var Delete = function (Id) {
+        $("#Cid").val(Id);
+        $("#DeleteConfirmation").modal("show");
+    }
+    var ConfirmDelete = function () {
+        var CId = $("#Cid").val();
+        $.ajax({
+            type: "POST",
+            url: "/Doctor/DeleteDR?DRSId=" + CId,
+            success: function (result) {
+                $("#DeleteConfirmation").modal("hide");
+                LoadData();
+            }
+        })
+    }
+    function validateNew() {
+        debugger;
+        validate = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#FirstName").val() == "") {
+            $("#FirstName").addClass('css-error');
+            validate = false;
+        }
+        if ($("#LastName").val() == "") {
+            $("#LastName").addClass('css-error');
+            validate = false;
+        }
+        if ($("#DateofBirth").val() == "") {
+            $("#DateofBirth").addClass('css-error');
+            validate = false;
+        }
+        if ($('input[type=radio][name=RadioGender]:checked').length == 0) {
+            $("#RadioGender").addClass('css-error');
+            validate = false;
+        }
+        if ($("#BloodGroup").val() == "") {
+            $("#BloodGroup").addClass('css-error');
+            validate = false;
+        }
+        if ($("#Nationality").val() == "") {
+            $("#Nationality").addClass('css-error');
+            validate = false;
+        }
+        if ($("#Mobile").val() == "") {
+            $("#Mobile").addClass('css-error');
+            validate = false;
+        }
+        var emailReg = /^([\w-\.]+@@([\w-]+\.)+[\w-]{2,4})?$/;
+        var emailaddressVal = $("#Email").val();
+        if ($("#Email").val() == "") {
+            $("#Email").addClass('css-error');
+            validate = false;
+        }
+        else if (!emailReg.test(emailaddressVal)) {
+            $("#Email").addClass('css-error');
+            $("#Email").after('<span class="error" style="color:Red;">Enter a valid email address.</span>');
+            validate = false;
+        }
+        if ($("#Qualification").val() == "") {
+            $("#Qualification").addClass('css-error');
+            validate = false;
+        }
+        if ($("#RegistrationNo").val() == "") {
+            $("#RegistrationNo").addClass('css-error');
+            validate = false;
+        }
+        if ($("#Specialication").val() == "") {
+            $("#Specialication").addClass('css-error');
+            validate = false;
+        }
+        }
+        function validateUpdate() {
+            debugger;
+            validate = true;
+            $(".css-error").removeClass('css-error');
+            if ($("#eFirstName").val() == "") {
+                $("#eFirstName").addClass('css-error');
+                validate = false;
+            }
+            if ($("#eLastName").val() == "") {
+                $("#eLastName").addClass('css-error');
+                validate = false;
+            }
+            if ($("#eDateofBirth").val() == "") {
+                $("#eDateofBirth").addClass('css-error');
+                validate = false;
+            }
+            if ($('input[type=radio][name=eRadioGender]:checked').length == 0) {
+                $("#eRadioGender").addClass('css-error');
+                validate = false;
+            }
+            if ($("#eBloodGroup").val() == "") {
+                $("#eBloodGroup").addClass('css-error');
+                validate = false;
+            }
+            if ($("#eNationality").val() == "") {
+                $("#eNationality").addClass('css-error');
+                validate = false;
+            }
+            if ($("#eMobile").val() == "") {
+                $("#eMobile").addClass('css-error');
+                validate = false;
+            }
+            var emailReg = /^([\w-\.]+@@([\w-]+\.)+[\w-]{2,4})?$/;
+            var emailaddressVal = $("#eEmail").val();
+            if ($("#eEmail").val() == "") {
+                $("#eEmail").addClass('css-error');
+                validate = false;
+            }
+            else if (!emailReg.test(emailaddressVal)) {
+                $("#eEmail").addClass('css-error');
+                $("#eEmail").after('<span class="error" style="color:Red;">Enter a valid email address.</span>');
+                validate = false;
+            }
+            if ($("#eQualification").val() == "") {
+                $("#eQualification").addClass('css-error');
+                validate = false;
+            }
+            if ($("#eRegistrationNo").val() == "") {
+                $("#eRegistrationNo").addClass('css-error');
+                validate = false;
+            }
+            if ($("#eSpecialication").val() == "") {
+                $("#eSpecialication").addClass('css-error');
+                validate = false;
+            }
+        }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading">Doctor Registration<a href="#" data-toggle="modal" class="pull-right" data-target="#myModalDoctor">New Registration</a></div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblDoctorRegistration">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>PhoneNumber</th>
+                    <th>EmailId</th>
+                    <th>DateOfBirth</th>
+                    <th>Gender</th>
+                    <th>Qualification</th>
+                    <th>specialization</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div id="myModalDoctor" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog" style="width:75%;">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="clearAll();">×</button>
+
+                <h4 class="modal-title">Add New</h4>
+            </div>
+            <div class="modal-body">
+
+                <form id="NewRequest" method="post" enctype="multipart/form-data" onsubmit="return AjaxPost(this)">
+                    <input type="hidden" class="form-control" id="ID">
+                    <label>Personal Details</label>
+                    <hr />
+                    <table id="NewDoctor" class="table-bordered">
+                        <tr>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">Title</label>
+                                    </div>
+                                    <div class="col-md-10">
+                                        <label>  <input type="radio" name="RadioTitle" value="Mr." />Mr.</label>
+                                        <label><input type="radio" name="RadioTitle" value="Mrs." />Mrs.</label>
+                                        <label><input type="radio" name="RadioTitle" value="Ms." />Ms.</label>
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">First Name<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="FirstName" placeholder="Enter First Name">
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">Last Name<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="LastName" placeholder="Enter Last Name">
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">Date Of Birth<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input class="date form-control" type="text" placeholder="Select DOB" id="DateofBirth">
+                                    </div>
+
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">Gender<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-10">
+                                        <label>  <input type="radio" name="RadioGender" value="Male" />Male</label>
+                                        <label><input type="radio" name="RadioGender" value="Female" />Female</label>
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">Blood Group<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="BloodGroup" placeholder="Enter Blood Group">
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">Nationality<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="Nationality" placeholder="Enter Nationality">
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">Mobile No<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control integer-cls" id="Mobile" placeholder="Enter Mobile No" onkeypress="javascript:return isNumber(event)" maxlength="10">
+                                    </div>
+
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="4">
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-2">
+                                        <label for="name">Email<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="Email" placeholder="Enter Email">
+                                    </div>
+
+                                </div>
+                            </td>
+ 
+                        </tr>
+                    </table>
+                    <label><b>Professional Details</b></label>
+                    <hr />
+                    <table class="table-bordered table">
+                        <tr>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">QUALIFICATION<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="Qualification" placeholder="Enter Qualification">
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">REGISTRATION NUMBER<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="RegistrationNo" placeholder="Enter Registration No">
+                                    </div>
+
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">REGISTRATION STATE</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="RegistrationState" placeholder="Enter Registration State">
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">EXPERIENCE/EXPERTISE (MAX 500 WORDS)</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <textarea rows="4" cols="50" id="Experience" class="form-control">
+</textarea>
+                                    </div>
+
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-6">
+                                        <label for="name">SPECIALIZATION (SEPARATED BY COMMAS IF MORE THAN ONE)<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="Specialication" placeholder="Enter Specialication">
+                                    </div>
+
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    <label>Address (Hospital/Clinic/Residence)</label>
+                    <hr />
+                    <table id="NewDoctor" class="table-bordered">
+                        <tr>
+                            <td colspan="2">
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">FLAT NO. AND BLDG. NAME</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="FlatNo" placeholder="Enter FlatNo">
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td colspan="2">
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">ROAD NO./NAME</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="RoadNo" placeholder="Enter RoadNo">
+                                    </div>
+
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">AREA / LOCALITY</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="Area" placeholder="Enter Area">
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">CITY</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="City" placeholder="Enter City">
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">STATE</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="state" placeholder="Enter state">
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">COUNTRY</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="Country" value="India">
+                                    </div>
+
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">TELEPHONE RESIDENCE</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="Telephone" placeholder="Enter Telephone" onkeypress="javascript:return isNumber(event)">
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">OFFICE</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="Office" placeholder="Enter Office">
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">FAX</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="fax" placeholder="Enter fax">
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">PIN CODE</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="pincode" placeholder="enter pincode">
+                                    </div>
+
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="modal-footer">
+
+                        <input type="submit" value="Save" class="btn btn-success" />
+                        <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearAll();">Close</button>
+                    </div>
+                </form>
+            </div>
+            
+        </div>
+
+    </div>
+</div>
+<div id="myModalEdit" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog" style="width:75%;">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="ClearAll();">×</button>
+
+                <h4 class="modal-title">UpDate</h4>
+            </div>
+            <div class="modal-body">
+
+                <form id="NewRequest" method="post" enctype="multipart/form-data" onsubmit="return AjaxPostUpdate(this)">
+                    <input type="hidden" class="form-control" id="eID">
+                    <label>Personal Details</label>
+                    <hr />
+                    <table id="NewDoctor" class="table-bordered">
+                        <tr>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">Title<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-10">
+                                        <label>  <input type="radio" name="eRadioTitle" value="Mr." />Mr.</label>
+                                        <label><input type="radio" name="eRadioTitle" value="Mrs." />Mrs.</label>
+                                        <label><input type="radio" name="eRadioTitle" value="Ms." />Ms.</label>
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">First Name<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="eFirstName" placeholder="Enter First Name">
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">Last Name<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="eLastName" placeholder="Enter Last Name">
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">Date Of Birth<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input class="date form-control" type="text" placeholder="Select DOB" id="eDateofBirth">
+                                    </div>
+
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">Gender<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-10">
+                                        <label>  <input type="radio" name="eRadioGender" value="Male" />Male</label>
+                                        <label><input type="radio" name="eRadioGender" value="Female" />Female</label>
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">Blood Group<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="eBloodGroup" placeholder="Enter Blood Group">
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">Nationality<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="eNationality" placeholder="Enter Nationality">
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">Mobile No<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="eMobile" placeholder="Enter Mobile No" onkeypress="javascript:return isNumber(event)"  maxlength="10">
+                                    </div>
+
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="4">
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-2">
+                                        <label for="name">Email<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="eEmail" placeholder="Enter Email">
+                                    </div>
+
+                                </div>
+                            </td>
+                           
+                        </tr>
+                    </table>
+                    <label><b>Professional Details</b></label>
+                    <hr />
+                    <table class="table-bordered">
+                        <tr>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">QUALIFICATION<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="eQualification" placeholder="Enter Qualification">
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">REGISTRATION NUMBER<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="eRegistrationNo" placeholder="Enter Registration No">
+                                    </div>
+
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">REGISTRATION STATE<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="eRegistrationState" placeholder="Enter Registration State">
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">EXPERIENCE/EXPERTISE (MAX 500 WORDS)<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <textarea rows="4" cols="50" id="eExperience" class="form-control">
+</textarea>
+                                    </div>
+
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-6">
+                                        <label for="name">SPECIALIZATION (SEPARATED BY COMMAS IF MORE THAN ONE)<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="eSpecialication" placeholder="Enter Specialication">
+                                    </div>
+
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    <label>Address (Hospital/Clinic/Residence)</label>
+                    <hr />
+                    <table id="NewDoctor" class="table-bordered">
+                        <tr>
+                            <td colspan="2">
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">FLAT NO. AND BLDG. NAME<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="eFlatNo" placeholder="Enter FlatNo">
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td colspan="2">
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">ROAD NO./NAME<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="eRoadNo" placeholder="Enter RoadNo">
+                                    </div>
+
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">AREA / LOCALITY<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="eArea" placeholder="Enter Area">
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">CITY<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="eCity" placeholder="Enter City">
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">STATE<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="estate" placeholder="Enter state">
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">COUNTRY<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="eCountry" value="India">
+                                    </div>
+
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">TELEPHONE RESIDENCE<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="eTelephone" placeholder="Enter Telephone" onkeypress="javascript:return isNumber(event)">
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">OFFICE<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="eOffice" placeholder="Enter Office">
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">FAX<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="efax" placeholder="Enter fax">
+                                    </div>
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="col-md-12" style="padding:5px;">
+                                    <div class="col-md-4">
+                                        <label for="name">PIN CODE<span style="color:red;">*</span></label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" id="epincode" placeholder="enter pincode">
+                                    </div>
+
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="modal-footer">
+
+                        <input type="submit" value="Update" class="btn btn-success" />
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+<div class="modal fade" id="DeleteConfirmation">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4>Delete  Record</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" class="form-control" id="Cid">
+                <h4>Are You Sure? You Want To Delete This Record.</h4>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-primary" data-dismiss="modal" id="r">Cancel</a>
+                <a href="#" class="btn btn-danger" onclick="ConfirmDelete()">Confirm</a>
+            </div>
+        </div>
+    </div>
+</div>

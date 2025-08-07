@@ -1,0 +1,55 @@
+﻿@{
+    ViewBag.Title = "MoreVideos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+        LoadLikesCount();
+    });
+    function LikeThePage() {
+        var key = "MdMessage";
+        $.ajax({
+            type: "GET",
+            url: "/Home/SaveLikes",
+            data: "key=" + key,
+            success: function (data) {
+                $("#snackbar").addClass("show");
+                $("#snackbar").css("visibility", "visible");
+                setTimeout(function () { $("#snackbar").removeClass("show"); $("#snackbar").css("visibility", "hidden"); }, 5000);
+                LoadLikesCount();
+            },
+            error: function () {
+                // alert("error")
+            }
+        });
+    }
+</script>
+<div class="row cards-section">
+    <ul>
+        @foreach (var m in Model)
+        {
+            <li class="col-xs-12 col-md-6 col-lg-4">
+                <div class="block">
+                    <h2>@m.Name</h2>
+
+                    <div class="block-middle block-middle2" style="height:220px;">
+                        <div class="icons-left" style="top:35px !important;">
+                            <a href="javascript:void(0);" onclick="LikeThePage();" title="Like"><img src="/images/like.png" alt="like"></a>
+                            <a href="javascript:void(0);" data-toggle="modal" data-target="#exampleModalCenter2" title="Comment"><img src="/images/chat.png" alt="Comment"></a>
+                            <a href="javascript:void(0);" data-toggle="modal" data-target="#ShareVideo" title="Share"><img src="/images/share.png" alt="share"></a>
+                        </div>
+                        <video controls controlslist="nodownload" id="12" class="videoplay" style="width:100%; height:253px;">
+                            <source src="/Videos/@m.VideoUrl" type="video/mp4">
+                        </video>
+                    </div>
+                    <div class="bottom-block">
+                        <p>
+                            @m.Description<br />
+                            - @m.CreatedOn.ToString("dd MMM yyyy")
+                        </p>
+                    </div>
+                </div>
+            </li>
+        }
+    </ul>
+</div>

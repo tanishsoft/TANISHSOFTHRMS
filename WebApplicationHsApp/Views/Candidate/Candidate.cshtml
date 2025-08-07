@@ -1,0 +1,341 @@
+﻿@model WebApplicationHsApp.DataModel.tbl_Candidates
+
+@{
+    /**/
+
+    ViewBag.Title = "Candidate";
+}
+<script>
+    var validate = true;
+    $(document).ready(function () {
+        LoadData();
+    });
+
+    function isNumber(evt) {
+
+        var iKeyCode = (evt.which) ? evt.which : evt.keyCode
+        if (iKeyCode != 46 && iKeyCode > 31 && (iKeyCode < 48 || iKeyCode > 57)) {
+            return false;
+        } else {
+            return true;
+        }
+    }  
+    function LoadData() {
+        $('#tblCandidate').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Candidate/AjaxGetCandidateDetails",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "Candidate_id" },
+                { "sName": "FirstName" },
+                { "sName": "Email" },
+                { "sName": "PhoneNumber" },
+                { "sName": "IsActive" },
+                {
+                    "sName": "Asset_id",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="Edit(this.id);">Edit</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="Delete(this.id);">Delete</a></li>' +
+                            '</ul></div>';
+                    }
+                }
+            ]
+        });
+        $("#tblCandidate_length").addClass("col-md-6");
+        $("#tblCandidate_length").addClass("col-md-6");
+    }
+    function OnclickSaveCandidate() {
+        validateCandidate();
+        if (validate) {
+            $(".css-error").removeClass('css-error');
+            var task = {
+                FirstName: $("#FirstName").val(),
+                LastName: $("#LastName").val(),
+                Email: $("#Email").val(),
+                PhoneNumber: $("#Phone").val(),
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Candidate/SaveNewCandidate",
+                data: task,
+                success: function (data) {
+                    $("#myModalNewCandidate").modal('hide');
+                    //alert(data);
+                    clearAll(); LoadData();
+                    console.log("category added successfully")
+                }
+            });
+        }
+        else {
+            alert("Fields Required");
+        }
+    }
+    function validateCandidate() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#FirstName").val() == "") {
+            $("#FirstName").addClass('css-error');
+            validate = false;
+        }FirstName
+        if ($("#LastName").val() == "") {
+            $("#LastName").addClass('css-error');
+            validate = false;
+        }
+        var emailReg = /^([\w-\.]+@@([\w-]+\.)+[\w-]{2,4})?$/;
+
+        var emailaddressVal = $("#Email").val();
+        if (emailaddressVal == '') {
+            $("#Email").addClass('css-error');
+            validate = false;
+        }
+        else if (!emailReg.test(emailaddressVal)) {
+            $("#Email").addClass('css-error');
+            $("#Email").after('<span class="error" style="color:Red;">Enter a valid email address.</span>');
+            validate = false;
+        }
+        if ($("#Phone").val() == "") {
+            $("#Phone").addClass('css-error');
+            validate = false;
+        }
+    }
+    function Edit(CandidateId) {
+        debugger;
+        var Url = "/Candidate/GetCandidateDeatilsById?CandidateId=" + CandidateId;
+        $.ajax({
+            type: "GET",
+            url: Url,
+            success: function (data) {
+                $("#myModalEdit").modal();
+                var obj = data;
+                $("#EditID").val(obj.Candidate_id);
+                $("#EditFirstName").val(obj.FirstName);
+                $("#EditLastName").val(obj.LastName);
+                $("#EditEmail").val(obj.Email);
+                $("#EditPhone").val(obj.PhoneNumber);
+            }
+        })
+
+    }
+    function OnclickUpdateCandidate() {
+        validateEdit();
+        if (validate) {
+            var task = {
+                Candidate_id: $("#EditID").val(),
+                FirstName: $("#EditFirstName").val(),
+                LastName: $("#EditLastName").val(),
+                Email: $("#EditEmail").val(),
+                PhoneNumber: $("#EditPhone").val(),
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Candidate/UpdateCandidate",
+                data: task,
+                success: function (data) {
+                    $("#myModalEdit").modal('hide');
+                    LoadData();
+                    console.log("Asset Updated successfully")
+                }
+            });
+
+        }
+        else {
+            alert("Fields Required");
+        }
+
+    }
+    function validateEdit() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#EditFirstName").val() == "") {
+            $("#EditFirstName").addClass('css-error');
+            validate = false;
+        }
+        if ($("#EditLastName").val() == "") {
+            $("#EditLastName").addClass('css-error');
+            validate = false;
+        }
+        var emailReg = /^([\w-\.]+@@([\w-]+\.)+[\w-]{2,4})?$/;
+
+        var emailaddressVal = $("#EditEmail").val();
+        if (emailaddressVal == '') {
+            $("#EditEmail").addClass('css-error');
+            validate = false;
+        }
+        else if (!emailReg.test(emailaddressVal)) {
+            $("#EditEmail").addClass('css-error');
+            $("#EditEmail").after('<span class="error" style="color:Red;">Enter a valid email address.</span>');
+        }
+        if ($("#EditPhone").val() == "") {
+            $("#EditPhone").addClass('css-error');
+            validate = false;
+        }
+    }
+    function clearAll() {
+        debugger;
+        $(".css-error").removeClass('css-error');
+        $("#FirstName").val("");
+        $("#LastName").val("");
+        $("#Email").val("");
+        $("#Phone").val("");
+    }
+    var Delete = function (Id) {
+        debugger;
+
+        $("#Cid").val(Id);
+        $("#DeleteConfirmation").modal("show");
+    }
+    var ConfirmDelete = function () {
+        debugger;
+        var CId = $("#Cid").val();
+        $.ajax({
+            type: "POST",
+            url: "/Candidate/DeleteCandidate?CandidateId=" + CId,
+            success: function (result) {
+                $("#DeleteConfirmation").modal("hide");
+            }
+        })
+        LoadData();
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading">Manage Candidate<a href="#" data-toggle="modal" class="pull-right" data-target="#myModalNewCandidate">New Candidate</a></div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblCandidate">
+            <thead>
+                <tr>
+                    <th>Candidate Id</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone Number</th>
+                    <th>IsActive</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="myModalNewCandidate" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="clearAll();">×</button>
+                <h4 class="modal-title">Add New</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" class="form-control" id="ID">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">First Name<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="FirstName">
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Last Name<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="LastName">
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Email<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="Email">
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Phone Number<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="Phone" onkeypress="javascript:return isNumber(event)" maxlength="10">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" onclick="OnclickSaveCandidate();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearAll();">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="myModalEdit" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Update</h4>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <input type="hidden" class="form-control" id="EditID">
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">First Name<span style="color:red;">*</span></label>
+
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="EditFirstName">
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name">Last Name<span style="color:red;">*</span></label></div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="EditLastName">
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name">Email<span style="color:red;">*</span></label></div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="EditEmail">
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name">Phone<span style="color:red;">*</span></label></div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="EditPhone">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Update" onclick="OnclickUpdateCandidate();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade" id="DeleteConfirmation">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4>Delete  Record</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" class="form-control" id="Cid">
+                <h4>Are You Sure? You Want To Delete This Record.</h4>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-primary" data-dismiss="modal" id="r">Cancel</a>
+                <a href="#" class="btn btn-danger" onclick="ConfirmDelete()">Confirm</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+

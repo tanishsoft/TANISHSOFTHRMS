@@ -1,0 +1,275 @@
+﻿@{
+    ViewBag.Title = "Manager";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+        LoadDataMinutes();
+        $("#txtFromDate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy"
+        });
+        $("#txtToDate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy"
+        });
+        LoadEmployees();
+        //LoadAlltheSwipes();
+        //LoadTodaySwipes();
+        //LoadyestradaySwipes();
+    });
+    function LoadEmployees() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetEmployeesByReportingmgr",
+            success: function (data) {
+                debugger;
+                var options = [];
+                options.push('<option value="">- Select Employee -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].CustomUserId + '">' + data[i].FirstName + " " + data[i].LastName + '</option>');
+                }
+                $("#ddlemployees").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadDataMinutes() {
+        $.ajax({
+            type: "GET",
+            url: "/Attendance/GetCurrentMonthLateComersByManager",
+            success: function (data) {
+                LoadChart(data);
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+
+    function LoadChart(data) {
+        $('#container1').highcharts({
+            title: {
+                text: 'Current Month Swipe Record'
+            },
+
+            //subtitle: {
+            //    text: ''
+            //},
+
+            yAxis: {
+                title: {
+                    text: 'Minutes'
+                }
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'middle'
+            },
+
+            plotOptions: {
+                series: {
+                    pointStart: 1
+                }
+            },
+
+            series: data
+
+        });
+    }
+    function LoadAlltheSwipes() {
+        if ($("#txtFromDate").val() != null && $("#txtFromDate").val() != "" && $("#txtToDate").val() != null && $("#txtToDate").val() != "") {
+            $('#tbltable').dataTable({
+                "bServerSide": true,
+                "sAjaxSource": "/Attendance/AjaxGetManagerSwipesTotal",
+                "bProcessing": true,
+                "bDestroy": true,
+                "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+                //"aaSorting": [[0, "desc"]],
+                "aoColumns": [
+                           { "sName": "employeeid" },
+                { "sName": "LocationName" },
+                { "sName": "DepartmentName" },
+                           { "sName": "FirstName" },
+                           { "sName": "att_date" },
+                           { "sName": "in_time" },
+                           { "sName": "out_time" },
+                           { "sName": "latein" },
+                           { "sName": "lateout" },
+                           { "sName": "earlyin" },
+                            { "sName": "earlyout" },
+                           { "sName": "status" }
+                ],
+                "fnServerParams": function (aoData) {
+                    aoData.push(
+                       { "name": "Emp", "value": $("#ddlemployees").val() },
+                        { "name": "fromdate", "value": $("#txtFromDate").val() },
+                        { "name": "todate", "value": $("#txtToDate").val() }
+                    );
+                }
+            });
+            $("#tbltable_length").addClass("col-md-6");
+            $("#tbltable_length").addClass("col-md-6");
+        } else {
+            alert("Please Enter From date and To date");
+        }
+    }
+
+    function LoadTodaySwipes() {
+        $('#tbltable_today').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Attendance/AjaxGetManagerTodaySwipesTotal",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            //"aaSorting": [[0, "desc"]],
+            "aoColumns": [
+                       { "sName": "FirstName" },
+                       { "sName": "att_date" },
+                       { "sName": "in_time" },
+                       { "sName": "out_time" },
+                       { "sName": "latein" }
+            ]
+            //"fnServerParams": function (aoData) {
+            //    aoData.push(
+            //        { "name": "locationid", "value": $("#ddlLocationForFilter").val() },
+            //        { "name": "departmentid", "value": $("#ddlDepartmentForFilter").val() }
+            //    );
+            //}
+        });
+        $("#tbltable_today_length").addClass("col-md-6");
+        $("#tbltable_today_length").addClass("col-md-6");
+    }
+    function LoadyestradaySwipes() {
+        $('#tbltable_yestraday').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Attendance/AjaxGetManagerYestradaySwipesTotal",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            //"aaSorting": [[0, "desc"]],
+            "aoColumns": [
+
+                       { "sName": "FirstName" },
+                       { "sName": "att_date" },
+                       { "sName": "in_time" },
+                       { "sName": "out_time" },
+                       { "sName": "latein" }
+            ]
+        });
+        $("#tbltable_yestraday_length").addClass("col-md-6");
+        $("#tbltable_yestraday_length").addClass("col-md-6");
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading">Manager Dashboard</div>
+    <div class="panel-body">
+        @*<div class="row">
+                <div class="col-md-6">
+                    <div class="panel panel-warning">
+                        <div class="panel-heading">Yesterday Late Comers</div>
+                        <div class="panel-body">
+                            <table class="table table-striped table-hover table-bordered" id="tbltable_yestraday">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Date</th>
+                                        <th>In Time</th>
+                                        <th>Out Time</th>
+                                        <th>Late In</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="panel panel-danger">
+                        <div class="panel-heading">Today Late comers</div>
+                        <div class="panel-body">
+                            <table class="table table-striped table-hover table-bordered" id="tbltable_today">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Date</th>
+                                        <th>In Time</th>
+                                        <th>Out Time</th>
+                                        <th>Late In</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">Current Month Swipe</div>
+                <div class="panel-body">
+                    <div id="container1" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+                </div>
+            </div>*@
+
+        <div class="panel panel-default">
+            <div class="panel-heading">Employees Swipe</div>
+            <div class="panel-body">
+
+                <table class="table">
+                    <tr>
+                        <td>
+                            From Date
+                        </td>
+                        <td><input type="text" id="txtFromDate" class="form-control" /> </td>
+                        <td>
+                            To Date
+                        </td>
+                        <td><input type="text" id="txtToDate" class="form-control" /> </td>
+                        <td>
+                            Employee
+                        </td>
+                        <td>
+                            <select id="ddlemployees" class="form-control">
+                                <option value="">Select</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="button" id="btngo" value="Go" class="btn btn-primary" onclick="LoadAlltheSwipes();" />
+                        </td>
+                    </tr>
+
+                </table>
+
+                <table class="table table-striped table-hover table-bordered" id="tbltable">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Location</th>
+                            <th>Department</th>
+                            <th>Name</th>
+                            <th>Attandance Date</th>
+                            <th>In Time</th>
+                            <th>Out Time</th>
+                            <th>
+                                Late In
+                            </th>
+                            <th>
+                                Late Out
+                            </th>
+                            <th>Early In</th>
+                            <th>Early Out</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+

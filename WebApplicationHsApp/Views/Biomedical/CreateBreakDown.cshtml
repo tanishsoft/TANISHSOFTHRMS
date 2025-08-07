@@ -1,0 +1,286 @@
+﻿
+@{
+    ViewBag.Title = "CreateBreakDown";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+</style>
+<script>
+    var eId=@ViewBag.id;
+    $(document).ready(function () {
+       // AssertSearch();
+        LoadLocations();
+        if (eId!=0)
+            LoadData(eId);
+
+
+    });
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#LocationId").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadAssetId(val) {
+        if ($("#EquipmentName").val() != null && $("#EquipmentName").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Biomedical/GetAssertAutoComplete?id=" + $("#EquipmentName").val() + "&locationId=" + $("#LocationId").val() + "&departmentId=" + $("#DepartmentId").val() + "&subDepartmentId=" + $("#SubDepartmentId").val(),
+                //data: "id=",
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- Select Asset -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].id + '">' + data[i].text + '</option>');
+                    }
+                    $("#AssetNumber").html(options.join(''));
+                    if (val != "") {
+                        $("#AssetNumber").val(val);
+                    }
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#AssetNumber").html('<option value="">- Select Asset -</option>');
+        }
+    }
+
+    function LoadDepartment(val, subval, equipment, asset) {
+        var options = [];
+        options.push('<option value="">- Select Department -</option>');
+        if ($("#LocationId").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Biomedical/GetDepartmentByLocation",
+                data: "id=" + $("#LocationId").val(),
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                    }
+                    $("#DepartmentId").html(options.join(''));
+                    if (val != "") {
+                        $("#DepartmentId").val(val);
+                        if (subval != "")
+                            DepartmentChange(subval, equipment, asset);
+                    }
+                },
+                error: function () {
+                    alert("error");
+                }
+            });
+        }
+        else {
+            $("#DepartmentId").html(options.join(''));
+        }
+    }
+    function DepartmentChange(val, equipment, asset) {
+        var options = [];
+        options.push('<option value="">- Select Sub Department -</option>');
+        if ($("#DepartmentId").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Biomedical/GetSubDepartmentByDepartment",
+                data: "id=" + $("#DepartmentId").val(),
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].SubDepartmentId + '">' + data[i].Name + '</option>');
+                    }
+                    $("#SubDepartmentId").html(options.join(''));
+                    if (val != '') {
+                        $("#SubDepartmentId").val(val);
+                        LoadEquipment(equipment, asset);
+                    }
+                },
+                error: function () {
+                    alert("error");
+                }
+            });
+        }
+        else {
+            $("#SubDepartmentId").html(options.join(''));
+        }
+    }
+    
+    function LoadData(id) {
+        if (id != 0) {
+            $.get("/Biomedical/GetBreakDown", { id: id }, function (data) {
+                $("#LocationId").val(data.LocationId);
+                LoadDepartment(data.DepartmentId, data.SubDepartmentId, data.EquipmentName,data.AssetNumber);
+               // $("#DepartmentId").val(data.DepartmentId);
+                $("#SubDepartmentId").val(data.SubDepartmentId);
+                $("#EquipmentName").val(data.EquipmentName);
+                   LoadAssetId();
+                $("#ProblemReported").val(data.ProblemReported);
+            });
+        }
+    }
+    function SaveBreakDown() {
+        var validate= validateinput();
+        if (validate) {
+            if (window.FormData !== undefined) {
+                var files = "";
+                var fileData = new FormData();
+                fileData.append('BreakDownId', eId);
+                fileData.append('LocationId', $("#LocationId").val());
+                fileData.append('DepartmentId', $("#DepartmentId").val());
+                fileData.append('SubDepartmentId', $("#SubDepartmentId").val());
+                fileData.append('AssetNumber', $("#AssetNumber").val());
+                fileData.append('EquipmentName', $("#EquipmentName").val());
+                fileData.append('ProblemReported', $("#ProblemReported").val());
+                $.ajax({
+                    type: "POST",
+                    url: "/Biomedical/Save_Update_BreakDown",
+                    contentType: false,
+                    processData: false,
+                    data: fileData,
+                    success: function (data) {
+                        alert("Success");
+                        window.location.replace("/Biomedical/ManageBreakDown");
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+    }
+    function Cancel() {
+        window.location.replace("/Biomedical/ManageBreakDown");
+    }
+    function validateinput() {
+      var  validate = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#LocationId").val() == "") {
+            $("#LocationId").after('<span class="error" style="color:Red;">Select Location</span>');
+            $("#LocationId").addClass('css-error');
+            validate = false;
+        }
+       else if ($("#DepartmentId").val() == "") {
+            $("#DepartmentId").after('<span class="error" style="color:Red;">Select Department</span>');
+            $("#DepartmentId").addClass('css-error');
+            validate = false;
+        }
+        if ($("#SubDepartmentId").val() == null || $("#SubDepartmentId").val() == "") {
+            $("#SubDepartmentId").after('<span class="error" style="color:Red;">Select SubDepartment </span>');
+            $("#SubDepartmentId").addClass('css-error');
+            validate = false;
+        }
+        if ($("#EquipmentName").val() == null || $("#EquipmentName").val() == "") {
+            $("#EquipmentName").after('<span class="error" style="color:Red;">Select Equipment </span>');
+            $("#EquipmentName").addClass('css-error');
+            validate = false;
+        }
+        if ($("#AssetNumber").val() == null || $("#AssetNumber").val() == "") {
+            $("#AssetNumber").after('<span class="error" style="color:Red;">Select Asset Number </span>');
+            $("#AssetNumber").addClass('css-error');
+            validate = false;
+        }
+        
+        if ($("#ProblemReported").val() == "") {
+            $("#ProblemReported").after('<span class="error" style="color:Red;">Enter Problem Reported</span>');
+            $("#ProblemReported").addClass('css-error');
+            validate = false;
+        }
+        return validate;
+    }
+
+    function LoadEquipment(equipment,asset) {
+        var options = [];
+        options.push('<option value="">- Select Equipment -</option>');
+        if ($("#SubDepartmentId").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Biomedical/GetEquipmentBySubDepartments",
+                data: "locationid=" + $("#LocationId").val() + "&departmentid=" + $("#DepartmentId").val() + "&subdepartmentId=" + $("#SubDepartmentId").val(),
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i] + '">' + data[i] + '</option>');
+                    }
+                    $("#EquipmentName").html(options.join(''));
+                    if (equipment != '') {
+                        $("#EquipmentName").val(equipment);
+                        LoadAssetId(asset);
+                    }
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#EquipmentName").html(options.join(''));
+        }
+
+    }
+</script>
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">Create Break Down</div>
+        <div class="panel-body">
+
+            <div class="row" style="padding:10px;">
+                <div class="col-md-12" style="padding:10px;">
+                    <label> Location<span style="color:red;">*</span></label>
+                    <select class="form-control maxwidth" id="LocationId" onchange="LoadDepartment('', '','','');">
+                        <option value="">- Select Location -</option>
+                    </select>
+                </div>
+                <div class="col-md-12" style="padding:10px;">
+                    <label> Department<span style="color:red;">*</span></label>
+                    <select class="form-control maxwidth" id="DepartmentId" onchange="DepartmentChange('','','');">
+                        <option value="">- Select Department -</option>
+                    </select>
+                </div>
+
+                <div class="col-md-12" style="padding:10px;">
+                    <label> Sub Department<span style="color:red;">*</span></label>
+                    <select class="form-control maxwidth" id="SubDepartmentId" onchange="LoadEquipment('','');">
+                        <option value="2">- Select SubDepartment -</option>
+                    </select>
+                </div>
+                <div class="col-md-12" style="padding:10px;">
+                    <label>Equipment Name<span style="color:red;">*</span></label>
+                    <select class="form-control maxwidth" id="EquipmentName" onchange="LoadAssetId('');">
+                        <option value="">- Select Equipment -</option>
+                    </select>
+                </div>
+
+                <div class="col-md-12" style="padding:10px;">
+                    <label>Asset Number<span style="color:red;">*</span></label>
+                    <select id="AssetNumber" class="form-control maxwidth"><option value="">- Select Asset -</option></select>
+                </div>
+
+                <div class="col-md-12" style="padding:10px;">
+                    <label>Problem Reported<span style="color:red;">*</span></label>
+                    <textarea class="form-control maxwidth" placeholder="Enter Work Done Description" id="ProblemReported"></textarea>
+                </div>
+            </div>
+
+
+            <div class="row" style="padding:10px;">
+                <input type="button" class="btn cancel" value="Cancel" onclick="Cancel();" />
+                <input type="button" class="btn save" value="Save" onclick="SaveBreakDown();" />
+
+            </div>
+        </div>
+    </div>
+</div>
+

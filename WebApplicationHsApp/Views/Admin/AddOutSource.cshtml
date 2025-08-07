@@ -1,0 +1,640 @@
+﻿@model WebApplicationHsApp.Models.RegisterEmployeeViewModel
+@{
+    ViewBag.Title = "Add OutSource";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<script>
+    var arrayofreportingmanater = [];
+    var states = "Andhra Pradesh,Arunachal Pradesh,Assam, Bihar,Chhattisgarh,Goa,Gujarat,Haryana,Himachal Pradesh,Jharkhand,Karnataka,Kerala,Madhya Pradesh,Maharashtra,Manipur,Meghalaya,Mizoram,Nagaland,Odisha,Punjab,Rajasthan,Sikkim,Tamil Nadu,Telangana,Tripura,Uttar Pradesh,Uttarakhand,West Bengal";
+    $(document).ready(function () {
+        LoadLocations();
+        LoadDesignationData();
+        $('.txtdate').datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            maxDate: "0",
+            yearRange: "-100:+0",
+        });
+        $("#BlockLogin").hide();
+        $("#EmployeeId").change(function () {
+
+            $("#UserId").val($("#EmployeeId").val());
+
+        });
+        LoadVendors();
+        BindStates();
+    });
+    function BindStates() {
+        var arstates = states.split(',');
+        var options = [];
+        options.push('<option value="">- Select  -</option>');
+        for (var i = 0; i < arstates.length; i++) {
+            options.push('<option value="' + arstates[i] + '">' + arstates[i] + '</option>');
+        }
+        $("#State").html(options.join(''));
+    }
+    var Vendors = [];
+    function LoadVendors() {
+        $.get("/Admin/GetVendorlist", function (data) {
+            Vendors = data;
+            var filtervendor = false;
+            if ($("#hdnVendoremp").val() == "true") {
+                //Email
+                filtervendor = true;
+            }
+            var vendorid = 0;
+            var currentuser = $("#hdnvendorcurrentusername").val();
+            var options = [];
+            options.push('<option value="">- Select Vendor -</option>');
+            if (filtervendor) {
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].Email == currentuser) {
+                        options.push('<option value="' + data[i].VendorId + '">' + data[i].Name + '</option>');
+                        vendorid = data[i].VendorId;
+                    }
+                }
+            } else {
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].VendorId + '">' + data[i].Name + '</option>');
+                }
+            }
+            $("#ddlVendor2").html(options.join(''));
+            if (filtervendor) {
+                $("#ddlVendor2").val(vendorid);
+                $("#ddlVendor2").prop("disabled", true);
+            }
+
+        });
+    }
+    $(document).on('click', 'removebutton', function () {
+        $(this).closest('tr').remove();
+        return false;
+    });
+
+
+    function LoadDesignationData() {
+        $.ajax({
+            type: "GET",
+            url: "/Common/GetDesignationListToAdmin",
+            //data: "id=" + $("#ddlDepartment1").val(),
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Designation -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].ID + '">' + data[i].Designation_Name + '</option>');
+                }
+                $("#DesignationID").html(options.join(''));
+            }
+        });
+    }
+
+    function BindDesignationName_OnDesChange() {
+        var DesID = $("#DesignationID").val();
+        $("#Designation").val("");
+        if ($.isNumeric(DesID)) {
+            $("#Designation").val($("#DesignationID option:selected").text());
+        } else {
+
+        }
+    }
+
+
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#ddlLocation").html(options.join(''));
+                $("#ddllocationsReporting").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadDepartment() {
+        $("#LocationId").val($("#ddlLocation").val());
+        var skillsSelect = document.getElementById("ddlLocation");
+        var selectedText = skillsSelect.options[skillsSelect.selectedIndex].text;
+        $("#LocationName").val(selectedText);
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetDepartmentByLocation",
+            data: "id=" + $("#ddlLocation").val(),
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Department -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                }
+                $("#ddlDepartment").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function DepartmentChange() {
+        $("#DepartmentId").val($("#ddlDepartment").val());
+        var skillsSelect = document.getElementById("ddlDepartment");
+        var selectedText = skillsSelect.options[skillsSelect.selectedIndex].text;
+        $("#DepartmentName").val(selectedText);
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetSubDepartmentByDepartment",
+            data: "id=" + $("#ddlDepartment").val(),
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select sub Department -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].SubDepartmentId + '">' + data[i].Name + '</option>');
+                }
+                $("#ddlSubDepartment").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function SubDepartmentChange() {
+        $("#SubDepartmnetId").val($("#ddlSubDepartment").val());
+        var skillsSelect = document.getElementById("ddlSubDepartment");
+        var selectedText = skillsSelect.options[skillsSelect.selectedIndex].text;
+        $("#SubDepartmentName").val(selectedText);
+    }
+    function LoadDepartment1() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetDepartmentByLocation",
+            data: "id=" + $("#ddllocationsReporting").val(),
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Department -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                }
+                $("#ddlDepartmentReporting").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function DepartmentChange1() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetSubDepartmentByDepartment",
+            data: "id=" + $("#ddlDepartmentReporting").val(),
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select sub Department -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].SubDepartmentId + '">' + data[i].Name + '</option>');
+                }
+                $("#ddlSubDepartmentReporting").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+
+    function CheckISLogin() {
+        var lng = $('#IsLogin').is(':checked');
+        if (lng) {
+            $("#BlockLogin").show();
+        }
+        else {
+            $("#BlockLogin").hide();
+            //$("#UserId").val($("#EmployeeId").val());
+
+            $('#Addform').data('validator', null);
+
+        }
+    }
+
+    function validationstolocations() {
+
+        if ($("#ddllocationsReporting").val() == null || $("#ddllocationsReporting").val() == "") {
+            return false;
+        }
+        if ($("#ddlDepartmentReporting").val() == null || $("#ddlDepartmentReporting").val() == "") {
+            return false;
+        }
+
+        return true;
+    }
+    function SaveDepartment() {
+
+        //validation
+        if (validationstolocations()) {
+            var skillsSelect = document.getElementById("ddllocationsReporting");
+            var selectedText = skillsSelect.options[skillsSelect.selectedIndex].text;
+            var deptSelect = document.getElementById("ddlDepartmentReporting");
+            var deptText = deptSelect.options[deptSelect.selectedIndex].text;
+            var SubdeptSelect = document.getElementById("ddlSubDepartmentReporting");
+            var SubdeptText = SubdeptSelect.options[SubdeptSelect.selectedIndex].text;
+            var SubDepartmentId = 0;
+            var SubDepartmentName = "";
+            if ($("#ddlSubDepartmentReporting").val() != null && $("#ddlSubDepartmentReporting").val() != "") {
+                SubDepartmentId = $("#ddlSubDepartmentReporting").val();
+                SubDepartmentName = SubdeptText;
+            }
+            var employee = false;
+            var hod = false;
+            var headofhod = false;
+            var managerofhod = false;
+            var s = $("#ddlemployeetype").val();
+            if (s == "HOD") {
+                hod = true;
+            }
+            if (s == "HeadofHOD") {
+                headofhod = true;
+            }
+            if (s == "ManagerOfHod") {
+                managerofhod = true;
+            }
+            var task = {
+                LocationId: $("#ddllocationsReporting").val(),
+                DepartmentId: $("#ddlDepartmentReporting").val(),
+                LocationName: selectedText,
+                DepartmentName: deptText,
+                SubDepartmentId: SubDepartmentId,
+                SubDepartmentName: SubDepartmentName,
+                IsHod: hod,
+                IsHodOfHod: headofhod,
+                IsManagerOfHod: managerofhod
+            };
+            arrayofreportingmanater.push(task);
+            PopultaeHtml();
+        } else {
+            alert("please select all required fields");
+        }
+    }
+    function PopultaeHtml() {
+        var html = "<table class='table table-striped table-bordered dt-responsive nowrap'>  <thead>";
+        html += "<tr><th>Location</th> <th>Department</th><th>Sub Department</th>  <th>Action</th> </tr>     </thead>    <tbody>";
+        for (var i = 0; i < arrayofreportingmanater.length; i++) {
+            var id = arrayofreportingmanater[i].LocationId + "$" + arrayofreportingmanater[i].DepartmentId + "$" + arrayofreportingmanater[i].SubDepartmentId;
+            html += "<tr>";
+            html += "<td>" + arrayofreportingmanater[i].LocationName + "</td>";
+            html += "<td>" + arrayofreportingmanater[i].DepartmentName + "</td>";
+            html += "<td>" + arrayofreportingmanater[i].SubDepartmentName + "</td>";
+            html += "<td>  <span id='" + id + "' class='glyphicon glyphicon-remove' onclick='OnclickRemovebutton(this.id);' style='color:red;cursor:pointer;font-size:15px;'></span></td>";
+            html += "</tr>";
+        }
+        html += "</tbody></table>";
+        $("#tblreporting").html(html);
+    }
+    function OnclickRemovebutton(id) {
+        var newarray = [];
+        for (var i = 0; i < arrayofreportingmanater.length; i++) {
+            var id1 = arrayofreportingmanater[i].LocationId + "$" + arrayofreportingmanater[i].DepartmentId + "$" + arrayofreportingmanater[i].SubDepartmentId;
+            if (id != id1) {
+                newarray.push(arrayofreportingmanater[i]);
+            }
+        }
+        arrayofreportingmanater = newarray;
+        PopultaeHtml();
+    }
+    function Clear() {
+
+    }
+
+
+
+    function ValidateEmailID_PageLevel(ElementID) {
+        var EnteredEmailID = $("#" + ElementID).val();
+        if (ValidateEmailFormat_GlobalValidationJS(EnteredEmailID)) {
+            var EmailExistStatus = CheckUserEmailIDExistsOrNot_GlobalFunJS(EnteredEmailID);
+            if (!EmailExistStatus) {
+                OpenSuccessAlertPopUpBox_ConfirmPopUpJS("Email ID Already Exist. Please Enter Another Email ID");
+                $("#" + ElementID).val('');
+            }
+        } else {
+            OpenSuccessAlertPopUpBox_ConfirmPopUpJS("Please Enter Valid Email ID");
+            $("#" + ElementID).val('');
+        }
+    }
+    function updateDateinthecolumns() {
+        var dobvalue = $("#DateOfBirth").val();
+        var dojvalue = $("#DateOfJoining").val();
+        $("#ddlVendor").val($("#ddlVendor2").val());
+        return true;
+    }
+    function ConvertDatefromoneddmmyyytommddyyy(date) {
+        if (date != null && date != "") {
+            var cdate = date.split('/');
+            return cdate[1] + "/" + cdate[0] + "/" + cdate[2];
+        } else {
+            return "";
+        }
+    }
+</script>
+
+
+@if (User.IsInRole("Vendor"))
+{
+    <input type="hidden" id="hdnVendoremp" value="true" />
+}
+else
+{
+    <input type="hidden" id="hdnVendoremp" value="false" />
+}
+<input type="hidden" id="hdnvendorcurrentusername" value="@User.Identity.Name" />
+<div class="panel panel-default">
+    <div class="panel-heading">New Out Source Employee</div>
+    <div class="panel-body">
+        @using (Html.BeginForm("AddOutSourceUser", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "Addform" }))
+        {
+            @Html.AntiForgeryToken()
+
+
+            List<SelectListItem> list = new List<SelectListItem>();
+            list.Add(new SelectListItem
+            {
+                Text = "Select",
+                Value = ""
+
+            });
+            list.Add(new SelectListItem
+            {
+                Text = "Male",
+                Value = "Male"
+
+            });
+            list.Add(new SelectListItem
+            {
+                Text = "Female",
+                Value = "Female"
+                //    Selected = true
+            });
+
+            List<SelectListItem> list2 = new List<SelectListItem>();
+            list2.Add(new SelectListItem
+            {
+                Text = "Select",
+                Value = "",
+                //    Selected = true
+            });
+
+
+            List<SelectListItem> list3 = new List<SelectListItem>();
+            list3.Add(new SelectListItem
+            {
+                Text = "OutSource",
+                Value = "OutSource",
+                Selected = true
+            });
+
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            @Html.HiddenFor(m => m.LocationId)
+            @Html.HiddenFor(m => m.LocationName)
+            @Html.HiddenFor(m => m.DepartmentId)
+            @Html.HiddenFor(m => m.DepartmentName)
+
+            @Html.HiddenFor(m => m.SubDepartmnetId)
+            @Html.HiddenFor(m => m.SubDepartmentName)
+            @Html.HiddenFor(m => m.UserType)
+            @Html.HiddenFor(m => m.ddlVendor)
+            <div class="panel-body">
+                <div class="col-md-6 form-group">
+
+                    @Html.LabelFor(m => m.EmployeeId, new { @class = "col-md-6 control-label required" })
+
+                    <div class="col-md-6">
+                        @Html.TextBoxFor(m => m.EmployeeId, new { @class = "form-control", autocomplete = "off" })
+                        @Html.ValidationMessageFor(m => m.EmployeeId, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="col-md-6 form-group">
+                    <label class="col-md-6 control-label">Attendance Employee Id</label>
+                    <div class="col-md-6">
+                        @Html.TextBoxFor(m => m.EmpId, new { @class = "form-control", autocomplete = "off" })
+                        @Html.ValidationMessageFor(m => m.EmpId, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="col-md-6 form-group">
+
+                    <label class="col-md-6 control-label">Employee Name</label>
+
+                    <div class="col-md-6">
+                        @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control TxtOnly", autocomplete = "off" })
+                        @Html.ValidationMessageFor(m => m.FirstName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="col-md-6 form-group">
+                    @Html.LabelFor(m => m.ddlLocation, new { @class = "col-md-6 control-label required" })
+                    <div class="col-md-6">
+                        @Html.DropDownListFor(m => m.ddlLocation, list2, new { @class = "form-control", onchange = "LoadDepartment()" })
+                        @Html.ValidationMessageFor(m => m.ddlLocation, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                @*<div class="col-md-6 form-group">
+
+                        @Html.LabelFor(m => m.LastName, new { @class = "col-md-6 control-label required" })
+
+                        <div class="col-md-6">
+                            @Html.TextBoxFor(m => m.LastName, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.LastName, "", new { @class = "text-danger" })
+                        </div>
+                    </div>*@
+                <div class="col-md-6 form-group">
+                    @Html.LabelFor(m => m.ddlDepartment, new { @class = "col-md-6 control-label required" })
+                    <div class="col-md-6">
+                        @Html.DropDownListFor(m => m.ddlDepartment, list2, new { @class = "form-control", onchange = "DepartmentChange()" })
+                        @Html.ValidationMessageFor(m => m.ddlDepartment, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="col-md-6 form-group">
+                    @Html.LabelFor(m => m.MobileNumber, new { @class = "col-md-6 control-label" })
+                    <div class="col-md-6">
+                        @Html.TextBoxFor(m => m.MobileNumber, new { @class = "form-control MobileNumber MaxCharTextBox_10" })
+                    </div>
+                </div>
+                <div class="col-md-6 form-group">
+                    @Html.LabelFor(m => m.ddlSubDepartment, new { @class = "col-md-6 control-label" })
+                    <div class="col-md-6">
+                        @Html.DropDownListFor(m => m.ddlSubDepartment, list2, new { @class = "form-control", onchange = "SubDepartmentChange()" })
+                        @Html.ValidationMessageFor(m => m.ddlSubDepartment, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="col-md-6 form-group">
+                    @Html.LabelFor(m => m.Email, new { @class = "col-md-6 control-label" })
+                    <div class="col-md-6">
+                        @Html.TextBoxFor(m => m.Email, new { @class = "form-control", @onchange = "ValidateEmailID_PageLevel(this.id);", autocomplete = "off" })
+                        @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                @*<div class="col-md-6 form-group">
+                        @Html.LabelFor(m => m.PlaceAllocation, new { @class = "col-md-6 control-label required" })
+                        <div class="col-md-6">
+                            @Html.TextBoxFor(m => m.PlaceAllocation, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(m => m.PlaceAllocation, "", new { @class = "text-danger" })
+                        </div>
+                    </div>*@
+                <div class="col-md-6 form-group">
+                    @Html.LabelFor(m => m.DateOfJoining, new { @class = "col-md-6 control-label required" })
+                    <div class="col-md-6">
+                        @Html.TextBoxFor(m => m.DateOfJoining, new { @class = "form-control txtdate", autocomplete = "off" })
+                        @Html.ValidationMessageFor(m => m.DateOfJoining, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+
+                <div class="col-md-6 form-group">
+                    @Html.LabelFor(m => m.DateOfBirth, new { @class = "col-md-6 control-label required" })
+                    <div class="col-md-6">
+                        @Html.TextBoxFor(m => m.DateOfBirth, new { @class = "form-control txtdate", autocomplete = "off" })
+                        @Html.ValidationMessageFor(m => m.DateOfBirth, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="col-md-6 form-group">
+
+                    @Html.LabelFor(m => m.Gender, new { @class = "col-md-6 control-label" })
+                    <div class="col-md-6">
+                        @Html.DropDownListFor(m => m.Gender, list, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.Gender, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="col-md-6 form-group">
+                    @Html.LabelFor(m => m.DesignationID, new { @class = "col-md-6 control-label required" })
+                    <div class="col-md-6">
+                        @Html.DropDownListFor(m => m.DesignationID, list2, new { @class = "form-control", onchange = "BindDesignationName_OnDesChange()" })
+                        @Html.HiddenFor(m => m.Designation, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.DesignationID, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="col-md-6 form-group" style="display:none;">
+                    <label class="col-md-6 control-label"> Select Type</label>
+                    <div class="col-md-6">
+                        <select id="ddlemployeetype" class="form-control">
+                            <option value="">Select</option>
+                            <option value="OutSource" selected>OutSource</option>
+
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6 form-group" style="display:none;">
+                    <label class="col-md-6"> &nbsp;</label>
+                    <label class="col-md-6" style="text-align:left;">@Html.CheckBoxFor(model => model.IsLogin, new { onclick = "CheckISLogin()" }) Is Login Required </label>
+
+                </div>
+                <div class="col-md-6 form-group" style="display:none;">
+
+                    @Html.LabelFor(m => m.UserRole, new { @class = "col-md-6 control-label" })
+                    <div class="col-md-6">
+                        @Html.DropDownListFor(m => m.UserRole, list3, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.UserRole, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="col-md-6 form-group ddlverndorcheck">
+                    <label class="control-label col-md-6">Vendor</label>
+                    <div class="col-md-6">
+                        <select id="ddlVendor2" class="form-control typeahead border-primary" name="ddlVendor2" data-provide="typeahead" autocomplete="off"></select>
+                    </div>
+                </div>
+
+                <div class="col-md-6 form-group">
+                    <label class="col-md-6 control-label">Address 1</label>
+                    <div class="col-md-6">
+                        @Html.TextBoxFor(m => m.Address1, new { @class = "form-control", autocomplete = "off" })
+                        @Html.ValidationMessageFor(m => m.Address1, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="col-md-6 form-group">
+                    <label class="col-md-6 control-label">Address 2</label>
+                    <div class="col-md-6">
+                        @Html.TextBoxFor(m => m.Address2, new { @class = "form-control", autocomplete = "off" })
+                        @Html.ValidationMessageFor(m => m.Address2, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+
+                <div class="col-md-6 form-group">
+                    <label class="col-md-6 control-label">City</label>
+                    <div class="col-md-6">
+                        @Html.TextBoxFor(m => m.City, new { @class = "form-control", autocomplete = "off" })
+                        @Html.ValidationMessageFor(m => m.City, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="col-md-6 form-group">
+                    <label class="col-md-6 control-label">State</label>
+                    <div class="col-md-6">
+                        @Html.DropDownListFor(m => m.State, list2, new { @class = "form-control" })
+
+                        @Html.ValidationMessageFor(m => m.State, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="col-md-6 form-group">
+                    <label class="col-md-6 control-label">Pincode</label>
+                    <div class="col-md-6">
+                        @Html.TextBoxFor(m => m.Pincode, new { @class = "form-control", autocomplete = "off" })
+                        @Html.ValidationMessageFor(m => m.Pincode, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" id="BlockLogin">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Login Details</div>
+                    <div class="panel-body">
+                        <div class="col-md-6 form-group">
+                            @Html.LabelFor(m => m.UserId, new { @class = "col-md-6 control-label required", @readonly = "readonly" })
+                            <div class="col-md-6">
+                                @Html.TextBoxFor(m => m.UserId, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(m => m.UserId, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+
+                        @*<div class="col-md-6 form-group">
+                                @Html.LabelFor(m => m.Password, new { @class = "col-md-6 control-label" })
+                                <div class="col-md-6">
+                                    @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div class="col-md-6 form-group">
+                                @Html.LabelFor(m => m.ConfirmPassword, new { @class = "col-md-6 control-label" })
+                                <div class="col-md-6">
+                                    @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control" })
+                                    @Html.ValidationMessageFor(m => m.ConfirmPassword, "", new { @class = "text-danger" })
+                                </div>
+                            </div>*@
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="col-md-6 form-group">
+                <div class="col-md-6">&nbsp;</div>
+                <div class="col-md-6">
+                    <input type="submit" id="btnregister" class="btn btn-default" onclick="updateDateinthecolumns();" value="Add OutSource Employee" />
+
+                </div>
+            </div>
+
+
+
+        }
+
+        @section Scripts {
+            @Scripts.Render("~/bundles/jqueryval")
+        }
+    </div>
+</div>
+
+

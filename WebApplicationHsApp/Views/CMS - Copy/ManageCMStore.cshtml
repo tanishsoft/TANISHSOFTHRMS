@@ -1,0 +1,304 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .modal-dialog {
+        width: 800px;
+        margin: 30px auto;
+    }
+</style>
+<script>
+    var validate = true;
+    var eId = 0;
+    $(document).ready(function () {
+        $('.error1').hide();
+        LoadData();
+
+        EmployeeSearch();
+        LoadLocations();
+
+    });
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- All Locations -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#Location").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function EmployeeSearch() {
+
+        $(".selUser").select2({
+            ajax: {
+                url: "/Home/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 4
+        });
+    }
+    function LoadData() {
+        $('#tblCategory').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/CMS/AjaxGetCMSStore",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "CategoryId" },
+                { "sName": "Name" },
+                { "sName": "Type" },
+                { "sName": "Location" },
+                { "sName": "primary" },
+                { "sName": "Kitchen" },
+                { "sName": "InchageEmp" },
+                { "sName": "Manager" },
+                       //{ "sName": "IsActive" },
+                       {
+                           "sName": "CategoryId",
+                           "bSortable": false,
+                           "render": function (data, row, r) {
+                               //console.log(r);
+                               return '<div class="btn-group">' +
+                                   '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                                   '<ul class="dropdown-menu dropdown-menu-right">' +
+                                   '<li><a href="javascript:void(0);"  onclick="onEdit(' + data + ')">Edit</a></li>' +
+                                   '<li><a href="javascript:void(0);"  onclick="onDelete(' + data + ')">Delete</a></li>' +
+                                   '</ul></div>';
+                           }
+                       }
+            ]
+        });
+        $("#tblCategory_length").addClass("col-md-6");
+        $("#tblCategory_length").addClass("col-md-6");
+    }
+    function OnclickSaveCategory() {
+        validateCategory();
+        if (validate) {
+            var task = {
+                StoreId:eId,
+                StoreName: $("#Name").val(),
+                StoreLocation: $("#Location").val(),
+                StoreManagerEmpId: $("#ManagerEmpId").val(),
+                StoreInchargeEmpId: $("#InchargeEmpId").val(),
+                Iskitchen: $("#Iskitchen").is(":checked"),
+                IsPrimary: $("#IsPrimary").is(":checked"),
+                TypeOf: $("#ddlTypestore").val(),
+                IsActive: true
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "/CMS/Save_UpdateCMSStore",
+                data: task,
+                success: function (data) {
+                    $("#myModalCategoryType").modal('hide');
+                    //alert(data);
+                    clearAll(); LoadData();
+                    console.log("category added successfully")
+                }
+            });
+        }
+        //else {
+        //    alert("Fields Required");
+        //}
+    }
+    function validateCategory() {
+        setTimeout(function () { $('.error1').fadeOut('fast'); }, 5000);
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#Name").val() == "") {
+            $("#Name").addClass('css-error');
+            validate = false;
+        }
+
+        if ($("#Location").val() == "") {
+            $("#Location").addClass('css-error');
+            validate = false;
+        }
+
+
+        if ($("#InchargeEmpId").val() == null) {
+            $('.error1').show();
+            $('.error1').text("Select Incharge Employee");
+            validate = false;
+        }
+       else if ($("#ManagerEmpId").val() ==null) {
+            $('.error1').show();
+            $('.error1').text("Select Manager Employee");
+            validate = false;
+        }
+    }
+    function onEdit(id) {
+        eId = id;
+        $.get("/CMS/GetCMS_Store_ById?id=" + id, function (res) {
+            debugger;
+            $("#ManagerEmpId").select2("trigger", "select", { data: { id: res.model.StoreManagerEmpId, text: res.managerEmp } });
+            $("#InchargeEmpId").select2("trigger", "select", { data: { id: res.model.StoreInchargeEmpId, text: res.inChargeEmp } });
+            $("#Location").val(res.model.StoreLocation);
+            $("#ddlTypestore").val(res.model.TypeOf);
+            $("#Name").val(res.model.StoreName);
+            $('#IsPrimary').prop('checked', res.model.IsPrimary);
+            $('#Iskitchen').prop('checked', res.model.Iskitchen);
+            $("#myModalCategoryType").modal('show');
+            $("#header").text("Update");
+        });
+
+    }
+
+    function clearAll() {
+        $("#header").text("Add New");
+        $(".css-error").removeClass('css-error');
+        $("#Name").val("");
+        $("#Location").val("");
+        $("#ManagerEmpId").select2("trigger", "select", { data: { id: "", text:"" } });
+        $("#InchargeEmpId").select2("trigger", "select", { data: { id: "", text: "" } });
+        //$("#InchargeEmpId").val("");
+        //$("#ManagerEmpId").val("");
+        $('#IsPrimary').prop('checked',false);
+        $('#Iskitchen').prop('checked', false);
+        $("#ddlTypestore").val("Store");
+        eId = 0;
+    }
+    function onDelete(id) {
+        if (confirm('Are you sure you want to delete?')) {
+            $.getJSON("@Url.Action("DeleteCMStore", "CMS")", { id: id }, function (data) {
+                clearAll();
+                LoadData();
+            });
+        } return false;
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading" style="height:35px;background: linear-gradient(to bottom, rgba(217,39,64,1) 35%,rgba(146,0,0,1) 77%);">Manage Store<a href="#" data-toggle="modal" class="pull-right" style="color:white;" data-target="#myModalCategoryType">New Store</a></div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblCategory">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Location</th>
+                    <th>Is Primary</th>
+                    <th>Is kitchen</th>
+                    <th>Incharge Emp</th>
+                    <th>Incharge Manager</th>
+                    @*<th>Is Active</th>*@
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="myModalCategoryType" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="clearAll();">×</button>
+                <h4 class="modal-title" id="header">Add New Store</h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger error1" role="alert">
+
+                </div>
+                <div class="row" style="padding:5px;">
+
+                    <div class="col-md-4">
+                        <label for="name">Name<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="Name">
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Location<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select id="Location" class="form-control">
+                            <option value="">All Location</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Type<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select id="ddlTypestore" class="form-control" name="ddltype">
+                            <option value="Store" selected>Store</option>
+                            <option value="Canteen">Canteen</option>
+                            <option value="Kitchen">Kitchen</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Incharge EmpId<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select id="InchargeEmpId" style="width:280px;" class="form-control typeahead border-primary selUser" name="query" data-provide="typeahead" autocomplete="off"></select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Manager EmpId<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select id="ManagerEmpId" style="width:280px;" class="form-control typeahead border-primary selUser" name="query" data-provide="typeahead" autocomplete="off"></select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">&nbsp;</div>
+                    <div class="col-md-3">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="IsPrimary" name="IsPrimary">
+                            <label class="custom-control-label" for="IsPrimary">Is Primary</label>
+                        </div>
+                    </div>
+                    <div class="col-md-3" style="display:none;">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="Iskitchen" checked="checked" name="Iskitchen">
+                            <label class="custom-control-label" for="Iskitchen">Is kitchen</label>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" onclick="OnclickSaveCategory();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearAll();">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+

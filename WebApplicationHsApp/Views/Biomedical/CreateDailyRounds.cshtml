@@ -1,0 +1,380 @@
+﻿
+@{
+    ViewBag.Title = "CreateDailyRounds";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+</style>
+<script>
+    var eId =@ViewBag.id;
+    function ChangeCallStatus() {
+        if ($("#CallStatus").val() == "Completed") {
+            $('.EndDate').show();
+            $('.divCommentsCallstatus').hide();
+            $("#AdminComments").val("");
+        }
+        else {
+            $('.divCommentsCallstatus').show();
+            $('.EndDate').hide();
+            $("#EndDate").val("");
+            $("#EndTime").val("");
+        }
+    }
+    $(document).ready(function () {
+        LoadLocations();
+        $('.time').timepicker();
+        LoadData(eId);
+        $(".EndDate").hide();
+        $("#StartDate")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                Edit: true,
+                dateFormat: "dd/mm/yy",
+                minDate:0,
+                yearRange: "-30:+30",
+                onSelect: function (dateText, inst) {
+                    $("#EndDate").datepicker("option", "minDate",
+                        $("#StartDate").datepicker("getDate"));
+                }
+            });
+        $("#EndDate")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                yearRange: "-30:+30",
+                Edit: true,
+
+            });
+    });
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">Select </option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#LocationId").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadDepartment(val, subval) {
+        var options = [];
+        options.push('<option value="">- Select Department -</option>');
+        if ($("#LocationId").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Biomedical/GetDepartmentByLocation",
+                data: "id=" + $("#LocationId").val(),
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                    }
+                    $("#DepartmentId").html(options.join(''));
+                    if (val != "") {
+                        $("#DepartmentId").val(val);
+                        if (subval != "")
+                            DepartmentChange(subval);
+                    }
+                },
+                error: function () {
+                    alert("error");
+                }
+            });
+        }
+        else {
+            $("#DepartmentId").html(options.join(''));
+        }
+    }
+    function DepartmentChange(val) {
+        var options = [];
+        options.push('<option value="">- Select Sub Department -</option>');
+        if ($("#DepartmentId").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Biomedical/GetSubDepartmentByDepartment",
+                data: "id=" + $("#DepartmentId").val(),
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].SubDepartmentId + '">' + data[i].Name + '</option>');
+                    }
+                    $("#SubDepartmentId").html(options.join(''));
+                    $("#SubDepartmentId").val(val);
+                },
+                error: function () {
+                    alert("error");
+                }
+            });
+        }
+        else {
+            $("#SubDepartmentId").html(options.join(''));
+        }
+    }
+    function Cancel() {
+        window.location.href="/Biomedical/ManageDailyRounds";
+    }
+    function LoadData(id) {
+        if (id != 0) {
+            $.get("/Biomedical/GetDailyRounds", { id: id }, function (data) {
+
+                $("#LocationId").val(data.LocationId);
+                LoadDepartment(data.DepartmentId, data.SubDepartmentId);
+                $("#CallStatus").val(data.CallStatus);
+                $("#WorkDone").val(data.WorkDone);
+                var start = data.StartDate.split("-");
+                $("#StartDate").datepicker().datepicker("setDate", new Date(parseInt(start[2]), parseInt(start[1])-1,parseInt( start[0])));
+                $("#EndDate").datepicker("option", "minDate", $("#StartDate").datepicker("getDate"));
+                if (data.EndDate != null && data.EndDate != "") {
+                    var end = data.EndDate.split("-");
+                    $("#EndDate").datepicker().datepicker("setDate", new Date(parseInt(end[2]), parseInt(end[1]) - 1, parseInt(end[0])));
+                }
+
+                //$("#StartDate").val(data.StartDate);
+                $("#StartTime").val(data.StartTime);
+                $("#EndTime").val(data.EndTime);
+                ChangeCallStatus();
+            });
+        }
+
+    }
+    function SaveDailyRounds() {
+        var validate= validateinput();
+        if (validate) {
+
+            if (window.FormData !== undefined) {
+
+                var files = "";
+                // Create FormData object
+                var fileData = new FormData();
+                var fileUpload = $("#Document1").get(0);
+                files = fileUpload.files;
+                for (var i = 0; i < files.length; i++) {
+                    fileData.append('UploadDocument', files[i]);
+                }
+
+                // Looping over all files and add it to FormData object
+                // Adding one more key to FormData object
+                fileData.append('DailyRoundId', eId);
+                fileData.append('LocationId', $("#LocationId").val());
+
+                fileData.append('DepartmentId', $("#DepartmentId").val());
+                fileData.append('SubDepartmentId', $("#SubDepartmentId").val());
+                fileData.append('CallStatus', $("#CallStatus").val());
+                fileData.append('WorkDone', $("#WorkDone").val());
+                fileData.append('StartDate', $("#StartDate").val());
+                fileData.append('StartTime', $("#StartTime").val());
+                fileData.append('EndDate', $("#EndDate").val());
+                fileData.append('EndTime', $("#EndTime").val());
+                fileData.append('AdminComments', $("#AdminComments").val());
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Biomedical/Save_Update_DailyRounds",
+                    contentType: false,
+                    processData: false,
+                    data: fileData,
+                    success: function (data) {
+                        alert("Success");
+                        Cancel();
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+    }
+    function formatAMPM(date, EndTime, selectedDate) {
+        debugger
+        var hours = date.getHours();
+        var minutes = date.getMinutes();
+        var ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12; // the hour '0' should be '12'
+        var hoursint = parseInt(hours);
+        minutes = minutes < 10 ? '0' + minutes : minutes;
+        var min = parseInt(minutes);
+        //var strTime = hours + ':' + minutes + ' ' + ampm;
+
+
+
+        var hours1 = parseInt(EndTime.split(":")[0])
+        var mins1 = parseInt(EndTime.split(":")[1])
+        var ampm1 = EndTime.split(" ")[1];
+
+        var today = new Date();
+        var day = today.getDate() < 10 ? "0" + today.getDate() : today.getDate();
+        var month = today.getMonth() + 1;
+        month = month < 10 ? "0" + month : month;
+        var year = today.getFullYear() < 10 ? "0" + today.getFullYear() : today.getFullYear();
+        var date = selectedDate.split("/")[1] + "/" + selectedDate.split("/")[0] + "/" + selectedDate.split("/")[2]
+        if (day == selectedDate.split("/")[0] && month == selectedDate.split("/")[1] && year == selectedDate.split("/")[2]) {
+            if (ampm == ampm1 && (hours1 < hoursint)) {
+                return true;
+            }
+            else if (ampm == ampm1 && (hours1 == hoursint && mins1 < min)) {
+                return true;
+            }
+        } else {
+            return true;
+        }
+       
+        return false;
+    }
+    function todaydate(id) {
+       
+    }
+       
+    function validateinput() {
+        debugger;
+      
+      var  validate = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#LocationId").val() == "") {
+            $("#LocationId").after('<span class="error" style="color:Red;">Select Location</span>');
+            $("#LocationId").addClass('css-error');
+            validate = false;
+        }
+       else if ($("#DepartmentId").val() == "") {
+            $("#DepartmentId").after('<span class="error" style="color:Red;">Select Department</span>');
+            $("#DepartmentId").addClass('css-error');
+            validate = false;
+        }
+        if ($("#CallStatus").val() == "") {
+            $("#CallStatus").after('<span class="error" style="color:Red;">Select Call Status</span>');
+            $("#CallStatus").addClass('css-error');
+            validate = false;
+        }
+        else if ($("#CallStatus").val() == "Completed") {
+              if ($("#EndDate").val() == "") {
+            $("#EndDate").after('<span class="error" style="color:Red;">Select EndDate</span>');
+            $("#EndDate").addClass('css-error');
+            validate = false;
+        }
+            if ($("#EndTime").val() == "") {
+                $("#EndTime").after('<span class="error" style="color:Red;">Select EndTime</span>');
+                $("#EndTime").addClass('css-error');
+                validate = false;
+            }
+            //else {
+            //    if (formatAMPM(new Date, $("#EndTime").val(), $("#EndDate").val() ) == false) {
+            //        $("#EndTime").after('<span class="error" style="color:Red;">End time should be less than current time</span>');
+            //        $("#EndTime").addClass('css-error');
+            //        validate = false;
+            //    }
+            //}
+        }
+        else{
+            if ($("#AdminComments").val() == "") {
+                $("#AdminComments").after('<span class="error" style="color:Red;">Enter Comments</span>');
+                $("#AdminComments").addClass('css-error');
+                validate = false;
+            }
+        }
+        if ($("#StartDate").val() == "") {
+            $("#StartDate").after('<span class="error" style="color:Red;">Seelct startDate</span>');
+            $("#StartDate").addClass('css-error');
+            validate = false;
+        }
+        if ($("#StartTime").val() == "") {
+            $("#StartTime").after('<span class="error" style="color:Red;">Select StartTime</span>');
+            $("#StartTime").addClass('css-error');
+            validate = false;
+        }
+        //else {
+        //    if (formatAMPM(new Date, $("#StartTime").val(), $("#StartDate").val()) == false) {
+        //        $("#StartTime").after('<span class="error" style="color:Red;">Start time should be less than current time</span>');
+        //        $("#StartTime").addClass('css-error');
+        //        validate = false;
+        //    }
+        //}
+        return validate;
+    }
+</script>
+<style>
+    .form-row .form-group {
+        margin-bottom: 20px;
+    }
+</style>
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">&nbsp;Create Daily Rounds</div>
+        <div class="panel-body" style="padding:30px;">
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label>Location<span style="color:red;">*</span></label>
+                    <select class="form-control maxwidth" id="LocationId" onchange="LoadDepartment('','');"></select>
+                </div>
+                <div class="form-group col-md-6">
+                    <label>Department<span style="color:red;">*</span></label>
+                    <select class="form-control maxwidth" id="DepartmentId" onchange="DepartmentChange();">
+                        <option value=""> Select </option>
+                    </select>
+                </div>
+                <div class="form-group col-md-6">
+                    <label>Sub Department<span style="color:red;">*</span></label>
+                    <select class="form-control maxwidth" id="SubDepartmentId">
+                        <option value=""> Select </option>
+                    </select>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label>Call Status<span style="color:red;">*</span></label>
+                    <select class="form-control maxwidth" id="CallStatus" onchange="ChangeCallStatus();">
+                        <option value="">Select</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Hold">Hold</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-12 divCommentsCallstatus" style="display:none;">
+                    <span class="form-label">Comments</span>
+                    <textarea class="form-control maxwidth" rows="3" placeholder="Enter" id="AdminComments"></textarea>
+                </div>
+                <div class="form-group col-md-6">
+                    <label> Document</label>
+                    <input type="file" id="Document1" class="form-control maxwidth" multiple />
+                </div>
+
+                <div class="form-group col-md-3">
+                    <label>Start Date<span style="color:red;">*</span></label>
+                    <input type="text" name="startDate" class="form-control" id="StartDate"  readonly="readonly" autocomplete="off"  />
+                </div>
+                <div class="form-group col-md-3 bootstrap-timepicker timepicker">
+                    <label>Start Time<span style="color:red;">*</span></label>
+                    <input type="text" name="startTime" class="form-control time" id="StartTime"  readonly="readonly" autocomplete="off"  />
+                </div>
+                <div class="form-group col-md-3 EndDate">
+                    <label>End Date<span style="color:red;">*</span></label>
+                    <input type="text" name="EndDate" class="form-control" id="EndDate"  readonly="readonly" autocomplete="off"  />
+                </div>
+                <div class="form-group col-md-3 EndDate bootstrap-timepicker timepicker">
+                    <label>End Time<span style="color:red;">*</span></label>
+                    <input type="text" name="EndTIme" class="form-control time" id="EndTime"   readonly="readonly" autocomplete="off"  />
+                </div>
+                <div class="form-group col-md-12">
+                    <span class="form-label">Work Done Description</span>
+                    <textarea class="form-control maxwidth" rows="3" placeholder="Enter" id="WorkDone"></textarea>
+                </div>
+            </div>
+            <div class="row" style="padding:10px;">
+                <input type="button" class="btn cancel" value="Cancel" onclick="Cancel();" />
+                <input type="button" class="btn save" value="Submit" onclick="SaveDailyRounds();" />
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+
+

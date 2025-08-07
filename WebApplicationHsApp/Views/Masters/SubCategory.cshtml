@@ -1,0 +1,642 @@
+﻿
+@{
+    ViewBag.Title = "SubCategory";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    var validate = true;
+    var DocumentData = new FormData();
+    var DocumentDataEdit = new FormData();
+    $(document).ready(function () {
+      //  LoadLocation();
+        LoadData(); LoadCategory("");
+    });
+    function LoadLocation() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- select Locations -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $(".ddlLocation").html(options.join(''));
+
+
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadDepartment(Code) {
+        debugger;
+        if ($("#" + Code + "Location").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Common/GetDepartmentByLocation",
+                data: "id=" + $("#" + Code + "Location").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- Select Department -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                    }
+                    $("#" + Code + "Department").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#" + Code + "Department").html("");
+        }
+    }
+    function LoadCategory(Code) {
+        //if ($("#" + Code + "Department").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Masters/GetAllAdminCategoriesbyDepartmentId",
+              //  data: "LocId=" + $("#" + Code + "Department").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- select category -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].CategoryId + '">' + data[i].Name + '</option>');
+                    }
+                    $("#" + Code + "Category").html(options.join(''));
+
+
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        //}
+        //else {
+        //    $("#" + Code + "Category").html("");
+        //}
+    }
+    function LoadDepartmentEdit(Code, Department, CategoryId) {
+        debugger;
+        if ($("#" + Code + "Location").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Common/GetDepartmentByLocation",
+                data: "id=" + $("#" + Code + "Location").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- Select Department -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                    }
+                    $("#" + Code + "Department").html(options.join(''));
+                    $("#" + Code + "Department").val(Department);
+                    LoadCategoryEdit('E', CategoryId);
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#" + Code + "Department").html("");
+        }
+    }
+    function LoadCategoryEdit(Code, Category) {
+        //if ($("#" + Code + "Department").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Masters/GetAllAdminCategoriesbyDepartmentId",
+               // data: "LocId=" + $("#" + Code + "Department").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- select category -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].CategoryId + '">' + data[i].Name + '</option>');
+                    }
+                    $("#" + Code + "Category").html(options.join(''));
+                    $("#" + Code + "Category").val(Category);
+
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        //}
+        //else {
+        //    $("#" + Code + "Category").html("");
+        //}
+    }
+    function LoadData() {
+        $('#tblAdminCategory').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Masters/AjaxGetAdminsubCategory",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "SubCategoryId" },
+                { "sName": "LocationId" },
+                { "sName": "CategoryId" },
+                { "sName": "DepartmentId" },
+                { "sName": "Name" },
+                { "sName": "Description" },
+                { "sName": "UserHelpDocuement" },
+                { "sName": "IsActive" },
+                {
+                    "sName": "CategoryId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<a href="javascript:void(0);" id="' + data + '" class="btn btn-success" onclick="Edit(this.id);"><span class="glyphicon glyphicon-edit"></span></a>&nbsp;' +
+                            '<a href="javascript:void(0);" id="' + data + '" class="btn btn-danger" onclick="Delete(this.id);"><span class="glyphicon glyphicon-trash"></span></a>&nbsp;'+
+                            '<a href="javascript:void(0);" id="' + data + '" class="btn btn-primary" onclick="ManageDocuments(this.id);"><span class="glyphicon glyphicon-file"></span></a>';
+                        //return '<div class="btn-group">' +
+                        //    '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                        //    '<ul class="dropdown-menu dropdown-menu-right">' +
+                        //    '<li><a href="javascript:void(0);" id="' + data + '" onclick="Edit(this.id);">Edit</a></li>' +
+                        //    '<li><a href="javascript:void(0);" id="' + data + '" onclick="Delete(this.id);">Delete</a></li>' +
+                        //    '<li><a href="javascript:void(0);" id="' + data + '" onclick="ManageDocuments(this.id);">ManageDocuments</a></li>' +
+                        //    '</ul></div>';
+                    }
+                }
+            ]
+        });
+        $("#tblAdminCategory_length").addClass("col-md-6");
+        $("#tblAdminCategory_length").addClass("col-md-6");
+    }
+    function Edit(id) {
+        $("#EcId").val(id);
+        var Url = "/Masters/GetAdminsubCategorybyid?subCategoryId=" + id;
+        $.ajax({
+            type: "GET",
+            url: Url,
+            success: function (data) {
+
+                $("#EditModel").modal('show');
+                var obj = data;
+                $("#ELocation").val(obj.LocationId);
+                LoadCategoryEdit('E', obj.CategoryId);
+                
+                $("#EName").val(obj.Name);
+                $("#EDescription").val(obj.Description);
+                $("#Eurl").html(obj.UserHelpDocuement);
+            }
+        })
+    }
+    function AjaxPost(Action) {
+        debugger;
+        var Posturl; var code = "";
+        validatesubCategory(Action);
+        if (validate) {
+            // Checking whether FormData is available in browser
+            if (window.FormData !== undefined) {
+
+
+                // Create FormData object
+                var fileData = new FormData();
+                if (Action == 'Save') {
+                    Posturl = "/Masters/saveSubcategory";
+                }
+                else if (Action == 'Update') {
+                    code = "E";
+                    Posturl = "/Masters/UpdateSubcategory";
+                    fileData.append('SubCategoryId', $("#EcId").val());
+                }
+                var fileUpload = $("#" + code + "UploadDocument").get(0);
+                var files = fileUpload.files;
+
+                // Looping over all files and add it to FormData object
+                for (var i = 0; i < files.length; i++) {
+                    fileData.append("Upload", files[i]);
+                }
+
+                // Adding one more key to FormData object
+
+                fileData.append('Name', $("#" + code + "Name").val());
+                fileData.append('CategoryId', $("#" + code + "Category").val());
+               // fileData.append('DepartmentId', $("#" + code + "Department").val());
+               // fileData.append('LocationId', $("#" + code + "Location").val());
+                fileData.append('Description', $("#" + code + "Description").val());
+                $.ajax({
+                    type: "POST",
+                    url: Posturl,
+                    contentType: false, // Not to set any content header
+                    processData: false, // Not to process data
+                    data: fileData,
+                    success: function (result) {
+                        alert(result);
+                        clearAll();
+                        LoadData();
+
+                    },
+                    error: function (err) {
+                        alert(err.statusText);
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+        else {
+            return false;
+        }
+    }
+    function validatesubCategory(Action) {
+        validate = true; var code = "";
+        if (Action == "Update") {
+            code = "E";
+        }
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#" + code + "Name").val() == "") {
+            $("#" + code + "Name").after('<span class="error" style="color:Red;">Enter Name</span>');
+            $("#" + code + "Name").addClass('css-error');
+            validate = false;
+        }
+        if ($("#" + code + "Description").val() == "") {
+            $("#" + code + "Description").after('<span class="error" style="color:Red;">Enter Description</span>');
+            $("#" + code + "Description").addClass('css-error');
+            validate = false;
+        }
+        //if ($("#" + code + "Location").val() == "") {
+        //    $("#" + code + "Location").after('<span class="error" style="color:Red;">select Location</span>');
+        //    $("#" + code + "Location").addClass('css-error');
+        //    validate = false;
+        //}
+        //else if ($("#" + code + "Department").val() == "") {
+        //    $("#" + code + "Department").after('<span class="error" style="color:Red;">select Department</span>');
+        //    $("#" + code + "Department").addClass('css-error');
+        //    validate = false;
+        //}else
+         if ($("#" + code + "Category").val() == "") {
+            $("#" + code + "Category").after('<span class="error" style="color:Red;">select category</span>');
+            $("#" + code + "Category").addClass('css-error');
+            validate = false;
+        }
+        //if ($("#" + code + "SubCategory").val() == "") {
+
+        //    $("#" + code + "SubCategory").after('<span class="error" style="color:Red;">select sub category</span>');
+        //    $("#" + code + "SubCategory").addClass('css-error');
+        //    validate = false;
+        //}
+        //if ($("#" + code + "UploadDocument").val() == "" ) {
+        //    $("#" + code + "UploadDocument").after('<span class="error" style="color:Red;">upload Document</span>');
+        //    $("#" + code + "UploadDocument").addClass('css-error');
+        //    validate = false;
+        //}
+    }
+    function AjaxPostDocuments() {
+        var Posturl; var code = "";
+        if (validate) {
+            // Checking whether FormData is available in browser
+            if (window.FormData !== undefined) {
+
+
+                // Create FormData object
+                var fileData = new FormData();
+                Posturl = "/Masters/saveAdminDocument";
+                var fileUpload = $("#" + code + "ManageDocuments").get(0);
+                var files = fileUpload.files;
+                if (files.length > 0 && $("#Title").val() != "" && $("#type").val() != "") {
+                    // Looping over all files and add it to FormData object
+                    for (var i = 0; i < files.length; i++) {
+                        fileData.append("Upload", files[i]);
+                    }
+
+                    // Adding one more key to FormData object
+                    fileData.append('SubCategoryId', $("#manageSubCategory").val());
+                    fileData.append('DocumentType', $("#Title").val());
+                    fileData.append('DocumentTitle', $("#type").val());
+                    $.ajax({
+                        type: "POST",
+                        url: Posturl,
+                        contentType: false, // Not to set any content header
+                        processData: false, // Not to process data
+                        data: fileData,
+                        success: function (result) {
+                            alert(result);
+                            clearDocuments();
+                            GetFiles($("#manageSubCategory").val());
+                        },
+                        error: function (err) {
+                            alert(err.statusText);
+                        }
+                    });
+                } else {
+                    alert("Please check all the fields are required");
+                }
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+        else {
+            return false;
+        }
+
+    }
+    function ManageDocuments(id) {
+        debugger;
+        $("#manageSubCategory").val(id);
+        clearDocuments();
+
+        GetFiles(id);
+    }
+    function clearDocuments() {
+        $("#ManageDocuments").val(null);
+        $("#Title").val("");
+        $("#type").val("");
+    }
+    function GetFiles(subId) {
+        $('#tblFiles tbody').html("");
+        $.ajax({
+            type: "POST",
+            url: '/Masters/GetDocbysubcatogery?subId=' + subId,
+            data: '{}',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (files) {
+                var html = "";
+                for (var i = 0; i < files.length; i++) {
+                    html += "<tr><td>" + files[i].Did + "</td><td>" + files[i].Type + "</td><td>" + files[i].Title + "</td><td><a href='/Documents/AdministrationDocuments/" + files[i].url + "' target='_blank'>" + files[i].url + "</a></td><td>  <span style='Cursor:Pointer;' onclick='DeleteDocuments(" + files[i].Did + "," + subId + ")'>Del</span> </td></tr>";
+                }
+                $('#tblFiles tbody').html(html);
+
+                //$.each(files, function () {
+                //    AppendRow(this.Did, this.url);
+                //});
+                $("#ModelmanageDocumentsModel").modal('show');
+            },
+            failure: function (r) {
+                alert(r.d);
+            },
+            error: function (r) {
+                alert(r.d);
+            }
+        });
+    };
+    function DeleteDocuments(id, Subid) {
+        if (confirm("Are you sure you want to delete?")) {
+            $.get("/Masters/DeleteAdminDocument?id=" + id, function (data) {
+                alert("Success");
+                GetFiles(Subid);
+            });
+        }
+    }
+    function clearAll() {
+        $("#Name").val("");
+        $("#Description").val("");
+    //    $("#Location").val("");
+        $("#FormType").val("")
+    }
+
+    function Delete(Subid) {
+        if (confirm("Are you sure you want to delete?")) {
+            $.get("/Masters/DeleteAdminsubCategory?id=" + id, function (data) {
+                alert("Success");
+                LoadData();
+            });
+        }
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading">Manage Admin SubCategory<a href="#" data-toggle="modal" class="pull-right" data-target="#AddModel">New Admin SubCategory</a></div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblAdminCategory">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>Id</th>
+                    <th>Location</th>
+                    <th>CategoryId</th>
+                    <th>Department</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Docuement</th>
+                    <th>Is Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div id="AddModel" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="clearAll();">×</button>
+                <h4 class="modal-title">Add New</h4>
+            </div>
+            <div class="modal-body">
+                <form id="Add" method="post" enctype="multipart/form-data" onsubmit="return AjaxPost('Save')">
+                    @*<div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Location<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <select class="form-control ddlLocation" id="Location" onchange="LoadDepartment('');"></select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Department</label>
+                        </div>
+                        <div class="col-md-8">
+                            <select class="form-control" id="Department" onchange=" LoadCategory('');"></select>
+                        </div>
+                    </div>*@
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Category<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <select class="form-control" id="Category"></select>
+                        </div>
+                    </div>
+
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Name<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="Name">
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name">Description<span style="color:red;">*</span></label></div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="Description">
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name">User Help Docuement<span style="color:red;">*</span></label></div>
+                        <div class="col-md-8">
+                            <input type="file" id="UploadDocument" name="UploadDocument" />
+                        </div>
+                        <div class="modal-footer">
+                            <input type="submit" value="Save" class="btn btn-primary">
+                            <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearAll();">Close</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<div id="EditModel" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Update</h4>
+            </div>
+            <div class="modal-body">
+
+                <form id="Edit" method="post" enctype="multipart/form-data" onsubmit="return AjaxPost('Update')">
+                    <input type="hidden" id="EcId" />
+                    @*<div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Location<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <select class="form-control ddlLocation" id="ELocation" onchange="LoadDepartment('E'); LoadCategory('E');"></select>
+                        </div>
+                    </div>*@
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Category<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <select class="form-control" id="ECategory"></select>
+                        </div>
+                    </div>
+                    @*<div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Department</label>
+                        </div>
+                        <div class="col-md-8">
+                            <select class="form-control" id="EDepartment"></select>
+                        </div>
+                    </div>*@
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Name<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="EName">
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name">Description<span style="color:red;">*</span></label></div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="EDescription">
+                        </div>
+                    </div>
+               
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name">User Help Docuement<span style="color:red;">*</span></label></div>
+                        <div class="col-md-8">
+                            <input type="file" id="EUploadDocument" name="EUploadDocument" />
+                            <label type="text" id="Eurl" disabled="disabled"></label>
+                        </div>
+                    </div>
+               
+                    <div class="modal-footer">
+                        <input type="submit" value="Update" class="btn btn-primary" />
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="modal fade" id="DeleteConfirmation">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4>Delete  Record</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" class="form-control" id="Cid">
+                <h4>Are You Sure? You Want To Delete This Record.</h4>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-primary" data-dismiss="modal" id="r">Cancel</a>
+                <a href="#" class="btn btn-danger" onclick="ConfirmDelete()">Confirm</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="ModelmanageDocumentsModel" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Update</h4>
+            </div>
+            <div class="modal-body">
+                <div>
+
+                    <form id="Documents" method="post" enctype="multipart/form-data">
+                        <input type="hidden" class="form-control" id="manageSubCategory">
+                        <div class="row" style="padding:5px;">
+                            <div class="col-md-4">
+                                <label for="name">Type<span style="color:red;">*</span></label>
+                            </div>
+                            <div class="col-md-8">
+                                <select id="type" class="form-control"><option value="">-select type-</option><option value="New">New</option><option value="Renewal">Renewal</option></select>
+                            </div>
+                        </div>
+                        <div class="row" style="padding:5px;">
+                            <div class="col-md-4"><label for="name">Title<span style="color:red;">*</span></label></div>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="Title">
+                            </div>
+                        </div>
+                        <div class="row" style="padding:5px;">
+                            <div class="col-md-4">
+                                <label for="name">Documents<span style="color:red;">*</span></label>
+
+                            </div>
+                            <div class="col-md-8">
+                                <input type="file" id="ManageDocuments" name="ManageDocuments" multiple />
+                            </div>
+                        </div>
+
+                        <input type="button" id="btnasigntask" value="Upload" class="btn btn-primary pull-right" onclick="return AjaxPostDocuments()">
+
+                    </form>
+                </div>
+                <progress id="fileProgress" style="display:none"></progress>
+                <hr />
+                <table id="tblFiles" class="table table-bordered text-center">
+                    <thead>
+                        <tr>
+                            <th style="width:50px">Id</th>
+                            <th style="width:50px">Type</th>
+                            <th style="width:50px">Title</th>
+                            <th style="width:50px">Url</th>
+                            <th style="width:80px">Download</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+

@@ -1,0 +1,63 @@
+﻿
+@{
+    ViewBag.Title = "MyLeaves";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+        GetMyLeaves();
+    });
+    function GetMyLeaves() {
+        $.ajax({
+            type: "GET",
+            url: "/Hr/GetMyLeavesCount",
+            success: function (data) {
+                var html = "";
+                var count = 1;
+
+                for (var i = 0; i < data.length; i++) {
+                    html += "<tr><th>" + count + " </th>";
+                    html += "<th>" + CheckNull(data[i].LeaveTypeName); + "</th>";
+                    html += " <th>" + CheckNull(data[i].CountOfLeave); + " </th>";
+                    html += "  <th>" + CheckNull(data[i].AvailableLeave); + " </th>";
+                    html += "  <th>" + functionDate(data[i].CreatedOn); + " </th>";
+                    html += "  <th>" + functionDate(data[i].ExpireDate); + " </th>";
+                    html += "</tr>";
+                    count = count + 1;
+                }
+                $("#empleavestable").html(html);
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading">Leaves Avaiable</div>
+    <div class="panel-body">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>
+                        S.No
+                    </th>
+                    <th>Leave Type</th>
+                    <th>
+                        Count
+                    </th>
+                    <th>
+                        Available
+                    </th>
+                    <th>
+                        Updated On
+                    </th>
+                    <th>
+                        Expired on
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="empleavestable"></tbody>
+        </table>
+    </div>
+</div>

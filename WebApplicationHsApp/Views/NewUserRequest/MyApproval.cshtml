@@ -1,0 +1,189 @@
+﻿
+@{
+    ViewBag.Title = "MyApproval";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+        $('#ddlLocation').select2({
+            placeholder: "Select Loction"
+        })
+        LoadData();
+        LoadLocations();
+    });
+    function LoadData() {
+        $('#tblNewUserRequest').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/NewUserRequest/AjaxGetRequestsPendingforapproval",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "UserRequestId" },
+                { "sName": "EmpNo" },
+                { "sName": "Name" },
+                { "sName": "EmailId" },
+                { "sName": "Mobile" },
+                { "sName": "Designation" },
+                { "sName": "SubDepartment" },
+                { "sName": "Remarks" },
+                { "sName": "IsHodApproved" },
+                { "sName": "HodApproveComments" },
+                {
+                    "sName": "UserRequestId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<a href="javascript:void(0);" id="' + data + '" title="Approve" class="btn btn-success" onclick="ApproveRequest(this.id);"><span class="glyphicon glyphicon-edit"></span></a>&nbsp;' +
+                            '<a href="javascript:void(0);" id="' + data + '" title="View Full Details" class="btn btn-warning" onclick="LoadFullUserRequestdetails(this.id);"><span class="glyphicon glyphicon-info-sign"></span></a>';
+                        //'<a href="javascript:void(0);" id="' + data + '" title="Cancel" class="btn btn-danger" onclick="CancelRequest(this.id);"><span class="glyphicon glyphicon-trash"></span></a>&nbsp;';
+
+                    }
+                }
+            ]
+        });
+        $("#tblNewUserRequest_length").addClass("col-md-6");
+    }
+    function CancelRequest(id) {
+        alert(id);
+    }
+    var currentrequestid = 1;
+    function ApproveRequest(id) {
+        currentrequestid = id;
+        $("#myModal").modal("show");
+    }
+    function SaveApproveRequest() {
+        var ApproveLocation = "";
+        var Loc = $("#ddlLocation").val();
+        if (Loc != null) {
+            for (var i = 0; i < Loc.length; i++) {
+                ApproveLocation == "" ? ApproveLocation = Loc[i] : ApproveLocation = ApproveLocation + "," + Loc[i];
+            }
+            var model = {
+                id: currentrequestid,
+                ApproveLocation: ApproveLocation,
+                comments: $("#txtapprovecomments").val()
+            };
+            if (ApproveLocation != null && ApproveLocation != "") {
+                $.get("/NewUserRequest/ApproveNewUserRequest", model, function (data) {
+                    alert(data);
+                });
+            } else {
+                alert("Approve Location is required");
+            }
+        }
+        else {
+            $("#ddlLocation").after('<span class="error" style="color:Red;">select Location</span>');
+            $("#ddlLocation").addClass('css-error');
+        }
+
+    }
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- All -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#ddlLocation").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadFullUserRequestdetails(id) {
+        var html = "";
+        $.get("/NewUserRequest/GetFullRequest?id=" + id, function (data) {
+            html = "<table class='table table-bordered table-striped'>";
+            html += "<tr><td>Request For</td><td>" + data.RequestFor + "</td></tr>";
+            html += "<tr><td>Request Is</td><td>" + data.RequestIs + "</td></tr>";
+            html += "<tr><td>Emp No</td><td>" + data.EmpNo + "</td></tr>";
+            html += "<tr><td>Name</td><td>" + data.Name + "</td></tr>";
+            html += "<tr><td>Department </td><td>" + data.Department + "</td></tr>";
+            html += "<tr><td>Designation</td><td>" + data.Designation + "</td></tr>";
+            html += "<tr><td>Email Id</td><td>" + data.EmailId + "</td></tr>";
+            html += "<tr><td>Mobile</td><td>" + data.Mobile + "</td></tr>";
+            html += "<tr><td>Approve Location</td><td>" + data.ApprovedLocation + "</td></tr>";
+            html += "<tr><td>Sub Department</td><td>" + data.SubDepartment + "</td></tr>";
+            html += "<tr><td>Remarks</td><td>" + data.Remarks + "</td></tr>";
+            html += "<tr><td>SameRightsLikeempId</td><td>" + data.SameRightsLikeempId + "</td></tr>";
+            html += "<tr><td>Hod Approval Name</td><td>" + data.HodApprovalName + "</td></tr>";
+            html += "<tr><td>Is Hod Approved</td><td>" + data.IsHodApproved + "</td></tr>";
+            html += "</table>";
+            $("#divfullrequestdetails").html(html);
+            $("#myModalFullrequest").modal("show");
+        });
+    }
+</script>
+<style>
+    .selection {
+        width: 100%;
+    }
+</style>
+<div class="panel panel-default">
+    <div class="panel-heading">My Approval</div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblNewUserRequest">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>Id</th>
+                    <th>EmpNo</th>
+                    <th>Name</th>
+                    <th>EmailId</th>
+                    <th>Mobile</th>
+                    <th>Designation</th>
+                    <th>Sub Department</th>
+                    <th>Remarks</th>
+                    <th>IsHodApproved</th>
+                    <th>Comments</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="form-block">
+        <h3>Approve Request<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <form id="AddNewTask" method="post" enctype="multipart/form-data">
+            <!-- Grid row -->
+            <div class="form-row">
+
+                <!-- Default input -->
+                <div class="form-group col-md-12">
+                    <label>Assign Location<span style="color:red;">*</span></label>
+                    <select id="ddlLocation" class="form-control" style="width:100%;" multiple>
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-12">
+                    <label>Comments<span style="color:red;">*</span></label>
+                    <textarea id="txtapprovecomments" class="form-control"></textarea>
+                </div>
+                <div class="form-group col-md-12">
+                    <button type="submit" class="btn save" onclick="SaveApproveRequest();">SAVE</button>
+                    <button type="button" data-dismiss="modal" class="btn cancel">Cancel</button>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+
+            <!-- Grid row -->
+
+
+        </form>
+    </div>
+</div>
+<div class="modal fade" id="myModalFullrequest" role="dialog">
+    <div class="form-block">
+        <h3>View Request<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <div id="divfullrequestdetails">
+
+        </div>
+    </div>
+</div>

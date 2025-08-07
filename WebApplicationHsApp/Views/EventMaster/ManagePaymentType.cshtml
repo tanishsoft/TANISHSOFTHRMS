@@ -1,0 +1,252 @@
+﻿
+@{
+    ViewBag.Title = "ManagePaymentType";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">Manage Payment Type<a href="#" data-toggle="modal" class="pull-right" data-target="#myModalPayment">New Payment Type</a></div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblpayments">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>SL.No</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Credit</th>
+                    <th>Debit</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="myModalPayment" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Make Payment</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" class="form-control" id="pPaymentId">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Name<span style="color:red;">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="pName">
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Description<span style="color:red;">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="pDescription">
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Tranction Type<span style="color:red;">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="radio" id="pisCredit" checked name="transaction"> Credit &nbsp;&nbsp;
+                        <input type="radio" id="pisDebit" name="transaction"> Debit
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnSave" value="Save" onclick="validatePayment();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" id="btnClear" data-dismiss="modal" onclick="clearData();">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="modal fade" id="DeleteConfirmation">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4>Delete  Record</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" class="form-control" id="Cid">
+                <h4>Are You Sure? You Want To Delete This Record.</h4>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-primary" data-dismiss="modal" id="rCancel">Cancel</a>
+                <a href="#" class="btn btn-danger" onclick="ConfirmDelete()">Confirm</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    var validate = true;
+    $(document).ready(function () {
+        GetAllPaymentDetails();
+    });
+    function GetAllPaymentDetails() {
+        var oTable = $('#tblpayments').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/EventMaster/GetActivePaymentDetails",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "PaymentId" },
+                { "sName": "Name" },
+                { "sName": "Description" },
+                { "sName": "IsCredit" },
+                { "sName": "IsDebit" },
+                { "sName": "IsActive" },
+                {
+                    "sName": "PaymentId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="EditPaymentDetails(this.id);">Edit</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="Delete(this.id);">Delete</a></li>' +
+                            '</ul></div>';
+                    }
+                }
+            ],
+            "fnRowCallback": function (nRow, aData, iDisplayIndex) {
+                $("td:nth-child(1)", nRow).html(iDisplayIndex + 1);
+                return nRow;
+            }
+        });
+        // generateSLNO();
+        $("#tblpayments_length").addClass("col-md-6");
+        $("#tblpayments_length").addClass("col-md-6");
+    }
+
+    function validatePayment() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#pName").val() == "") {
+            $("#pName").addClass('css-error');
+            validate = false;
+        }
+        else {
+            var paymentId = parseInt($("#pPaymentId").val()) > 0 ? $("#pPaymentId").val() : 0;
+            $.ajax({
+                type: "POST",
+                url: "/EventMaster/checkPaymentStatus",
+                data: { name: $("#pName").val().trim(), paymentId: paymentId },
+                async: false,
+                success: function (result) {
+                    if (result) {
+                        alert("Payment Name existed.!");
+                        validate = false;
+                    }
+                },
+                error: function (err) {
+                    validate = false;
+                }
+            });
+        }
+        if ($("#pDescription").val() == "") {
+            $("#pDescription").addClass('css-error');
+            validate = false;
+        }
+        if (validate) {
+            savePaymentDetails();
+        }
+    }
+    function savePaymentDetails() {
+        if (validate) {
+            var status = $("#pisCredit").is(":checked");
+            var fileData = new FormData();
+            fileData.append('PaymentId', $("#pPaymentId").val());
+            fileData.append('Name', $("#pName").val());
+            fileData.append('Description', $("#pDescription").val());
+            fileData.append('isDebit', status ? false : true);
+            fileData.append('isCredit', status);
+            fileData.append('CreatedBy', "Hari");
+            fileData.append('IsActive', true);
+            $.ajax({
+                type: "POST",
+                url: "/EventMaster/SavePaymentDetails",
+                contentType: false, // Not to set any content header
+                processData: false, // Not to process data
+                data: fileData,
+                success: function (result) {
+                    alert(result);
+                    clearData();
+                },
+                error: function (err) {
+                    alert(err.statusText);
+                    clearData();
+                }
+            });
+        }
+    }
+    function clearData() {
+        $("#pPaymentId").val('');
+        $("#pName").val("");
+        $("#pDescription").val("");
+        $("#pisCredit").prop("checked", true);
+        $("#pisDebit").prop("checked", false);
+        $("#myModalPayment").modal('hide');
+        $('#btnSave').val('Save');
+        GetAllPaymentDetails();
+    }
+    function EditPaymentDetails(pPaymentId) {
+        var Url = "/EventMaster/GetPaymentDetails?PaymentId=" + pPaymentId;
+        $.ajax({
+            type: "GET",
+            url: Url,
+            success: function (data) {
+                $("#myModalPayment").modal();
+                var obj = data;
+                $("#pPaymentId").val(obj.PaymentId);
+                $("#pName").val(obj.Name);
+                $("#pDescription").val(obj.Description);
+                $("#pisCredit").prop("checked", obj.IsCredit);
+                $("#pisDebit").prop("checked", obj.IsDebit);
+                $('#btnSave').val('Update');
+            }
+        });
+
+    }
+    function DeletePaymentDetails(pPaymentId) {
+        var Url = "/EventMaster/DeletePayment?PaymentId=" + pPaymentId;
+        $.ajax({
+            type: "GET",
+            url: Url,
+            success: function (data) {
+                $("#DeleteConfirmation").modal("hide");
+            }
+        });
+
+    }
+    //Show The Popup Modal For DeleteComfirmation
+    var Delete = function (pPaymentId) {
+        $("#pPaymentId").val(pPaymentId);
+        $("#DeleteConfirmation").modal("show");
+    }
+
+    var ConfirmDelete = function () {
+        $.ajax({
+            type: "POST",
+            url: "/EventMaster/DeletePayment?PaymentId=" + $("#pPaymentId").val(),
+            success: function (result) {
+                $("#DeleteConfirmation").modal("hide");
+            }
+        })
+        GetAllPaymentDetails();
+    }
+
+</script>
+
+

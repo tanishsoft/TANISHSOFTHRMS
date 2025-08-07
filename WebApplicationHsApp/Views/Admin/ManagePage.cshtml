@@ -1,0 +1,233 @@
+﻿@model  WebApplicationHsApp.Models.CustomPage
+@{
+    ViewBag.Title = "ManagePage";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    if (ViewBag.SuccessMsg != null)
+    {
+        <script>
+            OpenSuccessAlertPopUpBox_ConfirmPopUpJS('@ViewBag.SuccessMsg');
+        </script>
+    }
+}
+
+<script src="~/ckeditor/ckeditor.js"></script>
+
+<script>
+    $(document).ready(function () {
+        CKEDITOR.replace('PageContent');
+        LoadLocations();
+        LoadData();
+    });
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#ddlLocation").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadDepartment() {
+        $("#LocationId").val($("#ddlLocation").val());
+        var skillsSelect = document.getElementById("ddlLocation");
+        var selectedText = skillsSelect.options[skillsSelect.selectedIndex].text;
+        $("#LocationName").val(selectedText);
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetDepartmentByLocation",
+            data: "id=" + $("#ddlLocation").val(),
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Department -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                }
+                $("#ddlDepartment").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function DepartmentChange() {
+        $("#DepartmentId").val($("#ddlDepartment").val());
+        var skillsSelect = document.getElementById("ddlDepartment");
+        var selectedText = skillsSelect.options[skillsSelect.selectedIndex].text;
+        $("#DepartmentName").val(selectedText);
+    }
+    function MenuChange() {
+        $("#PageMenuId").val($("#ddlMenu").val());
+    }
+    function LoadData() {
+        $('#tbltable').dataTable({
+
+            "bServerSide": true,
+            "sAjaxSource": "/Admin/AjaxGetPages",
+            "bProcessing": true,
+
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            //"aaSorting": [[0, "desc"]],
+            "aoColumns": [
+                       { "sName": "PageId" },
+                       { "sName": "LocationName" },
+                       { "sName": "DepartmentName" },
+                       { "sName": "PageName" },
+                       { "sName": "MenuId" },
+
+                       {
+                           "sName": "PageId",
+                           "bSortable": false,
+                           "render": function (data) {
+                               return '<div class="btn-group">' +
+'<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+'<ul class="dropdown-menu dropdown-menu-right">' +
+'<li><a href="#" id="' + data + '" onclick="Delete(this.id);">Delete</a></li> ' +
+'</ul></div>';
+                           }
+                       }
+            ],
+
+        });
+        $("#tbltable_length").addClass("col-md-6");
+        $("#tbltable_length").addClass("col-md-6");
+    }
+    function Delete(id) {
+        if (confirm("Are you sure you want to delete?")) {
+            var data = {
+                id: id
+            }
+            $.ajax({
+                type: "GET",
+                url: "/Admin/DeletePage",
+                data: data,
+                success: function (data) {
+                    LoadData();
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+    }
+
+    function ValidateBeforeSubmit_PageLevel() {
+        var Status = ValidateRequiredFieldsByClassName_GlobalJS("RequiredData");
+        return Status;
+    }
+
+
+    function ClearFields_PageLevel() {
+        ResetFieldsByClassName_GlobalJS("RequiredData");
+        LoadData();
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading">Manage  Page</div>
+    <div class="panel-body">
+        <table id="tbltable" class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;">
+            <thead>
+                <tr>
+                    <th>PageId</th>
+                    <th>LocationName</th>
+                    <th>DepartmentName</th>
+                    <th>PageName</th>
+                    <th>MenuId</th>
+
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Manage Page</h3>
+    </div>
+    <div class="panel-body">
+
+        @using (Html.BeginForm("ManagePage", "Admin", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+        {
+            @Html.HiddenFor(m => m.LocationId)
+            @Html.HiddenFor(m => m.LocationName)
+            @Html.HiddenFor(m => m.DepartmentId)
+            @Html.HiddenFor(m => m.DepartmentName)
+            @Html.HiddenFor(m => m.PageMenuId)
+            <table class="table table-bordered">
+                <tr>
+                    <td>
+                        <label for="name">Select Menu&nbsp;<span class="MandatorySpanCSS"></span></label>
+                    </td>
+                    <td>
+                        <select id="ddlMenu" class="form-control RequiredData" onchange="MenuChange();">
+                            <option value="">Select</option>
+                            <option value="menuHospital">Hospital</option>
+                            <option value="menuFacilities">Facilities</option>
+                            <option value="menuLibrary">Library</option>
+                            <option value="menuHR">HR</option>
+                            <option value="menuOthers">Others</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="name">Page Name&nbsp;<span class="MandatorySpanCSS"></span></label>
+                    </td>
+                    <td>
+                        @Html.TextBoxFor(m => m.pagetitle, new { @class = "form-control RequiredData" })
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="name">For All&nbsp;<span class="MandatorySpanCSS"></span></label>
+                    </td>
+                    <td>
+                        @Html.CheckBoxFor(m => m.IsPageisForall, new { @class = "RequiredData" })
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="name">Location&nbsp;<span class="MandatorySpanCSS"></span></label>
+                    </td>
+                    <td>
+                        <select id="ddlLocation" class="form-control RequiredData" onchange="LoadDepartment();">
+                            <option value="">Select</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="name">Department&nbsp;<span class="MandatorySpanCSS"></span></label>
+                    </td>
+                    <td>
+                        <select id="ddlDepartment" class="form-control RequiredData" rel="8" style="" onchange="DepartmentChange();">
+                            <option value="">Select</option>
+                        </select>
+                    </td>
+                </tr>
+
+            </table>
+
+            @Html.TextAreaFor(m => m.PageContent)
+
+            @*<textarea id="editor1" name="editor1" rows="10" cols="80">
+                This is my textarea to be replaced with CKEditor.
+                </textarea>*@
+            <br />
+            <input type="submit" value="Save" class="btn btn-default" onclick="return ValidateBeforeSubmit_PageLevel();" />
+        }
+    </div>
+</div>

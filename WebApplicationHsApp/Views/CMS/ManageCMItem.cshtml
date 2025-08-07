@@ -1,0 +1,144 @@
+﻿
+<script>
+    var validate = true;
+    var eId = 0;
+    $(document).ready(function () {
+        LoadData();
+        EmployeeSearch();
+        LoadLocations();
+    });
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- All Locations -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#Location").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function EmployeeSearch() {
+        $(".selUser").select2({
+            ajax: {
+                url: "/Home/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 4
+        });
+    }
+    function LoadData() {
+        $('#tblCategory').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/CMS/AjaxGetCMSItem",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "CategoryId" },
+                { "sName": "Code" },
+                { "sName": "Name" },
+                { "sName": "Description" },
+                { "sName": "Unittype" },
+                { "sName": "Address" },
+                { "sName": "Price" },
+                { "sName": "StaffPrice" },
+                { "sName": "PackagingPrice" },
+                { "sName": "IsActive" },
+                {
+                    "sName": "CategoryId",
+                    "bSortable": false,
+                    "render": function (data, row, r) {
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><a href="javascript:void(0);"  onclick="onEdit(' + data + ')">Edit</a></li>' +
+                            '<li><a href="javascript:void(0);"  onclick="InActiveItem(' + data + ')">In Active</a></li>' +
+                        '<li><a href="javascript:void(0);"  onclick="ActiveItem(' + data + ')">Active</a></li>' +
+                            '<li><a href="javascript:void(0);"  onclick="onDelete(' + data + ')">Delete</a></li>' +
+                            '</ul></div>';
+                           }
+                 }
+            ]
+        });
+        $("#tblCategory_length").addClass("col-md-6");
+        $("#tblCategory_length").addClass("col-md-6");
+    }
+
+    function onEdit(id) {
+        EditLoadPartialdivonclick("CreateCMItem", "Update Item",id);
+    }
+    function InActiveItem(id) {
+        $.get("/CMS/InActiveCMItem?id=" + id, function (data) {
+            LoadData();
+        });        
+    }
+    function ActiveItem(id) {
+        $.get("/CMS/ActiveCMItem?id=" + id, function (data) {
+            LoadData();
+        });
+    }
+    function EditLoadPartialdivonclick(link, title,id) {
+        $("#titleofpage").html(title);
+        $("#partialDiv").load("/CMS/" + link + "?id=" + id);
+    }
+    function onDelete(id) {
+        if (confirm('Are you sure you want to delete?')) {
+            $.getJSON("@Url.Action("DeleteCMItem", "CMS")", { id: id }, function (data) {
+                //clearAll();
+                LoadData();
+            });
+        } return false;
+    }
+    function New(){
+        window.location.href = '/CMS/CreateCMItem';
+    }
+    function LoadPartialdivonclick(link, title) {
+        $("#titleofpage").html(title);
+        $("#partialDiv").load("/CMS/" + link);
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading" style="height:35px;background: #FEC20E;"><a href="#" class="pull-right" style="color:white;" onclick="LoadPartialdivonclick('CreateCMItem','Create Item');">New Item</a></div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblCategory">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Code</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Unit Type</th>
+                    <th>Type</th>
+                    <th>Price</th>
+                    <th>Staff Price</th>
+                    <th>Packaging</th>
+                    <th>Is Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>

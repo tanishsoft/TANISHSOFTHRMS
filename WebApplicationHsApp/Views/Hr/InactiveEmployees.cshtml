@@ -1,0 +1,113 @@
+﻿@{
+    ViewBag.Title = "ManageEmployees";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    var currentempid = 0;
+    $(document).ready(function () {
+        LoadData();
+    });
+    function LoadData() {
+        $('#tbltableinactive').dataTable({
+
+            "bServerSide": true,
+            "sAjaxSource": "/Hr/AjaxGetEmployees",
+            "bProcessing": true,
+
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            //"aaSorting": [[0, "desc"]],
+            "aoColumns": [
+                       { "sName": "CustomUserId" },
+                       { "sName": "LocationName" },
+                       { "sName": "FirstName" },
+                       { "sName": "CustomUserId" },
+                       { "sName": "EmailId" },
+                       { "sName": "PlaceAllocation" },
+                       { "sName": "PhoneNumber" },
+                        { "sName": "Extenstion" },
+                       { "sName": "DepartmentName" },
+                       { "sName": "Designation" },
+                       {
+                           "sName": "CustomUserId",
+                           "bSortable": false,
+                           "render": function (data) {
+                               return '<div class="btn-group">' +
+'<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+'<ul class="dropdown-menu dropdown-menu-right">' +
+'<li><a href="#" id="' + data + '" onclick="ActiveEmployee(this.id);">Active</a></li> ' +
+'<li><a href="#" id="' + data + '" onclick="DeleteEmployee(this.id);">Permanent Delete Employee</a></li>' +
+
+'</ul></div>';
+                           }
+                       }
+            ],
+
+        });
+        $("#tbltableinactive_length").addClass("col-md-6");
+        $("#tbltableinactive_length").addClass("col-md-6");
+    }
+
+
+    function DeleteEmployee(id) {
+        if (confirm("Are you sure you want to delete?")) {
+            var task = {
+                empid: id
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Account/PermanentDeleteEmployee",
+                data: task,
+                success: function (data) {
+                    alert(data);
+                    LoadData();
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+    }
+    function ActiveEmployee(id) {
+        if (confirm("Are you sure you want to Active?")) {
+            var task = {
+                empid: id
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Account/ActiveEmployee",
+                data: task,
+                success: function (data) {
+                    alert(data);
+                    LoadData();
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading">In Active  Employees</div>
+    <div class="panel-body">
+        <table id="tbltableinactive" class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;">
+            <thead>
+                <tr>
+                    <th>User Id</th>
+                    <th>Location</th>
+                    <th>Name</th>
+                    <th>Emp Id</th>
+                    <th>Email Id</th>
+                    <th>RoomNo</th>
+                    <th>Mobile</th>
+                    <th>Extension Number</th>
+                    <th>Department</th>
+                    <th>Designation</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,628 @@
+﻿@{
+    ViewBag.Title = "MyTask";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="~/Scripts/UserTask.js"></script>
+@{
+    string DepartmentIds = "12,16,26,44,50,68,85,95,102,114,20,146,190,15,43,94,128,185,302,272,264";
+}
+<style>
+    .dataTables_length, .myDataTable_filter {
+        max-width: 250px;
+    }
+
+    td {
+        word-break: break-all;
+    }
+</style>
+<input type="hidden" id="LocationId" />
+<input type="hidden" id="LocationName" />
+<input type="hidden" id="DepartmentId" />
+<input type="hidden" id="DepartmentName" />
+<input type="hidden" id="UserId" />
+<input type="hidden" id="UserName" />
+<input type="hidden" id="UserIdofemp" />
+<input type="hidden" id="UserNameofemp" />
+<input type="hidden" id="currentuserlocationid" value="@ViewBag.CurrentUser.LocationId" />
+<input type="hidden" id="currentuserDepartmentId" value="@ViewBag.CurrentUser.DepartmentId" />
+<input type="hidden" id="currentuserDepartmentName" value="@ViewBag.CurrentUser.DepartmentName" />
+<input type="hidden" id="CreatorPlace" value="@ViewBag.CurrentUser.PlaceAllocation" />
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <span class="glyphicon glyphicon-tasks" style="vertical-align:middle;color:darkcyan;"></span>&nbsp;My Task
+        <span class="hidden-xs" style="padding:5px; text-align:center; padding-left:100px; ">
+            @if (ViewBag.CurrentUser.DepartmentName == "Information Technology")
+            {
+                <a href="~/Home/HelpDeskReport" style="font-size:12px;" class="label text-warning">Help Desk Report</a>
+            }
+            <span class="label text-danger" style="font-size:12px;">R Time: Response Time (Minutes)</span>&nbsp;&nbsp;
+            <span class="label text-primary" style="font-size:12px;">Ext: Extension Number</span>&nbsp;&nbsp;
+            <span class="label text-success" style="font-size:12px;">T.T.T: Total Time Taken</span>&nbsp;&nbsp;
+        </span>
+        <span class="pull-right" style="color:red;font-weight:bold;cursor:pointer;" onclick="ExportToExcelissues();">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong><span class="glyphicon glyphicon-download-alt" style="vertical-align:middle;"></span>&nbsp;Export Excel</strong></span><span class="pull-right" style="color:green;font-weight:bold;cursor:pointer;" data-toggle="modal" data-target="#myModal"><span style="vertical-align:middle;" class="glyphicon glyphicon-plus-sign"></span>&nbsp;New Task</span>
+    </div>
+    <div class="panel-body" style="padding:4px;">
+
+        <div class="col-md-12  hidden-xs" style="padding-bottom:5px;">
+
+            @if (Request.IsAuthenticated && (DepartmentIds.Contains(ViewBag.CurrentUser.DepartmentId.ToString())))
+            {
+
+                <div class="col-md-2">
+                    <select id="ddlLocationForFilter" class="form-control" style="max-width:200px;" onchange="LoadDepartmentForFilter();">
+                        <option value="">Select Location</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select id="ddlDepartmentForFilter" class="form-control" style="max-width:200px;" onchange="LoadEmployeesForFilter();">
+                        <option value="">Select Department</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select id="ddlEmployeesForFilter" class="form-control" style="max-width:200px;">
+                        <option value="">Select Employee</option>
+                    </select>
+                </div>
+
+            }
+            @if (ViewBag.CurrentUser.DepartmentName == "Purchase")
+            {
+                <div class="col-md-2">
+                    <select id="ddlPriority" name="ddlPriority" class="form-control">
+                        <option value="">Select Priority</option>
+                        <option value="Critical">Critical</option>
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select id="ddlDocumentreceived" name="ddlDocumentreceived" class="form-control">
+                        <option value="">Select Document Received</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+            }
+            <div class="col-md-2">
+                <select id="ddlStatusTypeForFilter" class="form-control" style="max-width:200px;">
+                    <option value="">Select Status Type</option>
+                    <option value="New">New</option>
+                    <option value="Re Open">Re Open</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Done">Done</option>
+                    <option value="Pending from Vendor">Pending from Vendor</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <input type="text" class="form-control" autocomplete="off" placeholder="From Date" id="txtfromdate" style="max-width:200px;" />
+            </div>
+            <div class="col-md-2">
+                <input type="text" class="form-control" autocomplete="off" placeholder="To Date" id="txttodate" style="max-width:200px;" />
+            </div>
+            <div class="col-md-2">
+                <select id="ddlCategoryTypeForFilter" class="form-control" style="max-width:200px;">
+                    <option value="">Select Category</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-sm btn-success" value="Go" onclick="datatablebind();"><span class="glyphicon glyphicon-search" style="vertical-align:middle;"></span>&nbsp;Go</button>
+            </div>
+        </div>
+       
+        <table id="myDataTable" class="table table-striped table-bordered  dt-responsive table-hover dataTables_wrapper " style="width:100%;">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>ID</th>
+                    <th>Call Date</th>
+                    <th>R.Time(h:m:s)</th>
+                    <th>Name</th>
+                    <th>A. Location</th>
+                    <th>Ext</th>
+                    <th>Category</th>
+                    @* <th>Assert No</th>
+                        <th>Equipment Name</th>*@
+                    <th>Subject</th>
+                    <th>Assign</th>
+                    @*<th>Work done</th>*@
+                    <th>T.T.T(d:h:m)</th>
+                    <th>Status</th>
+                    <th>User Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <a href="~/Home/HelpDeskReport" style="text-align:right;float:right;">Help Desk Report</a>
+        <a href="~/Home/MyTaskSettingsToAutomate" style="text-align:right;float:right;">Task Settings To Automate &nbsp;&nbsp;&nbsp;</a>
+    </div>
+</div>
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="form-block" style="width:80%;">
+        <h3 style="margin-bottom:10px !important;">New Request <button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <form id="AddNewTask" method="post" enctype="multipart/form-data">
+            <div class="form-row">
+                <div style="display:none;">
+                    <input type="text" name="name" id="CreatorLocation" disabled class="form-control" value="@ViewBag.CurrentUser.LocationName" />
+                    <input type="hidden" id="CreatorLocationId" disabled class="form-control" value="@ViewBag.CurrentUser.LocationId" />
+                    <input type="text" name="name" id="CreatorDepartment" disabled class="form-control" value="@ViewBag.CurrentUser.DepartmentName" />
+                    <input type="hidden" id="CreatorDepartmentId" disabled class="form-control" value="@ViewBag.CurrentUser.DepartmentId" />
+                    <input type="text" name="name" id="CreatorName" disabled class="form-control" value="@ViewBag.CurrentUser.FirstName" />
+                    <input type="hidden" id="CreatorId" disabled class="form-control" value="@ViewBag.CurrentUser.UserId" />
+                </div>
+
+                <!-- Default input -->
+                <div class="form-group col-md-6">
+                    <label>Assign Location<span style="color:red;">*</span></label>
+                    <select id="ddlLocation" class="form-control" onchange="LoadDepartment();">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                <!-- Default input -->
+                <div class="form-group col-md-6">
+                    <label>Assign Department<span style="color:red;">*</span></label>
+                    <select id="ddlDepartment" class="form-control" rel="8" style="" onchange="DepartmentChange_New();">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-4 brandcomunication">
+                    <label>Type Of Request<span style="color:red;">*</span></label>
+                    <select id="TaskType" class="form-control" onchange="typeofrequestchange();">
+                        <option value="">Select</option>
+                        <option value="New">New</option>
+                        <option value="Repeat">Repeat</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="CategoryOfComplaint" id="lblCategoryOfComplaint">Category Of Complaint /Service <span style="color:red;">*</span></label>
+                    <select id="CategoryOfComplaint" name="billing-term" class="form-control">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                <!-- Default input -->
+                <div class="form-group col-md-6" id="divothers" style="display:none;">
+                    <label>Others<span style="color:red;">*</span></label>
+                    <textarea name="name" id="txtothers" rel="13" class="form-control"></textarea>
+                </div>
+
+                <!-- Default input -->
+                <div class="form-group col-md-6 Capexifpurchase" style="display:none;">
+                    <label>Bill Date<span style="color:red;">*</span></label>
+                    <input type="text" name="CapexPrepareDate" autocomplete="off" id="CapexPrepareDate" class="form-control clsdatepicker1" rel="16" />
+                </div>
+                <div class="form-group col-md-6 Capexifpurchase" style="display:none;">
+                    <label>Submission Date<span style="color:red;">*</span></label>
+                    <input type="text" name="CapexApproveDate" autocomplete="off" id="CapexApproveDate" class="form-control clsdatepicker1" rel="16" />
+                </div>
+
+                <div class="form-group col-md-6 Capexifpurchase">
+                    <label for="Priority" id="lblPriority">Priority<span style="color:red;">*</span></label>
+                    <select id="Priority" name="Priority" class="form-control">
+                        <option value="">Select</option>
+                        <option value="Critical">Critical</option>
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label>Contact Number</label>
+                    <input type="number" maxlength="12" autocomplete="off" name="name" id="extensionno" rel="6" class="form-control" />
+                </div>
+
+                <div class="form-group col-md-6" id="assertidifbiomedical" style="display:none;">
+                    <label>Assert No / Serial No</label>
+                    <input type="text" name="name" id="Assertno" rel="15" class="form-control" />
+                </div>
+
+                <div class="form-group col-md-6" id="assertnameifbiomedical" style="display:none;">
+                    <label>Equipment Name</label>
+                    <input type="text" name="EquipName" id="EquipName" class="form-control" rel="16" />
+                </div>
+
+
+                <div class="form-group col-md-6">
+                    <label>Email address</label>
+                    <input type="text" name="name" id="eamilid" class="form-control" rel="14" value="@ViewBag.CurrentUser.EmailId" />
+                </div>
+                <div class="form-group col-md-6">
+                    <label id="lbldocumentname">Document</label>
+                    <input type="file" id="NewTaskDocuments" name="NewTaskDocuments" class="form-control" />
+                </div>
+
+                <div class="form-group col-md-6 accountsandfiance">
+                    <label id="lbldocumentname">Daily Cash collction</label>
+                    <input type="file" id="DailyCashcollction" name="DailyCashcollction" class="form-control" />
+                </div>
+                <div class="form-group col-md-6 accountsandfiance">
+                    <label id="lbldocumentname">login user wise collections</label>
+                    <input type="file" id="loginuserwisecollections" name="loginuserwisecollections" class="form-control" />
+                </div>
+                <div class="form-group col-md-6 accountsandfiance">
+                    <label id="lbldocumentname">NAS Report</label>
+                    <input type="file" id="NASReport" name="NASReport" />
+                </div>
+                <div class="form-group col-md-6 accountsandfiance">
+                    <label id="lbldocumentname">Other Document</label>
+                    <input type="file" id="OthersDocument" name="OthersDocument" class="form-control" />
+                </div>
+                <div class="form-group col-md-6">
+                    <label>Subject*</label>
+                    <input type="text" maxlength="50" name="name" id="Subject" class="form-control" rel="6" />
+                </div>
+                <div class="form-group col-md-12">
+                    <label>Description</label>
+                    <textarea id="Description" rows="3" rel="7" class="form-control"></textarea>
+                </div>
+                <div class="form-group col-md-12">
+                    <button type="button" class="btn save" onclick="SaveTaskData();">SAVE</button>
+                    <button type="button" data-dismiss="modal" class="btn cancel">Cancel</button>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div id="myModalAssignTask" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Assign Task</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Assign Location<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select id="ddlLocation1" class="form-control" onchange="LoadDepartment1();">
+                            <option value="">Select</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Assign Department<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <select id="ddlDepartment1" class="form-control" rel="8" style=""></select>
+                    </div>
+                </div>
+                @*<div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name">Assign Employee<span style="color:red;">*</span></label></div>
+                        <div class="col-md-8">
+                            <select id="ddlEmployees1" class="form-control" onchange="EmployeeChange();">
+                                <option value="">Select</option>
+                            </select>
+                        </div>
+                    </div>*@
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" class="btn btn-primary" onclick="Assigntakstoemployee();" />
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="myModalWorkDone" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Work Done Remarks</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Work Done Remarks<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <textarea class="form-control" id="workdonereamrks"></textarea>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" class="btn btn-primary" onclick="SaveMyworkDone();" />
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div id="myModalComments" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Comments </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Comment<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-6">
+                        <textarea class="form-control" id="workcomments"></textarea>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="button" id="btnasigntask" value="Save" class="btn btn-primary" onclick="SaveNewComment();" />
+                    </div>
+
+                </div>
+                <div class="row">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>
+                                    S.No
+                                </th>
+                                <th>
+                                    Comment
+                                </th>
+                                <th>Commented By</th>
+                                <th>Commented On</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tblbodycomments"></tbody>
+
+                    </table>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<div id="myModalAssignTasktoepmloyee" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Assign Task To Employee</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Assign Employee<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <select id="ddlassignemployeetothetask" class="form-control" onchange="EmployeeChangebyassigntotask();">
+                            <option value="">Select</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntasktoemp" value="Save" class="btn btn-primary" onclick="Assigntakstoemployeesbydepartment();" />
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div id="myModalTaskDetails" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Full Task Details</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px; height:350px;overflow-y:scroll;" id="divTaskDetails">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="myModalTaskDetailsdescription" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">View Descrpiton</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;" id="divTaskDetailsdesc">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="myModalEditdescription" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Edit Descrpiton</h4>
+            </div>
+            <div class="modal-body">
+                <table style="width:100%;" class="table">
+                    <tr>
+                        <td>
+                            Description
+                        </td>
+                        <td>
+                            <textarea class="form-control" id="EditDescriptiontxt" rows="4" style="width:100%;max-width:100%;"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Category
+                        </td>
+                        <td>
+                            <select class="form-control" id="ddlselectcategoryedit">
+                                <option value="">Select</option>
+
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="SaveDescription();">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="mymodelworkdonedetailwork" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Work Done</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;" id="divTaskwork">
+
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">close</button>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<div id="myModalWorkDonecomment" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Edit Work Done Comment</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name"> Edit Work Done Comment<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <textarea class="form-control" id="workdonereamrkscomment"></textarea>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" class="btn btn-primary" onclick="SaveMyworkcomment();" />
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div id="myModalAssignToVendor" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Remarks</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Remarks<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <textarea class="form-control" id="assigntoVendorRemarks"></textarea>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" class="btn btn-primary" onclick="SaveassigntoVendorRemarks();" />
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div id="divManageDocuments" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Manage Documents</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <tr>
+                        <td>
+                            Is It Private :
+                        </td>
+                        <td>
+                            <input type="checkbox" id="documentisprivate" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Select File  :
+                        </td>
+                        <td>
+                            <input type="file" name="file" id="selectfiletoupload" multiple />
+                        </td>
+                        <td>
+                            <input type="button" id="btnUploadfile" class="btn btn-primary" value="Upload" onclick="Uploaddataclick();" />
+                        </td>
+                    </tr>
+
+                </table>
+                <div class="row" style="padding:5px;" id="Divdocumentshistory">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>

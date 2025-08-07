@@ -1,0 +1,644 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .firsttable {
+        height: 422px;
+        background-color: white;
+        margin-top: 20px;
+        border-radius: 3px;
+        padding: 10px;
+        border-radius: 3px;
+        box-shadow: 0px 0px 2px 2px #eee;
+    }
+
+    .samerow {
+        margin-top: 10px;
+        border-bottom-style: inset;
+        height: 50px;
+        padding: 10px;
+        font-size: 15px;
+    }
+
+    .col-md-6 {
+        height: 60px;
+        border-right-style: inset;
+    }
+
+    .iconclass {
+        background-color: #b2f8b2;
+        box-shadow: 0 2px 2px #eee;
+        width: 100%;
+        padding: 5px;
+        color: orangered;
+        text-align: center;
+    }
+
+    .endsales {
+        background-color: #b2f8b2;
+        color: forestgreen;
+        box-shadow: 0px 0px 2px 2px #eee;
+        width: 150px;
+        padding: 5px 0 0 10px;
+    }
+
+    .salesdetails {
+        height: 600px;
+        background-color: white;
+        width: 30%;
+        margin-left: 50px;
+        margin-top: 20px;
+        border-radius: 3px;
+        box-shadow: 0px 0px 2px 2px #eee;
+        padding: 20px;
+    }
+
+    .serchbar {
+        height: 100px;
+        background-color: white;
+        margin-top: 20px;
+        padding: 10px;
+        border-radius: 3px;
+        box-shadow: 0px 0px 2px 2px #eee;
+    }
+
+    .table-bordered {
+        width: 100%;
+        box-shadow: 0px 0px 2px 2px #eee;
+    }
+
+    .radio_item {
+        display: none !important;
+    }
+
+    .label_item {
+        opacity: 0.1;
+    }
+
+    .radio_item:checked + label {
+        opacity: 1;
+    }
+
+    label {
+        cursor: pointer;
+    }
+</style>
+<script>
+    var eId = @ViewBag.id;
+    var tableRowCount = 1;
+    $(document).ready(function () {
+        LoadCanteen();
+        $('.error1').hide();
+        $('#empdiv').hide();
+        $('.outerdiv').hide();
+        $('.card').hide();
+        $('.UPI').hide();
+        $('.InPatientd').hide();
+        ItemSearch();
+        EmployeeSearch();
+        $("#Discount").change(function () {
+            var discount = $("#Discount").val();
+            var subTotal = parseInt($('#subTotal').text());
+            var dis = parseInt($("#Discount").val());
+            if (subTotal >= dis) {
+                if (discount == "") {
+                    $('#TotalAmount').val($('#subTotal').text());
+                }
+                else {
+                    $('#TotalAmount').val(subTotal - discount + ".00");
+                }
+            }
+            else {
+                alert("Discount amount should not be Greater than Sub total amount");
+                $("#Discount").val("");
+            }
+        });
+        $('input[type=radio][name=item]').change(function () {
+
+            if (this.value == 'Card') {
+                $('.card').show();
+                $('.UPI').hide();
+            }
+            else if (this.value == 'UPI') {
+                $('.card').hide();
+                $('.UPI').show();
+            }
+            else if (this.value == 'Cash') {
+                $('.card').hide();
+                $('.UPI').hide();
+            }
+        });
+        $("#ddltypeofselect").change(function () {
+            $('#empdiv').hide();
+            $('.outerdiv').hide();
+            $('.InPatientd').hide();
+            var val = $(this).val();
+            if (val == "Emp") {
+                $('#empdiv').show();
+            }
+            else if (val == 'Outer') {
+                $('.outerdiv').show();
+            } else if (val == 'InPatient') {
+                $('.InPatientd').show();
+            }
+        });
+
+    });
+    function AddItem() {
+        var id = $("#ItemId").val();
+        $.get("/CMS/GetCMS_Item?id=" + id, function (res) {
+
+            var table = document.getElementById("ItemsTable");
+            var table_len = (table.rows.length+1);
+            table.insertRow(table.rows.length).outerHTML = "<tr class='datarow' id='row" + tableRowCount + "'><td class='Id" + tableRowCount + "' style='display:none;'>0</td><td style='display:none;'><label id='ItemId" + tableRowCount + "'></label></td><td><label id='ItemName" + tableRowCount + "'></label></td><td><label id='ItemPrice" + tableRowCount + "'></label></td><td> <select class='ItemQtyddl' id='ItemQty" + tableRowCount + "' class='form-control' style='width:50px;' onchange='onchangeQty(this.value, " + tableRowCount + ")'></select></td><td style='display:none;'> <label class='Packagingcost' id='Packaging" + tableRowCount + "'></label> </td><td><label id='subtotal" + tableRowCount + "'></label></td><td> <span class='glyphicon glyphicon-trash' style='color:red;cursor:pointer;' onclick='delete_row(" + tableRowCount + ")'></span></td></tr>";
+            $("#ItemId" + (tableRowCount)).text(id);
+            if ($("#ddltypeofselect").val() == "Emp") {
+                $("#ItemPrice" + (tableRowCount)).text(res.TotalCostStaff  + ".00");
+                //$("#subtotal" + (tableRowCount)).text((res.TotalCostStaff + res.PackagingCost) + ".00");
+                $("#subtotal" + (tableRowCount)).text((res.TotalCostStaff) + ".00");
+            } else {
+                $("#ItemPrice" + (tableRowCount)).text(res.TotalCost  + ".00");
+                //$("#subtotal" + (tableRowCount)).text((res.TotalCost + res.PackagingCost)+ ".00");
+                $("#subtotal" + (tableRowCount)).text((res.TotalCost) + ".00");
+            }
+
+            $("#Packaging" + (tableRowCount)).text(res.PackagingCost);
+            $("#ItemName" + (tableRowCount)).text(res.ItemName);
+
+            if (table_len != 1) {
+                var subTotal = parseInt($('#subTotal').text());
+                if ($("#ddltypeofselect").val() == "Emp") {
+                    //subTotal = subTotal + parseInt(res.TotalCostStaff + res.PackagingCost);
+                    subTotal = subTotal + parseInt(res.TotalCostStaff);
+                } else {
+                    //subTotal = subTotal + parseInt(res.TotalCost + res.PackagingCost);
+                    subTotal = subTotal + parseInt(res.TotalCost);
+                }
+                $('#subTotal').text(subTotal + ".00");
+                $('#TotalAmount').val(subTotal + ".00");
+            }
+            else {
+                if ($("#ddltypeofselect").val() == "Emp") {
+                    //$('#subTotal').text((res.TotalCostStaff + res.PackagingCost) + ".00");
+                    //$('#TotalAmount').val((res.TotalCostStaff + res.PackagingCost) + ".00");
+                    $('#subTotal').text((res.TotalCostStaff) + ".00");
+                    $('#TotalAmount').val((res.TotalCostStaff) + ".00");
+                } else {
+                    //$('#subTotal').text((res.TotalCost + res.PackagingCost) + ".00");
+                    //$('#TotalAmount').val((res.TotalCost + res.PackagingCost) + ".00");
+                    $('#subTotal').text((res.TotalCost) + ".00");
+                    $('#TotalAmount').val((res.TotalCost) + ".00");
+                }
+            }
+            Addqty(tableRowCount);
+            tableRowCount++;
+        });
+    }
+    function delete_row(no) {
+
+        var subTotal = parseInt($('#subTotal').text());
+        subTotal = subTotal - parseInt($("#subtotal" + (no)).text());
+        $('#subTotal').text(subTotal + ".00");
+        $('#TotalAmount').val(subTotal + ".00");
+        $('#row' + no  ).remove();
+        //document.getElementById("row" + no + "").outerHTML = "";
+        var table = document.getElementById("ItemsTable");
+        var table_len = (table.rows.length - 1);
+        if (table_len == 0) {
+            $('#ItemTable').hide();
+        }
+    }
+    function onchangeQty(val,id) {
+        var amount = parseInt($("#ItemPrice" + (id)).text()) * parseInt(val);
+        //var packing = parseInt($("#Packaging" + (id)).text()) * parseInt(val);
+        //$("#subtotal" + (id)).text((amount + packing) + ".00");
+        $("#subtotal" + (id)).text((amount) + ".00");
+        var table = document.getElementById("ItemsTable");
+       var table_len = (table.rows.length);
+        var subTotal = 0;
+
+        for (var i = 1; i < tableRowCount; i++) {
+            var s= $("#subtotal" + (i)).text();
+            if ( s != "")
+            subTotal = subTotal + parseInt($("#subtotal" + (i)).text());
+        }
+        $('#subTotal').text(subTotal + ".00");
+        var Discount = $('#Discount').val();
+        if (Discount != "") {
+            $('#TotalAmount').val((subTotal - parseInt($('#Discount').val())));
+        }
+        else {
+            $('#TotalAmount').val(subTotal + ".00");
+        }
+    }
+    //function onchagngepacking() {
+    //    var totalcost = 0;
+    //    $(".Packagingcost").each(function () {
+    //        var id = this.id;
+    //        var qtyid = id.replace("Packaging", "");
+    //        qtyid = "ItemQty" + qtyid;
+    //        var costp = parseFloat( $(this).html());
+    //        var qtyval = parseInt( $("#" + qtyid).val());
+    //        totalcost = totalcost + (costp * qtyval);
+    //    });
+    //    if ($("#ddlpackingrequired").val() == "Yes") {
+    //        $('#TotalAmount').val(parseFloat($('#TotalAmount').val()) + totalcost);
+    //    } else {
+    //        $('#TotalAmount').val(parseFloat($('#TotalAmount').val()) - totalcost);
+    //    }
+
+    //}
+    function Addqty(id) {
+        var options = [];
+                for (var i = 1; i < 31; i++) {
+                    options.push('<option value="' + i + '">' + i + '</option>');
+                }
+        $("#ItemQty" + (id)).html(options.join(''));
+    }
+    function ItemSearch() {
+        $("#ItemId").select2({
+            ajax: {
+                url: "/CMS/GetItemSearch",
+                type: "get",
+                dataType: 'json',
+                data: function (params) {
+                    return {
+                        searchTerm: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            width: 'element',
+            minimumInputLength: 2
+        });
+    }
+    function EmployeeSearch() {
+        $("#EmpId").select2({
+            ajax: {
+                url: "/Home/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 3
+        });
+    }
+    function LoadCanteen() {
+        $.ajax({
+            type: "POST",
+            url: "/CMS/GetStore",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].TypeOf == "Canteen") {
+                        options.push('<option value="' + data[i].StoreId + '">' + data[i].StoreName + '</option>');
+                    }
+                }
+                $("#CanteenId").html(options.join(''));
+                },
+            error: function () {
+                alert("error");
+            }
+        });
+    }
+    function validatedetails() {
+        setTimeout(function () { $('.error1').fadeOut('fast'); }, 5000);
+        var valid = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        //if (!inputvalidation('type', 'Select Type')) valid = false;
+        if ($("#ddltypeofselect").val() == "") {
+            $("#ddltypeofselect").after('<span class="error" style="color:Red;">Select Type</span>');
+            $("#ddltypeofselect").addClass('css-error');
+            valid = false;
+        }
+        else if ($("#ddltypeofselect").val() == "Emp") {
+            if ($('#EmpId').val() == "") {
+                $('.error1').show();
+                $('.error1').text("Plese Employee");
+
+                valid = false;
+            }
+        }
+        else if ($("#ddltypeofselect").val() == "Outer") {
+            //if ($("#Name").val() == "") {
+            //    $("#Name").after('<span class="error" style="color:Red;">Enter Name</span>');
+            //    $("#Name").addClass('css-error');
+            //    valid = false;
+            //}
+            //if ($("#mobile").val() == "") {
+            //    $("#mobile").after('<span class="error" style="color:Red;">Enter Mobile</span>');
+            //    $("#mobile").addClass('css-error');
+            //    valid = false;
+            //}
+        }
+        else if ($("#ddltypeofselect").val() == "InPatient") {
+            if ($("#PurchaserName").val() == "") {
+                $("#PurchaserName").after('<span class="error" style="color:Red;">Enter Name</span>');
+                $("#PurchaserName").addClass('css-error');
+                valid = false;
+            }
+            if ($("#InPatientd").val() == "") {
+                $("#InPatientd").after('<span class="error" style="color:Red;">Enter Patient Id</span>');
+                $("#InPatientd").addClass('css-error');
+                valid = false;
+            }
+            if ($("#InPatientdRoomNo").val() == "") {
+                $("#InPatientdRoomNo").after('<span class="error" style="color:Red;">Enter Room No</span>');
+                $("#InPatientdRoomNo").addClass('css-error');
+                valid = false;
+            }
+        }
+        if (valid==true) {
+            if (tableRowCount <= 1) {
+                $('.error1').show();
+                $('.error1').text("Plese Select Any Item");
+
+                //alert("Plese Select Any Item");
+                valid = false;
+            }
+            //else {
+            //    if ($("#PaidAmount").val() == "0.00") {
+            //        $("#PaidAmount").after('<span class="error" style="color:Red;">Enter Paid Amount</span>');
+            //        $("#PaidAmount").addClass('css-error');
+            //        valid = false;
+            //    }
+            //}
+        }
+        return valid;
+    }
+    ////function inputvalidation(selector, Text) {
+    ////    var validate = true;
+    ////    if ($("#" + selector).val() == "") {
+    ////        $("#" + selector).after('<span class="error" style="color:Red;">' + Text + '</span>');
+    ////        $("#" + selector).addClass('css-error');
+    ////        validate = false;
+    ////    }
+    //    return validate;
+    //}
+    function SaveDetails() {
+        var valid = validatedetails();
+        if (valid) {
+            var task = {
+                ReceivedStockId: eId,
+                TransactionCustomerType: $("#ddltypeofselect").val(),
+                EmpId:parseInt( $("#EmpId").val()),
+                TotalPrice: parseFloat( $("#subTotal").text()).toFixed(2),
+                ModeOfPayment: $("input[name='item']:checked").val(),
+                CardNumber: $("#CardNumber").val(),
+                NameOfTheCard: $("#NameOfTheCard").val(),
+                DiscountValue: parseFloat($("#Discount").val()).toFixed(2),
+                FinalPrice: parseFloat($("#TotalAmount").val()).toFixed(2),
+                TotalPaidAmount: parseFloat($("#TotalAmount").val()).toFixed(2),
+                EmpName: $("#Name").val(),
+                EmpMobile: $("#mobile").val(),
+                CanteenId: $("#CanteenId").val(),
+                SaleType: $("#ddltypeofselect").val(),
+                PatientId: $("#InPatientd").val(),
+                InPatientdRoomNo: $("#InPatientdRoomNo").val(),
+                IsActive: true
+            };
+            if (task.SaleType == "InPatient") {
+                task.EmpName = $("#PurchaserName").val();
+            }
+            if (task.ModeOfPayment == "UPI") {
+                task.NameOfTheCard = $("#NameOfTheUPI").val();
+                task.CardNumber = $("#TransactionNumber").val();
+            }
+            $.ajax({
+                type: "POST",
+                url: "/CMS/Save_UpdateCMSTransaction",
+                data: task,
+                success: function (data) {
+                    SaveItem(data);
+                }
+            });
+        }
+    }
+    function SaveItem(id) {
+        var ItemList = [];
+
+        for (var i = 1; i < tableRowCount; i++) {
+            var row = $('#row' + i).html();
+            if (typeof (row) === "undefined") {
+
+            }
+            else {
+                ItemList.push({
+                    TransactionId: parseInt(id),
+                    ItemId: parseInt($("#ItemId" + i).text()),
+                    Qty: parseInt($("#ItemQty" + i).val()),
+                    FinalAmount: parseFloat($("#subtotal" + i).text()).toFixed(2)
+                });
+            }
+
+        }
+
+        $.post("/CMS/Save_UpdateTransactionItemList", { model: ItemList }, function (res) {
+            alert("Successfully Saved");
+            LoadPartialdivonclick('CreateSales', 'Capture Sales');
+        });
+    }
+</script>
+
+<div class="container-fluid">
+    <div class="alert alert-danger error1" role="alert">
+
+    </div>
+    <div class="row">
+        <div class="col-md-8" style="width: 60%;margin-left:50px;border-width:5px;">
+            <div class="row">
+                <div class="col-md-4" style="font-size:15px;">
+                    <label><b>Type</b></label>
+                    <select class="form-control" id="ddltypeofselect">
+                        <option value="">Select Type</option>
+                        <option value="Emp">Staff</option>
+                        <option value="Outer">Others</option>
+                        <option value="InPatient">In Patient</option>
+                    </select>
+                </div>
+                <div class="col-md-4" id="empdiv">
+                    <label>Employee</label><br />
+                    <select id="EmpId" class="form-control EmpId" style="width:100%;" name="query" data-provide="typeahead" autocomplete="off"></select>
+                </div>
+                <div class="col-md-4 outerdiv">
+                    <label>Name</label>
+                    <input type="text" class="form-control" id="Name" />
+                </div>
+                <div class="col-md-4 outerdiv">
+                    <label>Mobile</label>
+                    <input type="number" class="form-control" id="mobile" />
+                </div>
+                <div class="col-md-3 InPatientd">
+                    <label>Purchaser Name</label>
+                    <input type="text" class="form-control" id="PurchaserName" />
+                </div>
+                <div class="col-md-3 InPatientd">
+                    <label>Patient Id</label>
+                    <input type="text" class="form-control" id="InPatientd" />
+                </div>
+                <div class="col-md-2 InPatientd">
+                    <label>Patient RoomNo</label>
+                    <input type="text" class="form-control" id="InPatientdRoomNo" />
+                </div>
+            </div>
+            <div class=" row serchbar">
+                <div class="col-md-6" style="border:none;font-size: 15px;">
+                    <label><b>Canteen:</b></label><br />
+                    <select class="form-control" id="CanteenId"></select>
+                </div>
+                <div class="col-md-6" style="border:none;font-size: 15px;">
+                    <label><b>Search Item :</b></label><br />
+                    <select id="ItemId" onchange="AddItem()" style="width: 100%;" class="form-control typeahead" name="query" data-provide="typeahead" autocomplete="off"></select>
+                </div>
+
+            </div>
+            <div class="firsttable">
+                <div class="panel-body">
+                    <table class="table table-striped table-bordered dt-responsive nowrap" style="text-align:center;" id="ItemsTable">
+                        <thead>
+                            <tr style="background:#90Ee90">
+                                <th>Item</th>
+                                <th>Price</th>
+                                <th>Qty.</th>
+                                <th style='display:none;'>Packaging</th>
+                                <th>Subtotal</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                        </thead>
+                        <tbody style="background-color:white;">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-md-4 salesdetails">
+            <div class="row samerow">
+                <div class="col-md-10">
+                    <lable><b>Sub Total</b></lable>
+                </div>
+                <div class="col-md-2">
+                    <span id="subTotal">0.00</span>
+                </div>
+            </div>
+            @*<div class="row samerow">
+                    <div class="col-md-8">
+                        <lable><b>Packing Required?</b></lable>
+                    </div>
+                    <div class="col-md-4">
+                        <select id="ddlpackingrequired" class="form-control" onchange="onchagngepacking();">
+                            <option value="No">No</option>
+                            <option value="Yes">Yes</option>
+                        </select>
+                    </div>
+                </div>*@
+            <div class="row samerow">
+                <div class="col-md-8">
+                    <lable><b>Discount</b></lable>
+                </div>
+                <div class="col-md-4">
+                    <input type="number" id="Discount" class="form-control" value="0.00" />
+                </div>
+            </div>
+
+            <div class="row samerow">
+                <div class="col-md-8">
+                    <lable><b>Total</b></lable>
+                </div>
+                <div class="col-md-4">
+                    <input type="number" id="TotalAmount" value="0.00" class="form-control" />
+                </div>
+            </div>
+            @*<div class="row samerow" style="background-color:aquamarine">
+                    <div class="col-md-8">
+                        <lable><b>Paid</b></lable>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="number" id="PaidAmount" value="0.00" class="form-control" />
+                    </div>
+                </div>*@
+
+            <div class="row" style="margin-top:10px;">
+                <table class="table table-borderless" style="margin-left:-16px;">
+                    <thead>
+                        <tr>
+                            <td> <b>Payment Method</b></td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div class="iconclass">
+                                    <input type="radio" class="radio_item" value="Cash" name="item" id="Cash" checked>
+                                    <label class="label_item" for="Cash"> <i class="fa fa-money fa-2x" aria-hidden="true"></i><b>CASH</b> </label>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="iconclass">
+                                    <input type="radio" class="radio_item" value="Card" name="item" id="Card">
+                                    <label class="label_item" for="Card"> <i class="fa fa-credit-card fa-2x" aria-hidden="true"></i><b>CARD</b> </label>
+
+                                </div>
+                            </td>
+                            <td>
+                                <div class="iconclass">
+                                    <input type="radio" class="radio_item" value="UPI" name="item" id="UPI">
+                                    <label class="label_item" for="UPI"> <i class="fa fa-credit-card fa-2x" aria-hidden="true"></i><b>Paytm/PhonePay/Gpay</b> </label>
+                                </div>
+                            </td>
+                            <td class="InPatientd">
+                                <div class="iconclass">
+                                    <input type="radio" class="radio_item" value="Credit" name="item" id="Credit">
+                                    <label class="label_item" for="Credit"> <i class="fa fa-credit-card fa-2x" aria-hidden="true"></i><b>Credit</b> </label>
+
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="row card">
+                    <label><b>Name of the card</b></label>
+                    <input type="text" class="form-control" id="NameOfTheCard" />
+                </div>
+                <div class="row card">
+                    <label><b>Card Number</b></label>
+                    <input type="text" class="form-control" id="CardNumber" />
+                </div>
+                <div class="row UPI">
+                    <label><b>Name of the UPI</b></label>
+                    <input type="text" class="form-control" id="NameOfTheCard" />
+                </div>
+                <div class="row UPI">
+                    <label><b>Transaction Number</b></label>
+                    <input type="text" class="form-control" id="TransactionNumber" />
+                </div>
+            </div>
+            <div class="row" style="text-align:center;padding:100px 0 0 50px;">
+                <input type="button" onclick="SaveDetails();" value="Save" class="btn-primary" style="width:150px;height:50px;font-size:30px;box-shadow: 2px 2px 2px 2px #eee;" />
+            </div>
+        </div>
+
+
+    </div>
+</div>
+

@@ -1,0 +1,98 @@
+﻿
+@{
+    ViewBag.Title = "HRTrainingCalendar";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    function ChangeDepartment() {
+        $.get("/Hospital/GetTrainingCalenderSheetData?sheetname=" + $("#ddlDepartments").val(), function (data) {
+            var html = "<table class='table table-bordered table-striped' style='width:100%;'>";
+            for (var i = 0; i < data.length; i++) {
+                var jsondata = data[i];
+                //var obj = $.parseJSON(jsondata);
+                var keys = Object.keys(jsondata);
+                console.log(keys);
+                if (i == 0) {
+                    html += "<tr style='background-color:greenyellow;'>";
+                } else
+                    html += "<tr>";
+                //if (jsondata["Training Calendar - Billing Department"] == "null" || jsondata["Training Calendar - Billing Department"] == null) {
+                //    html += "<td style='width:40%;'></td>";
+                //} else
+                html += "<td>" + jsondata[keys[0]] + "</td>";
+                if (jsondata["F2"] == "null" || jsondata["F2"] == null) {
+                    html += "<td style='width:20%;'></td>";
+                } else
+                    html += "<td style='width:20%;'>" + jsondata["F2"] + "</td>";
+                if (jsondata["F3"] == "null" || jsondata["F3"] == null) {
+                    html += "<td style='width:20%;'></td>";
+                } else
+                    html += "<td style='width:20%;'>" + jsondata["F3"] + "</td>";
+
+                if (jsondata["F4"] == "null" || jsondata["F4"] == null) {
+                    html += "<td style='width:20%;'></td>";
+                } else
+                    html += "<td style='width:20%;'>" + jsondata["F4"] + "</td>";
+
+                if (jsondata["F5"] != "null" && jsondata["F5"] != null) {
+                    html += "<td style='width:20%;'>" + jsondata["F5"] + "</td>";
+                }
+                if (jsondata["F6"] != "null" && jsondata["F6"] != null) {
+                    html += "<td style='width:20%;'>" + jsondata["F6"] + "</td>";
+                }
+                html += "</tr>";
+            }
+            html += "</table>";
+            $("#contentexcel").html(html);
+            //console.log(data);
+        });
+    }
+</script>
+<style>
+    .panel {
+        color: teal;
+    }
+</style>
+
+<div class="panel panel-default">
+    <div class="panel-heading"><span class="glyphicon glyphicon-file" style="vertical-align:middle;color:darkcyan;"></span>&nbsp;HR Training Calendar</div>
+    <div class="panel-body" style="min-height:450px;">
+        <div class="row">
+            <div class="col-md-3">
+                &nbsp;
+            </div>
+            <div class="col-md-4">
+                <table class="table">
+                    <tr>
+                        <td>Select Department :</td>
+                        <td>
+                            <select id="ddlDepartments" onchange="ChangeDepartment();" class="form-control">
+                                <option value="">Select Department</option>
+                                @foreach (var v in Model)
+                                {
+                                    <option value="@v">@v</option>
+                                }
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+
+
+            </div>
+            <div class="col-md-3">
+                &nbsp;
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <p>Note :  All the staff of this department have to be trained on the given topics. Attendance has to be captured and sent to HR department on a monthly basis</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12" id="contentexcel">
+
+            </div>
+        </div>
+    </div>
+</div>

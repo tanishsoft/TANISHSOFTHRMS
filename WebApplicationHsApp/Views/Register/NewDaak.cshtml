@@ -1,0 +1,252 @@
+﻿
+@{
+    ViewBag.Title = "NewDaak";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+
+    #captureSignature {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+
+    #captureSignature2 {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+
+    #captureSignatureStaff {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+</style>
+<script src="~/Scripts/jSignature.min.js"></script>
+<!--[if lt IE 9]>
+<script  type="text/javascript" src="~/Scripts/flashcanvas.js"></script>
+    <![endif]-->
+<script>
+    var validate;
+    var eId = 0;
+
+    var $sigdiv, $sigdiv2;
+    $(document).ready(function () {
+
+        $sigdiv2 = $("#captureSignatureSecurity").jSignature({ 'UndoButton': true });
+        LoadLocations();
+        LoadDropdownvalues();
+        $("#txtDriver").change(function () {
+            $.get("/Custom/GetUserDetailsByEmpId?id=" + $("#txtDriver").val(), function (data) {
+                if (data != "Enter Valid Request ID") {
+                    $("#txtemployeename").html(data.FirstName + " " + data.PhoneNumber + " " + data.DepartmentName);
+                   
+                }
+            });
+        });
+        $("#txtfromlocation").hide();
+        $("#txttolocation").hide();
+    });
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Locations -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                options.push('<option value="Others">Others</option>');
+                $("#LocationId").html(options.join(''));               
+                $("#ToLocationId").html(options.join(''));                
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function onchanegfromlocation() {
+        $("#txtfromlocation").hide();
+        if ($("#LocationId").val() == "Others") {
+            $("#txtfromlocation").show();
+        }
+    }
+    function onchanegtolocation() {
+        $("#txttolocation").hide();
+        if ($("#ToLocationId").val() == "Others") {
+            $("#txttolocation").show();
+        }
+    }
+    function SaveRegister() {
+        ValidateDetails();
+
+        var takingSecuritySign = $sigdiv2.jSignature('getData', 'image').toString();
+
+        if (takingSecuritySign == null || takingSecuritySign == "") {
+            validate = false;
+        }
+        var fromlocation = $("#LocationId option:selected").text();
+        var tolocation = $("#ToLocationId option:selected").text();
+        if (fromlocation == "Others") {
+            fromlocation = $("#txtfromlocation").val();
+        }
+        if (tolocation == "Others") {
+            tolocation = $("#txttolocation").val();
+        }
+        if (validate) {
+            var task = {
+                Id: eId,
+                LocationId: $("#LocationId").val(),
+                FromLocation: fromlocation,
+                ToLocation: tolocation,
+                Description: $("#txtDescription").val(),
+                PODNo: $("#txtPODNo").val(),
+                Driver: $("#txtemployeename").html(),
+                CourierName: $("#txtCourierName").val(),
+                IsActive: true,
+                Remarks: $("#txtRemarks").val(),
+                DriverSign: "data:" + takingSecuritySign
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Register/SaveNewDaak",
+                data: task,
+                success: function (data) {
+                    alert(data);
+                    clearAll();
+                }
+            });
+        } else {
+            alert("Please enter all the required fields");
+        }
+    }
+    function ValidateDetails() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+
+        if ($("#LocationId").val() == "") {
+            $("#LocationId").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtDescription").val() == "") {
+            $("#txtDescription").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtDriver").val() == "") {
+            $("#txtDriver").addClass('css-error');
+            validate = false;
+        }
+        //if ($("#txtKeyNumber").val() == "") {
+        //    $("#txtKeyNumber").addClass('css-error');
+        //    validate = false;
+        //}
+        if ($("#txtCourierName").val() == "") {
+            $("#txtCourierName").addClass('css-error');
+            validate = false;
+        }
+    }
+    function clearAll() {
+        window.location.href = "/Register/Daak";
+    }
+    function LoadDropdownvalues() {
+        $.get("/Common/GetCommonDropdownValues?dtype=Driver", function (data) {
+            var options = [];
+            options.push('<option value="">- Select -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].Name + '">' + data[i].Name + '</option>');
+            }
+            $("#txtDriver").html(options.join(''));
+        });
+       
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading" style="height:35px;"><a href="~/Register/Daak">Go Back</a> &nbsp;&nbsp;New Daak Register </div>
+    <div class="panel-body">
+        <div class="modal-body">
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">From Location<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <select id="LocationId" class="form-control" onchange="onchanegfromlocation();">
+                        <option value="">Select</option>
+                    </select>
+                    <input type="text" id="txtfromlocation" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <label for="name">To Location<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <select id="ToLocationId" class="form-control" onchange="onchanegtolocation();">
+                        <option value="">Select</option>
+                    </select>
+                    <input type="text" id="txttolocation" class="form-control" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Description<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <textarea id="txtDescription" class="form-control"></textarea>
+                </div>
+                <div class="col-md-2">
+                    <label for="name">POD No</label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtPODNo" class="form-control" />
+                </div>
+
+
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Courier Name</label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtCourierName" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <label for="name">Remarks</label>
+                </div>
+                <div class="col-md-4">
+                    <textarea rows="2" id="txtRemarks" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Receiver Name</label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text"  id="txtDriver" class="form-control" />
+                    <span id="txtemployeename"></span>
+                </div>
+            
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-1">
+                    <label for="name">Receiver Sign<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-5">
+                    <div id="captureSignatureSecurity">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div>
+            <input type="button" id="btnasigntask" value="Save" onclick="SaveRegister();" class="btn btn-primary" />
+            <button type="button" class="btn btn-default" onclick="clearAll();">Cancel</button>
+        </div>
+    </div>
+</div>

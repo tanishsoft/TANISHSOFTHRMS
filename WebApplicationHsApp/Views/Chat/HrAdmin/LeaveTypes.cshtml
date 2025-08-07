@@ -1,0 +1,175 @@
+﻿@{
+    ViewBag.Title = "LeaveTypes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    var validate = true;
+    $(document).ready(function () {
+
+
+        BindLeaves();
+    });
+    function BindLeaves() {
+        $.ajax({
+            type: "POST",
+            url: "/HrAdmin/GetLeaveTypes",
+            //data: "id=" + $("#ddlDepartment1").val(),
+            success: function (data) {
+                var html = "";
+                for (var i = 0; i < data.length; i++) {
+                    html += " <tr><td>" + data[i].LeaveTypeId + "</td> <td>" + data[i].LeaveName + "</td> <td>" + data[i].MaxLeavePerMonth + "</td> <td>" + data[i].MinLeavePerMonth + "</td> <td>" + data[i].NoOfTimesPerYear + "</td><td>" + data[i].IsActive + "</td>";
+                    html += "<td><span id='" + data[i].LeaveTypeId + "' onclick='Delete(this.id);' class='btn btn-danger btn-sm glyphicon glyphicon-remove-circle'> </span></td></tr>"
+                }
+                $("#tblbodyleavetyeps").html(html);
+                $('#listLeaveTypes').DataTable();
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function Delete(id) {
+        if (confirm("Are you Sure you want to delete ?")) {
+            $.ajax({
+                type: "POST",
+                url: "/HrAdmin/DeleteLeaveType",
+                data: "id=" + id,
+                success: function (data) {
+
+                    //alert(data);
+                    BindLeaves();
+
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+    }
+    function SaveLeaveTypes() {
+        validateLeave();
+
+        if (validate) {
+
+
+            var task = {
+                LeaveName: $("#LeaveName").val(),
+                MaxLeavePerMonth: $("#MaxLeavePerMonth").val(),
+                MinLeavePerMonth: $("#MinLeavePerMonth").val(),
+                NoOfTimesPerYear: $("#NoOfTimesPerYear").val(),
+                IsActive: true
+            };
+            $.ajax({
+                type: "POST",
+                url: "/HrAdmin/AddLeaveType",
+                data: task,
+                success: function (data) {
+                    $("#myModalLeaveType").modal('hide');
+                    //alert(data);
+                    BindLeaves();
+                    clearAll();
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            alert("Fields Required");
+        }
+
+    }
+    function validateLeave() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#LeaveName").val() == "") {
+            $("#LeaveName").addClass('css-error');
+            validate = false;
+        }
+        if ($("#MaxLeavePerMonth").val() == "") {
+            $("#MaxLeavePerMonth").addClass('css-error');
+            validate = false;
+        }
+        if ($("#MinLeavePerMonth").val() == "") {
+            $("#MinLeavePerMonth").addClass('css-error');
+            validate = false;
+        }
+        if ($("#NoOfTimesPerYear").val() == "") {
+            $("#NoOfTimesPerYear").addClass('css-error');
+            validate = false;
+        }
+    }
+
+    function clearAll() {
+        $("#LeaveName").val("");
+        $("#MaxLeavePerMonth").val("");
+        $("#MinLeavePerMonth").val("");
+        $("#NoOfTimesPerYear").val("");
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading">Leave Types <a href="#" data-toggle="modal" class="pull-right" data-target="#myModalLeaveType">New Leave Type</a></div>
+    <div class="panel-body">
+        <table id="listLeaveTypes" class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;">
+            <thead>
+                <tr>
+                    <th> Id</th>
+                    <th>Leave Name</th>
+                    <th>Max Leave Per Month</th>
+                    <th>Min Leave Per Month</th>
+                    <th>Times Per Year</th>
+                    <th>Is Active</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="tblbodyleavetyeps"></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="myModalLeaveType" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Leave Type</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Leave Name<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="LeaveName" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Max Leave Per Month<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <input type="number" class="form-control" id="MaxLeavePerMonth" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Min Leave Per Month<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <input type="number" class="form-control" id="MinLeavePerMonth" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">No Of Times Per Year<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <input type="number" class="form-control" id="NoOfTimesPerYear" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" class="btn btn-primary" onclick="SaveLeaveTypes();" />
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>

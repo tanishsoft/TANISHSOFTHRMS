@@ -1,0 +1,288 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    var eId = 0;
+    $(document).ready(function () {
+
+        $("#RequestedOn")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                Edit: true,
+                minDate: 0
+
+            })
+
+        if (eId != 0) {
+            LoadData(eId);
+            LoadItemsDetails(eId);
+        }
+        else {
+            LoadLocation("");
+            LoadVendors("");
+            AddMealType();
+        }
+    });
+    function LoadMealType(id, val) {
+        $.ajax({
+            type: "POST",
+            url: "/CMS/GetMealType",
+            //data: "id=",
+            success: function (data) {
+                debugger;
+
+                var options = [];
+                options.push('<option value="">- Select MealType -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].MealTypeId + '">' + data[i].MealTypeName + '</option>');
+                }
+                $("#MealTypeId" + id).html(options.join(''));
+                if (val != "")
+                    $("#MealTypeId" + id).val(val);
+                var table = document.getElementById("ItemTable");
+                var table_len = (table.rows.length);
+                for (var i = 1; i < table_len; i++) {
+                    var mealtype = $("#MealTypeId" + i).val();
+                    if (mealtype != "")
+                        $("#MealTypeId" + id + " option[value=" + mealtype + "]").remove();
+
+                }
+                var len = $("#MealTypeId" + id + " option").length;
+                if (len == 1) {
+                    delete_row(id);
+                }
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadLocation(val) {
+        $.ajax({
+            type: "GET",
+            url: "/Admin/GetLocationView",
+            //data: "id=",
+            success: function (data) {
+                //data = data.aaData;
+                //console.log(data);
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#LocationId").html(options.join(''));
+                $("#LocationId").val(val);
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadVendors(val) {
+        $.ajax({
+            type: "GET",
+            url: "/Admin/GetVendors",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Vendor -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].VendorId + '">' + data[i].Name + '</option>');
+                }
+                $("#VendorId").html(options.join(''));
+                $("#VendorId").val(val);
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadData(id) {
+        $.get("/CMS/GetCMS_VendorMealRequest_ById?id=" + id, function (res) {
+            debugger;
+            LoadLocation(res.LocationId);
+            LoadVendors(res.VendorId);
+
+            $("#RequestedOn").val(res.ReceivedOnDate);
+            $("#TotalNotes").val(res.TotalNotes);
+        });
+    }
+    function LoadItemsDetails(id) {
+        $.get("/CMS/GetCMS_VendorMealTypeMeal_ByResId?id=" + id, function (res) {
+            debugger;
+            //  var table = document.getElementById("ItemTable");
+            for (var i = 0; i < res.length; i++) {
+                debugger;
+                AddMealType(res[i].MealTypeId);
+                $("#QtyRequested" + i).val(res[i].QtyRequested);
+            }
+        });
+    }
+    function validatedetails() {
+        var validate = true;
+        if ($("#VendorId").val() == "") {
+            $("#VendorId").after('<span class="error" style="color:Red;">Select Vendor</span>');
+            $("#VendorId").addClass('css-error');
+            validate = false;
+        }
+        if ($("#LocationId").val() == "") {
+            $("#LocationId").after('<span class="error" style="color:Red;">Select Location</span>');
+            $("#LocationId").addClass('css-error');
+            validate = false;
+        }
+        if ($("#RequestedOn").val() == "") {
+            $("#RequestedOn").after('<span class="error" style="color:Red;">select Date</span>');
+            $("#RequestedOn").addClass('css-error');
+            validate = false;
+        }
+
+        var table = document.getElementById("ItemTable");
+        debugger;
+        var table_len = (table.rows.length);
+        for (var i = 1; i < table_len; i++) {
+            var mt = $("#MealTypeId" + i).val();
+            if ($("#MealTypeId" + i).val() == "") {
+                $("#MealTypeId" + i).after('<span class="error" style="color:Red;">select Meal Type</span>');
+                $("#MealTypeId" + i).addClass('css-error');
+                validate = false;
+            }
+            if ($("#QtyRequested" + i).val() == "") {
+                $("#QtyRequested" + i).after('<span class="error" style="color:Red;">Enter Qty </span>');
+                $("#QtyRequested" + i).addClass('css-error');
+                validate = false;
+            }
+        }
+        return validate;
+    }
+    function SaveDetails() {
+
+        var valid = validatedetails();
+        if (valid) {
+            var task = {
+                VendorStockRequestId: eId,
+                VendorId: $("#VendorId").val(),
+                ReceivedOnDate: $("#RequestedOn").val(),
+                LocationId: $("#LocationId").val(),
+                TotalNotes: $("#TotalNotes").val(),
+                IsActive: true
+            };
+            debugger;
+            $.ajax({
+                type: "POST",
+                url: "/CMS/Save_UpdateCMSMealRequestReceived",
+                data: task,
+                success: function (data) {
+                    SaveItem(data);
+                    window.location.reload();
+                }
+            });
+        }
+    }
+    function SaveItem(id) {
+        var ItemList = [];
+        var table = document.getElementById("ItemTable");
+        debugger;
+        var table_len = (table.rows.length);
+        for (var i = 1; i < table_len; i++) {
+            ItemList.push({
+                VendorStockRequestMealId: parseInt($(".Id" + i).text()),
+                VendorStockRequestId: parseInt(id),
+                // MealTypeId: parseInt($("#MealTypeId" + i).text()),
+                QtyReceived: parseInt($("#QtyRequested" + i).val())
+            });
+        }
+        debugger;
+        $.post("/CMS/Save_UpdateMealRequestMealTypeList", { model: ItemList }, function (res) {
+            debugger;
+        });
+    }
+    function cancel() {
+        window.location.href = '/CMS/ManageCMStock';
+    }
+    function AddMealType(val) {
+        var table = document.getElementById("ItemTable");
+        debugger;
+        var table_len = (table.rows.length);
+        if (table_len > 1) {
+            if ($("#MealTypeId" + (table_len - 1)).val() != "")
+                var row = table.insertRow(table_len).outerHTML = "<tr class='datarow' id='row" + table_len + "'><td class='Id" + table_len + "' style='display:none;'>0</td><td> <select id='MealTypeId" + table_len + "' class='form-control' style='max-width:200px;'> <option value=''>Select Meal Type</option></select></td><td>  <input type='number' class='form-control' id='QtyRequested" + table_len + "'></td><td> <span class='glyphicon glyphicon-trash' style='color:red;cursor:pointer;' onclick='delete_row(" + table_len + ")'></span></td></tr>";
+            else
+                alert("Select Meal Type");
+        }
+        else {
+            var row = table.insertRow(table_len).outerHTML = "<tr class='datarow' id='row" + table_len + "'><td class='Id" + table_len + "' style='display:none;'>0</td><td> <select id='MealTypeId" + table_len + "' class='form-control' style='max-width:200px;'> <option value=''>Select Meal Type</option></select></td><td>  <input type='number' class='form-control' id='QtyRequested" + table_len + "'></td><td> <span class='glyphicon glyphicon-trash' style='color:red;cursor:pointer;' onclick='delete_row(" + table_len + ")'></span></td></tr>";
+        }
+        LoadMealType(table_len, val);
+        $('#ItemTable').show();
+
+    }
+    function delete_row(no) {
+        document.getElementById("row" + no + "").outerHTML = "";
+    }
+</script>
+<div class="panel panel-default" style="min-height:500px;">
+    <div class="panel-heading">Create Receive</div>
+    <div class="panel-body">
+        <div class="row" style="width:95%;margin:auto;">
+
+            <div class="col-md-12">
+                <table class="table table-stribbed">
+                    <tr>
+                        <td>
+                            <label>Vendor<span class="text-danger">*</span> </label>
+                        </td>
+                        <td>
+                            <select class="form-control" id="VendorId"></select>
+                        </td>
+                        <td>&nbsp;</td>
+                        <td>
+                            <label>Location<span class="text-danger">*</span></label>
+                        </td>
+                        <td>
+                            <select class="form-control" id="LocationId"></select>
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Place Date<span class="text-danger">*</span></label>
+                        </td>
+                        <td>
+                            <input type="text" name="name" id="RequestedOn" class="form-control" />
+                        </td>
+
+                        <td>&nbsp;</td>
+                        <td>
+                            <label>Comments</label>
+                        </td>
+                        <td>
+                            <textarea class="form-control" id="TotalNotes"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                    </tr>
+                </table>
+                <a href="#" class="pull-right" onclick="AddMealType('');">Meal Type</a>
+                <table id="ItemTable" class="table">
+                    <thead>
+                        <tr>
+                            <th>MealType</th>
+                            <th>Qty Received</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <br />
+            <div class="form-group col-md-6">
+                <br />
+                <button type="button" class="btn save" onclick="SaveDetails();">SAVE</button>
+                <button type="button" onclick="cancel();" class="btn cancel">Cancel</button>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>

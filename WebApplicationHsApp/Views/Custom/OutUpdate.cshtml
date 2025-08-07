@@ -1,0 +1,125 @@
+﻿
+@{
+    ViewBag.Title = "OutUpdate";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+</style>
+
+<script src="~/Scripts/jSignature.min.js"></script>
+<!--[if lt IE 9]>
+<script  type="text/javascript" src="~/Scripts/flashcanvas.js"></script>
+    <![endif]-->
+<script>
+    var $sigdiv, id = 0, strtype = '';
+    $(document).ready(function () {
+        $sigdiv = $("#captureSignature").jSignature({ 'UndoButton': true });
+        ViewDetails();
+    });
+    function Cancel() {
+        if (strtype == "Patients") {
+            window.location.replace("/Register/PatientVisits");
+        } else if (strtype == "Visitor") {
+            window.location.replace("/Register/VisitorRegister");
+        }
+        else if (strtype == "Staff") {
+            window.location.replace("/Register/StaffMovementRegister");
+        }
+    }
+    function SaveUserSignoff() {
+        var model = {
+            id: $("#hidBreakdownid").val(),
+            signature: "data:" + $sigdiv.jSignature('getData', 'image').toString()
+        }
+        $.post('/Custom/SaveOutUpdateDailyVisit', model, function (data) {
+            alert("Successfully updated");
+            Cancel();
+        });
+    }
+    function ViewDetails() {
+
+       
+        $.get("/Custom/GetDailyVisiting?id=" + $("#hidBreakdownid").val(), function (data) {
+            var html = "<table class='table table-bordered'>";
+            html += "<tr><td>Location</td><td>" + data.LocationId + "</td></tr>";
+            strtype = data.VisitingType;
+            if (data.VisitingType == "Patients") {
+
+                html += "<tr><td>Patient Type</td><td>" + data.PatientType + "</td></tr>";
+                html += "<tr><td>Patient Name</td><td>" + data.PatientName + "</td></tr>";
+                html += "<tr><td>Mobile No</td><td>" + data.MobileNo + "</td></tr>";
+                html += "<tr><td>Mr No</td><td>" + data.MrNo + "</td></tr>";
+                html += "<tr><td>Remarks</td><td>" + data.Remarks + "</td></tr>";
+            } else if (data.VisitingType == "Visitor") {
+
+                /*   html += "<tr><td>Patient Type</td><td>" + data.PatientType + "</td></tr>";*/
+                html += "<tr><td>Visitor Name</td><td>" + data.PatientName + "</td></tr>";
+                html += "<tr><td>Mobile No</td><td>" + data.MobileNo + "</td></tr>";
+                html += "<tr><td>Coming From</td><td>" + data.ComingFrom + "</td></tr>";
+                html += "<tr><td>Whom To Meet</td><td>" + data.WhomToMeet + "</td></tr>";
+                html += "<tr><td>Purpose</td><td>" + data.Purpose + "</td></tr>";
+                html += "<tr><td>In Time</td><td>" + data.InTime + "</td></tr>";
+                if (data.InSign != null && data.InSign != "") {
+                    html += "<tr><td>In Sign</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.InSign + "' /></td></tr>";
+                }
+                if (data.SecuritySignature != null && data.SecuritySignature != "") {
+                    html += "<tr><td>Security Signature</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.SecuritySignature + "' /></td></tr>";
+                }
+            }
+            else if (data.VisitingType == "Staff") {
+                html += "<tr><td>Department Name</td><td>" + data.DepartmentName + "</td></tr>";
+                html += "<tr><td>Employee Name</td><td>" + data.PatientName + "</td></tr>";
+                html += "<tr><td>Emp Number</td><td>" + data.MrNo + "</td></tr>";
+                html += "<tr><td>Mobile No</td><td>" + data.MobileNo + "</td></tr>";
+                html += "<tr><td>Purpose</td><td>" + data.Purpose + "</td></tr>";
+                html += "<tr><td>Out Time</td><td>" + data.OutTime + "</td></tr>";
+                if (data.OutSign != null && data.OutSign != "") {
+                    html += "<tr><td>Out Sign</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.OutSign + "' /></td></tr>";
+                }
+            }
+            html += "</table>";
+            $("#tableview").html(html);
+          
+        });
+
+    }
+</script>
+
+<style>
+    #captureSignature {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+</style>
+<input type="hidden" id="hidBreakdownid" value="@ViewBag.Id" />
+<div class="panel panel-default">
+    <div class="panel-heading"> Out Update</div>
+    <div class="panel-body">
+        <div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="tableview">
+
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="padding:15px;">
+              
+                <div class="form-group col-md-12">
+                    <label style="margin-bottom:5px;">Signature</label><br />
+                    <div id="captureSignature">
+                    </div>
+                    <input type="hidden" id="signatureJSON" />
+                </div>
+            </div>
+        </div>
+        <div>
+            <input type="button" id="btnasigntask" value="Save" onclick="SaveUserSignoff();" class="btn btn-primary">
+            <button type="button" class="btn btn-default" onclick="Cancel();">Cancel</button>
+        </div>
+    </div>
+</div>

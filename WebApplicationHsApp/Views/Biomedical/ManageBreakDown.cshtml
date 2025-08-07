@@ -1,0 +1,1047 @@
+﻿
+@{
+    ViewBag.Title = "ManageBreakDown";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@*<style>
+        .maxwidth {
+            max-width: 100%;
+        }
+    </style>*@
+<script src="~/Scripts/jquery.signature.js"></script>
+<script>
+    var eId = 0, oTable;
+    function ChangeCallStatus() {
+        if ($("#CallStatus").val() == "Completed") {
+            $('.EndDate').show();
+            $('.divCommentsCallstatus').hide();
+            $("#AdminComments").val("");
+        } else {
+            $('.divCommentsCallstatus').show();
+            $('.EndDate').hide();
+            $("#EndDate").val("");
+            $("#EndTime").val("");
+        }
+    }
+    $(document).ready(function () {
+        AssertSearch();
+        EmployeeSearch();
+        LoadData();
+        LoadLocations();
+        $('.EndDate').hide();
+        $(".date").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            minDate: -300,
+            Edit: true
+        });
+        $("#StartDate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            Edit: true,
+            dateFormat: "dd/mm/yy",
+            minDate: -300,
+            yearRange: "-30:+30",
+            onSelect: function (dateText, inst) {
+
+                $("#EndDate").datepicker("option", "minDate",
+                    $("#StartDate").datepicker("getDate"));
+            }
+        });
+        $("#EndDate")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                yearRange: "-30:+30",
+                Edit: true,
+
+            });
+        $("#Ftxtfromdate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            Edit: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            onSelect: function (dateText, inst) {
+                $("#Ftxttodate").datepicker("option", "minDate",
+                    $("#Ftxtfromdate").datepicker("getDate"));
+            }
+        });
+        $("#Ftxttodate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            Edit: true
+        });
+        $('.time').timepicker({
+            minuteStep: 5
+        });
+        $("#SN_FaultyAccessoryOrSpare").change(function () {
+            CheckSpareforlastthreeMonths();
+        });
+    });
+    function AssertSearch() {
+        $("#EquipmentName").select2({
+            ajax: {
+                url: "/Biomedical/GetEquipmentNameAutoComplete",
+                type: "get",
+                dataType: 'json',
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term,
+                        //id: $("#AssetNumber").val()// search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 2
+        });
+    }
+    function LoadData() {
+        oTable = $('#tbl_BreakDown').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Biomedical/AjaxGetBreakDown",
+            "bProcessing": true,
+            "bDestroy": true,
+            "scrollX": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "id" },
+                { "sName": "locationId" },
+                { "sName": "subDepartmentId" },
+                { "sName": "callStatus" },
+                { "sName": "startDate" },
+                { "sName": "workDone" },
+                { "sName": "CallStatus" },
+                { "sName": "UserStatus" },
+                { "sName": "AssignTo" },
+                { "sName": "Created by" },
+                { "sName": "Created by" },
+                {
+                    "sName": "Id",
+                    "bSortable": false,
+                    "render": function (data) {
+                        if ($("#BioMedicalTeam").val() == "Yes") {
+                            var Status = data.split('-')[1];
+                            var UserSignOff = data.split('-')[2];
+                            var id = data.split('-')[0];
+                            var attended = data.split('-')[3];
+                            var html = '<div class="btn-group">' +
+                                '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                                '<ul class="dropdown-menu dropdown-menu-right">';
+                            html += '<li><a href="javascript:void(0);" id="' + id + '" onclick="Edit(this.id);">Edit</a></li>';
+                            html += '<li><a href="javascript:void(0);" id="' + id + '" onclick="AssignTo(this.id);">Assign To</a></li>';
+                            html += '<li><a href="javascript:void(0);" id="' + id + '" onclick="Pickup(this.id);">Pickup</a></li>';
+                            html += '<li><a href="javascript:void(0);" id="' + id + '" onclick="RejectReq(this.id);">Reject</a></li>';
+                            html += '<li><a href="javascript:void(0);" id="' + id + '" onclick="NeedInfo(this.id);">Engineer update</a></li>';
+                            html += '<li><a href="javascript:void(0);" id="' + id + '" onclick="ViewBreakDown(this.id);">View Details</a></li>';
+                            if (Status != "Completed" && attended == "YES") {
+
+                                html += '<li><a href="javascript:void(0);" id="' + id + '" onclick="MarkComplete(this.id);">Mark Complete</a></li>';
+                            }
+                            if (UserSignOff != "Done") {
+
+                                html += '<li><a href="javascript:void(0);" id="' + id + '" onclick="TakeUserConfirmation(this.id);">User SignOff</a></li>';
+                            }
+                            html += '</ul></div>';
+                            return html;
+                        }
+                        else {
+                            var Status = data.split('-')[1];
+                            var UserSignOff = data.split('-')[2];
+                            var id = data.split('-')[0];
+                            var attended = data.split('-')[3];
+                            var html = '<div class="btn-group">' +
+                                '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                                '<ul class="dropdown-menu dropdown-menu-right">';
+                            html += '<li><a href="javascript:void(0);" id="' + id + '" onclick="ViewBreakDown(this.id);">View Details</a></li>';
+                            if (UserSignOff != "Done") {
+
+                                html += '<li><a href="javascript:void(0);" id="' + id + '" onclick="TakeUserConfirmation(this.id);">User SignOff</a></li>';
+                            }
+                            html += '</ul></div>';
+                            return html;
+                        }
+                    }
+                }
+            ],
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "category", "value": $("#FddlCategoryTypeForFilter").val() },
+                    { "name": "fromdate", "value": $("#Ftxtfromdate").val() },
+                    { "name": "todate", "value": $("#Ftxttodate").val() },
+                    { "name": "Emp", "value": $("#FAssignTo").val() },
+                    { "name": "locationid", "value": $("#LocationIdfilter").val() },
+                    { "name": "departmentid", "value": $("#DepartmentIdfilter").val() },
+                    { "name": "subdepartmentid", "value": $("#SubDepartmentIdfliter").val() },
+                    { "name": "equipment", "value": $("#EquipmentNamefilter").val() },
+                    { "name": "AssetTypeId", "value": $("#AssetNumberfliter").val() }
+                );
+            }
+        });
+        $("#tbl_BreakDown_length").addClass("col-md-6");
+        $("#tbl_BreakDown_length").addClass("col-md-6");
+    }
+    function Pickup(id) {
+        if (confirm("Are you sure you want to Pickup this task?")) {
+            $.get("/Biomedical/PickuptheBreakdown?id=" + id, function (data) {
+                alert(data);
+                oTable.api().ajax.reload(null, false);
+            });
+        }
+    }
+    function RejectReq(id) {
+        if (confirm('Are you sure you want to reject request?')) {
+            $.get("/Biomedical/RejectTheBreakdownRequest?id=" + id, function (data) {
+                alert(data);
+                oTable.api().ajax.reload(null, false);
+            });
+        }
+    }
+    function AssignTo(id) {
+        eId = id;
+        Loademployeesbydepartment();
+        $("#myModalAssignto").modal('show');
+    }
+
+    function Loademployeesbydepartment() {
+        $.ajax({
+            type: "GET",
+            url: "/Common/GetEmployeesByDepartmentname",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Employee -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].CustomUserId + '">' + data[i].FirstName + '</option>');
+                }
+                $("#Assigntouser").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function SaveAssignto() {
+        $("#myModalAssignto").modal('hide');
+        $.get("/Biomedical/AssigntoBreakdown?id=" + eId + "&empid=" + $("#Assigntouser").val(), function (data) {
+            alert(data);
+            $("#myModalAssignto").modal('hide');
+            oTable.api().ajax.reload(null, false);
+        });
+    }
+    function clearAll() {
+        window.location.href = "/Biomedical/ManageBreakDown";
+    }
+    var breakdowndata;
+    function NeedInfo(id) {
+        eId = id;
+        $.get("/Biomedical/GetBreakDown", { id: id }, function (data) {
+            breakdowndata = data;
+
+            if (data.AssignTo != null && data.AssignTo != 0 && data.AssignTo > 0) {
+                //$("#LocationId").val(data.LocationId);
+                //LoadDepartment(data.DepartmentId);
+                //// $("#DepartmentId").val(data.DepartmentId);
+                //$("#SubDepartmentId").val(data.SubDepartmentId);
+
+                $("#EquipmentName").select2("trigger", "select", { data: { id: data.EquipmentName, text: data.EquipmentName } });
+                //$("#ProblemReported").val(data.ProblemReported);
+                $("#ProblemObserved").val(data.ProblemObserved);
+                $("#FaultyAccessoryOrSpare").val(data.FaultyAccessoryOrSpare);
+                $("#SN_FaultyAccessoryOrSpare").val(data.SN_FaultyAccessoryOrSpare);
+                $("#WorkDone").val(data.WorkDone);
+                $("#AccessoryOrSpareReplaced").val(data.AccessoryOrSpareReplaced);
+                $("#SN_AccessoryOrSpareReplaced").val(data.SN_AccessoryOrSpareReplaced);
+                $("#CallStatus").val(data.CallStatus);
+                //$("#Document1").val(data.Document1);
+                if (data.StartDate != null && data.StartDate != "") {
+                    var start = data.StartDate.split("-");
+                    $("#StartDate").datepicker().datepicker("setDate", new Date(parseInt(start[2]), parseInt(start[1]) - 1, parseInt(start[0])));
+                }
+                $("#EndDate").datepicker("option", "minDate",
+                    $("#StartDate").datepicker("getDate"));
+                if (data.EndDate != null && data.EndDate != "") {
+                    var end = data.EndDate.split("-");
+                    $("#EndDate").datepicker().datepicker("setDate", new Date(parseInt(end[2]), parseInt(end[1]) - 1, parseInt(end[0])));
+                }
+                $("#StartTime").val(data.StartTime);
+                $("#EndTime").val(data.EndTime);
+                LoadAssetId(data.AssetNumber);
+                ChangeCallStatus();
+                $("#myModalBreakDown").modal('show');
+            } else {
+                alert("Please assign or pick up the breakdown");
+            }
+        });
+
+    }
+    function LoadAssetId(val) {
+        if ($("#EquipmentName").val() != null && $("#EquipmentName").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Biomedical/GetAssertAutoComplete?id=" + $("#EquipmentName").val() + "&locationId=" + breakdowndata.LocationId + "&departmentId=" + breakdowndata.DepartmentId + "&subDepartmentId=" + breakdowndata.SubDepartmentId + "",
+                //data: "id=",
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- Select Asset -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].id + '">' + data[i].text + '</option>');
+                    }
+                    $("#AssetNumber").html(options.join(''));
+                    if (val != "") {
+                        $("#AssetNumber").val(val);
+                    }
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#AssetNumber").html('<option value="">- Select Asset -</option>');
+        }
+    }
+    function SaveNeedInfo() {
+        var validate = validateinput();
+        if (validate) {
+            if (window.FormData !== undefined) {
+                var files = "";
+                // Create FormData object
+                var fileData = new FormData();
+                var fileUpload = $("#Document1").get(0);
+                files = fileUpload.files;
+                for (var i = 0; i < files.length; i++) {
+                    fileData.append('UploadDocument', files[i]);
+                }
+                // Looping over all files and add it to FormData object
+                // Adding one more key to FormData object
+                fileData.append('BreakDownId', eId);
+                fileData.append('ProblemObserved', $("#ProblemObserved").val());
+                fileData.append('FaultyAccessoryOrSpare', $("#FaultyAccessoryOrSpare").val());
+                fileData.append('SN_FaultyAccessoryOrSpare', $("#SN_FaultyAccessoryOrSpare").val());
+                fileData.append('AccessoryOrSpareReplaced', $("#AccessoryOrSpareReplaced").val());
+                fileData.append('SN_AccessoryOrSpareReplaced', $("#SN_AccessoryOrSpareReplaced").val());
+                fileData.append('WorkDone', $("#WorkDone").val());
+                fileData.append('StartDate', $("#StartDate").val());
+                fileData.append('StartTime', $("#StartTime").val());
+                fileData.append('EndDate', $("#EndDate").val());
+                fileData.append('EndTime', $("#EndTime").val());
+                fileData.append('CallStatus', $("#CallStatus").val());
+                fileData.append('AdminComments', $("#AdminComments").val());
+                $.ajax({
+                    type: "POST",
+                    url: "/Biomedical/Save_Update_NeedInfoBreakDown",
+                    contentType: false,
+                    processData: false,
+                    data: fileData,
+                    success: function (data) {
+                        $("#myModalBreakDown").modal('hide');
+                        oTable.api().ajax.reload(null, false);
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+    }
+
+    function validateinput() {
+        var validate = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#EquipmentName").val() == null || $("#EquipmentName").val() == "") {
+            $("#EquipmentName").after('<span class="error" style="color:Red;">Enter Equipment Name</span>');
+            $("#EquipmentName").addClass('css-error');
+            validate = false;
+        }
+        if ($("#AssetNumber").val() == null || $("#AssetNumber").val() == "") {
+            $("#AssetNumber").after('<span class="error" style="color:Red;">Enter Equipment Name</span>');
+            $("#AssetNumber").addClass('css-error');
+            validate = false;
+        }
+        if ($("#SN_AccessoryOrSpareReplaced").val() == "") {
+            $("#SN_AccessoryOrSpareReplaced").addClass('css-error');
+            validate = false;
+        }
+        if ($("#AccessoryOrSpareReplaced").val() == "") {
+            $("#AccessoryOrSpareReplaced").addClass('css-error');
+            validate = false;
+        }
+        if ($("#SN_FaultyAccessoryOrSpare").val() == "") {
+            $("#SN_FaultyAccessoryOrSpare").addClass('css-error');
+            validate = false;
+        }
+        if ($("#FaultyAccessoryOrSpare").val() == "") {
+            $("#FaultyAccessoryOrSpare").addClass('css-error');
+            validate = false;
+        }
+        if ($("#ProblemObserved").val() == "") {
+
+            $("#ProblemObserved").addClass('css-error');
+            validate = false;
+        }
+        if ($("#CallStatus").val() == "") {
+            $("#CallStatus").after('<span class="error" style="color:Red;">Select Call Status</span>');
+            $("#CallStatus").addClass('css-error');
+            validate = false;
+        }
+        else if ($("#CallStatus").val() == "Completed") {
+            if ($("#EndDate").val() == "") {
+                $("#EndDate").after('<span class="error" style="color:Red;">Select EndDate</span>');
+                $("#EndDate").addClass('css-error');
+                validate = false;
+            }
+            if ($("#EndTime").val() == "") {
+                $("#EndTime").after('<span class="error" style="color:Red;">Select EndTime</span>');
+                $("#EndTime").addClass('css-error');
+                validate = false;
+            }
+
+        }
+        else {
+            if ($("#AdminComments").val() == "") {
+                $("#AdminComments").after('<span class="error" style="color:Red;">Enter Comments</span>');
+                $("#AdminComments").addClass('css-error');
+                validate = false;
+            }
+        }
+        //if ($("#Document1").val() == "") {
+        //    $("#Document1").after('<span class="error" style="color:Red;">Select Document</span>');
+        //    $("#Document1").addClass('css-error');
+        //    validate = false;
+        //}
+        if ($("#StartDate").val() == "") {
+            $("#StartDate").after('<span class="error" style="color:Red;">Seelct startDate</span>');
+            $("#StartDate").addClass('css-error');
+            validate = false;
+        }
+        if ($("#StartTime").val() == "") {
+            $("#StartTime").after('<span class="error" style="color:Red;">Select StartTime</span>');
+            $("#StartTime").addClass('css-error');
+            validate = false;
+        }
+
+        return validate;
+    }
+    function New() {
+        window.location.replace("/Biomedical/CreateBreakDown");
+    }
+    function Edit(id) {
+        window.location.replace("/Biomedical/CreateBreakDown?id=" + id);
+    }
+    function MarkComplete(id) {
+        eId = id;
+        $("#myModalMarkasComplete").modal("show");
+    }
+    function SaveMarkComplete() {
+        $.get('/Biomedical/CompletedBreakDown?endDate=' + $("#MEndDate").val() + '&endTime=' + $("#MEndTime").val() + '&id=' + eId, function (data) {
+            alert("Successfully mark as completed");
+            oTable.api().ajax.reload(null, false);
+        });
+    }
+    function TakeUserConfirmation(id) {
+        eId = id;
+        window.location.replace("/Biomedical/BreakdownUserSignOff?id=" + id);
+        //$('#captureSignature').signature({ syncField: '#signatureJSON' });
+        //$('#captureSignature').signature('option', 'syncFormat', 'PNG');
+        //$('#clear2Button').click(function () {
+        //    $('#captureSignature').signature('clear');
+        //});
+        //$("#myModalUserSignoff").modal("show");
+    }
+    function EmployeeSearch() {
+        $(".EmpId").select2({
+            ajax: {
+                url: "/Biomedical/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term,
+                        id: eId,
+                        table: "BreakDown"// search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            width: 'element',
+            minimumInputLength: 2
+        });
+        $("#FAssignTo").select2({
+            ajax: {
+                url: "/Home/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            width: 'element',
+            minimumInputLength: 2
+        });
+    }
+    function SaveUserSignoff() {
+        var model = {
+            id: eId,
+            signature: $("#signatureJSON").val(),
+            userempId: $("#signoffUser").val()
+        }
+        $.post('/Biomedical/SaveUsersignBreakDown', model, function (data) {
+            alert("Successfully mark as completed");
+            $("#myModalUserSignoff").modal("hide");
+            oTable.api().ajax.reload(null, false);
+        });
+    }
+    function MValidation() {
+        var MValidate = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#MEndDate").val() == "") {
+            $("#MEndDate").after('<span class="error" style="color:Red;">Select EndDate</span>');
+            $("#MEndDate").addClass('css-error');
+            MValidate = false;
+        }
+        if ($("#MEndTime").val() == "") {
+            $("#MEndTime").after('<span class="error" style="color:Red;">Select EndTime</span>');
+            $("#MEndTime").addClass('css-error');
+            validate = false;
+        }
+        return MValidate;
+    }
+    function SaveMarkComplete() {
+        var valid = MValidation();
+        if (valid) {
+            $.get('/Biomedical/CompletedBreakDown?endDate=' + $("#MEndDate").val() + '&endTime=' + $("#MEndTime").val() + '&id=' + eId, function (data) {
+                alert("Successfully mark as completed");
+                oTable.api().ajax.reload(null, false);
+            });
+        } else {
+            alert("FormData is not supported.");
+        }
+    }
+    function ClearMarkComplete() {
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        $("#MEndTime").val("");
+        $("#MEndDate").val("");
+    }
+    function ExportToExcel() {
+
+        validateDate();
+        if (validate) {
+            debugger;
+            var id = 0;
+            FromDate = $("#Ftxtfromdate").val();
+            ToDate = $("#Ftxttodate").val();
+            var url = '/Biomedical/ExportExcelBreakDown?FromDate=' + FromDate + '&ToDate=' + ToDate;
+            if ($("#FddlCategoryTypeForFilter").val() != null && $("#FddlCategoryTypeForFilter").val() != "")
+                url += '&callStatus=' + $("#FddlCategoryTypeForFilter").val();
+            if ($("#LocationIdfilter").val() != null && $("#LocationIdfilter").val() != "")
+                url += '&locationId=' + $("#LocationIdfilter").val();
+            if ($("#DepartmentIdfilter").val() != null && $("#DepartmentIdfilter").val() != "")
+                url += '&departmentId=' + $("#DepartmentIdfilter").val();
+            if ($("#SubDepartmentIdfliter").val() != null && $("#SubDepartmentIdfliter").val() != "")
+                url += '&subdepartmentId=' + $("#SubDepartmentIdfliter").val();
+            if ($("#FAssignTo").val() != null && $("#FAssignTo").val() != "") {
+                url += '&id=' + $("#FAssignTo").val();
+            }
+            if ($("#EquipmentNamefilter").val() != null && $("#EquipmentNamefilter").val() != "") {
+                url += '&equipment=' + $("#EquipmentNamefilter").val();
+            }
+            if ($("#AssetNumberfliter").val() != null && $("#AssetNumberfliter").val() != "") {
+                url += '&assetId=' + $("#AssetNumberfliter").val();
+            }
+            window.location = url;
+            $("#Ftxtfromdate").val("");
+            $("#Ftxttodate").val("");
+        }
+    }
+    function validateDate() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#Ftxtfromdate").val() == "") {
+            $("#Ftxtfromdate").addClass('css-error');
+            validate = false;
+        }
+        if ($("#Ftxttodate").val() == "") {
+            $("#Ftxttodate").addClass('css-error');
+            validate = false;
+        }
+    }
+
+    function ViewBreakDown(id) {
+        var html = "";
+        $.get("/Biomedical/GetBreakDown?id=" + id, function (data) {
+
+            html = "<table class='table table-bordered'>";
+            html += "<tr><td style='color:darkgoldenrod;'>Id</td><td>" + data.BreakDownId + "</td></tr><tr><td style='color:darkgoldenrod;'>Location</td><td>" + data.LocationName + "</td></tr>";
+            html += "<tr><td style='color:darkgoldenrod;'>Department</td><td>" + data.DepartmentName + "</td></tr><tr><td style='color:darkgoldenrod;'>Sub Department</td><td>" + data.SubDepartmentName + "</td></tr>";
+            html += "<tr><td style='color:darkgoldenrod;'>Asset Number</td><td>" + data.AssetNumber + "</td></tr><tr><td style='color:darkgoldenrod;'>Equipment Name</td><td>" + data.EquipmentName + "</td></tr>";
+            html += "<tr><td style='color:darkgoldenrod;'>Start Date & Time</td><td>" + data.StartDate + " " + data.StartTime + "</td></tr><tr><td style='color:darkgoldenrod;'>End Date & Time</td><td>" + data.EndDate + " " + data.EndTime + "</td></tr>";
+            html += "<tr><td style='color:darkgoldenrod;'>Problem Reported</td><td>" + data.ProblemReported + "</td></tr><tr><td style='color:darkgoldenrod;'>Problem Observed</td><td>" + data.ProblemObserved + "</td></tr>";
+            html += "<tr><td style='color:darkgoldenrod;'>Faulty Accessory Or Spare </td><td>" + data.FaultyAccessoryOrSpare + "</td></tr><tr><td style='color:darkgoldenrod;'>SN_Faulty Accessory Or Spare</td><td>" + data.SN_FaultyAccessoryOrSpare + "</td></tr>";
+
+            html += "<tr><td style='color:darkgoldenrod;'>Accessory Or Spare Replaced</td><td>" + data.AccessoryOrSpareReplaced + "</td></tr><tr><td style='color:darkgoldenrod;'>SN_Accessory Or Spare Replaced</td><td>" + data.SN_AccessoryOrSpareReplaced + "</td></tr>";
+            //html += "<tr><td style='color:darkgoldenrod;'>AdminComments</td><td>" + data.AdminComments + "</td><td style='color:darkgoldenrod;'>UserStatus</td><td>" + data.UserStatus + "</td></tr>";
+            html += "<tr><td style='color:darkgoldenrod;'>Document</td> <td><a target='_blank' style='color:green;' href='/Documents/" + data.Document1 + "'>View Document</a></td></tr><tr><td style='color:darkgoldenrod;'>Call Status</td><td>" + data.CallStatus + "</td></tr>";
+            html += "<tr><td style='color:darkgoldenrod;'>User Signature</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.UserSignature + "' /></td></tr><tr><td style='color:darkgoldenrod;'>User Emp Name</td><td>" + data.UserEmpName + "</td></tr>";
+            html += "<tr><td style='color:darkgoldenrod;'>Work Done</td><td>" + data.WorkDone + "</td></tr>";
+
+            html += "</table>";
+            $("#divfullrequestdetails").html(html);
+            $("#myModalFullrequest").modal("show");
+        });
+    }
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#LocationId").html(options.join(''));
+                $("#LocationIdfilter").html(options.join(''));
+                $("#LocationIdPM").html(options.join(''));
+                $("#ddltLocation").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadDepartment() {
+        var options = [];
+        options.push('<option value="0">- Select Department -</option>');
+        if ($("#LocationIdfilter").val() != "") {
+            LoadEquipmentFilter();
+            $.ajax({
+                type: "POST",
+                url: "/Biomedical/GetDepartmentByLocation",
+                data: "id=" + $("#LocationIdfilter").val(),
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                    }
+                    $("#DepartmentIdfilter").html(options.join(''));
+
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#DepartmentIdfilter").html(options.join(''));
+        }
+
+    }
+    function DepartmentChange() {
+        var options = [];
+        options.push('<option value="0">- Select Sub Department -</option>');
+        if ($("#DepartmentIdfilter").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Biomedical/GetSubDepartmentByDepartment",
+                data: "id=" + $("#DepartmentIdfilter").val(),
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].SubDepartmentId + '">' + data[i].Name + '</option>');
+                    }
+                    $("#SubDepartmentIdfliter").html(options.join(''));
+                },
+                error: function () {
+
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#SubDepartmentIdfliter").html(options.join(''));
+        }
+    }
+    function LoadEquipmentFilter() {
+        var options = [];
+        options.push('<option value="">- Select Equipment -</option>');
+        /* if ($("#SubDepartmentIdfliter").val() != "") {*/
+        $.ajax({
+            type: "POST",
+            url: "/Biomedical/GetEquipmentByDepartments",
+            data: "locationid=" + $("#LocationIdfilter").val() + "&departmentid=" + $("#DepartmentIdfilter").val() + "&subdepartmentId=" + $("#SubDepartmentIdfliter").val(),
+            success: function (data) {
+
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i] + '">' + data[i] + '</option>');
+                }
+                $("#EquipmentNamefilter").html(options.join(''));
+
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+        //}
+        //else {
+        //    $("#EquipmentNamefilter").html(options.join(''));
+        //}
+
+    }
+    function LoadAssetIdFilter() {
+        var options = [];
+        options.push('<option value="">- Select Asset -</option>');
+        if ($("#EquipmentNamefilter").val() != null && $("#EquipmentNamefilter").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Biomedical/GetAssertAutoComplete?id=" + $("#EquipmentNamefilter").val() + "&locationId=" + $("#LocationIdfilter").val() + "&departmentId=" + $("#DepartmentIdfilter").val() + "&subDepartmentId=" + $("#SubDepartmentIdfliter").val(),
+                //data: "id=",
+                success: function (data) {
+
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].id + '">' + data[i].text + '</option>');
+                    }
+                    $("#AssetNumberfliter").html(options.join(''));
+
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#AssetNumberfliter").html('<option value="">- Select Asset -</option>');
+        }
+    }
+    function CheckSpareforlastthreeMonths() {
+        var spare = $("#SN_FaultyAccessoryOrSpare").val();
+        $.get("/Biomedical/CheckSpareforlastthreeMonths?spare=" + spare, function (data) {
+            if (data == "fail") {
+                alert("FaultyAccessoryOrSpare is replaced in past three months");
+                // $("#SN_FaultyAccessoryOrSpare").val("");
+            }
+        });
+    }
+</script>
+<style>
+    /* Styles for signature plugin v1.2.0. */
+    .kbw-signature {
+        display: inline-block;
+        border: 1px solid #a0a0a0;
+        -ms-touch-action: none;
+    }
+
+    .kbw-signature-disabled {
+        opacity: 0.35;
+    }
+</style>
+<input type="hidden" id="BioMedicalTeam" value="@ViewBag.BioMedicalTeam" />
+<div class="panel panel-default">
+    <div class="panel-heading">Manage Break Downs<a href="#" data-toggle="modal" class="pull-right" onclick="New();">New </a></div>
+    <div class="panel-body">
+        <div class="form-row">
+            <div class="col-md-2">
+                <select class="form-control maxwidth" id="LocationIdfilter" onchange="LoadDepartment();"></select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-control maxwidth" id="DepartmentIdfilter" onchange="DepartmentChange(); ">
+                    <option value="0">- Select Department -</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-control maxwidth" id="SubDepartmentIdfliter" onchange="LoadEquipmentFilter();">
+                    <option value="0">- Select Sub Department -</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-control maxwidth" id="EquipmentNamefilter" onchange="LoadAssetIdFilter();">
+                    <option value="">- Select Equipment -</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <select id="AssetNumberfliter" class="form-control maxwidth"><option value="">- Select Asset -</option></select>
+            </div>
+            <div class="form-group col-md-2">
+                <select id="FAssignTo" style="width: 100%" class="form-control typeahead EmpId" name="query" data-provide="typeahead" autocomplete="off">
+                    <option value="">Assign To</option>
+                </select>
+            </div>
+            <div class="form-group col-md-2">
+                <input type="text" class="form-control" autocomplete="off" placeholder="From Date" id="Ftxtfromdate" />
+            </div>
+            <div class="form-group col-md-2">
+                <input type="text" class="form-control" autocomplete="off" placeholder="To Date" id="Ftxttodate" />
+            </div>
+            <div class="form-group col-md-2">
+                <select id="FddlCategoryTypeForFilter" class="form-control">
+                    <option value="">Select Status</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Hold">Hold</option>
+                    <option value="completed">Completed</option>
+                </select>
+            </div>
+
+            <div class="form-group col-md-2">
+                <button type="button" class="btn btn-sm btn-default" value="Export To Excel" onclick="ExportToExcel();"><span class="glyphicon glyphicon-download" style="vertical-align:middle;"></span>&nbsp;Export To Excel</button>
+                <button type="button" class="btn btn-sm btn-success" value="Go" onclick="LoadData();"><span class="glyphicon glyphicon-search" style="vertical-align:middle;"></span>&nbsp;Go</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped table-bordered nowrap" style="width:100%;" id="tbl_BreakDown">
+                    <thead>
+                        <tr style="background-color: #786C67;color: white;">
+                            <th>ID</th>
+                            <th>Location</th>
+                            <th>Sub Dept</th>
+                            <th>Asset No</th>
+                            <th>Equipment</th>
+                            <th>Received On</th>
+                            <th>Attended On</th>
+                            <th>Closed On</th>
+                            <th>ENG.. ASSI.</th>
+                            <th>Call Status</th>
+                            <th>User Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalBreakDown" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="clearAll();">×</button>
+                <h4 class="modal-title" id="header">Break Down</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-6">
+                        <label>Equipment Name<span style="color:red;">*</span></label>
+                        <select id="EquipmentName" class="form-control maxwidth" autocomplete="off" style="width:100%" onchange="LoadAssetId('');"></select>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Asset Number<span style="color:red;">*</span></label>
+                        <select id="AssetNumber" class="form-control maxwidth" autocomplete="off" style="width:100%"></select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <span class="form-label">Problem Observed<span style="color:red;">*</span></span>
+                        </div>
+                        <div class="form-group">
+                            <textarea class="form-control maxwidth" rows="1" id="ProblemObserved"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <span class="form-label">Work Done Description<span style="color:red;">*</span></span>
+                        </div>
+
+                        <div class="form-group">
+
+                            <textarea class="form-control maxwidth" rows="1" id="WorkDone"></textarea>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-6">
+                        <label>Faulty Accessory/Spare<span style="color:red;">*</span></label>
+                        <input type="text" class="form-control maxwidth" id="FaultyAccessoryOrSpare" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Serial No.Of faulty Accessory/Spare<span style="color:red;">*</span></label>
+                        <input type="text" class="form-control maxwidth" id="SN_FaultyAccessoryOrSpare" />
+                    </div>
+
+                </div>
+
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-6">
+                        <label>Accesory/Spare Replaced<span style="color:red;">*</span></label>
+                        <input type="text" class="form-control maxwidth" id="AccessoryOrSpareReplaced" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Serial No. Of Accesory/Spare Replaced<span style="color:red;">*</span></label>
+                        <input type="text" class="form-control maxwidth" id="SN_AccessoryOrSpareReplaced" />
+                    </div>
+
+                </div>
+                <div class="row" style="padding:10px;">
+                    <div class="col-md-6">
+                        <label>Call Status<span style="color:red;">*</span></label>
+                        <select class="form-control maxwidth" id="CallStatus" onchange="ChangeCallStatus();">
+                            <option value="">Select Call Status</option>
+                            <option value="pending">pending</option>
+                            <option value="Hold">Hold</option>
+                            <option value="Completed">completed</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label> Document</label>
+                        <input type="file" id="Document1" class="form-control maxwidth" />
+                    </div>
+                    <div class="form-group col-md-12 divCommentsCallstatus" style="display:none;">
+                        <span class="form-label">Comments</span>
+                        <textarea class="form-control maxwidth" rows="1" id="AdminComments"></textarea>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-3">
+                        <label>Start Date<span style="color:red;">*</span></label>
+                        <input type="text" name="startDate" class="form-control date" readonly="readonly" autocomplete="off" id="StartDate" />
+                    </div>
+                    <div class="col-md-3 bootstrap-timepicker timepicker">
+                        <label>Start Time<span style="color:red;">*</span></label>
+                        <input type="text" name="starttime" class="form-control time" readonly="readonly" autocomplete="off" id="StartTime" />
+                    </div>
+                    <div class="col-md-3 EndDate">
+                        <label>End Date<span style="color:red;">*</span></label>
+                        <input type="text" name="enddate" class="form-control date" readonly="readonly" autocomplete="off" id="EndDate" />
+                    </div>
+                    <div class="col-md-3 EndDate bootstrap-timepicker timepicker">
+                        <label>End Time<span style="color:red;">*</span></label>
+                        <input type="text" name="endtime" class="form-control time" readonly="readonly" autocomplete="off" id="EndTime" />
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" onclick="SaveNeedInfo();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearAll();">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModalMarkasComplete" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" id="header">Mark as Complete</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:15px;">
+                    <div class="form-group col-md-3">
+                        <label>End Date<span style="color:red;">*</span></label>
+                        <input type="text" name="EndDate" class="form-control date" id="MEndDate" />
+                    </div>
+                    <div class="form-group col-md-3  bootstrap-timepicker timepicker">
+                        <label>End Time<span style="color:red;">*</span></label>
+                        <input type="text" name="EndTIme" class="form-control time" id="MEndTime" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" onclick="SaveMarkComplete();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" onclick="ClearMarkComplete();" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalUserSignoff" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog" style="">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>User SignOff<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:15px;">
+                    <div class="form-group col-md-12">
+                        <div style="margin-bottom:5px;">
+                            <label>Employee</label><br />
+                            <select id="signoffUser" class="form-control typeahead EmpId" name="query" data-provide="typeahead" autocomplete="off"></select>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-12">
+                        <label style="margin-bottom:5px;">Signature</label><br />
+                        <div id="captureSignature" class="kbw-signature" style="width:180px;margin-bottom:5px;">
+                        </div>
+                        <div class="form-group col-md-6" style="margin-left:0 !important;">
+                            <button type="button" id="clear2Button" class="btn btn-primary" style="width: 100px;">Clear</button>
+                        </div>
+                        <input type="hidden" id="signatureJSON" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" onclick="SaveUserSignoff();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalAssignto" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Assign to<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:15px;">
+                    <div class="form-group col-md-12">
+                        <div style="width:400px; margin-left:15%;margin-bottom:5px;">
+                            <label>Employee</label><br />
+                            <select id="Assigntouser" style="width:300px" class="form-control" name="assignto">
+                                <option value="">Select</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" onclick="SaveAssignto();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="myModalFullrequest" role="dialog">
+    <div class="form-block">
+        <h3>View BreakDown<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <div id="divfullrequestdetails" style="max-height:500px;overflow-y:auto;">
+        </div>
+    </div>
+</div>

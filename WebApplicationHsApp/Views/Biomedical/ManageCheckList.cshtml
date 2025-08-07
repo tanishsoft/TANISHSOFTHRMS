@@ -1,0 +1,81 @@
+﻿
+@{
+    ViewBag.Title = "ManageCheckList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    var eId = 0;
+    $(document).ready(function () {
+        LoadData();
+        $(".date")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                Edit: true,
+                minDate: 0
+
+            })
+        $('.time').timepicker();
+    });
+    function LoadData() {
+        $('#tbl_CheckList').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Biomedical/AjaxGetCheckList",
+            "bProcessing": true,
+            "scrollX": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "id" },
+                { "sName": "Name" },
+                { "sName": "Description" },
+               
+                //{ "sName": "isActive" },
+
+                {
+                    "sName": "Id",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="Edit(this.id);">Edit</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="Delete(this.id);">Delete</a></li>' +
+                           
+                            '</ul></div>';
+                    }
+                }
+            ]
+            
+        });
+        $("#tbl_CheckList_length").addClass("col-md-6");
+        $("#tbl_CheckList_length").addClass("col-md-6");
+    }
+    function New() {
+        window.location.replace("/Biomedical/CreateCheckList");
+    }
+    function Edit(id) {
+        window.location.replace("/Biomedical/CreateCheckList?id="+id);
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading">Manage Check List<a href="#" data-toggle="modal" class="pull-right" onclick="New();">New </a></div>
+    <div class="panel-body">
+
+        <table class="table table-striped table-bordered nowrap" style="width:100%;" id="tbl_CheckList">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th> Id</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                   
+                    @*<th>Is Active</th>*@
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+

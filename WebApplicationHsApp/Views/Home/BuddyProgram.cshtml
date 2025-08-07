@@ -1,0 +1,172 @@
+﻿
+@{
+    ViewBag.Title = "BuddyProgram";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+
+        $("#selUser").select2({
+            ajax: {
+                url: "/Home/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 4
+        });
+    });
+    function Onchangeloadprofile() {
+        $.get("/Home/GetEmployeeById?Userid=" + $("#selUser").val(), function (data) {
+            $("#profp_empname").html(data.FirstName + " " + data.LastName);
+            checkImage("/Images/Employees/" + data.EmpId + ".jpg", function () {
+                $("#profp_img").attr("src", "/Images/Employees/" + data.EmpId + ".jpg");
+            }, function () {
+                $("#profp_img").attr("src", "/Images/Employees/" + data.EmpId + ".png");
+            });
+
+            $("#profp_designation").html(data.Designation);
+            $("#profp_location").html(data.LocationName);
+
+            $("#profp_dept").html(data.DepartmentName);
+            $("#profp_Email").html(data.EmailId);
+
+            $("#profp_Extenstion").html(data.Extenstion);
+            $("#profp_phone").html(data.CugNumber);
+            $("#moreabout").html("About");
+            $("#profp_DOJ").html(moment(data.DateOfJoining).format("DD/MM/YYYY"));
+        });
+
+    }
+
+    function checkImage(src, good, bad) {
+        var img = new Image();
+        img.onload = good;
+        img.onerror = bad;
+        img.src = src;
+    }
+    function SendEmailsmstobuddy() {
+        if ($("#txtbuddEmployeeName").val() != null && $("#txtbuddEmployeeName").val() != "" &&
+            $("#txtbuddMobile").val() != null && $("#txtbuddMobile").val() != "" &&        
+            $("#selUser").val() != null && $("#selUser").val() != "") {
+            if (confirm("Are you sure you want to send an email?")) {
+                $.get("/Home/SendemailtoNewEmployee?EmployeeName=" + $("#txtbuddEmployeeName").val() + "&Mobile=" + $("#txtbuddMobile").val()
+                    + "&Email=" + $("#txtbuddEmail").val() + "&dateofjoining=" + $("#txtbuddDateOfjoing").val() + "&Notes=" + $("#txtbuddNotes").val() + "&empid=" + $("#selUser").val(), function (data) {
+                        if (data == "Sent Success") {
+                            $("#txtbuddEmployeeName").val("");
+                            $("#txtbuddNotes").val("");
+                            $("#txtbuddMobile").val("");
+                            $("#txtbuddEmail").val("");
+                            $("#txtbuddDateOfjoing").val("");
+                        }
+                        alert(data);
+                    });
+            }
+        } else {
+            alert("Please enter all the required fields.")
+        }
+    }
+</script>
+<div style="margin-bottom:30px;">
+    <div class="block" style="overflow-y:auto; height:auto!important;">
+        <div class="top">
+            <h2 style="text-transform:none; text-align:center;">Employee Search  <select id="selUser" onchange="Onchangeloadprofile();" class="form-control typeahead border-primary" name="query" data-provide="typeahead" autocomplete="off"></select></h2>
+        </div>
+        <div class="block-middle contact2">
+            <div class="row">
+                <div class="col-md-4" style="text-align:center;">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcQQJTUBOid58_P_xNkwxym25HPDU8owhwPbAg&usqp=CAU" style="width:300px; text-align:center;margin:auto;" class="img-responsive" /><br />
+                    <img src="https://saysiyabonga.co.za/wp-content/uploads/2020/04/BizNizBuddy.jpg" style="width:300px; text-align:center;margin:auto;" class="img-responsive" />
+                </div>
+                <div class="col-md-8">
+                    <div style="width:100%;">
+
+                        <div class="user">
+                            <span>employee</span>
+                            <span class="active">ACTIVE</span>
+                            <div class="clearfix"></div>
+                            <img id="profp_img" src="/Images/Fernandez.png" style="width:80px; height:80px;border-radius:50px;" alt="uesr-img">
+                            <h5 id="profp_empname"></h5>
+                            <small id="profp_designation"></small>
+                            <table class="table table-bordered table-striped" style="width:100%;">
+                                <tr>
+                                    <td>
+                                        Location <br>
+                                        <strong style="color: #c4122f;" id="profp_location"></strong>
+                                    </td>
+                                    <td>
+                                        Department <br>
+                                        <strong style="color: #c4122f;" id="profp_dept"></strong>
+                                    </td>
+                                    <td>
+                                        CUG number <br>
+                                        <strong style="color: #c4122f;" id="profp_phone"></strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Extenstion <br>
+                                        <strong style="color: #c4122f;" id="profp_Extenstion"></strong>
+                                    </td>
+                                    <td colspan="2">
+                                        Email <br>
+                                        <strong style="color: #c4122f;" id="profp_Email"></strong>
+                                    </td>
+
+                                </tr>
+                            </table>
+                            <br /> <br />
+                            <table class="table" style="width:100%;">
+
+                                <tr>
+                                    <td>
+                                        New Joinee Name<small style="color:red;">*</small> <br>
+                                        <input type="text" id="txtbuddEmployeeName" class="form-control" />
+                                    </td>
+                                    <td>
+                                        New Joinee Mobile<small style="color:red;">*</small> <br>
+                                        <input type="text" id="txtbuddMobile" class="form-control" />
+                                    </td>
+                                    <td>
+                                        New Joinee Mail ID <br>
+                                        <input type="text" id="txtbuddEmail" class="form-control" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Notes <br>
+                                        <input type="text" id="txtbuddNotes" class="form-control" />
+                                    </td>
+                                    <td>
+                                        Date Of Joining <br>
+                                        <input type="text" id="txtbuddDateOfjoing" class="form-control" />
+                                    </td>
+                                    <td>
+                                        <br>
+                                        <input type="button" id="btnbuddEmail" value="Send" style="width:100%;" onclick="SendEmailsmstobuddy();" class="btn btn-warning" />
+                                    </td>
+                                </tr>
+                            </table>
+                            <br /><br />
+                            <br /><br />
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

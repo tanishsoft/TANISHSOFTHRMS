@@ -1,0 +1,191 @@
+﻿
+@{
+    ViewBag.Title = "HrViewCompOff";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+        LoadLocations();
+        ApprovedDataTable();
+        $(".btdate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            maxDate: "0",
+            yearRange: "-100:+0"
+        });
+        LoadLeaveTypes();      
+        LoadCommonDepartments();
+    });
+    function ApprovedDataTable() {
+        $('#ApprovedDataTable').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Hr/AjaxAllRequestCompOffView",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aoColumns": [
+                  //{ "sName": "LeaveId" },
+                    { "sName": "UserId" },
+                      { "sName": "UserName" },
+                     { "sName": "DepartmentName" },
+
+                            { "sName": "LocationName" },
+                            { "sName": "CompOffDateTime" },
+                            { "sName": "RequestReason" },
+                            { "sName": "Leave_Status" },
+                            { "sName": "CreatedDateTime" }
+            ],
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, 500, 1000], [10, 20, 30, 50, 100, 150, 200, 500, 1000]],
+            "sDom": 'T<"clear">lfrtip',
+            "oTableTools": {
+                "sSwfPath": "/swf/copy_csv_xls_pdf.swf",
+                "aButtons": [
+                    "copy", "xls", "pdf"
+                ]
+            },
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "locationid", "value": $("#ddlLocation").val() },
+                    { "name": "departmentid", "value": $("#ddlDepartment").val() },                  
+                    { "name": "fromdate", "value": $("#fromdate").val() },
+                    { "name": "todate", "value": $("#todate").val() },
+                     { "name": "Emp", "value": $("#ddlEmployees").val() }
+                     );
+            }
+        });
+        $("#ApprovedDataTable_length").addClass("col-md-6");
+        $("#ApprovedDataTable_info").addClass("col-md-6");
+    }
+
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- All Locations -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#ddlLocation").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadCommonDepartments() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetCommonDepartments",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- All Departments -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].CommonDepartmentId + '">' + data[i].Name + '</option>');
+                }
+                $("#ddlDepartment").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadDepartment() {
+        if ($("#ddlLocation").val() != null && $("#ddlLocation").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Common/GetDepartmentByLocation",
+                data: "id=" + $("#ddlLocation").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- All Departments -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                    }
+                    $("#ddlDepartment").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        } else {
+            var options = [];
+            options.push('<option value="">- All Departments -</option>');
+
+            $("#ddlDepartment").html(options.join(''));
+        }
+    }
+    function LoadEmployees() {
+        if ($("#ddlDepartment").val() != null && $("#ddlDepartment").val() != "" && $("#ddlLocation").val() != null && $("#ddlLocation").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Common/GetEmployeesByDepartment",
+                data: "id=" + $("#ddlDepartment").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- All Employees -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].CustomUserId + '">' + data[i].FirstName + " " + data[i].LastName + '</option>');
+                    }
+                    $("#ddlEmployees").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading">Employees CompOff Applications &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="/HrAdmin/ExportToExcelallcompoffsAdmin" target="_blank" >Export To Excel </a> </div>
+    <div class="panel-body">
+        <div class="row" style="padding-bottom:5px;">
+            <div class="col-md-12" style="padding-bottom:5px;">
+                <div class="col-md-2">
+                    <select id="ddlLocation" class="form-control" style="max-width:200px;" onchange="LoadDepartment();">
+                        <option value="">All Location</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select id="ddlDepartment" class="form-control" style="max-width:200px;" onchange="LoadEmployees();">
+                        <option value="">All Department</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select id="ddlEmployees" class="form-control" style="max-width:200px;">
+                        <option value="">All Employee</option>
+                    </select>
+                </div>
+              
+                <div class="col-md-2">
+                    <input type='text' class="form-control btdate" id='fromdate' placeholder="From Date" style="max-width:200px;" />
+                </div>
+                <div class="col-md-2">
+                    <div class="col-md-10">
+                        <input type='text' class="form-control btdate" id='todate' placeholder="To Date" style="max-width:200px;" />
+                    </div>
+                    <div class="col-md-2"><input type="button" class="btn btn-sm btn-success" value="Go" onclick="ApprovedDataTable();" /> </div>
+                </div>
+            </div>
+        </div>
+        <table id="ApprovedDataTable" class="table table-striped table-bordered  dt-responsive " style="width:100%;">
+            <thead>
+                <tr>
+                    <td>User Id</td>
+                    <td>User Name</td>
+                    <td>Department</td>
+                    <th>Location</th>
+                    <th>CompOff</th>
+                    <th>Request Reason</th>
+                    <th>Leave Status  </th>
+                    <th>Created On</th>
+                  
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>

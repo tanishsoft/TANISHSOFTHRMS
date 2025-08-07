@@ -1,0 +1,164 @@
+﻿
+@{
+    ViewBag.Title = "ManageHolidays";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+
+
+        BindLeaves();
+        $('.txtdate').datepicker({
+            changeMonth: true,
+            changeYear: true,
+            //  dateFormat: "dd/mm/yy",
+            minDate: "0"
+        });
+    });
+    function BindLeaves() {
+        $.ajax({
+            type: "GET",
+            url: "/HrAdmin/GetHolidays",
+            //data: "id=" + $("#ddlDepartment1").val(),
+            success: function (data) {
+                var html = "";
+                for (var i = 0; i < data.length; i++) {
+                    html += " <tr><td>" + data[i].HolidayId + "</td> <td>" + data[i].HolidayTitle + "</td> <td>" + data[i].HolidayDescription + "</td> <td>" + data[i].HolidayType + "</td><td>" + functionDate(data[i].HolidayDate) + "</td><td>" + data[i].IsHolidayAddedInDutyRoster + "</td><td>" + data[i].IsActive + "</td>";
+                    html += "<td><span id='" + data[i].HolidayId + "' onclick='Delete(this.id);' class='btn btn-danger btn-sm glyphicon glyphicon-remove-circle'> </span></td></tr>"
+                }
+                $("#tblbodyleavetyeps").html(html);
+                $('#listLeaveTypes').DataTable();
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function Delete(id) {
+        if (confirm("Are you Sure you want to delete ?")) {
+            $.ajax({
+                type: "GET",
+                url: "/HrAdmin/DeleteHoliday",
+                data: "id=" + id,
+                success: function (data) {
+
+                    //alert(data);
+                    BindLeaves();
+
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+    }
+    function SaveLeaveTypes() {
+        if (ValidateRequiredFieldsByClassName_GlobalJS("HolidayRequiredField")) {
+            var task = {
+                HolidayTitle: $("#HolidayTitle").val(),
+                HolidayDescription: $("#HolidayDescription").val(),
+                HolidayDate: $("#HolidayDate").val(),
+                HolidayType: $("#HolidayType").val(),
+                IsHolidayAddedInDutyRoster: $("#IsHolidayAddedInDutyRoster").prop('checked'),
+                IsActive: true
+            };
+            $.ajax({
+                type: "GET",
+                url: "/HrAdmin/AddHoliday",
+                data: task,
+                success: function (data) {
+                    HolidayTitle: $("#HolidayTitle").val('');
+                    HolidayDescription: $("#HolidayDescription").val('');
+                    HolidayDate: $("#HolidayDate").val('');
+
+                    $("#myModalLeaveType").modal('hide');
+                    //alert(data);
+                    BindLeaves();
+
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading">Manage Holidays <a href="#" data-toggle="modal" class="pull-right" data-target="#myModalLeaveType">New Holiday</a></div>
+    <div class="panel-body">
+        <table id="listLeaveTypes" class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Type</th>
+                    <th>Date</th>
+                    <th>AddedIn Duty Roster</th>
+                    <th>IsActive</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="tblbodyleavetyeps"></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="myModalLeaveType" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">New Holiday</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Holiday Title<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control HolidayRequiredField" id="HolidayTitle" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Description<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control HolidayRequiredField" id="HolidayDescription" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Date<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <input type="datetime" class="form-control txtdate HolidayRequiredField" id="HolidayDate" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">HolidayType<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <select class="form-control HolidayRequiredField" id="HolidayType">
+                            <option value="Festival">Festival</option>
+                            <option value="National">National</option>
+                        </select>
+
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">IsHoliday AddedIn Duty Roster<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <input type="checkbox" id="IsHolidayAddedInDutyRoster" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" class="btn btn-primary" onclick="SaveLeaveTypes();" />
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+

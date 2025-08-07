@@ -1,0 +1,1040 @@
+﻿
+@{
+    ViewBag.Title = "ManageTask";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .nav-pills li a {
+        color: white;
+    }
+
+        .nav-pills li a:hover {
+            color: black !important;
+        }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+        background-color: rgba(0,0,0,.2) !important;
+    }
+
+    textarea {
+        max-width: 100%;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        $(".txtDate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy"
+        });
+        $("#startdate")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                Edit: true,
+                minDate: 0,
+                onSelect: function (dateText, inst) {
+                    $("#enddate").datepicker("option", "minDate",
+                        $("#startdate").datepicker("getDate"));
+                }
+
+            })
+        $("#enddate")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                Edit: true,
+                minDate: 0,
+                onSelect: function (dateText, inst) {
+                    $("#renewaldate").datepicker("option", "minDate",
+                        $("#enddate").datepicker("getDate"));
+                }
+
+            })
+        $("#renewaldate")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                Edit: true,
+                minDate: 0
+
+            })
+
+        LoadVendor();
+        Edit(@ViewBag.id);
+        GetNotes();
+        GetFiles();
+        LoadPurchase(@ViewBag.id);
+    });
+    function LoadVendor() {
+        $.ajax({
+            type: "POST",
+            url: "/Task/GetVendors",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- select Vendors -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].VendorId + '">' + data[i].Name + '</option>');
+                }
+                $("#vendor").html(options.join(''));
+
+
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function Edit(id) {
+        $("#trackerid").val(id);
+        var Url = "/Task/GetAdminTrackerbyid?TrackerId=" + id;
+        $.ajax({
+            type: "GET",
+            url: Url,
+            success: function (data) {
+
+                var obj = data;
+                $("#title").val(obj.query.Title);
+                $("#FormType").val(obj.query.FormType);
+                $("#Description").val(obj.query.Description);
+                $('#startdate').datepicker('setDate', new Date(obj.startDate));
+                $('#enddate').datepicker('setDate', new Date(obj.EndDate));
+                $('#renewaldate').datepicker('setDate', new Date(obj.Renewaldate));
+                $('#R1NDays').val(obj.query.Remainder1NoOfDays);
+                $('#R1NDaysnotes').val(obj.query.Remainder1NoOfDaysNotes);
+                $('#R2NDays').val(obj.query.Remainder2NoOfDays);
+                $('#R2NDaysnotes').val(obj.query.Remainder2NoOfDaysNotes);
+                $('#R3NDays').val(obj.query.Remainder3NoOfDays);
+                $('#R3NDaysnotes').val(obj.query.Remainder3NoOfDaysNotes);
+                $('#Status').val(obj.query.Status);
+                $('#trackerRemarks').val(obj.query.Remarks);
+                $('#vendor').val(obj.query.VendorId);
+
+
+            }
+        })
+    }
+    function validatetracker() {
+        validate = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+
+        if ($("#startdate").val() == "") {
+            $("#startdate").after('<span class="error" style="color:Red;">Start Date</span>');
+            $("#startdate").addClass('css-error');
+            validate = false;
+        }
+        if ($("#enddate").val() == "") {
+            $("#enddate").after('<span class="error" style="color:Red;">Start Date</span>');
+            $("#enddate").addClass('css-error');
+            validate = false;
+        }
+        if ($("#trackerRemarks").val() == "") {
+            $("#trackerRemarks").after('<span class="error" style="color:Red;">Enter Remarks</span>');
+            $("#trackerRemarks").addClass('css-error');
+            validate = false;
+        }
+        if ($("#title").val() == "") {
+            $("#title").after('<span class="error" style="color:Red;">Enter Titile</span>');
+            $("#title").addClass('css-error');
+            validate = false;
+        }
+        if ($("#FormType").val() == "") {
+            $("#FormType").after('<span class="error" style="color:Red;">Select From Type</span>');
+            $("#FormType").addClass('css-error');
+            validate = false;
+        }
+        if ($("#Status").val() == "") {
+            $("#Status").after('<span class="error" style="color:Red;">Select Status</span>');
+            $("#Status").addClass('css-error');
+            validate = false;
+        }
+    }
+    function OnclickUpdateTracker() {
+        validatetracker();
+        if (validate) {
+            var task = {
+                TrackerId: $("#trackerid").val(),
+                Title: $("#title").val(),
+                FormType: $("#FormType").val(),
+                Description: $("#Description").val(),
+                StartDate: $('#startdate').val(),
+                EndDate: $('#enddate').val(),
+                NextRenewalDate: $('#renewaldate').val(),
+                Remainder1NoOfDays: $('#R1NDays').val(),
+                Remainder1NoOfDaysNotes: $('#R1NDaysnotes').val(),
+                Remainder2NoOfDays: $('#R2NDays').val(),
+                Remainder2NoOfDaysNotes: $('#R2NDaysnotes').val(),
+                Remainder3NoOfDays: $('#R3NDays').val(),
+                Remainder3NoOfDaysNotes: $('#R3NDaysnotes').val(),
+                Remarks: $('#trackerRemarks').val(),
+                Status: $('#Status').val()
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Task/UpdateAdminTracker",
+                data: task,
+                success: function (data) {
+                }
+            });
+        }
+    }
+    function AjaxPostDocuments() {
+
+        var Posturl;
+        validateDocument();
+        if (validate) {
+
+            // Checking whether FormData is available in browser
+            if (window.FormData !== undefined) {
+                var fileData = new FormData();
+                Posturl = "/Task/AdminsavetrackerDocuments";
+                var fileUpload = $("#UploadDocument").get(0);
+                var files = fileUpload.files;
+
+                // Looping over all files and add it to FormData object
+                for (var i = 0; i < files.length; i++) {
+                    fileData.append("Upload", files[i]);
+                }
+
+                // Adding one more key to FormData object
+
+                fileData.append('TrackerId', $("#trackerid").val());
+                fileData.append('Remarks', $("#Remarks").val());
+                fileData.append('DocumentTitle', $("#DTitle").val());
+                $.ajax({
+                    type: "POST",
+                    url: Posturl,
+                    contentType: false, // Not to set any content header
+                    processData: false, // Not to process data
+                    data: fileData,
+                    success: function (result) {
+                        alert(result);
+                        $("#Remarks").val("");
+                        $("#DTitle").val("");
+                        $("#UploadDocument").val("");
+                        clearAll();
+                        GetFiles();
+
+                    },
+                    error: function (err) {
+                        alert(err.statusText);
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+        else {
+            return false;
+        }
+    }
+    function validateDocument() {
+        validate = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#Remarks").val() == "") {
+            $("#Remarks").after('<span class="error" style="color:Red;">Enter Remarks</span>');
+            $("#Remarks").addClass('css-error');
+            validate = false;
+        }
+        if ($("#Title").val() == "") {
+            $("#Title").after('<span class="error" style="color:Red;">Enter Title</span>');
+            $("#Title").addClass('css-error');
+            validate = false;
+        }
+
+        if ($("#UploadDocument").val() == "") {
+            $("#UploadDocument").after('<span class="error" style="color:Red;">upload Document</span>');
+            $("#UploadDocument").addClass('css-error');
+            validate = false;
+        }
+    }
+    function OnclickNotes() {
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($('#NotesRemarks').val() != "") {
+            var Posturl = "/Task/AdminsavetrackerNotes";
+            task = {
+                TrackerId: $("#trackerid").val(),
+                Remarks: $("#NotesRemarks").val()
+            };
+
+            $.ajax({
+                type: "POST",
+                url: Posturl,
+                data: task,
+                success: function (data) {
+                    clearNotes();
+                    GetNotes();
+
+                }
+            });
+        }
+        else {
+            $("#NotesRemarks").after('<span class="error" style="color:Red;">Enter Remarks</span>');
+            $("#NotesRemarks").addClass('css-error');
+            return false;
+        }
+    }
+    function OnclickVotes() {
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        var vendor = $('#vendor').val();
+        if (vendor != "") {
+            var Posturl = "/Task/UpdateVendortoadmintracker";
+
+            task = {
+                TrackerId: $("#trackerid").val(),
+                VendorId: vendor
+            };
+
+            $.ajax({
+                type: "POST",
+                url: Posturl,
+                data: task,
+                success: function (data) {
+
+                    LoadVendorData(vendor);
+
+                }
+            });
+        }
+        else {
+            $("#vendor").after('<span class="error" style="color:Red;">select vendor</span>');
+            $("#vendor").addClass('css-error');
+            return false;
+        }
+    }
+    function clearNotes() {
+        $('#NotesRemarks').val("");
+    }
+    function GetNotes() {
+        $('#tblNotes tbody').replaceWith("<tbody><tr><td></td><td></td></tr></tbody>");
+        $.ajax({
+            type: "POST",
+            url: '/Task/GetNotesbytrackid?trackId=' +@ViewBag.id,
+            data: '{}',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (files) {
+                $("#tblNotes tbody").html("");
+                var htmlbody = "";
+                for (var i = 0; i < files.length; i++) {
+                    htmlbody += "<tr><td>" + files[0].id + "</td><td>" + files[0].Remarks + "</td><td>" + files[0].CreatedDate + "</td><td>" + files[0].CreatedBy +"</td></tr>";
+                }
+                //$.each(files, function () {
+                //    AppendNotesRow(this.id, this.Remarks, this.CreatedDate, this.CreatedBy);
+                //});
+                $("#tblNotes tbody").html(htmlbody);
+            },
+            failure: function (r) {
+                alert(r.d);
+            },
+            error: function (r) {
+                alert(r.d);
+            }
+        });
+    };
+    function AppendNotesRow(id, Remarks, CreatedDate, CreatedBy) {
+
+        var row = $("#tblNotes tbody tr:last-child");
+
+        //Remove if the row is dummy row.
+        if (row.find("td:empty").length > 0) {
+            row.remove();
+        }
+
+        row = row.clone();
+        $("td", row).eq(0).html(id);
+        $("td", row).eq(1).html(Remarks);
+        $("td", row).eq(2).html(CreatedDate);
+        $("td", row).eq(3).html(CreatedBy);
+
+        $("#tblNotes tbody").append(row);
+    };
+    function GetFiles() {
+        $('#tblFiles tbody').replaceWith("<tbody><tr><td></td><td></td><td></td></tr></tbody>");
+        $.ajax({
+            type: "POST",
+            url: '/Task/GetDocbyTrackId?trackId=' + @ViewBag.id,
+            data: '{}',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (files) {
+                $.each(files, function () {
+                    AppendRow(this.Did, this.url, this.title);
+                });
+            },
+            failure: function (r) {
+                alert(r.d);
+            },
+            error: function (r) {
+                alert(r.d);
+            }
+        });
+    };
+    function AppendRow(Did, url, title) {
+
+        var row = $("#tblFiles tbody tr:last-child");
+
+        //Remove if the row is dummy row.
+        if (row.find("td:empty").length > 0) {
+            row.remove();
+        }
+
+        row = row.clone();
+        $("td", row).eq(0).html(Did);
+        $("td", row).eq(1).html(title);
+        var urlhtml = "<a href='/Documents/" + url + "'  target='_blank'>Download</a>";
+        $("td", row).eq(2).html(urlhtml);
+
+        @*var a = $("<a />");
+        a[0].href = '@Url.Content("/Administration/Masters/DeleteAdminDocument?id=")' + Did;
+        a.html("Download");
+        $("td", row).eq(2).append(a);*@
+        $("#tblFiles tbody").append(row);
+    };
+    function LoadVendorData(id) {
+        $('#tblVendor tbody').html("");
+        var Url = "/Admin/GetVendorbyid?VendorId=" + id;
+        $.ajax({
+            type: "GET",
+            url: Url,
+            success: function (data) {
+
+                var html = "";
+                for (var i = 0; i < data.length; i++) {
+                    var Type = data[i].VendorType != null ? data[i].VendorType : "";
+                    html += "<tr><td>" + data[i].VendorId + "</td><td>" + Type  + "</td><td>" + data[i].Name + "</td><td>" + data[i].Email + "</td><td>" + data[i].Address + "</td><td>" + data[i].PersonalMobile + "</td><td>" + data[i].OfficeNumber + "</td><td>" + data[i].Description + "</td></tr>";
+                }
+                $('#tblVendor tbody').html(html);
+
+            }
+        })
+    }
+    function OnclickPurchase() {
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        var Purchase = $('#purchaseId').val();
+        if (Purchase != "") {
+            var Posturl = "/Purchase/Savepurchasewithtracker";
+
+            task = {
+                TrackerId: $("#trackerid").val(),
+                PurchaseId: Purchase
+            };
+
+            $.ajax({
+                type: "POST",
+                url: Posturl,
+                data: task,
+                success: function (data) {
+
+                    LoadPurchase($("#trackerid").val());
+
+                }
+            });
+        }
+        else {
+            $("#vendor").after('<span class="error" style="color:Red;">select vendor</span>');
+            $("#vendor").addClass('css-error');
+            return false;
+        }
+    }
+    function LoadPurchase(id) {
+        $('#tblPurchase tbody').html("");
+
+        $.ajax({
+            type: "GET",
+            url: "/Purchase/GetpurchaDetailsbyTrackerid?TrackerId=" + id,
+            success: function (data) {
+
+                var html = "";
+                for (var i = 0; i < data.length; i++) {
+                    html += "<tr><td>" + data[i].PurchaseId + "</td><td>" + data[i].PurchaseNumber + "</td><td>" + data[i].LocationId + "</td><td>" + data[i].DepartmentId + "</td><td>" + data[i].VendorId + "</td><td>" + data[i].Employee + "</td>";
+                    html += "<td> " + data[i].TotalAmount + "</td> <td>" + data[i].Title + "</td> <td>" + data[i].Status + "</td> <td>" + data[i].TotalQty + "</td> <td>" + data[i].TotalTaxAmount + "</td> <td>" + data[i].Discount + "</td> <td>" + data[i].Duration + "</td>";
+                    html += "<td> " + data[i].QuotationAmount + "</td> <td>" + data[i].QuotationNumber + "</td> <td>" + data[i].StartDate + "</td> <td>" + data[i].PurchaseDate + "</td> <td>" + data[i].PurchaseAmout + "</td> <td>" + data[i].Remarks + "</td></tr > ";
+
+                }
+                $('#tblPurchase tbody').html(html);
+            }
+        })
+    }
+    function OnclickHelpDesk() {
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        var TaskID = $('#HelpDeskTaskId').val();
+        if (TaskID != "") {
+            var Posturl = "/Purchase/SaveTaskwithtracker";
+
+            task = {
+                TrackerId: $("#trackerid").val(),
+                TaskId: TaskID
+            };
+
+            $.ajax({
+                type: "POST",
+                url: Posturl,
+                data: task,
+                success: function (data) {
+
+                    datatablebind($("#trackerid").val());
+
+                }
+            });
+        }
+        else {
+            $("#HelpDeskTaskId").after('<span class="error" style="color:Red;">select Task Id</span>');
+            $("#HelpDeskTaskId").addClass('css-error');
+            return false;
+        }
+    }
+
+    function datatablebind(TaskId) {
+
+        oTable = $('#myDataTable').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Task/AjaxUserviewnew",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aoColumns": [
+                { "sName": "TaskId" },
+                { "sName": "Call_Date" },
+                { "sName": "ResTime" },
+                //{ "sName": "CreatorLocationName" },
+                { "sName": "Creator" },
+                { "sName": "Floor" },
+                { "sName": "ExtensionNo" },
+                { "sName": "CategoryOfComplaint" },
+                //{ "sName": "AssertEquipName" },
+                { "sName": "Subject" },
+                { "sName": "Assign" },
+                //{ "sName": "Work_done" },
+                { "sName": "Total_Time_Taken" },
+                { "sName": "Status" },
+                { "sName": "SloverStatus" },
+                {
+                    "sName": "id",//myModalAssignTasktoepmloyee
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<a href="javascript:void(0);" id="' + data + '" onclick="DeleteTask(this.id);">Delete Task</a>';
+                    }
+                }
+
+            ],
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, 500, 1000], [10, 20, 30, 50, 100, 150, 200, 500, 1000]],
+            //"aaSorting": [[0, "asc"]],
+
+
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "locationid", "value": TaskId }
+
+                );
+            },
+            //initComplete: function () {
+            //    $("#myDataTable_length").append(' <span class="label label-default" style="font-size:medium">R Time: Response Time</span>&nbsp;&nbsp;            <span class="label label-primary" style="font-size:medium">Ext: Extension Number</span>&nbsp;&nbsp;            <span class="label label-success" style="font-size:medium">T.T.T: Total Time Taken</span>&nbsp;&nbsp;');
+            //},
+            "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+              //  $('td:eq(7)', nRow).html('<a href="javascript:void(0);" id="' + aData[12] + '" onclick="ViewDescription(this.id);">' + aData[7] + '</a>');
+                //<a href="javascript:void(0);" id="' + data + '" onclick="StartTask(this.id);">Pick Up</a>
+                switch (aData[11]) {
+                    case 'Pending':
+                        //$(nRow).css('class', 'myClassred');
+                        $('td:eq(11)', nRow).css('color', '#E67D21').css('font-weight', 'bold');
+                        break;
+                    case 'New':
+                        //$(nRow).css('background-color', 'green')
+                        $('td:eq(11)', nRow).css('color', '#3598dc').css('font-weight', 'bold');
+                        break;
+                    case 'In Progress':
+                        //$(nRow).css('background-color', 'blue')
+                        $('td:eq(11)', nRow).css('color', '#8E44AD').css('font-weight', 'bold');
+                        break;
+                    case 'Pending from user':
+                        $('td:eq(11)', nRow).html("Pending at user");
+                        $('td:eq(11)', nRow).css('color', '#E67D21').css('font-weight', 'bold');
+                        break;
+                    case 'Reopen':
+                        $('td:eq(11)', nRow).css('color', '#5FC29D').css('font-weight', 'bold');
+                        break;
+                    case 'Rejected':
+                        $('td:eq(11)', nRow).css('color', '#a71f23').css('font-weight', 'bold');
+                        break;
+                    default:
+                        $('td:eq(11)', nRow).css('color', 'Green').css('font-weight', 'bold');
+                        break;
+                }
+            }
+        });
+
+        //setInterval(function () {
+        //    oTable.api().ajax.reload(null, false);
+        //}, 30000);
+        //Applyclassdt();
+    }
+    function DeleteTask(id) {
+        if (confirm("Are you sure you want to delete?")) {
+            var tdata = {
+                id: id
+            };
+            $.ajax({
+                type: "GET",
+                url: "/Home/DeleteTask",
+                data: tdata,
+                success: function (data) {
+                    if (data == "Success") {
+                        oTable.api().ajax.reload(null, false);
+                    } else { alert(data); }
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+    }
+</script>
+
+<div class="row">
+    <ul class="nav nav-pills" style="background-color: #ff3547; padding: 10px; color: white;">
+        <li class="active"><a data-toggle="pill" href="#home">Details </a></li>
+        <li><a data-toggle="pill" href="#menu1">Documents & Notes</a></li>
+        <li><a data-toggle="pill" href="#menu2" onclick="LoadVendorData($('#vendor').val());">Vendor</a></li>
+        @*<li><a data-toggle="pill" href="#menu3">Notes</a></li>*@
+        @*<li><a data-toggle="pill" href="#menu4" onclick="datatablebind();">Help Desk</a></li>*@
+        @*<li><a data-toggle="pill" href="#menu5">Purchase Details</a></li>*@
+    </ul>
+</div>
+<div class="tab-content">
+    <div id="home" class="tab-pane fade in active">
+        <div class="panel panel-default">
+            <div class="panel-heading"><span class="glyphicon glyphicon-plane"></span>&nbsp;manage admin tracker</div>
+            <div class="panel-body">
+                <form style="width:50%;margin:auto;" id="Requestform">
+                    <input type="hidden" id="trackerid" />
+                    <div class="row">
+                        <div class="col-sm-4">
+
+                            <div class="row">
+                                <div class="form-group">
+                                    <span class="form-label">Title<span style="color:red;">*</span></span>
+                                    <input type="text" class="form-control" id="title" placeholder="Enter Title" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+
+                            <div class="row">
+                                <div class="form-group">
+                                    <span class="form-label">Form Type<span style="color:red;">*</span></span>
+                                    <select class="form-control" id="FormType">
+                                        <option value="">-select FormType-</option>
+                                        <option value="License">License</option>
+                                        <option value="Agreement">Agreement</option>
+                                        <option value="Lease Date">Lease Date</option>
+                                        <option value="Legal Case">Legal Case</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <span class="form-label">Primary Emp id<span style="color:red;">*</span></span>
+                                <select class="form-control" id="Pempid"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <span class="form-label">Secondary Emp id</span>
+                                <select class="form-control" id="Sempid"></select>
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <span class="form-label">Start Date<span style="color:red;">*</span></span>
+                                <input type="text" class="form-control date" id="startdate" placeholder="startDate" />
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <span class="form-label">End Date<span style="color:red;">*</span></span>
+                                <input type="text" class="form-control date" id="enddate" placeholder="endDate" />
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+
+
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <span class="form-label">Next Renewal Date</span>
+                                <input type="text" class="form-control date" id="renewaldate" placeholder="renewaldate" />
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <span class="form-label">Reminder1 NoOf Days</span>
+                                <input type="text" id="R1NDays" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <span class="form-label">Reminder1  Notes</span>
+                                <input type="text" id="R1NDaysnotes" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <span class="form-label">Reminder2 NoOf Days</span>
+                                <input type="text" id="R2NDays" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <span class="form-label">Reminder2  Notes</span>
+                                <input type="text" id="R2NDaysnotes" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <span class="form-label">Reminder3 NoOf Days</span>
+                                <input type="text" id="R3NDays" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <span class="form-label">Reminder3  Notes</span>
+                                <input type="text" id="R3NDaysnotes" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <span class="form-label">Status<span style="color:red;">*</span></span>
+                                <select id="Status" class="form-control">
+                                    <option value="">-select status-</option>
+                                    <option value="New">New</option>
+                                    <option value="Valid">Valid</option>
+                                    <option value="Not using">Not using</option>
+                                    <option value="Expired">Expired</option>
+                                    <option value="Renew In Progress"> Renew In Progress</option>
+                                    <option value="Others">Others</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <span class="form-label">Description</span>
+                            </div>
+
+                            <div class="form-group">
+
+                                <textarea class="form-control" rows="4" placeholder="Enter Remarks" id="Description"></textarea>
+                            </div>
+
+                        </div>
+
+
+                    </div>
+                    <div class="row">
+
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <span class="form-label">Documents Required</span>
+                            </div>
+
+                            <div class="form-group">
+
+                                <textarea class="form-control" rows="6" placeholder="Enter Remarks" id="trackerRemarks"></textarea>
+                            </div>
+
+                        </div>
+
+
+                    </div>
+                    <div class="row" style="text-align:center">
+                        <button type="button" class="btn  btn-warning" onclick="OnclickUpdateTracker();"><span class="glyphicon glyphicon-ok-circle"></span>&nbsp;Submit</button>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="menu1" class="tab-pane fade">
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading"><span class="glyphicon glyphicon-file" style="vertical-align:middle;color:darkcyan;"></span>&nbsp;Documents</div>
+                    <div class="panel-body">
+                        <form id="Add" method="post" enctype="multipart/form-data" onsubmit="return AjaxPostDocuments()">
+
+                            <div class="row">
+
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <span class="form-label">Title</span>
+                                        <input type="text" class="form-control" id="DTitle" />
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <span class="form-label">Document</span>
+                                        <input type="file" id="UploadDocument" name="UploadDocument" class="form-control" />
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <span class="form-label">Remarks</span>
+                                        <textarea class="form-control" placeholder="Enter Remarks" id="Remarks"></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <br />
+                                    <button type="submit" class="btn btn-primary"><span class="glyphicon glyphicon-ok-circle"></span>&nbsp;Submit</button>
+                                </div>
+                            </div>
+                        </form>
+                        <hr />
+                        <table id="tblFiles" class="table table-bordered text-center">
+                            <thead>
+                                <tr>
+                                    <th style="width:50px">Id</th>
+                                    <th style="width:50px">Title</th>
+                                    <th style="width:80px">url</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <span class="glyphicon glyphicon-tasks" style="vertical-align:middle;color:darkcyan;"></span>&nbsp;Notes
+                    </div>
+                    <div class="panel-body" style="padding:4px;">
+                        <div class="row">
+
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <span class="form-label">Remarks</span>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="col-md-8">
+                                        <textarea class="form-control" placeholder="Enter Remarks" id="NotesRemarks"></textarea>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <button type="button" class="btn  btn-warning" onclick="OnclickNotes();"><span class="glyphicon glyphicon-ok-circle"></span>&nbsp;Submit</button>
+                                    </div>
+
+
+                                </div>
+
+                            </div>
+
+
+                        </div>
+
+                        <hr />
+                        <table id="tblNotes" class="table table-bordered text-center">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Remarks</th>
+                                    <th>Created On</th>
+                                    <th>Created By</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="menu2" class="tab-pane fade">
+        <div class="panel panel-default">
+            <div class="panel-heading"><span class="glyphicon glyphicon-plane"></span>&nbsp;Manage Vendor</div>
+            <div class="panel-body">
+                <div class="row">
+
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <span class="form-label">Vendor</span><select id="vendor" class="form-control"></select>
+                        </div>
+
+
+                    </div>
+                    <div class="col-sm-6">
+                        <div style="text-align:center">
+                            <button type="button" class="btn  btn-warning" onclick="OnclickVotes();"><span class="glyphicon glyphicon-ok-circle"></span>&nbsp;Submit</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <hr />
+                <table id="tblVendor" class="table table-bordered text-center">
+                    <thead>
+                        <tr>
+                            <th style="width:50px">ID</th>
+                            <th style="width:50px">Type</th>
+                            <th style="width:50px">Name</th>
+                            <th style="width:50px">Email</th>
+                            <th style="width:50px">Address</th>
+                            <th style="width:50px">PersonalMobile</th>
+                            <th style="width:50px">OfficeNumber</th>
+                            <th style="width:50px">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            @*<td></td>*@
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="menu4" class="tab-pane fade">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <span class="glyphicon glyphicon-tasks" style="vertical-align:middle;color:darkcyan;"></span>&nbsp;Help Desk
+            </div>
+            <div class="panel-body" style="padding:4px;">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <span class="form-label">Task Id</span>
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" id="HelpDeskTaskId" />
+                    </div>
+                    <div class="col-sm-4">
+                        <button type="button" class="btn  btn-warning" onclick="OnclickHelpDesk();"><span class="glyphicon glyphicon-ok-circle"></span>&nbsp;Submit</button>
+                    </div>
+                </div>
+
+                <hr />
+                <table id="myDataTable" class="table table-striped table-bordered  dt-responsive table-hover dataTables_wrapper " style="width:100%;">
+                    <thead>
+                        <tr style="background-color: #786C67;color: white;">
+                            <th>ID</th>
+                            <th>Call Date</th>
+                            <th>R.Time(h:m:s)</th>
+                            <th>Name</th>
+                            <th>Location</th>
+                            <th>Ext</th>
+                            <th>Category</th>
+                            @* <th>Assert No</th>
+                                <th>Equipment Name</th>*@
+                            <th>Subject</th>
+                            <th>Assign</th>
+                            @*<th>Work done</th>*@
+                            <th>T.T.T(d:h:m)</th>
+                            <th>Status</th>
+                            <th>User Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+
+
+            </div>
+        </div>
+    </div>
+    <div id="menu5" class="tab-pane fade">
+        <div class="panel panel-default">
+            <div class="panel-heading"><span class="glyphicon glyphicon-plane"></span>&nbsp;Manage Purchase</div>
+            <div class="panel-body">
+                <div class="row">
+
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <span class="form-label">Purchase ID</span>
+                        </div>
+
+                        <div class="form-group">
+
+                            <input type="text" class="form-control" id="purchaseId" />
+                        </div>
+
+                    </div>
+
+
+                </div>
+                <div class="row" style="text-align:center">
+                    <button type="button" class="btn  btn-warning" onclick="OnclickPurchase();"><span class="glyphicon glyphicon-ok-circle"></span>&nbsp;Submit</button>
+                </div>
+                <hr />
+                <table id="tblPurchase" class="table table-bordered text-center">
+                    <thead>
+                        <tr>
+                            <th style="width:50px">PurchaseId</th>
+                            <th style="width:50px">PurchaseNumber</th>
+                            <th style="width:50px">LocationId </th>
+                            <th style="width:50px">DepartmentId</th>
+                            <th style="width:50px">VendorId</th>
+                            <th style="width:50px">Employee</th>
+                            <th style="width:50px">TotalAmount</th>
+                            <th style="width:50px">Title</th>
+                            <th style="width:50px">Status</th>
+                            <th style="width:50px">TotalQty</th>
+                            <th style="width:50px">TotalTaxAmount</th>
+                            <th style="width:50px">Discount</th>
+                            <th style="width:50px">Duration</th>
+                            <th style="width:50px">QuotationAmount</th>
+                            <th style="width:50px">QuotationNumber</th>
+                            <th style="width:50px">StartDate</th>
+                            <th style="width:50px">PurchaseDate</th>
+                            <th style="width:50px">PurchaseAmout</th>
+                            <th style="width:50px">Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            @*<td></td>*@
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

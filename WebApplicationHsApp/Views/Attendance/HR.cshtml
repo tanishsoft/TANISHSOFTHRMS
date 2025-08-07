@@ -1,0 +1,578 @@
+﻿
+@{
+    ViewBag.Title = "HR";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+        LoadDatePickers();
+
+        LoadLocations();
+        //LoadAlltheSwipes();
+        //LoadTodaySwipes();
+        //LoadyestradaySwipes();
+
+    });
+    function LoadDatePickers() {
+        $("#txtFromDate")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                Edit: true,
+                //minDate:0,
+                yearRange: "-30:+30",
+                onSelect: function (dateText, inst) {
+                    $("#txtToDate").datepicker("option", "minDate",
+                        $("#txtFromDate").datepicker("getDate"));
+                }
+            });
+        $("#txtToDate")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "-30:+30",
+                dateFormat: "dd/mm/yy",
+                Edit: true,
+
+            });
+        $("#txtFromDateLate")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                Edit: true,
+                //minDate:0,
+                yearRange: "-30:+30",
+                onSelect: function (dateText, inst) {
+                    $("#txtToDateLate").datepicker("option", "minDate",
+                        $("#txtFromDateLate").datepicker("getDate"));
+                }
+            });
+        $("#txtToDateLate")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "-30:+30",
+                dateFormat: "dd/mm/yy",
+                Edit: true,
+
+            });
+
+        $("#txtFromDateLate3")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                Edit: true,
+                //minDate:0,
+                yearRange: "-30:+30",
+                onSelect: function (dateText, inst) {
+                    $("#txtToDateLate3").datepicker("option", "minDate",
+                        $("#txtFromDateLate3").datepicker("getDate"));
+                }
+            });
+        $("#txtToDateLate3")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "-30:+30",
+                dateFormat: "dd/mm/yy",
+                Edit: true,
+
+            });
+    }
+    function LoadDataMinutes() {
+        if ($("#ddlLocation").val() != null && $("#ddlLocation").val() != "" && $("#ddlDepartment").val() != null && $("#ddlDepartment").val() != "") {
+            var data = {
+                locationId: $("#ddlLocation").val(),
+                Departmentid: $("#ddlDepartment").val(),
+            };
+            $.ajax({
+                type: "GET",
+                data: data,
+                url: "/Attendance/GetCurrentMonthLateComersByHy",
+                success: function (data) {
+                    LoadChart(data);
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        } else {
+            alert("Please select Location and Department");
+        }
+    }
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#ddlLocation").html(options.join(''));
+                $("#ddllocation1").html(options.join(''));
+                $("#ddllocation12").html(options.join(''));
+                $("#ddllocation3").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+
+    function LoadDepartment(locid, deptid) {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetDepartmentByLocation",
+            data: "id=" + $("#" + locid).val(),
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Department -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                }
+                $("#" + deptid).html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+
+    function LoadEmployees(deptid, ddemps) {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetEmployeesByDepartment",
+            data: "id=" + $("#" + deptid).val(),
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Employee -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].CustomUserId + '">' + data[i].FirstName + " " + data[i].LastName + '</option>');
+                }
+                $("#" + ddemps).html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadChart(data) {
+        $('#container1').highcharts({
+            title: {
+                text: 'Current Month Swipe Record'
+            },
+
+            //subtitle: {
+            //    text: ''
+            //},
+
+            yAxis: {
+                title: {
+                    text: 'Minutes'
+                }
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'right',
+                verticalAlign: 'middle'
+            },
+
+            plotOptions: {
+                series: {
+                    pointStart: 1
+                }
+            },
+
+            series: data
+
+        });
+    }
+    function LoadAlltheSwipes() {
+        if ($("#txtFromDate").val() != null && $("#txtFromDate").val() != "" && $("#txtToDate").val() != null && $("#txtToDate").val() != "") {
+            $('#tbltable').dataTable({
+                "bServerSide": true,
+                "sAjaxSource": "/Attendance/AjaxGetHrManagerSwipesTotal",
+                "bProcessing": true,
+                "bDestroy": true,
+                "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+                //"aaSorting": [[0, "desc"]],
+                "aoColumns": [
+                           { "sName": "employeeid" },
+
+                          { "sName": "FirstName" },
+
+                          { "sName": "DepartmentName" },
+                            { "sName": "LocationName" },
+                           { "sName": "att_date" },
+                            { "sName": "ShiftTypeName" },
+                           { "sName": "in_time" },
+                           { "sName": "out_time" },
+                           { "sName": "latein" },
+                           { "sName": "lateout" },
+                           { "sName": "earlyin" },
+                            { "sName": "earlyout" }
+                ],
+                "fnServerParams": function (aoData) {
+                    aoData.push(
+                        { "name": "locationid", "value": $("#ddllocation1").val() },
+                        { "name": "departmentid", "value": $("#ddlDepartment1").val() },
+                        { "name": "Emp", "value": $("#ddlemployees").val() },
+                        { "name": "fromdate", "value": $("#txtFromDate").val() },
+                        { "name": "todate", "value": $("#txtToDate").val() }
+                    );
+                },
+                "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+
+                    if (aData[8] != null && aData[8] != "") {
+                        var dataparse = parseInt(aData[8]);
+                        if (dataparse > 10) {
+                            $('td', nRow).css('background-color', '#a71f23');
+                            $('td', nRow).css('color', 'white');
+                        }
+                    }
+
+                }
+            });
+            $("#tbltable_length").addClass("col-md-6");
+            $("#tbltable_length").addClass("col-md-6");
+        } else {
+            alert("Please Select All Required Fields");
+        }
+    }
+    function ExporttoExcel() {
+        var locationid = 0;
+        var departmentid = 0;
+        var employeeid = "";
+        if ($("#ddllocation1").val() != "" && $("#ddllocation1").val() != null) {
+            locationid = $("#ddllocation1").val();
+        }
+        if ($("#ddlDepartment1").val() != null && $("#ddlDepartment1").val() != "") {
+            departmentid = $("#ddlDepartment1").val();
+        }
+        if ($("#ddlemployees").val() != null && $("#ddlemployees").val() != "") {
+            employeeid = $("#ddlemployees").val();
+        }
+
+        window.location = "/Attendance/ExportToExcelEmployeeAttendance?fromdate=" + $("#txtFromDate").val() + "&todate=" + $("#txtToDate").val() + "&locationid=" + locationid + "&departmentid=" + departmentid + "&employeeid=" + employeeid;
+    }
+    function LoadTodaySwipes() {
+        $('#tbltable_today').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Attendance/AjaxGetHrManagerTodaySwipesTotal",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            //"aaSorting": [[0, "desc"]],
+            "aoColumns": [
+                { "sName": "employeeid" },
+                       { "sName": "FirstName" },
+                       { "sName": "DepartmentName" },
+                          { "sName": "LocationName" },
+                       { "sName": "att_date" },
+                       { "sName": "in_time" },
+                       { "sName": "out_time" },
+                       { "sName": "latein" }
+            ]
+            //"fnServerParams": function (aoData) {
+            //    aoData.push(
+            //        { "name": "locationid", "value": $("#ddlLocationForFilter").val() },
+            //        { "name": "departmentid", "value": $("#ddlDepartmentForFilter").val() }
+            //    );
+            //}
+        });
+        $("#tbltable_today_length").addClass("col-md-6");
+        $("#tbltable_today_length").addClass("col-md-6");
+    }
+    function LoadyestradaySwipes() {
+        $('#tbltable_yestraday').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Attendance/AjaxGetHrManagerYestradaySwipesTotal",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            //"aaSorting": [[0, "desc"]],
+            "aoColumns": [
+                { "sName": "employeeid" },
+                        { "sName": "LocationName" },
+                      { "sName": "DepartmentName" },
+                       { "sName": "FirstName" },
+                       { "sName": "att_date" },
+                       { "sName": "in_time" },
+                       { "sName": "out_time" },
+                       { "sName": "latein" }
+            ]
+            //"fnServerParams": function (aoData) {
+            //    aoData.push(
+            //        { "name": "locationid", "value": $("#ddlLocationForFilter").val() },
+            //        { "name": "departmentid", "value": $("#ddlDepartmentForFilter").val() }
+            //    );
+            //}
+        });
+        $("#tbltable_yestraday_length").addClass("col-md-6");
+        $("#tbltable_yestraday_length").addClass("col-md-6");
+    }
+    function LoadAlltheSwipesLate() {
+        $('#tbltableallswipes').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Attendance/AjaxsLoadAlltheSwipesLate",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            //"aaSorting": [[0, "desc"]],
+            "aoColumns": [
+                       { "sName": "employeeid" },
+                         { "sName": "FirstName" },
+                      { "sName": "DepartmentName" },
+                     { "sName": "LocationName" },
+                       //{ "sName": "att_date" },
+                       //{ "sName": "in_time" },
+                       //{ "sName": "out_time" },
+                       //{ "sName": "latein" },
+                       //{ "sName": "lateout" },
+                       { "sName": "TotalDaysLate" },
+
+                        { "sName": "LeavestoBededuct" },
+                       //{ "sName": "status" }
+            ],
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                  { "name": "locationid", "value": $("#ddllocation12").val() },
+              { "name": "departmentid", "value": $("#ddlDepartment12").val() },
+              //{ "name": "Emp", "value": $("#ddlemployees2").val() },
+                    { "name": "fromdate", "value": $("#txtFromDateLate").val() },
+                    { "name": "todate", "value": $("#txtToDateLate").val() }
+                );
+            }
+        });
+        $("#tbltable_length").addClass("col-md-6");
+        $("#tbltable_length").addClass("col-md-6");
+    }
+    function ExporttoExcelLateSwipe() {
+
+        var locationid = 0;
+        var departmentid = 0;
+        if ($("#ddllocation12").val() != "" && $("#ddllocation12").val() != null) {
+            locationid = $("#ddllocation12").val();
+        }
+        if ($("#ddlDepartment12").val() != null && $("#ddlDepartment12").val() != "") {
+            departmentid = $("#ddlDepartment12").val();
+        }
+
+        window.location = "/Attendance/ExportToExcelEmployeeAttendanceLate?fromdate=" + $("#txtFromDateLate").val() + "&todate=" + $("#txtToDateLate").val() + "&locationid=" + locationid + "&departmentid=" + departmentid;
+    }
+    function Loadthereports() {
+        if ($("#ddllocation3").val() != "" && $("#ddllocation3").val() != null && $("#txtFromDateLate3").val() != "" && $("#txtFromDateLate3").val() != null && $("#txtToDateLate3").val() != "" && $("#txtToDateLate3").val() != null) {
+            var departmentid = 0;
+            if ($("#ddlDepartment3").val() != "" && $("#ddlDepartment3").val() != null) {
+                departmentid = $("#ddlDepartment3").val();
+            }
+            window.location = "/Attendance/GetSwipeswithRoaster?Fromdate=" + $("#txtFromDateLate3").val() + "&Todate=" + $("#txtToDateLate3").val() + "&locationId=" + $("#ddllocation3").val() + "&Departmentid=" + departmentid + "&employeeid=" + 0;
+        } else {
+            alert("Please select all required fields");
+        }
+    }
+</script>
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">Hr Attendance Dashboard</div>
+    <div class="panel-body">
+
+        <ul class="nav nav-tabs">
+            <li class="active"><a data-toggle="tab" href="#home">Total Swipes</a></li>
+            <li><a data-toggle="tab" href="#menu1">Late Swipes</a></li>
+            <li><a data-toggle="tab" href="#menu2">Swipe Reports</a></li>
+        </ul>
+
+        <div class="tab-content" style="padding:10px;">
+            <div id="home" class="tab-pane fade in active">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Total Swipes</div>
+                    <div class="panel-body">
+
+                        <table class="table">
+                            <tr>
+                                <td>
+                                    Location
+                                </td>
+                                <td>
+                                    <select id="ddllocation1" class="form-control" onchange="LoadDepartment(this.id, 'ddlDepartment1')">
+                                        <option value="">Select</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    Department
+                                </td>
+                                <td>
+                                    <select id="ddlDepartment1" class="form-control" onchange="LoadEmployees(this.id, 'ddlemployees')">
+                                        <option value="">Select</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    Employee
+                                </td>
+                                <td>
+                                    <select id="ddlemployees" class="form-control">
+                                        <option value="">Select</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    From Date
+                                </td>
+                                <td><input type="text" id="txtFromDate" class="form-control" autocomplete="off" /> </td>
+                                <td>
+                                    To Date
+                                </td>
+                                <td><input type="text" id="txtToDate" class="form-control" autocomplete="off" /> </td>
+
+                                <td>
+                                    <input type="button" id="btngo1" value="Go" class="btn btn-primary" onclick="LoadAlltheSwipes();" />
+                                    <input type="button" id="btngo1" value="Export To Excel" class="btn btn-default" onclick="ExporttoExcel();" />
+
+                                </td>
+                            </tr>
+
+                        </table>
+
+                        <table class="table table-striped table-hover table-bordered" id="tbltable">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+
+                                    <th>Name</th>
+                                    <th>Department</th>
+                                    <th>Location</th>
+                                    <th>Date</th>
+                                    <th>Shift Type</th>
+                                    <th>In Time</th>
+                                    <th>Out Time</th>
+                                    <th>
+                                        Late In
+                                    </th>
+                                    <th>
+                                        Late Out
+                                    </th>
+                                    <th>Early In</th>
+                                    <th>Early Out</th>
+
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div id="menu1" class="tab-pane fade">
+                <div class="panel panel-warning">
+                    <div class="panel-heading">Late Swipes</div>
+                    <div class="panel-body">
+                        <table class="table">
+                            <tr>
+                                <td>
+                                    Location
+                                </td>
+                                <td>
+                                    <select id="ddllocation12" class="form-control" onchange="LoadDepartment(this.id, 'ddlDepartment12')">
+                                        <option value="">Select</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    Department
+                                </td>
+                                <td>
+                                    <select id="ddlDepartment12" class="form-control" @*onchange="LoadEmployees(this.id, 'ddlemployees2')"*@>
+                                        <option value="">Select</option>
+                                    </select>
+                                </td>
+
+                                <td>
+                                    From Date
+                                </td>
+                                <td><input type="text" id="txtFromDateLate" class="form-control" autocomplete="off" /> </td>
+                                <td>
+                                    To Date
+                                </td>
+                                <td><input type="text" id="txtToDateLate" class="form-control" autocomplete="off" /> </td>
+
+                                <td>
+                                    <input type="button" id="btngo1" value="Go" class="btn btn-primary" onclick="LoadAlltheSwipesLate();" />
+                                    <input type="button" id="btngo1" value="Export To Excel" class="btn btn-default" onclick="ExporttoExcelLateSwipe();" />
+
+                                </td>
+                            </tr>
+
+                        </table>
+                        <table class="table table-striped table-hover table-bordered" id="tbltableallswipes">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+
+                                    <th>Name</th>
+                                    <th>Department</th>
+                                    <th>Location</th>
+
+                                    <th>No Of Times Late</th>
+                                    <th>Total Leaves (Lop)</th>
+
+
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="menu2" class="tab-pane fade">
+                <div class="panel panel-primary">
+                    <div class="panel-heading">Swipes Report</div>
+                    <div class="panel-body">
+                        <table class="table">
+                            <tr>
+                                <td>
+                                    Location
+                                </td>
+                                <td>
+                                    <select id="ddllocation3" class="form-control" onchange="LoadDepartment(this.id, 'ddlDepartment3')">
+                                        <option value="">Select</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    Department
+                                </td>
+                                <td>
+                                    <select id="ddlDepartment3" class="form-control">
+                                        <option value="">Select</option>
+                                    </select>
+                                </td>
+
+                                <td>
+                                    From Date
+                                </td>
+                                <td><input type="text" id="txtFromDateLate3" class="form-control" /> </td>
+                                <td>
+                                    To Date
+                                </td>
+                                <td><input type="text" id="txtToDateLate3" class="form-control" /> </td>
+
+                                <td>
+                                    @*<input type="button" id="btngo1" value="Go" class="btn btn-primary" onclick="LoadSwipesReport();" />*@
+                                    <input type="button" id="btngo1" value="Export To Excel" class="btn btn-default" onclick="Loadthereports();" />
+                                </td>
+                            </tr>
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,242 @@
+﻿@model IEnumerable<WebApplicationHsApp.Models.ListMainEventModel>
+@{
+    ViewBag.Title = "GratitudeGallery";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .bottom-right {
+        position: absolute;
+        bottom: 94px;
+        right: 24px;
+        background-color: #FEC20E;
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-size: contain;
+        padding: 15px;
+        color: black;
+        border-radius: 50%;
+        font-weight: bold;
+    }
+</style>
+<script>
+    var editid;
+    var allimages = [];
+    var currentkey = "";
+    function openDialogGallery(id) {
+        $.get("/Academics/GetGalleryImages?id=" + id, function (data) {
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].ImageName != "Thumbnail") {
+                    $("#imgbannerbind").attr("src", "/Documents/Images/" + data[i].ImageLocation);
+
+                }
+            }
+            currentkey = "GratitudesMessage_" + id;
+            LoadComments(currentkey);
+            $("#modaldialogGratitude").modal('show');
+        });
+
+    }
+    function SubmitCommentOnDrEvita() {
+        if (confirm("Are you sure you want to submit?")) {
+
+            $.ajax({
+                type: "GET",
+                url: "/Home/SaveComment",
+                data: "key=" + currentkey + "&Message=" + $("#txtcommentondrevita").val(),
+                success: function (data) {
+                    $("#txtcommentondrevita").val("");
+                    //alert("Comment updated Successfully");
+                    LoadComments(currentkey);
+
+                },
+                error: function () {
+                    // alert("error")
+                }
+            });
+        }
+    }
+
+
+    var comments;
+    function LoadComments(key) {
+        //var key = "GratitudesMessage";
+        $.ajax({
+            type: "GET",
+            url: "/Home/GetCommentsbyPostId",
+            data: "key=" + key,
+            success: function (data) {
+                $("#TotalComments").html(data.length);
+                comments = data;
+                var htmlupdate = "";
+                for (var j = 0; j < data.length; j++) {
+                    htmlupdate += "<div class='col-md-6'><div class='list-group'>";
+                    htmlupdate += "<div  class='list-group-item list-group-item-action flex-column align-items-start'>";
+                    htmlupdate += "<div class='d-flex w-100 justify-content-between'>";
+                    htmlupdate += "<h5 class='mb-1' style='color:crimson;font-weight:bold;'>  " + data[j].CommentedBy + "&nbsp;";
+                    var username = $("#hiddenuseridentyname").val();
+                    var role = $("#hidhiddenrole").val();
+                    if (username != null && username != "") {
+                        htmlupdate += "<span style='color:green;cursor:pointer;'  id='" + data[j].CommentId + "'  onclick='funreplaymessage(this.id);' >&nbsp;&nbsp; <span class='glyphicon glyphicon-share'></span> Click here to Reply </span> ";
+                    }
+                    //htmlupdate += "</h5>";
+                    if (role == "Admin") {
+                        htmlupdate += "<span style='float:right;color:red;cursor:pointer;' id='" + data[j].CommentId + "' onclick='deletecomment(this.id);'> <i class='glyphicon glyphicon-remove-circle'></i> &nbsp;</span>&nbsp;";
+                        htmlupdate += "<span style='float:right;color:green;cursor:pointer;' id='" + data[j].CommentId + "' onclick='EditComment(this.id);'> <i class='glyphicon glyphicon-edit'></i> &nbsp;</span>&nbsp;";
+                    }
+                    htmlupdate += "<span style='float:right;color:green;'> " + data[j].CommentedOn + "&nbsp;</span></h5>";
+                    //htmlupdate += "<small class='text-muted'>" + data[i].Comments[j].CreatedOn + "</small>";
+                    htmlupdate += "</div>";
+                    htmlupdate += "<p class='mb-1'><span class='glyphicon glyphicon-comment'></span> " + data[j].Message + "</p>";
+
+                    var subcomment = data[j].SubComment;
+                    if (subcomment.length > 0) {
+                        for (var k = 0; k < subcomment.length; k++) {
+                            htmlupdate += "<p class='mb-1' style='color:crimson;text-align:right;'><span class='glyphicon glyphicon-info-sign'></span> " + subcomment[k].CommentedBy + " Says - " + subcomment[k].Message + "</p>";
+                        }
+                    }
+                    //$("#tbldatashow").append("<small class='text-muted'>Donec id elit non mi porta.</small>");
+                    htmlupdate += "</div>";
+                    htmlupdate += "</div>";
+                    htmlupdate += "</div>";
+                }
+                $("#TotalCommentsData").html(htmlupdate);
+            },
+            error: function () {
+                // alert("error")
+            }
+        });
+    }
+    function funreplaymessage(id) {
+        editid = id;
+        //alert(id);
+        $("#exampleModalCenter4").modal('show');
+    }
+    function SubmitCommentByDrEvita() {
+        $.ajax({
+            type: "GET",
+            url: "/Home/SaveMDReplayOnMessage",
+            data: "id=" + editid + "&Message=" + $("#txtcommentbydrevita4").val(),
+            success: function (data) {
+                $("#txtcommentbydrevita4").val("");
+                $("#exampleModalCenter4").modal("hide");
+                alert("Comment updated Successfully");
+                LoadComments();
+            },
+            error: function () {
+                // alert("error")
+            }
+        });
+    }
+</script>
+@{
+    int checkimg = 0;
+}
+<div class="container">
+    @foreach (var v in Model)
+    {
+
+        <h2 style="color: #94C4AC; font-weight: 600; line-height: 1.2em;font-size:55px;">@v.Year</h2>
+
+
+        var months = v.MainEventModels.Select(l => l.StartDateTime.Split(' ')[1]).Distinct().ToList();
+
+        foreach (var m in months)
+        {
+            var Maineventmodels = v.MainEventModels.Where(l => l.StartDateTime.Contains(m)).ToList();
+            <div class="row" style="border-bottom: solid 10px rosybrown;">
+                @foreach (var ev in Maineventmodels)
+                {
+                    checkimg = 0;
+                    <div class="col-md-4" style="padding:15px;">
+
+                        <div style="background-color:#eee; border-radius:15px;height:305px;">
+                            @*<img src="~/Documents/Images/PTW_01-min.jpg" style="width: 100%; border-radius: 15px; border: solid 5px #85C6A9;" /><br />*@
+                            <div id="baguetteBoxThree_@ev.EventId">
+                                @foreach (var im in ev.MainEventModelImages)
+                                {
+                                    if (im.isMainBanner && checkimg == 0)
+                                    {
+                                        checkimg++;
+                                        <a href="/Hospital/Gratitudes?id=@ev.EventId" id="@ev.EventId">
+                                            <img src="/Documents/Images/@im.ImagePath" alt="" style="width: 100%; border-radius: 15px; border: solid 5px #85C6A9;height:235px;">
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="/Hospital/Gratitudes?id=@ev.EventId" style="display: none;" id="@ev.EventId">
+                                            <img src="/Documents/Images/@im.ImagePath" alt="" style="width: 100%; border-radius: 15px; border: solid 5px #85C6A9;">
+                                        </a>
+                                    }
+                                }
+                                @*<script>baguetteBox.run('#baguetteBoxThree_@ev.EventId');</script>*@
+                            </div>
+                            <div class="bottom-right">@ev.StartDateTime</div>
+                            <h4 style="margin:15px;text-align:center;font-weight:bold;">@ev.EventTitle</h4>
+
+                        </div>
+
+
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>
+<div class="modal right fade" id="modaldialogGratitude">
+    <div class="modal-dialog" style="width:100%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4>Gratitude</h4>
+            </div>
+            <div class="modal-body">
+                <div style="width:100%;margin-bottom:5px;">
+                    <img src="" id="imgbannerbind" class="img-responsive" style="margin:auto; width:100%;" />
+                </div>
+              
+                @if (Request.IsAuthenticated)
+                {
+<textarea id="txtcommentondrevita" class="form-control" placeholder="Please enter here" rows="4" style="width:100%;min-width:100%;">
+</textarea>
+                }
+                else
+                {
+                    <p> Please login to comment <a href="/Account/Login">Click Here.</a></p>
+                }
+                <br />
+                @if (Request.IsAuthenticated)
+                {
+                    <input type="button" id="btnsubmit" class="btn btn-primary" onclick="SubmitCommentOnDrEvita();" value="Send Comment" />
+                }
+                <div class="row" id="TotalCommentsData" style="margin-top:20px;">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" placeholder="Please enter here" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="exampleModalCenter4">
+    <div class="modal-dialog" style="padding-top:10%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4>Reply On Comment</h4>
+
+            </div>
+            <div class="modal-body">
+
+                <textarea id="txtcommentbydrevita4" class="form-control" placeholder="Please enter here" rows="4" style="width:100%;min-width:100%;"></textarea>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+                <button type="button" class="btn btn-primary" onclick="SubmitCommentByDrEvita();">Submit</button>
+
+            </div>
+        </div>
+    </div>
+</div>

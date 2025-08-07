@@ -1,0 +1,243 @@
+﻿
+@{
+    ViewBag.Title = "CellPhoneRequest";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+    .col-md-6{
+        margin-bottom:10px;
+    }
+</style>
+<script>
+    var eId =@ViewBag.id;
+
+    $(document).ready(function () {
+        LoadLocations();
+        EmployeeSearch();
+        if (eId != 0) {
+            LoadData(eId);
+        }
+        else {
+            $("#Name").val('@ViewBag.Name');
+            $("#Designation").val('@ViewBag.Designation');
+            var name = '@ViewBag.Name ' + '@ViewBag.Designation';
+            $("#EmpNo").select2("trigger", "select", { data: { id: @ViewBag.EmpNo, text: name} });
+            $("#Department").val('@ViewBag.Department');
+
+        }
+    });
+    function EmployeeSearch() {
+
+        $(".EmpId").select2({
+            ajax: {
+                url: "/Home/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            width: 'element',
+            minimumInputLength: 4
+        });
+    }
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#Location").html(options.join(''));
+                $("#Location").val('@ViewBag.Location');
+            },
+            error: function () {
+                alert("error")
+            }
+
+        });
+    }
+    function Cancel() {
+        window.location.href = "/Custom/ManageCellPhoneRequest";
+    }
+    function LoadData(id) {
+        if (id != 0) {
+            $.get("/Custom/GetCellPhoneRequest", { id: id }, function (data) {
+                
+                $("#Name").val(data.Name);
+                $("#Designation").val(data.Designation);
+                var name = data.Name + " " + data.Designation;
+                $("#EmpNo").select2("trigger", "select", { data: { id: data.EmpNo, text: name } });
+                $("#Department").val(data.Department);
+                $("#Purpose").val(data.Purpose);
+                $("#Location").val(data.LocationId);
+                $("#RequestType").val(data.RequestType);
+
+            });
+        }
+
+    }
+    function GetUserDetails() {
+        
+        if ($("#EmpNo").val() != null && $("#EmpNo").val() != "") {
+            $.get("/Custom/GetUserDetails", { id: $("#EmpNo").val()  }, function (data) {
+                
+                $("#Name").val(data.FirstName);
+                $("#Designation").val(data.Designation);
+                $("#Department").val(data.DepartmentName);
+                $("#Location").val(data.LocationId);
+            });
+        }
+
+    }
+    function validateinput() {
+        var validate = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#Name").val() == "") {
+            $("#Name").after('<span class="error" style="color:Red;">Enter Name</span>');
+            $("#Name").addClass('css-error');
+            validate = false;
+        }
+        if ($("#Designation").val() == "") {
+            $("#Designation").after('<span class="error" style="color:Red;">Enter Designation</span>');
+            $("#Designation").addClass('css-error');
+            validate = false;
+        }
+        if ($("#EmpNo").val() == "") {
+            $("#EmpNo").after('<span class="error" style="color:Red;">Enter EmpNo</span>');
+            $("#EmpNo").addClass('css-error');
+            validate = falseViewBag
+        }
+        if ($("#Department").val() == "") {
+            $("#Department").after('<span class="error" style="color:Red;">Enter Department</span>');
+            $("#Department").addClass('css-error');
+            validate = false;
+        }
+        if ($("#Location").val() == "") {
+            $("#Location").after('<span class="error" style="color:Red;">Enter location</span>');
+            $("#Location").addClass('css-error');
+            validate = false;
+        }
+        if ($("#RequestType").val() == "") {
+            $("#RequestType").after('<span class="error" style="color:Red;">Select Request Type</span>');
+            $("#RequestType").addClass('css-error');
+            validate = false;
+        }
+        if ($("#Purpose").val() == "") {
+            $("#Purpose").after('<span class="error" style="color:Red;">Enter Purpose</span>');
+            $("#Purpose").addClass('css-error');
+            validate = false;
+        }
+        return validate;
+    }
+    function SaveRequest() {
+        var validate = validateinput();
+        if (validate) {
+            var task = {
+                CellPhoneRequestId: eId.toString(),
+                Name: $("#Name").val(),
+                Designation: $("#Designation").val(),
+                EmpNo: $("#EmpNo").val(),
+                Department: $("#Department").val(),
+                Purpose: $("#Purpose").val(),
+                LocationId: $('#Location').val(),
+                RequestType: $('#RequestType').val(),
+                NewOrRepair: $('#NewOrRepair').val(),
+            };
+            console.log(task);
+            $.ajax({
+                type: "POST",
+                url: "/Custom/Save_Update_CellPhoneRequest",
+                data: task,
+                success: function (data) {
+                    alert(data);
+                    Cancel();
+                }
+            });
+        }
+    }
+</script>
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">New Request</div>
+        <div class="panel-body">
+            <div class="row" style="padding:10px;">
+                <div class="col-md-6">
+                    <label>Emp No<span style="color:red;">*</span></label>
+                    <select id="EmpNo" class="form-control typeahead EmpId maxwidth" name="query" data-provide="typeahead" autocomplete="off" onchange="GetUserDetails();"></select>
+                </div>
+                <div class="col-md-6">
+                    <label>Name<span style="color:red;">*</span></label>
+                    <input type="text" class="form-control maxwidth" id="Name" />
+                </div>
+                <div class="col-md-6">
+                    <label>Designation<span style="color:red;">*</span></label>
+                    <input type="text" class="form-control maxwidth" id="Designation" />
+                </div>
+
+                <div class="col-md-6">
+                    <label>Department<span style="color:red;">*</span></label>
+                    <input type="text" class="form-control maxwidth" id="Department" />
+                </div>
+                <div class="col-md-6">
+                    <label>Location<span style="color:red;">*</span></label>
+                    <select class="form-control maxwidth" id="Location"></select>
+                </div>
+                <div class="col-md-6">
+                    <label>Request Type<span style="color:red;">*</span></label>
+                    <select class="form-control maxwidth" id="RequestType">
+                        <option value="">Select Request Type</option>
+                        <option value="Only SIM">Only SIM</option>
+                        <option value="SIM + Normal Mobile">SIM + Normal Mobile</option>
+                        <option value="SIM + Touch Phone">SIM + Touch Phone</option>
+                        <option value="Only Touch Phone">Only Touch Phone</option>
+                        <option value="Only Normal Phone">Only Normal Phone</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label>New Or Repair?<span style="color:red;">*</span></label>
+                    <select class="form-control maxwidth" id="NewOrRepair">
+                        <option value="">Select</option>
+                        <option value="New">New</option>
+                        <option value="Repair">Repair</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label>Purpose<span style="color:red;">*</span></label>
+                    <textarea type="text" rows="1" class="form-control maxwidth" id="Purpose"></textarea>
+                </div>
+            </div>
+            
+        </div>
+        <div class="panel-footer">
+            <div class="row" style="padding:10px;">
+                <input type="button" class="btn btn-warning" value="Cancel" onclick="Cancel();" />
+                <input type="button" class="btn btn-primary" value="Save" onclick="SaveRequest();" />
+
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<br />
+<br />
+<br />
+

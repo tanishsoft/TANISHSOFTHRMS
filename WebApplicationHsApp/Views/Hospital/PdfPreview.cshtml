@@ -1,0 +1,23 @@
+﻿
+@{
+    ViewBag.Title = "PdfPreview";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="~/Scripts/Commonimgpreview.js"></script>
+<style type="text/css" media="print">
+    * {
+        display: none;
+    }
+</style>
+<script type="text/jscript">
+    function injectJS() {
+        var frame = $('iframe');
+        var contents = frame.contents();
+        var body = contents.find('body').attr("oncontextmenu", "function(e) {  e.preventDefault(); e.stopPropagation(); break;   }");
+       
+      
+    }
+</script>
+<p style="text-align:center;">@Model.Name</p>
+
+<iframe id="fraDisabled" src="~/ExcelUplodes/@Model.FilePath#toolbar=0&amp;navpanes=0&amp;statusbar=0&amp;readonly=true; disableprint=true; disablesave=true;disablesaveas=true;" onload="injectJS();" onMyLoad="injectJS();" title="PDF in an i-Frame" frameborder="0" scrolling="auto" style="width:100%; height:100%; min-height:600px;"></iframe>

@@ -1,0 +1,303 @@
+﻿
+@{
+    ViewBag.Title = "NewVehicleParking";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+
+    #captureSignature {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+
+    #captureSignature2 {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+
+    #captureSignatureStaff {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+</style>
+<script src="~/Scripts/jSignature.min.js"></script>
+<!--[if lt IE 9]>
+<script  type="text/javascript" src="~/Scripts/flashcanvas.js"></script>
+    <![endif]-->
+<script>
+    var validate;
+    var eId = 0;
+
+    var $sigdiv, $sigdiv2;
+    $(document).ready(function () {
+        $sigdiv = $("#captureSignatureTakingSecurity").jSignature({ 'UndoButton': true });
+        $sigdiv2 = $("#captureSignatureTakingDriver").jSignature({ 'UndoButton': true });
+        LoadLocations();
+        LoadParkingLocations();
+        LoadDropdownvalues();
+    });
+    var parkinglocations;
+    function LoadParkingLocations() {
+        $.get("/Register/GetAllParkingLocations?locid=0", function (data) {
+            parkinglocations = data;
+            var options = [];
+            options.push('<option value="">- Select ParkingLocation -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].ParkingLocation + '">' + data[i].ParkingLocation + '</option>');
+            }
+            $("#ParkingLocation").html(options.join(''));
+        });
+    }
+    function LoadDropdownvalues() {
+        $.get("/Common/GetCommonDropdownValues?dtype=Driver", function (data) {
+            var options = [];
+            options.push('<option value="">- Select -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].Name + '">' + data[i].Name + '</option>');
+            }
+            $("#txtInDriver").html(options.join(''));
+        });
+    }
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Locations -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#LocationId").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    
+    function OnLocationchng() {
+        $.get("/Register/GetSecurityDetails?locationId=" + $("#LocationId").val(), function (data) {
+            var options = [];
+            options.push('<option value="">- Select Security -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].FirstName + '">' + data[i].FirstName + '</option>');
+            }
+            $("#txtTakingSecurity").html(options.join(''));
+        });
+       
+    }
+    function SaveRegister() {
+        ValidateDetails();
+        var takingSignsecurity = $sigdiv.jSignature('getData', 'image').toString();
+        var takingdriverSign = $sigdiv2.jSignature('getData', 'image').toString();
+        if (takingSignsecurity == null || takingSignsecurity == "") {
+            validate = false;
+        }
+        if (takingdriverSign == null || takingdriverSign == "") {
+            validate = false;
+        }
+        if (validate) {
+            var task = {
+                Id: eId,
+                LocationId: $("#LocationId").val(),
+                ParkingLocation: $("#ParkingLocation").val(),
+                WheelerType: $("#WheelerType").val(),
+                VehicleNameOrNumber: $("#txtVehicleNameOrNumber").val(),
+                MobileNo: $("#txtMobileNo").val(),
+                IsActive: true,
+                InDriver: $("#txtInDriver").val(),
+                Purpose: $("#txtPurpose").val(),
+                Remarks: $("#txtRemarks").val(),
+                InSecurity: $("#txtTakingSecurity").val(),
+                InSecuritySign: "data:" + takingSignsecurity,
+                InDriverSign: "data:" + takingdriverSign
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Register/SaveNewVehicleParking",
+                data: task,
+                success: function (data) {
+                    alert(data);
+                    clearAll();
+                }
+            });
+        } else {
+            alert("Please enter all the required fields");
+        }
+    }
+    function ValidateDetails() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+
+        if ($("#LocationId").val() == "") {
+            $("#LocationId").addClass('css-error');
+            validate = false;
+        }
+        if ($("#ParkingLocation").val() == "") {
+            $("#ParkingLocation").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtVehicleNameOrNumber").val() == "") {
+            $("#txtVehicleNameOrNumber").addClass('css-error');
+            validate = false;
+        }
+        //if ($("#txtKeyNumber").val() == "") {
+        //    $("#txtKeyNumber").addClass('css-error');
+        //    validate = false;
+        //}
+        if ($("#txtMobileNo").val() == "") {
+            $("#txtMobileNo").addClass('css-error');
+            validate = false;
+        }
+    }
+    function clearAll() {
+        window.location.href = "/Register/VehicleParking";
+    }
+    var parkingvechile;
+    function parkinglocationchng() {
+        var loc = $("#ParkingLocation").val();
+        for (var i = 0; i < parkinglocations.length; i++) {
+            if (loc == parkinglocations[i].ParkingLocation) {
+                $("#WheelerType").val(parkinglocations[i].ParkingType);
+            }
+        }
+        $.get("/Register/GetReadytoParkVechiles?parkingloc=" + $("#ParkingLocation").val(), function (data) {
+            parkingvechile = data;
+            var html = " <table class='table table-bordered' style='width:90%;margin:auto;'><tr><td>Vehicle</td><td>Mobile No</td><td>Driver</td><td></td></tr>";
+            for (var i = 0; i < data.length; i++) {
+                html += "<tr><td>" + data[i].VehicleNo + "</td><td>" + data[i].MobileNumber + "</td><td>" + data[i].InDriverName + "</td><td><input type='button' id='" + data[i].ValetParkingId+"' value='Select' onclick='selectparking(this.id)' /></td></tr>";
+            }
+            html += "</table>";
+            $("#BindOntheWayvechiles").html(html);
+        });
+    }
+    function selectparking(id) {       
+        for (var i = 0; i < parkingvechile.length; i++) {
+            if (parkingvechile[i].ValetParkingId == id) {
+                $("#txtVehicleNameOrNumber").val(parkingvechile[i].VehicleNo);
+                $("#txtMobileNo").val(parkingvechile[i].MobileNumber);
+                $("#txtInDriver").val(parkingvechile[i].InDriverName);
+                $("#BindOntheWayvechiles").hide();
+            }
+        }        
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading" style="height:35px;"><a href="~/Register/VehicleParking">Go Back</a> &nbsp;&nbsp;New Vehicle Parking Register </div>
+    <div class="panel-body">
+        <div class="modal-body">
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Parking Location<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <select id="ParkingLocation" class="form-control" onchange="parkinglocationchng();">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="name">Location<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <select id="LocationId" class="form-control" onchange="OnLocationchng();">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-12" id="BindOntheWayvechiles">
+                   
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Wheeler Type<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <select id="WheelerType" class="form-control">
+                        <option value="">Select</option>
+                        <option value="2 Wheeler">2 Wheeler</option>
+                        <option value="4 Wheeler">4 Wheeler</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="name">Vehicle Name Or Number<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtVehicleNameOrNumber" class="form-control" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Mobile No<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtMobileNo" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <label for="name">Driver<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <select id="txtInDriver" class="form-control">
+                        <option value="">Select Driver</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Purpose</label>
+                </div>
+                <div class="col-md-4">
+                    <textarea rows="2" id="txtPurpose" class="form-control"></textarea>
+                </div>
+                <div class="col-md-2">
+                    <label for="name">Remarks</label>
+                </div>
+                <div class="col-md-4">
+                    <textarea rows="2" id="txtRemarks" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">In Security<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <select id="txtTakingSecurity" class="form-control">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">In Security Signature<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <div id="captureSignatureTakingSecurity">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <label for="name">In Driver Signature<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <div id="captureSignatureTakingDriver">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <input type="button" id="btnasigntask" value="Save" onclick="SaveRegister();" class="btn btn-primary" />
+            <button type="button" class="btn btn-default" onclick="clearAll();">Cancel</button>
+        </div>
+    </div>
+</div>

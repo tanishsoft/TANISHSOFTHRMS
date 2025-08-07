@@ -1,0 +1,582 @@
+﻿
+@{
+    ViewBag.Title = "NewRequest";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    var a = ['', 'one ', 'two ', 'three ', 'four ', 'five ', 'six ', 'seven ', 'eight ', 'nine ', 'ten ', 'eleven ', 'twelve ', 'thirteen ', 'fourteen ', 'fifteen ', 'sixteen ', 'seventeen ', 'eighteen ', 'nineteen '];
+    var b = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+
+    function inWords(num) {
+        if ((num = num.toString()).length > 9) return 'overflow';
+        n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+        if (!n) return; var str = '';
+        str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + 'crore ' : '';
+        str += (n[2] != 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + 'lakh ' : '';
+        str += (n[3] != 0) ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + 'thousand ' : '';
+        str += (n[4] != 0) ? (a[Number(n[4])] || b[n[4][0]] + ' ' + a[n[4][1]]) + 'hundred ' : '';
+        str += (n[5] != 0) ? ((str != '') ? 'and ' : '') + (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) + 'only ' : '';
+        return str;
+    }
+    $(document).ready(function () {
+        $("#txtAMCLastRenewalDate")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                Edit: true,
+                //minDate:0,
+                yearRange: "-30:+30",
+                onSelect: function (dateText, inst) {
+                    $("#AMCNextRenewalDate").datepicker("option", "minDate",
+                        $("#txtAMCLastRenewalDate").datepicker("getDate"));
+                }
+            });
+        $("#AMCNextRenewalDate")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "-30:+30",
+                dateFormat: "dd/mm/yy",
+                Edit: true,
+
+            });
+        $(".Company").hide();
+        $(".Replacement").hide();
+        $(".AMC").hide();
+        //$("#NewItemDescription").css("display", "none");
+        $("#RepeatItemDescription").css("display", "none");
+        LoadDepartment();
+        LoadLocations();
+        document.getElementById('txtCPXEstimatedCost').onkeyup = function () {
+            document.getElementById('words').innerHTML = inWords(document.getElementById('txtCPXEstimatedCost').value);
+        };
+        $("input[name='type']").click(function () {
+            var type = $('input:radio[name=type]:checked').val();
+            if (type == "CAPX") {
+
+                $("#lblItem").text("Item");
+                $(".Company").hide();
+                $(".Replacement").hide();
+                $(".AMC").hide();
+                $(".RepeatItem").show();
+            }
+            else if (type == "AMC/CMC") {
+                $("#lblItem").text("AMC Item");
+                $(".Company").show();
+                $(".Replacement").hide();
+                $(".AMC").show();
+                $(".RepeatItem").hide();
+            }
+            else if (type == "Repair") {
+                $("#lblItem").text("Repair Item");
+                $(".Company").show();
+                $(".Replacement").hide();
+                $(".AMC").hide();
+                $(".RepeatItem").hide();
+            }
+            else if (type == "Replacement") {
+                $("#lblItem").text("Replacement Item");
+                $(".Company").show();
+                $(".Replacement").show();
+                $(".AMC").hide();
+                $(".RepeatItem").hide();
+            }
+        });
+    });
+    function LoadDepartment() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetCommonDepartments",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Department -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].CommonDepartmentId + '">' + data[i].Name + '</option>');
+                }
+                $("#ddlcpxRequestForDepartment").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    var locationsdata;
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Selet  -</option>');
+                locationsdata = data;
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].ShowinCPX == true && data[i].ShowasSubLocation == false)
+                        options.push('<option value="' + data[i].LocationName + '">' + data[i].LocationName + '</option>');
+                }
+                //options.push('<option value="Others">Others</option>');
+                $("#txtCPXProjectTitle").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function SaveCpxDetails() {
+        var validdetails = true;
+        $(".clsrequired").each(function () {
+            if ($(this).val() == "" || $(this).val() == null) {
+                validdetails = false;
+                $(this).css("border", "1px solid red");
+            } else {
+                $(this).css("border", "1px solid #dce4ec");
+            }
+        });
+        var checkBox = document.getElementById("cbIsNewitem");
+        if (checkBox.checked) {
+            if ($("#NewItemDescription").val() == "") {
+                validdetails = false;
+                $("#NewItemDescription").css("border", "1px solid red");
+            }
+        } else {
+            if ($("#RepeatItemDescription").val() == "") {
+                validdetails = false;
+                $("#RepeatItemDescription").css("border", "1px solid red");
+            }
+        }
+        if (validdetails) {
+            var showpopup = false;
+            var objcpx = {
+                CreatorLocationId: $("#cpxCreatorLocationId").val(),
+                CreatorLocationName: $("#cpxCreatorLocation").val(),
+                CreatorDepartmentId: $("#cpxCreatorDepartmentId").val(),
+                CreatorDepartmentName: $("#cpxCreatorDepartment").val(),
+                CreatorId: $("#cpxCreatorId").val(),
+                CreatorName: $("#txtCPXRequisitioner").val(),
+                ProjectTitle: $("#txtCPXProjectTitle").val(),
+                SubProjectTitle: $("#txtCPXSubProjectTitle").val(),
+                Item: $("#txtCPXItem").val(),
+                Qty: $("#txtCPXQuantityRequired").val(),
+                Model: $("#txtCPXPreferredMakeModel").val(),
+                MainFeatures: $("#cpxProductMainFeatures").val(),
+                EstimatedCost: parseFloat($("#txtCPXEstimatedCost").val()),
+                Priority: $("#ddlcpxPriority").val(),
+                RequestForDepartment: $("#ddlcpxRequestForDepartment").val(),
+                Budgeted: $("input[name='CPXBudgeted']:checked").val(),
+                IsNewItem: $("input[name='cbitem']:checked").val(),
+                ItemDetails: "",
+                CpxRelatedTo: $("#CPXRelatedTo").val(),
+                SupportCompany: $("#txtSupportCompany").val(),
+                ReasonForReplacement: $("#ReasonForReplacement").val(),
+                OldProductModel: $("#OldProductModel").val(),
+                AMCLastRenewalDate: $("#txtAMCLastRenewalDate").val(),
+                AMCNextRenewalDate: $("#AMCNextRenewalDate").val(),
+                CPXType: $("input[name='type']:checked").val(),
+                CpxRelatedToOther: $("#OtherCpxRelated").val(),
+                OldProductCost: $("#OldProductCost").val(),
+            };
+            if ($("#txtCPXProjectTitle").val() == "Others") {
+                objcpx.ProjectTitle = $("#txtOtherCPXProjectTitle").val();
+            }
+            if (objcpx.IsNewItem != "false") {
+                objcpx.ItemDetails = $("#NewItemDescription").val();
+            } else {
+                objcpx.ItemDetails = $("#RepeatItemDescription").val();
+            }
+            var amount = parseFloat($("#txtCPXEstimatedCost").val());
+            if (amount >= 0) {
+                showpopup = true;
+            }
+            if (showpopup) {
+                if (confirm("Are you sure you want to submit the capex of estimated cost: " + $("#txtCPXEstimatedCost").val() + " ( " + $("#words").html() + ")")) {
+                    console.log(objcpx);
+                    $.ajax({
+                        type: "POST",
+                        url: "/Cpx/SaveCpxDetails",
+                        data: objcpx,
+                        success: function (result) {
+                            if ($("#UploadDocument").val() != "")
+                                UploadDocument(result);
+                            else
+
+                                window.location = "/Cpx/MyCpxRequests";
+                            alert("CPX successfully Created");
+                        },
+                        error: function (err) {
+                            alert(err.statusText);
+                        }
+                    });
+                }
+
+            } else {
+                console.log(objcpx);
+                $.ajax({
+                    type: "POST",
+                    url: "/Cpx/SaveCpxDetails",
+                    data: objcpx,
+                    success: function (result) {
+                        debugger;
+                        if ($("#UploadDocument").val() != "")
+                            UploadDocument(result);
+                        else
+                            window.location = "/Cpx/MyCpxRequests";
+                        alert("CPX successfully Created");
+
+
+                    },
+                    error: function (err) {
+                        alert(err.statusText);
+                    }
+                });
+            }
+        }
+        else {
+            alert('Please fill out all required fields.');
+        }
+    }
+    function UploadDocument(id) {
+        var files = "";
+        // Create FormData object
+        var fileData = new FormData();
+        var fileUpload = $("#UploadDocument").get(0);
+        files = fileUpload.files;
+        for (var i = 0; i < files.length; i++) {
+            fileData.append('uploadDocument', files[i]);
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/Cpx/UploadImage?id=" + id,
+            contentType: false,
+            processData: false,
+            data: fileData,
+            success: function (data) {
+                window.location = "/Cpx/MyCpxRequests";
+            }
+        });
+    }
+    function IsNewItemChange() {
+        var checkBox = document.getElementById("cbIsNewitem");
+        if (checkBox.checked) {
+            $("#NewItemDescription").css("display", "block");
+            $("#RepeatItemDescription").css("display", "none");
+        } else {
+            $("#NewItemDescription").css("display", "none");
+        }
+    }
+    function IsRepeatItemChange() {
+        var checkBox = document.getElementById("cbIsRepeatitem");
+        if (checkBox.checked) {
+            $("#RepeatItemDescription").css("display", "block");
+            $("#NewItemDescription").css("display", "none");
+        } else {
+            //$("#NewItemDescription").css("display", "block");
+            $("#RepeatItemDescription").css("display", "none");
+        }
+    }
+    function displaytextbox() {
+        var value = $("#txtCPXProjectTitle").val();
+        $("#txtCPXSubProjectTitle").css("display", "none");
+        for (var i = 0; i < locationsdata.length; i++) {
+            if (locationsdata[i].ShowinCPX == true && value == locationsdata[i].LocationName) {
+                var showsubprojecttitle = false;
+                var options = [];
+                options.push('<option value="">- Selet  -</option>');
+                for (var j = 0; j < locationsdata.length; j++) {
+                    if (locationsdata[i].LocationId == locationsdata[j].ParentLocationId) {
+                        showsubprojecttitle = true;
+                        options.push('<option value="' + locationsdata[j].LocationName + '">' + locationsdata[j].LocationName + '</option>');
+                    }
+                }
+                if (showsubprojecttitle) {
+                    $("#txtCPXSubProjectTitle").html(options.join(''));
+                    $("#txtCPXSubProjectTitle").css("display", "block");
+                }
+            }
+        }
+        
+        if (value == "Others") {
+            $("#txtOtherCPXProjectTitle").css("display", "block");
+        } else {
+            $("#txtOtherCPXProjectTitle").css("display", "none");
+        }
+    }
+    function displaytextbox2() {
+        var value = $("#CPXRelatedTo").val();
+        $("#lspancpxrelatedto").html("");
+        if (value == "Maintenance") {
+            $("#lspancpxrelatedto").html("All Equipment procurement related to any Engineering (Mechanical, Electrical, Plumbing, Gas bank, ACs and other Engineering capex) ");
+
+        }
+        if (value == "Maintenance Renovation") {
+            $("#lspancpxrelatedto").html("Other renovation capex requirements (painting, carpentry, fabrication etc.) ");
+        }
+        if (value == "Others") {
+            $("#OtherCpxRelated").css("display", "block");
+        } else {
+            $("#OtherCpxRelated").css("display", "none");
+        }
+    }
+
+    function CancelCpx() {
+        window.location = "/Cpx/MyCpxRequests";
+    }
+</script>
+<style>
+    .CpxNewRequest {
+        font-size: 15px;
+    }
+
+    label {
+        color: teal;
+    }
+</style>
+<div class="panel panel-default" style="width:95%;margin:auto;">
+    <div class="panel-heading" style="font-weight:normal;">
+        <span class="glyphicon glyphicon-arrow-right"></span>&nbsp;New Request
+    </div>
+    <div class="panel-body CpxNewRequest" style="min-height:500px;">
+        <div class="row" style="width:95%;margin:auto;">
+            <div style="display:none;">
+                <input type="text" name="name" id="cpxCreatorLocation" disabled class="form-control" value="@ViewBag.CurrentUser.LocationName" />
+                <input type="hidden" id="cpxCreatorLocationId" disabled class="form-control" value="@ViewBag.CurrentUser.LocationId" />
+                <input type="text" name="name" id="cpxCreatorDepartment" disabled class="form-control" value="@ViewBag.CurrentUser.DepartmentName" />
+                <input type="hidden" id="cpxCreatorDepartmentId" disabled class="form-control" value="@ViewBag.CurrentUser.DepartmentId" />
+                <input type="text" name="name" id="cpxCreatorName" disabled class="form-control" value="@ViewBag.CurrentUser.FirstName" />
+                <input type="hidden" id="cpxCreatorId" disabled class="form-control" value="@ViewBag.CurrentUser.EmpId" />
+            </div>
+            <div class="col-md-12">
+                <table class="table table-stribbed">
+                    <tr>
+                        <td>
+                            <label id="lblcpxrelated">Type <span style="color:red;">*</span> </label>
+                        </td>
+                        <td colspan="2" style="color:teal;">
+                            <input type="radio" name="type" value="CAPX" id="txtCPX" checked />&nbsp;CAPX
+                            &nbsp;<input type="radio" value="AMC/CMC" name="type" id="txtAMCCMC" />&nbsp;AMC/CMC
+                            &nbsp;<input type="radio" value="Repair" name="type" id="txtRepair" />&nbsp;Repair/Service
+                            &nbsp;<input type="radio" value="Replacement" name="type" id="txtReplacement" />&nbsp;Replacement
+                        </td>
+                        <td>
+                            <label id="lblcpxrelated">CPX Related TO <span style="color:red;">*</span> </label>
+                        </td>
+                        <td style="color:teal;">
+                            <select class="form-control clsrequired" id="CPXRelatedTo" onchange="displaytextbox2();">
+                                <option value="">Select</option>
+                                <option value="IT">IT</option>
+                                <option value="Biomedical">Biomedical</option>
+                                <option value="Maintenance">Maintenance</option>
+                                <option value="Maintenance Renovation">Maintenance Renovation</option>
+                                <option value="Pharmacy">Pharmacy</option>
+                                <option value="Food & Beverage">Food & Beverage</option>
+                                <option value="Brand & Communication">Brand & Communication</option>
+                                @*<option value="OT">OT</option>*@
+                                <option value="Security and Transport">Security and Transport</option>
+                                <option value="House Keeping">House Keeping</option>
+                                <option value="HICC">HICC</option>
+                                <option value="Purchase">Purchase</option>
+                                <option value="OT-OBS">OT-OBS</option>
+                                <option value="OT-GYN">OT-GYN</option>
+                                <option value="OT-Neonatal-and-Pediatric">OT-Neonatal-and-Pediatric</option>
+                                <option value="OT-Others">OT-Others</option>
+                                @*<option value="Others">Others</option>*@
+                            </select>
+                            <span id="lspancpxrelatedto" style="font-size:10px;"></span>
+                            <input type="text" autocomplete="off" name="OtherCpxRelated" id="OtherCpxRelated" style="display:none; margin-top:3px;" class="form-control" required />
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <label>Requisitioner’s Name <span style="color:red;">*</span></label>
+                        </td>
+                        <td>
+                            <input type="text" name="name" id="txtCPXRequisitioner" class="form-control clsrequired" value="@ViewBag.CurrentUser.FirstName" />
+                        </td>
+                        <td>&nbsp;</td>
+                        <td>
+                            <label>Request From the Department <span style="color:red;">*</span></label>
+                        </td>
+                        <td>
+                            <select class="form-control clsrequired" id="ddlcpxRequestForDepartment">
+                                <option value="">Select</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Project Title <span style="color:red;">*</span></label>
+                        </td>
+                        <td>
+                            <select class="form-control clsrequired" id="txtCPXProjectTitle" onchange="displaytextbox();">
+                                <option value="">Select</option>
+                            </select>
+                            <select class="form-control" id="txtCPXSubProjectTitle" style="display:none;"></select>
+                            <input type="text" autocomplete="off" name="OtherProjectTitle" id="txtOtherCPXProjectTitle" style="display:none; margin-top:3px;" class="form-control" required />
+                        </td>
+                        <td>
+                            &nbsp;
+                        </td>
+                        <td>
+                            <label id="lblItem">Item <span style="color:red;">*</span></label>
+                        </td>
+                        <td>
+                            <input type="text" autocomplete="off" name="Item" id="txtCPXItem" class="form-control clsrequired" required />
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <label>
+                                Item Details&nbsp;&nbsp;<input type="radio" name="cbitem" checked="checked" id="cbIsNewitem" value="true" onchange="IsNewItemChange();" /><br />
+                                <span style="font-size:10px;">Give requirement justification</span>
+                            </label>
+                        </td>
+                        <td>
+                            <textarea id="NewItemDescription" name="NewItemDescription" rows="2" rel="7" class="form-control"></textarea>
+                        </td>
+                        <td>
+                            &nbsp;
+                        </td>
+                        <td class="RepeatItem">
+                            <label>
+                                Repeat Item&nbsp;&nbsp;<input type="radio" name="cbitem" id="cbIsRepeatitem" value="false" onchange="IsRepeatItemChange();" /> <br />
+                                <span style="font-size:10px;">Give Status of Old Item</span>
+                            </label>
+                        </td>
+                        <td class="RepeatItem">
+                            <textarea id="RepeatItemDescription" name="RepeatItemDescription" rows="2" rel="7" class="form-control"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Quantity Required <span style="color:red;">*</span></label>
+                        </td>
+                        <td>
+                            <input autocomplete="off" type="number" name="Quantity" id="txtCPXQuantityRequired" class="form-control" />
+                        </td>
+                        <td>
+                            &nbsp;
+                        </td>
+                        <td>
+                            <label>Preferred Make and Model <span style="color:red;">*</span></label>
+                        </td>
+                        <td>
+                            <input autocomplete="off" type="text" name="PreferredMakeandModel" id="txtCPXPreferredMakeModel" class="form-control" />
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <label>Product’s Main Features <span style="color:red;">*</span></label>
+                        </td>
+                        <td>
+                            <input autocomplete="off" type="text" name="productMainFeatures" id="cpxProductMainFeatures" class="form-control" rel="6" />
+                        </td>
+                        <td>
+                            &nbsp;
+                        </td>
+                        <td>
+                            <label>Estimated Cost <span style="color:red;">*</span></label>
+                        </td>
+                        <td>
+                            <input autocomplete="off" type="text" name="EstimatedCost" id="txtCPXEstimatedCost" required class="form-control" />
+                            <span id="words"></span>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <label id="lblinBudgeted">Budgeted</label>
+                        </td>
+                        <td style="color:teal;">
+                            <input type="radio" name="CPXBudgeted" value="true" id="txtCPXBudgetedYes" />&nbsp;Yes &nbsp;&nbsp;<input type="radio" value="false" name="CPXBudgeted" id="txtCPXBudgetedNo" />&nbsp;No
+                        </td>
+                        <td>
+                            &nbsp;
+                        </td>
+                        <td>
+                            <label>Priority <span style="color:red;">*</span></label>
+                        </td>
+                        <td>
+                            <select class="form-control clsrequired" name="Priority" id="ddlcpxPriority" required>
+                                <option value="">Select</option>
+                                <option value="Vital">Vital</option>
+                                <option value="Essential">Essential</option>
+                                <option value="Desirable">Desirable</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr class="AMC">
+                        <td> <label>Last Renewal Date</label></td>
+                        <td>  <input autocomplete="off" type="text" name="AMCLastRenewalDate" id="txtAMCLastRenewalDate" class="form-control" /></td>
+
+                        <td>
+                            &nbsp;
+                        </td>
+                        <td>
+                            <label>Next Renewal Date</label>
+                        </td>
+                        <td>
+                            <input autocomplete="off" type="text" name="AMCNextRenewalDate" id="AMCNextRenewalDate" class="form-control" />
+                        </td>
+                    </tr>
+                    <tr class="Replacement">
+                        <td> <label>Replacement Reason</label></td>
+                        <td>
+
+                            <input autocomplete="off" type="text" name="ReasonForReplacement" id="ReasonForReplacement" class="form-control" />
+                        </td>
+
+                        <td>
+                            &nbsp;
+                        </td>
+                        <td>
+                            <label>Existing Product Model</label>
+                        </td>
+                        <td>
+                            <input autocomplete="off" type="text" name="OldProductModel" id="OldProductModel" class="form-control" />
+                        </td>
+                    </tr>
+                    <tr class="Replacement">
+                        <td> <label>Old Product Cost</label></td>
+                        <td>
+                            <input autocomplete="off" type="text" name="OldProductCost" id="OldProductCost" class="form-control" />
+                        </td>
+
+                        <td>
+                            &nbsp;
+                        </td>
+                        <td>
+                            &nbsp;
+                        </td>
+                        <td>
+                            &nbsp;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td> <label class="col-md-6 control-label" for="UploadDocument" readonly="readonly">Document</label></td>
+                        <td>
+                            <input type="file" name="ImageFile" id="UploadDocument" />
+                        </td>
+                        <td>&nbsp;</td>
+                        <td class="Company">
+                            <label id="lblSupportCompany">Company</label>
+                        </td>
+                        <td class="Company">
+                            <input autocomplete="off" type="text" name="SupportCompany" id="txtSupportCompany" class="form-control" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="form-group col-md-6">
+                <br />
+                <button type="button" class="btn save" onclick="SaveCpxDetails();">SAVE</button>
+                <button type="button" onclick="CancelCpx();" class="btn cancel">Cancel</button>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>
+<br />

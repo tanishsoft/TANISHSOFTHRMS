@@ -1,0 +1,190 @@
+﻿
+@{
+    ViewBag.Title = "CreateShiftingRequest";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+</style>
+<script>
+    var eId=@ViewBag.id;
+    $(document).ready(function () {
+       // AssertSearch();
+        LoadLocations();
+        if (eId!=0)
+            LoadData(eId);
+
+
+    });
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#LocationId").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }    
+
+    function LoadDepartment(val) {
+        var options = [];
+        options.push('<option value="">- Select Department -</option>');
+        if ($("#LocationId").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Biomedical/GetDepartmentByLocation",
+                data: "id=" + $("#LocationId").val(),
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                    }
+                    $("#DepartmentId").html(options.join(''));
+                    if (val != "") {
+                        $("#DepartmentId").val(val);
+                        
+                    }
+                },
+                error: function () {
+                    alert("error");
+                }
+            });
+        }
+        else {
+            $("#DepartmentId").html(options.join(''));
+        }
+    }
+   
+
+    function LoadData(id) {
+        if (id != 0) {
+            $.get("/Biomedical/GetShifitingRequest", { id: id }, function (data) {
+                $("#LocationId").val(data.RequestForLocation);
+                LoadDepartment(data.RequestForDepartment);
+                $("#RequestDoctor").val(data.RequestDoctor);
+                $("#RequestItem").val(data.RequestItem);
+                $("#RequestComments").val(data.RequestComments);
+               // $("#DepartmentId").val(data.DepartmentId);
+               
+           
+            });
+        }
+    }
+    function SaveBreakDown() {
+        var validate= validateinput();
+        if (validate) {
+            if (window.FormData !== undefined) {
+                var files = "";
+                var fileData = new FormData();
+               
+                fileData.append('RequestForLocation', $("#LocationId").val());
+                fileData.append('RequestForDepartment', $("#DepartmentId").val());
+                fileData.append('RequestDoctor', $("#RequestDoctor").val());
+                fileData.append('RequestItem', $("#RequestItem").val());
+                fileData.append('RequestComments', $("#RequestComments").val());
+              
+                $.ajax({
+                    type: "POST",
+                    url: "/Biomedical/Save_Update_ShifitingRequest",
+                    contentType: false,
+                    processData: false,
+                    data: fileData,
+                    success: function (data) {
+                        alert("Success");
+                        window.location.replace("/Biomedical/ManageShiftingRequest");
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+    }
+    function Cancel() {
+        window.location.replace("/Biomedical/ManageShiftingRequest");
+    }
+    function validateinput() {
+      var  validate = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#LocationId").val() == "") {
+            $("#LocationId").after('<span class="error" style="color:Red;">Select Location</span>');
+            $("#LocationId").addClass('css-error');
+            validate = false;
+        }
+       else if ($("#DepartmentId").val() == "") {
+            $("#DepartmentId").after('<span class="error" style="color:Red;">Select Department</span>');
+            $("#DepartmentId").addClass('css-error');
+            validate = false;
+        }
+        if ($("#RequestDoctor").val() == "") {
+            $("#RequestDoctor").after('<span class="error" style="color:Red;">Enter Requested Doctor</span>');
+            $("#RequestDoctor").addClass('css-error');
+            validate = false;
+        }
+        if ($("#RequestItem").val() == "") {
+            $("#RequestItem").after('<span class="error" style="color:Red;">Enter Request Item</span>');
+            $("#RequestItem").addClass('css-error');
+            validate = false;
+        }
+        return validate;
+    }
+
+   
+</script>
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">Create Shifting Request</div>
+        <div class="panel-body">
+
+            <div class="row" style="padding:10px;">
+                <div class="col-md-12" style="padding:10px;">
+                    <label>Request For Location<span style="color:red;">*</span></label>
+                    <select class="form-control maxwidth" id="LocationId" onchange="LoadDepartment('');">
+                        <option value="">- Select Location -</option>
+                    </select>
+                </div>
+                <div class="col-md-12" style="padding:10px;">
+                    <label>Request For Department<span style="color:red;">*</span></label>
+                    <select class="form-control maxwidth" id="DepartmentId">
+                        <option value="">- Select Department -</option>
+                    </select>
+                </div>
+                <div class="col-md-12" style="padding:10px;">
+                    <label> Requested By Doctor<span style="color:red;">*</span></label>
+                    <input type="text" class="form-control maxwidth" placeholder="Enter Doctor" id="RequestDoctor">
+                </div>
+
+                <div class="col-md-12" style="padding:10px;">
+                    <label>Request Item<span style="color:red;">*</span></label>
+                    <input type="text" class="form-control maxwidth" placeholder="Enter Item" id="RequestItem">
+                   
+                </div>
+
+                <div class="col-md-12" style="padding:10px;">
+                    <label>Request Comments</label>
+                
+                    <textarea class="form-control maxwidth" placeholder="Enter Description" id="RequestComments"></textarea>
+                </div>
+            </div>
+
+
+            <div class="row" style="padding:10px;">
+                <input type="button" class="btn cancel" value="Cancel" onclick="Cancel();" />
+                <input type="button" class="btn save" value="Save" onclick="SaveBreakDown();" />
+
+            </div>
+        </div>
+    </div>
+</div>
+

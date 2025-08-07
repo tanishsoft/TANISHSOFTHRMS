@@ -1,0 +1,349 @@
+﻿
+@{
+    ViewBag.Title = "MyAssets";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    var eId = 0;
+    $(document).ready(function () {
+
+        LoadData();
+        LoadTransferData();
+        LoadLocations1();
+    });
+    function LoadLocations1() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#ddlLocation").html(options.join(''));
+              
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadDepartment1() {
+        $("#LocationId").val($("#ddlLocation").val());
+        var skillsSelect = document.getElementById("ddlLocation");
+        var selectedText = skillsSelect.options[skillsSelect.selectedIndex].text;
+        $("#LocationName").val(selectedText);
+        if ($("#ddlLocation").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Common/GetDepartmentByLocation",
+                data: "id=" + $("#ddlLocation").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- Select Department -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                    }
+                    $("#ddlDepartment").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#ddlDepartment").html('<option value="">- Select Department -</option>');
+        }
+    }
+    function LoadEmployees() {
+        $("#DepartmentId").val($("#ddlDepartment").val());
+        var skillsSelect = document.getElementById("ddlDepartment");
+        var selectedText = skillsSelect.options[skillsSelect.selectedIndex].text;
+        $("#DepartmentName").val(selectedText);
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetEmployeesByDepartment",
+            data: "id=" + $("#ddlDepartment").val(),
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select User -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].CustomUserId + '">' + data[i].FirstName + " " + data[i].LastName + '</option>');
+                }
+                $("#UserName").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+
+    function LoadData() {
+        $('#tblUserAssetMaster').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Asset/AjaxGetMyAssetDetails",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "Location" },
+                { "sName": "Department" },
+                { "sName": "UserId" },
+                { "sName": "UserName" },
+                { "sName": "AssetName" },
+                { "sName": "Date_Assign" },
+                { "sName": "AllocationRequestId" },
+                { "sName": "AllocationStatus" },
+                { "sName": "Remarks" },
+                //{
+                //    "sName": "AssetId",
+                //    "bSortable": false,
+                //    "render": function (data) {
+                //        return '<a href="javascript:void(0);" id="' + data + '" onclick="ViewComponents(this.id);">View Components</a>';;
+                //    }
+                //},
+                //{ "sName": "IsActive" },
+
+                { "sName": "DeAllocateDate" },
+                { "sName": "DeAllocateComments" },
+                {
+                    "sName": "UserAssetId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="Transfer(this.id);">Transfer Request</a></li>' +
+                            //'<li><a href="javascript:void(0);" id="' + data + '" onclick="Deallocate(this.id);">Deallocate</a></li>' +
+                            //'<li><a href="javascript:void(0);" id="' + data + '" onclick="Documents(this.id);">Document</a></li>' +
+                            //'<li><a href="javascript:void(0);" id="' + data + '" onclick="Print(this.id);">Print</a></li>' +
+                            //'<li><a href="javascript:void(0);" id="' + data + '" onclick="Delete(this.id);">Delete</a></li>' +
+                            '</ul></div>';
+                    }
+                }
+            ]
+            //,
+            //"fnServerParams": function (aoData) {
+            //    aoData.push(
+            //        { "name": "locationid", "value": $("#ddllocation1").val() },
+            //        { "name": "departmentid", "value": $("#ddldepartment12").val() },
+            //        { "name": "LeaveTypeid", "value": $("#ddlAsset").val() },
+            //        { "name": "fromdate", "value": $("#FromDateExcel").val() },
+            //        { "name": "todate", "value": $("#ToDateExcel").val() },
+            //        { "name": "Emp", "value": $("#ddlEmployee123").val() }
+            //    );
+            //}
+        });
+        $("#tblUserAssetMaster_length").addClass("col-md-6");
+        $("#tblUserAssetMaster_length").addClass("col-md-6");
+    }
+
+    function LoadTransferData() {
+        $('#tblUserAssetTransfer').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Asset/AjaxGetAssetTransferDetails",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "id" },
+                { "sName": "FromLocation" },
+                { "sName": "TOLocation" },
+                { "sName": "FromDepartment" },
+                { "sName": "TODepartment" },
+                { "sName": "FromUserId" },
+                { "sName": "ToUserId" },
+                { "sName": "Date_Assign" },
+                { "sName": "ReasonForTransfer" },
+                { "sName": "Remarks" },
+                {
+                    "sName": "UserAssetId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        //return '<div class="btn-group">' +
+                        //    '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                        //    '<ul class="dropdown-menu dropdown-menu-right">' +
+                        //    '<li><a href="javascript:void(0);" id="' + data + '" onclick="Transfer(this.id);">Transfer Request</a></li>' +
+                        //    //'<li><a href="javascript:void(0);" id="' + data + '" onclick="Deallocate(this.id);">Deallocate</a></li>' +
+                        //    //'<li><a href="javascript:void(0);" id="' + data + '" onclick="Documents(this.id);">Document</a></li>' +
+                        //    //'<li><a href="javascript:void(0);" id="' + data + '" onclick="Print(this.id);">Print</a></li>' +
+                        //    //'<li><a href="javascript:void(0);" id="' + data + '" onclick="Delete(this.id);">Delete</a></li>' +
+                        //    '</ul></div>';
+                        return "" ;
+                    }
+                }
+            ]
+            ,
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "typeofitem", "value": "User" }
+                   
+                );
+            }
+        });
+        $("#tblUserAssetTransfer_length").addClass("col-md-6");
+        $("#tblUserAssetTransfer_length").addClass("col-md-6");
+    }
+    function OnclickSaveUserAsset() {
+        validateAsset();
+        if (validate) {
+            $(".css-error").removeClass('css-error');
+
+            var task = {
+                UserAssetId:eId,
+                ToLocationId: $("#ddlLocation").val(),
+                ToDepartmentId: $("#ddlDepartment").val(),
+                ToUserId: $("#UserName").val(),
+                Remarks: $("#Remarks").val(),
+                ReasonToTranfer: $("#ReasonToTranfer").val()
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Asset/SaveNewUserAssetTransfer",
+                data: task,
+                success: function (data) {
+                    $("#myModalNewUserAsset").modal('hide');
+                    LoadData();
+                    LoadTransferData();
+                    console.log(" added successfully")
+                }
+            });
+        }
+        else {
+            alert("Fields Required");
+        }
+    }
+    function Transfer(id) {
+        eId = id;
+        $("#myModalNewUserAsset").modal('show');
+    }
+    function validateAsset() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#ddlLocation").val() == 0) {
+            $("#ddlLocation").addClass('css-error');
+            validate = false;
+        }
+        if ($("#ddlDepartment").val() == 0) {
+            $("#ddlDepartment").addClass('css-error');
+            validate = false;
+        }
+        //if ($("#ParentAssetName").val() == 0) {
+        //    $("#ParentAssetName").addClass('css-error');
+        //    validate = false;
+        //}
+        if ($("#Remarks").val() == "") {
+            $("#Remarks").addClass('css-error');
+            validate = false;
+        }
+       
+    }
+</script>
+
+<div class="panel panel-default">
+    <div class="panel-heading">My Asset</div>
+    <div class="panel-body">
+
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblUserAssetMaster">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>Location</th>
+                    <th>Department</th>
+                    <th>Emp Id</th>
+                    <th>Emp</th>
+                    <th>Asset</th>
+                    <th>Date Assign</th>
+                    <th class="none">Allocate RequestID</th>
+                    <th>Allocated Status</th>
+                    <th class="none">Remarks</th>
+                    @*<th>Components</th>*@
+                    @*<th>Status</th>*@
+                    <th>Deallocate Date</th>
+                    <th>Deallocate Comments</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">My Asset Transfer Requests</div>
+    <div class="panel-body">
+
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblUserAssetTransfer">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>Id</th>
+                    <th>From Location</th>
+                    <th>To Location</th>
+                    <th>From Department</th>
+                    <th>To Department</th>
+                    <th>From Emp Id</th>
+                    <th>To Emp Id</th>
+                    <th>Date Assign</th>
+                    <th>Reason</th>
+                    <th>Remarks</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+
+<div id="myModalNewUserAsset" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="clearAll();">×</button>
+                <h4 class="modal-title">Add New</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" class="form-control" id="ID">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">To Location<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <select class="form-control" id="ddlLocation" onchange="LoadDepartment1();"></select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">To Department<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <select class="form-control" id="ddlDepartment" onchange="LoadEmployees();"></select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">To User</label></div>
+                    <div class="col-md-8">
+                        <select class="form-control" id="UserName"></select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Remarks<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <textarea class="form-control" id="Remarks"></textarea>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Reason To Tranfer<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <textarea class="form-control" id="ReasonToTranfer"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" onclick="OnclickSaveUserAsset();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearAll();">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>

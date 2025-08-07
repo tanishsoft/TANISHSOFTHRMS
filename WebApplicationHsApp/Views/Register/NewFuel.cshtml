@@ -1,0 +1,317 @@
+﻿
+@{
+    ViewBag.Title = "NewFuel";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+
+    #captureSignature {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+
+    #captureSignature2 {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+
+    #captureSignatureStaff {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+</style>
+<script src="~/Scripts/jSignature.min.js"></script>
+<!--[if lt IE 9]>
+<script  type="text/javascript" src="~/Scripts/flashcanvas.js"></script>
+    <![endif]-->
+<script>
+    var validate;
+    var eId = 0;
+
+    var $sigdiv;
+    $(document).ready(function () {
+        $sigdiv = $("#captureSignatureTaking").jSignature({ 'UndoButton': true });
+        LoadLocations();
+        LoadDropdownvalues();
+        $("#txtstaffIdNumber").change(function () {
+            $.get("/Custom/GetUserDetailsByEmpId?id=" + $("#txtstaffIdNumber").val(), function (data) {
+                if (data != "Enter Valid Request ID") {
+                    $("#txtstaffName").val(data.FirstName);
+                    $("#txtstaffContactNumber").val(data.PhoneNumber);
+                    $("#dllstafdepartment").val(data.DepartmentName);
+                }
+            });
+        });
+        $("#txtOpeningKiloMeter").change(function () {
+            UpdateTotalKilometer();
+        });
+        $("#txtClosingKiloMeter").change(function () {
+            UpdateTotalKilometer();
+        });
+    });
+    function UpdateTotalKilometer() {
+        var openkm = $("#txtOpeningKiloMeter").val();
+        var closekm = $("#txtClosingKiloMeter").val();
+        if (openkm != null && openkm != "" && closekm != null && closekm != "") {
+            var popenkm = parseInt(openkm);
+            var pclosekm = parseInt(closekm);
+            if (popenkm >= pclosekm) {
+                alert("Close KM should be grater than Open KM");
+                $("#txtClosingKiloMeter").val("");
+            } else {
+                $("#txtTotalKiloMeters").val(pclosekm - popenkm);
+            }
+        }
+    }
+    function OnchangeVechile() {
+        if ($("#txtVechicleNumber").val() != null && $("#txtVechicleNumber").val() != "") {
+            $.get("/Register/GetRegister_FuelByVechileNo?VechileNo=" + $("#txtVechicleNumber").val(), function (data) {
+                if (data != null && data != "") {
+                    $("#txtOpeningKiloMeter").val(data.ClosingKM);
+                }
+            });
+        }
+
+    }
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Locations -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#LocationId").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadDropdownvalues() {
+        $.get("/Common/GetCommonDropdownValues?dtype=Driver", function (data) {
+            var options = [];
+            options.push('<option value="">- Select -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].Name + '">' + data[i].Name + '</option>');
+            }
+            $("#txtDriverName").html(options.join(''));
+        });
+        $.get("/Common/GetCommonDropdownValues?dtype=Vehicle", function (data) {
+            var options = [];
+            options.push('<option value="">- Select -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].Name + '">' + data[i].Name + '</option>');
+            }
+            $("#txtVechicleNumber").html(options.join(''));
+        });
+    }
+    function SaveRegister() {
+
+        ValidateDetails();
+        if (validate) {
+            var task = {
+                Id: eId,
+                LocationId: $("#LocationId").val(),
+                VechicleNumber: $("#txtVechicleNumber").val(),
+                OpeningKM: $("#txtOpeningKiloMeter").val(),
+                ClosingKM: $("#txtClosingKiloMeter").val(),
+                TotalKM: $("#txtTotalKiloMeters").val(),
+                IsActive: true,
+                BillNo: $("#txtBillNo").val(),
+                FuelFilled: $("#txtFuelFilled").val(),
+                Amount: $("#txtAmount").val(),
+                DriverName: $("#txtDriverName").val(),
+                Remarks: $("#txtRemarks").val(),
+                FuelQty: $("#txtFuelQty").val(),
+                SecuritySupervisorSign: "data:" + $sigdiv.jSignature('getData', 'image').toString(),
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Register/SaveNewFuel",
+                data: task,
+                success: function (data) {
+                    alert(data);
+                    clearAll();
+                }
+            });
+        }
+    }
+    function ValidateDetails() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+
+        if ($("#LocationId").val() == "") {
+            $("#LocationId").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtVechicleNumber").val() == "") {
+            $("#txtVechicleNumber").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtOpeningKiloMeter").val() == "") {
+            $("#txtOpeningKiloMeter").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtClosingKiloMeter").val() == "") {
+            $("#txtClosingKiloMeter").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtTotalKiloMeters").val() == "") {
+            $("#txtTotalKiloMeters").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtDriverName").val() == "") {
+            $("#txtDriverName").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtFuelFilled").val() == "") {
+            $("#txtFuelFilled").addClass('css-error');
+            validate = false;
+        }
+
+        if ($("#txtBillNo").val() == "") {
+            $("#txtBillNo").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtAmount").val() == "") {
+            $("#txtAmount").addClass('css-error');
+            validate = false;
+        } if ($("#txtFuelQty").val() == "") {
+            $("#txtFuelQty").addClass('css-error');
+            validate = false;
+        }
+        
+    }
+    function clearAll() {
+        window.location.href = "/Register/Fuel";
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading" style="height:35px;"><a href="~/Register/Fuel">Go Back</a> &nbsp;&nbsp;New Fuel Register</div>
+    <div class="panel-body">
+        <div class="modal-body">
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Location<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <select id="LocationId" class="form-control">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+
+
+                <div class="col-md-2">
+                    <label for="name">Vechicle Number<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <select id="txtVechicleNumber" class="form-control" onchange="OnchangeVechile();">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Opening KiloMeter<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="number" id="txtOpeningKiloMeter" class="form-control" />
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Closeing KiloMeter<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="number" id="txtClosingKiloMeter" class="form-control" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Total KiloMeters<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="number" id="txtTotalKiloMeters" class="form-control" readonly="readonly" />
+                </div>
+                <div class="col-md-2">
+                    <label for="name"> Bill No<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtBillNo" class="form-control" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Fuel Filled<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <select id="txtFuelFilled" class="form-control">
+                        <option value="">Select</option>
+                        <option value="Petrol">Petrol</option>
+                        <option value="Gas">Gas</option>
+                        <option value="Diesel">Diesel</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="name"> Fuel Qty<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="number" id="txtFuelQty" class="form-control" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name"> Amount<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="number" id="txtAmount" class="form-control" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Driver<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <select id="txtDriverName" class="form-control">
+                        <option value="">Select Driver</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Remarks</label>
+                </div>
+                <div class="col-md-4">
+                    <textarea rows="2" id="txtRemarks" class="form-control"></textarea>
+                </div>
+            </div>
+
+            <div class="row" style="padding:5px;">
+
+                <div class="col-md-2">
+                    <label for="name">Security Supervisor Signature<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-8">
+                    <div id="captureSignatureTaking">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div>
+            <input type="button" id="btnasigntask" value="Save" onclick="SaveRegister();" class="btn btn-primary" />
+            <button type="button" class="btn btn-default" onclick="clearAll();">Cancel</button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,218 @@
+﻿
+@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .text-white {
+        color: white !important;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+
+        loadDataByLocation();
+
+        loadDataByType();
+        laodDataByJustification();
+        
+
+    });
+    function loadDataByLocation() {
+        $.get("/RefundRequest/getDashboardData?type=ByLocation", function (data) {
+            var keys = [];
+            var count = [];
+            for (var i = 0; i < data.length; i++) {
+                keys.push(data[i].key);
+                count.push(data[i].count);
+            }
+            Highcharts.chart('container', {
+                chart: {
+                    type: 'column',
+
+                },
+                title: {
+                    text: 'Request By Location',
+
+                },
+                xAxis: {
+                    categories: keys,
+                    type: 'Locations'
+                },
+                plotOptions: {
+                    series: {
+                        depth: 25,
+                        colorByPoint: true
+                    }
+                },
+                series: [{
+                    data: count,
+                    name: 'Count',
+                    showInLegend: true
+                }]
+            });
+        });
+    }
+    function loadDataByType() {
+        $.get("/RefundRequest/getDashboardData?type=ByType", function (data) {
+           
+            var keys = [];
+            var count = [];
+            for (var i = 0; i < data.length; i++) {
+                keys.push(data[i].key);
+                count.push(data[i].count);
+            }
+            Highcharts.chart('container1', {
+                chart: {
+                    type: 'column',
+
+                },
+                title: {
+                    text: 'Request By Type',
+
+                },
+                xAxis: {
+                    categories: keys,
+                    type: 'Type'
+                },
+                plotOptions: {
+                    series: {
+                        depth: 25,
+                        colorByPoint: true
+                    }
+                },
+                series: [{
+                    data: count,
+                    name: 'Count',
+                    showInLegend: true
+                }]
+            });
+        });
+
+    }
+    function laodDataByJustification() {
+        $.get("/RefundRequest/getDashboardData?type=ByJustification", function (data) {
+            var keys = [];
+            var count = [];
+            for (var i = 0; i < data.length; i++) {
+                keys.push(data[i].key);
+                count.push(data[i].count);
+            }
+            Highcharts.chart('container2', {
+                chart: {
+                    type: 'column'                    
+                },
+                title: {
+                    text: 'Requests'
+                },
+                xAxis: {
+                    categories: keys,
+                    type: 'Justification'
+                },
+
+                legend: {
+                    enabled: false
+                },
+
+                plotOptions: {
+                    series: {
+                        borderWidth: 0,
+                        dataLabels: {
+                            enabled: true
+                        }
+                    }
+                },
+
+                series: [{
+                    name: 'Count',
+                    colorByPoint: true,
+                    data: count
+                }],
+
+                drilldown: {
+                    series: []
+                }
+            });
+        });
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading" style=" font-weight:normal;">
+        <span class="glyphicon glyphicon-arrow-right"></span>&nbsp; Refund Request - Dashboard
+    </div>
+    <div class="panel-body" style="min-height:600px;">
+        <div class="row">
+            <div class="col-md-3 col-sm-6 col-12">
+                <div class="info-box">
+                    <span class="info-box-icon bg-success text-white"><i class="glyphicon glyphicon-th-list"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Total Requests</span>
+                        <span class="info-box-number">@ViewBag.TotalRequests</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3 col-sm-6 col-12">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info text-white"><i class="glyphicon glyphicon-question-sign"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Open Requests</span>
+                        <span class="info-box-number">@ViewBag.OpenRequests</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3 col-sm-6 col-12">
+                <div class="info-box">
+                    <span class="info-box-icon bg-warning text-white"><i class="glyphicon glyphicon-warning-sign"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Rejected Requests</span>
+                        <span class="info-box-number">@ViewBag.RejectedRequests</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3 col-sm-6 col-12">
+                <div class="info-box">
+                    <span class="info-box-icon bg-danger text-white"><i class="	glyphicon glyphicon-info-sign"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Completed Requests</span>
+                        <span class="info-box-number">@ViewBag.CompletedRequests</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-md-6" style="border: solid 1px lightsteelblue;">
+                <div id="container">
+
+                </div>
+            </div>
+            <div class="col-md-6" style="border: solid 1px lightsteelblue;">
+                <div id="container1">
+
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12" style="border: solid 1px lightsteelblue;">
+                <div id="container2">
+
+                </div>
+            </div>
+
+        </div>
+        <br />
+
+    </div>
+</div>

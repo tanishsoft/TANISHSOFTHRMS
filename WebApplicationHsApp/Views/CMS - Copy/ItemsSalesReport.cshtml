@@ -1,0 +1,211 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+        LoadCanteen();
+        LoadData();
+        $("#SFromDate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            Edit: true,
+            //minDate:0,
+            yearRange: "-30:+30",
+            onSelect: function (dateText, inst) {
+                $("#SToDate").datepicker("option", "minDate",
+                    $("#SFromDate").datepicker("getDate"));
+            }
+        });
+        $("#SToDate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "-30:+30",
+            dateFormat: "dd/mm/yy",
+            Edit: true,
+
+        });
+    });
+    function ItemSearch() {
+        if ($("#CanteenId").val() != "") {
+            $("#ItemId").select2({
+                ajax: {
+                    url: "/CMS/GetItemSearchbyCanteenId?id=" + $("#CanteenId").val(),
+                    type: "get",
+                    dataType: 'json',
+                    data: function (params) {
+                        return {
+                            searchTerm: params.term // search term
+                        };
+                    },
+                    processResults: function (response) {
+                        return {
+                            results: response
+                        };
+                    },
+                    cache: true
+                },
+                width: 'element',
+                minimumInputLength: 2
+            });
+        }
+
+    }
+    function LoadCanteen() {
+        $.ajax({
+            type: "POST",
+            url: "/CMS/GetStore",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].TypeOf == "Canteen") {
+                        options.push('<option value="' + data[i].StoreId + '">' + data[i].StoreName + '</option>');
+                    }
+                }
+                $("#CanteenId").html(options.join(''));
+            },
+            error: function () {
+                alert("error");
+            }
+        });
+    }
+    function LoadData() {
+        debugger;
+        $("#divItems").html("");
+        //validateDate();
+        var canteenid = $("#CanteenId").val();
+        if (canteenid == null || canteenid == "") {
+            canteenid = 0;
+        }
+        var ItemId = $("#ItemId").val();
+        if (ItemId == null) {
+            ItemId = 0;
+        }
+        //if (validate) {
+        $.get("/CMS/GetItemsforSalesReport?id=" + ItemId + "&fromDate=" + $("#SFromDate").val() + "&toDate=" + $("#SToDate").val() + "&canteenid=" + canteenid, function (res) {
+            var html = "<table class='table table-striped table-bordered'><tr><th>Canteen</th><th>UserName</th><th>Item</th><th>Qty</th></tr>";
+            for (var i = 0; i < res.length; i++) {
+                html += "<tr>";
+
+                html += "<td>" + res[i].StoreName + "</td>";
+                html += "<td>" + res[i].UserName + "</td>";
+                html += "<td>" + res[i].ItemName + "</td>";
+                html += '<td><a href="javascript: void (0); " id="' + res[i].ItemId + '" onclick="DetailedQty(this.id);">' + res[i].Qty + '</a></td>';
+                html += "</tr>";
+            }
+            html += "</table>";
+            $("#divItems").html(html);
+        });
+        //}
+
+    }
+    function DetailedQty(id) {
+        $.get("/CMS/GetDetailedQtyforItems?id=" + id, function (res) {
+            debugger;
+            var html = "<table class='table table-striped table-bordered'><tr><th>Date</th><th>Item</th><th>Qty</th></tr>";
+            for (var i = 0; i < res.length; i++) {
+                html += "<tr>";
+                //var timestamp = res[i].CreatedOn.split('(').pop().split(')')[0];;
+                //var myDate = parseInt(res[i].CreatedOn.split('(').pop().split(')')[0]);
+                html += "<td>" + new Date(parseInt(res[i].CreatedOn.split('(').pop().split(')')[0])).toJSON().slice(0, 10).split("-").reverse().join("/") + "</td>";
+                html += "<td>" + res[i].ItemName + "</td>";
+                html += "<td>" + res[i].Qty + "</td>";
+                html += "</tr>";
+            }
+            html += "</table>";
+            $("#divDetailedQty").html(html);
+            $("#MyModelDetailQty").modal('show');
+        });
+
+    }
+    function ExportPdf() {
+        var valid = validateDate();
+        if (valid) {
+            var canteenid = $("#CanteenId").val();
+            if (canteenid == null || canteenid == "") {
+                canteenid = 0;
+            }
+            var ItemId = $("#ItemId").val();
+            if (ItemId == null || ItemId == "") {
+                ItemId = 0;
+            }
+            window.location = "/CMS/ExportPDFItemsforSalesReport?fromDate=" + $("#SFromDate").val() + "&toDate=" + $("#SToDate").val() + "&canteenid=" + canteenid;
+        }
+
+    }
+    function validateDate() {
+
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#SFromDate").val() == "") {
+            $("#SFromDate").addClass('css-error');
+            validate = false;
+        }
+        //if ($("#ItemId").val() == null) {
+        //    alert("Select Item");
+        //    validate = false;
+        //}
+        if ($("#SToDate").val() == "") {
+            $("#SToDate").addClass('css-error');
+            validate = false;
+        }
+        return validate;
+    }
+</script>
+
+<div class="panel panel-default" style="min-height:500px;">
+    <div class="panel-heading">Item Sales Report</div>
+    <div class="panel-body">
+        <div class="row" style="margin-bottom:5px;">
+            <div class="col-md-3" style="border:none;font-size: 15px;">
+                <label><b>Canteen:</b></label><br />
+                <select class="form-control" id="CanteenId" onchange="ItemSearch();"></select>
+            </div>
+            <div class="col-md-2" style="border:none;font-size: 15px;">
+                <label><b>Search Item :</b></label><br />
+                <select id="ItemId" style="width: 100%;" class="form-control typeahead" name="query" data-provide="typeahead" autocomplete="off"></select>
+            </div>
+            <div class="col-md-2">
+                <lable><b>From Date:</b></lable><br />
+                <input class="form-control Date" autocomplete="off" type="text" placeholder="From Date" id="SFromDate" />
+            </div>
+            <div class="col-md-2">
+                <lable><b>To Date:</b></lable><br />
+                <input class="form-control Date" autocomplete="off" type="text" placeholder="To Date" id="SToDate" />
+            </div>
+            <div class="col-md-1">
+                <br />
+                <input type="button" class="btn btn-success" id="btnGo" onclick="LoadData();" value="Go" />
+            </div>
+            <div class="col-md-2">
+                <a href="#" class="btn btn-danger" onclick="ExportPdf();">
+                    <i class="fa fa-file-pdf-o"></i>
+                </a>
+            </div>
+        </div>
+        <div class="row" id="divItems">
+
+        </div>
+        <div class="modal fade" id="MyModelDetailQty">
+            <div class="modal-dialog" style="padding-top:10%;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <a href="#" class="close" data-dismiss="modal" onclick="ClearAll();">&times;</a>
+                        <h4 style="color: #c4122f;" id="ourvaluestitle">Detailed View</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="divDetailedQty">
+
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

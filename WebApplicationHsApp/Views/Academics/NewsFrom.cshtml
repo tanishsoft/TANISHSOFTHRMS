@@ -1,0 +1,358 @@
+﻿
+@{
+    ViewBag.Title = "NewsFrom";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<br />
+
+
+
+
+<script>
+    function Showmodelimage(img) {
+        var html = "";
+        html = "<img src='" + img + "' alt='img' style='width:100%;height:100%;' />";
+        $("#ourvaluesbody").html(html);
+        $("#ourvaluesmodel").modal('show');
+    }
+</script>
+
+<br />
+
+<div class="row">
+    @foreach (var v in Model)
+    {
+        <div class="col-md-3" style="text-align:center; height:300px;">
+            <a href="~/ExcelUplodes/@v.FilePath">
+                <img alt="img" style="height: 200px; width:250px;cursor:pointer;" src="~/images/Fernandez.png" />        <h4>
+                    @v.Name
+                </h4>
+            </a>
+        </div>
+       
+    }
+    <div class="col-md-3" style="text-align:center; height:300px;">
+        <a href="/Academics/NewsFromImages?path=Annual_Day">
+            <img alt="img" style="height: 200px; width:250px;cursor:pointer;" onclick="Showmodelimage('/images/December/FF-Annual_Day_Event_Mailer_Pg.jpg')" src="/images/December/FF-Annual_Day_Event_Mailer_Pg.jpg" />        <h4>
+                FF Annual Day Event
+
+            </h4>
+        </a>
+    </div>
+
+
+    @*<div class="col-md-3" style="text-align:center; height:300px;">
+
+            <img alt="img" style="height: 200px; width:250px;cursor:pointer;" onclick="Showmodelimage('/images/November/Fernandez Foundation - Dr. Latha on DD Yadagiri - Emailer_2019 (1).jpg')" src="/images/November/Fernandez Foundation - Dr. Latha on DD Yadagiri - Emailer_2019 (1).jpg" />
+
+            <h4>
+                Dr Latha Shashi’s phone-in program on DD Yadagiri
+            </h4>
+
+        </div>*@
+    <div class="col-md-3" style="text-align:center; height:300px;">
+
+        <img alt="img" style="height: 200px; width:250px;cursor:pointer;" onclick="Showmodelimage('/images/November/image001 (14).jpg')" src="~/images/November/image001 (14).jpg" />
+
+        <h4>
+            Inauguration of the National Midwifery Training Institute
+        </h4>
+
+    </div>
+    <div class="col-md-3" style="text-align:center; height:300px;">
+
+        <img alt="img" style="height: 200px; width:250px;cursor:pointer;" onclick="Showmodelimage('/images/November/image001 (15).jpg')" src="~/images/November/image001 (15).jpg" />
+
+        <h4>
+            A Message from Dr. Evita Fernandez
+        </h4>
+
+    </div>
+    <div class="col-md-3" style="text-align:center; height:300px;">
+
+        <img alt="img" style="height: 200px; width:250px;cursor:pointer;" onclick="Showmodelimage('/images/November/image001 (16).jpg')" src="~/images/November/image001 (16).jpg" />
+
+        <h4>
+            Heroes of the fortnight: Indie Kaur
+        </h4>
+
+    </div>
+
+    <div class="col-md-3" style="text-align:center; height:300px;">
+
+        <img alt="img" style="height: 200px; width:250px;cursor:pointer;" onclick="Showmodelimage('/images/November/Invitation (07-11-2019) (1).jpg')" src="~/images/November/Invitation (07-11-2019) (1).jpg" />
+
+        <h4>
+            Dongoria trust products mail
+        </h4>
+
+    </div>
+    <div class="col-md-3" style="text-align:center; height:300px;">
+
+        <img alt="img" style="height: 200px; width:250px; cursor:pointer;" onclick="Showmodelimage('/images//October/Dr. Lathas Presentation and Asmas Poster at seminar on Technology in Dietetics Mailer (2) (1).jpg')" src="~/Images/October/Dr. Lathas Presentation and Asmas Poster at seminar on Technology in Dietetics Mailer (2) (1).jpg" />
+
+        <h4>
+            Dept. of Nutrition: Congratulation mailer
+        </h4>
+
+    </div>
+    <div class="col-md-3" style="text-align:center; height:300px;">
+
+        <img alt="img" style="height: 200px; width:250px; cursor:pointer;" onclick="Showmodelimage('/images//October/Fernandez Foundation - Heroes of the Fortnight - October 17 2019_2019 (1) (1).jpg')" src="~/Images/October/Fernandez Foundation - Heroes of the Fortnight - October 17 2019_2019 (1) (1).jpg" />
+
+        <h4>
+            Heroes of the fortnight: DNB students
+        </h4>
+
+    </div>    <div class="col-md-3" style="text-align:center; height:300px;">
+
+        <img alt="img" style="height: 200px; width:250px; cursor:pointer;" onclick="Showmodelimage('/images//October/Heroes of the Fortnight_Oct_4_Mailer_2019.jpg')" src="~/Images/October/Heroes of the Fortnight_Oct_4_Mailer_2019.jpg" />
+
+        <h4>
+            Heroes of the fortnight: Midwives from FH
+        </h4>
+
+    </div>
+
+    <div class="col-md-3" style="text-align:center; height:300px;">
+
+        <img alt="img" style="height: 200px; width:250px;cursor:pointer;" onclick="Showmodelimage('/images/September/Blessing_Event mailer_2019 (1) (1).jpg')" src="~/images/September/Blessing_Event mailer_2019 (1) (1).jpg" />
+
+        <h4>
+            Inauguration of NICU at FH-Bogulkunta
+        </h4>
+
+    </div>
+    <div class="col-md-3" style="text-align:center; height:300px;">
+
+        <img alt="img" style="height: 200px; width:250px;cursor:pointer;" onclick="Showmodelimage('/images/September/FSN Blessing event mailer (1).jpg')" src="~/images/September/FSN Blessing event mailer (1).jpg" />
+
+        <h4>
+            Inauguration of Fernandez School of Nursing, Banjara Hills
+        </h4>
+
+    </div>
+    <div class="col-md-3" style="text-align:center; height:300px;">
+
+        <img alt="img" style="height: 200px; width:250px;cursor:pointer;" onclick="Showmodelimage('/images/September/Invitation to Fernandez School of Nursing Blessing (1).jpg')" src="~/images/September/Invitation to Fernandez School of Nursing Blessing (1).jpg" />
+
+        <h4>
+            Inauguration invitation: Fernandez School of Nursing
+        </h4>
+
+    </div>
+    <div class="col-md-3" style="text-align:center; height:300px;">
+
+        <img alt="img" style="height: 200px; width:250px;cursor:pointer;" onclick="Showmodelimage('/images/September/NICU_Blessing Invitation_2019.jpg')" src="~/images/September/NICU_Blessing Invitation_2019.jpg" />
+
+        <h4>
+            Inauguration invitation: NICU
+        </h4>
+
+    </div>
+
+    <div class="col-md-3" style="text-align:center; height:300px;">
+
+        <img alt="img" style="height: 200px; width:250px;cursor:pointer;" onclick="Showmodelimage('/images/August/Breast Feeding Week_Event Mailer_2019 (1).jpg')" src="~/images/August/Breast Feeding Week_Event Mailer_2019 (1).jpg" />
+
+        <h4>
+            World breastfeeding week event mailer
+        </h4>
+
+    </div>
+    <div class="col-md-3" style="text-align:center; height:300px;">
+
+        <img alt="img" style="height: 200px; width:250px;cursor:pointer;" onclick="Showmodelimage('/images/August/Heroes of the Fortnight_Aug_01_Mailer_2019.jpg')" src="~/images/August/Heroes of the Fortnight_Aug_01_Mailer_2019.jpg" />
+
+        <h4>
+            Heroes of the fortnight: Midwives from Stork Home
+        </h4>
+
+    </div>
+    <div class="col-md-3" style="text-align:center; height:300px;">
+
+        <img alt="img" style="height: 200px; width:250px;cursor:pointer;" onclick="Showmodelimage('/images/August/image001 (11).jpg')" src="~/images/August/image001 (11).jpg" />
+
+        <h4>
+            Birthing story: Stork Home
+        </h4>
+
+    </div>
+    <div class="col-md-3" style="text-align:center; height:300px;">
+
+        <img alt="img" style="height: 200px; width:250px;cursor:pointer;" onclick="Showmodelimage('/images/August/image001 (12).jpg')" src="~/images/August/image001 (12).jpg" />
+
+        <h4>
+            Heroes of the fortnight: Doctors at FH-Hyderguda
+        </h4>
+
+    </div>
+
+    <div class="col-md-3" style="text-align:center; height:300px;">
+
+        <img alt="img" style="height: 200px; width:250px;cursor:pointer;" onclick="Showmodelimage('/images/August/image001 (13).jpg')" src="~/images/August/image001 (13).jpg" />
+
+        <h4>
+            Airtel Marathon participation mailer
+        </h4>
+
+    </div>
+    <div class="col-md-3" style="text-align:center; height:300px;">
+
+        <img alt="img" style="height: 200px; width:250px;cursor:pointer;" onclick="Showmodelimage('/images/July/Doctors Day Emailer_2019.jpg')" src="~/images/July/Doctors Day Emailer_2019.jpg" />
+
+        <h4>
+            Doctors’ day wishes
+        </h4>
+
+    </div>
+    <div class="col-md-3" style="text-align:center; height:300px;">
+
+        <img alt="img" style="height: 200px; width:250px;cursor:pointer;" onclick="Showmodelimage('/images/July/Fernz Launch Emailer_2019 (2) (1).jpg')" src="~/images/July/Fernz Launch Emailer_2019 (2) (1).jpg" />
+
+        <h4>
+            Blessing and Inauguration of Fernz
+        </h4>
+
+    </div>
+    <div class="col-md-3" style="text-align:center; height:300px;">
+
+        <img alt="img" style="height: 200px; width:250px;cursor:pointer;" onclick="Showmodelimage('/images/July/image001 (5).jpg')" src="~/images/July/image001 (5).jpg" />
+
+        <h4>
+            Invitation mailer for Fernz inauguration
+        </h4>
+
+    </div>
+
+    <div class="col-md-3" style="text-align:center; height:300px;">
+
+        <img alt="img" style="height: 200px; width:250px;cursor:pointer;" onclick="Showmodelimage('/images/July/image001 (6).jpg')" src="~/images/July/image001 (6).jpg" />
+
+        <h4>
+            Airtel Marathon invitation mailer
+        </h4>
+
+    </div>
+    <div class="col-md-3" style="text-align:center; height:300px;">
+
+        <img alt="img" style="height: 200px; width:250px;cursor:pointer;" onclick="Showmodelimage('/images/July/image001 (7).jpg')" src="~/images/July/image001 (7).jpg" />
+
+        <h4>
+            Dept. of Nutrition, details of paper published
+        </h4>
+
+    </div>
+    <div class="col-md-3" style="text-align:center; height:300px;">
+
+        <img alt="img" style="height: 200px; width:250px;cursor:pointer;" onclick="Showmodelimage('/images/July/image001 (8).jpg')" src="~/images/July/image001 (8).jpg" />
+
+        <h4>
+            Congratulation mailer: Kate Stringer
+        </h4>
+
+    </div>
+    <div class="col-md-3" style="text-align:center; height:300px;">
+
+        <img alt="img" style="height: 200px; width:250px;cursor:pointer;" onclick="Showmodelimage('/images/July/image001 (9).jpg')" src="~/images/July/image001 (9).jpg" />
+
+        <h4>
+            Heroes of the fortnight: OT staff, FH-Hyderguda
+        </h4>
+
+    </div>
+
+    <div class="col-md-3" style="text-align:center; height:300px;">
+
+        <img alt="img" style="height: 200px; width:250px; cursor:pointer;" onclick="Showmodelimage('/images/June/SH Birthing Suite Blessing Invitation_2019 (2).jpg')" src="/images/June/SH Birthing Suite Blessing Invitation_2019 (2).jpg" />
+
+        <h4>
+            Invitation to inauguration of LCF Birthing Suite
+        </h4>
+
+    </div>
+    <div class="col-md-3" style="text-align:center; height:300px;">
+
+        <img alt="img" style="height: 200px; width:250px; cursor:pointer;" onclick="Showmodelimage('/images/May/image001 (4).jpg')" src="/images/May/image001 (4).jpg" />
+
+        <h4>
+            Inauguration of FCDC
+        </h4>
+
+    </div>
+    <div class="col-md-3" style="text-align:center; height:300px;">
+
+        <img alt="img" style="height: 200px; width:250px;cursor:pointer;" onclick="Showmodelimage('/images/April/image001 (3).jpg')" src="/images/April/image001 (3).jpg" />
+
+        <h4>
+            Inauguration of FH- OP Clinic, Miyapur
+        </h4>
+
+    </div>
+    <div class="col-md-3" style="text-align:center; height:300px;">
+
+        <img alt="img" style="height: 200px; width:250px; cursor:pointer;" onclick="Showmodelimage('/images/March/image001.png')" src="~/images/March/image001.png" />
+
+        <h4>
+            Information mailer: respectful maternity care
+        </h4>
+
+    </div>
+
+    <div class="col-md-3" style="text-align:center; height:300px;">
+
+        <img alt="img" style="height: 200px; width:250px; cursor:pointer;" onclick="Showmodelimage('/images/March/image001 (3).png')" src="~/images/March/image001 (3).png" />
+
+        <h4>
+            A Message from Dr. Evita Fernandez
+        </h4>
+
+    </div>
+</div>
+<br />
+<br />
+<br />
+
+<div class="modal fade" id="ourvaluesmodel">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="padding:0px;margin:0px;">
+
+            <div class="modal-body" style="padding:0px;margin:0px;">
+                <a href="#" class="close" style="float:right;" data-dismiss="modal">&times;</a>
+                <p id="ourvaluesbody" style="padding:10px; height:100%;"></p>
+            </div>
+
+        </div>
+    </div>
+</div>
+@*<div class="row">
+        <div class="col-md-3" style="text-align:center; height:300px;">
+            <a href="/images/Newsfromaround2.jpg" target="_blank"> <img alt="img" style="height: 175px; width:200px; border-radius:150px;" src="/images/Newsfromaround2.jpg" /></a>
+            <h4>
+                News From around Fernandez
+            </h4>
+
+        </div>
+        <div class="col-md-3" style="text-align:center; height:300px;">
+            <a href="/images/Newsfromaround1.jpg" target="_blank">
+                <img alt="img" style="height: 175px; width:200px; border-radius:150px;" src="/images/Newsfromaround1.jpg" />
+            </a>
+            <h4>
+                News From around Fernandez
+            </h4>
+
+        </div>
+        <div class="col-md-3" style="text-align:center; height:300px;">
+            <a href="/images/Newsfromaround3.jpg" target="_blank">
+                <img alt="img" style="height: 175px; width:200px; border-radius:150px;" src="/images/Newsfromaround3.jpg" />
+            </a>
+            <h4>
+                News From around Fernandez
+            </h4>
+
+        </div>
+    </div>
+    <br /><br /><br />*@
+@*<img src="~/Images/Newsfromaround2.jpg" class="img-responsive" style="margin:auto;" /><br />
+    <img src="~/Images/Newsfromaround1.jpg" class="img-responsive" style="margin:auto;" /><br />
+    <img src="~/Images/Newsfromaround3.jpg" class="img-responsive" style="margin:auto;" />*@

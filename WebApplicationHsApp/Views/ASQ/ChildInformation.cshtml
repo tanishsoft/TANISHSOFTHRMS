@@ -1,0 +1,107 @@
+﻿
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group col-lg-12">
+            <div class="form-wrapper col-lg-12">
+                <div class="row">
+                    <label class="col-lg-4">Mother name<span style="color:red;">*</span> </label>
+                    <div class="form-holder col-lg-8">
+                        <input type="text" id="txtMothername" class="form-control form-control-sm" required />
+                    </div>
+                </div>
+            </div>
+        </div><div class="form-group col-lg-12">
+            <div class="form-wrapper col-lg-12">
+                <div class="row">
+                    <label for="" class="col-lg-4">Baby MR Number<span style="color:red;">*</span></label>
+                    <div class="form-holder col-lg-8">
+                        <input type="text" id="txtBabyMRNumber" class="form-control form-control-sm" required />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-lg-12">
+            <div class="form-wrapper col-lg-12">
+                <div class="row">
+                    <label for="" class="col-lg-12">Child’s gender:<span style="color:red;">*</span></label>
+                    <div class="col-lg-12">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="childgeneder" id="childgeneder1" value="Male" />
+                            <label class="form-check-label" for="childgeneder1">Male</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="childgeneder" id="childgeneder2" value="Female" />
+                            <label class="form-check-label" for="childgeneder2">Female</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group col-lg-12">
+            <div class="form-wrapper col-lg-12">
+                <div class="row">
+                    <label for="" class="col-lg-12">Date of birth:<span style="color:red;">*</span></label>
+                    <div class="form-holder col-lg-12">
+                        <input type="date" id="txtdateofbirth" class="form-control form-control-sm" required />
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+    </div>
+    <div class="col-md-6">
+        <div class="form-group col-lg-12">
+            <div class="form-wrapper col-lg-12">
+                <div class="row">
+                    <label for="" class="col-lg-12">Phone Number<span style="color:red;">*</span></label>
+                    <div class="form-holder col-lg-12">
+                        <input type="text" id="txtPhoneNumber" class="form-control form-control-sm" required />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-lg-12">
+            <div class="form-wrapper col-lg-12">
+                <div class="row">
+                    <label class="col-lg-12">In case of twin or triplet gestation, Baby No</label>
+                    <div class="form-holder col-lg-12">
+                        <input type="number" id="txtnumber" class="form-control form-control-sm" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-lg-12">
+            <div class="form-wrapper col-lg-12">
+                <div class="row">
+                    <label class="col-lg-12">Person name filling the questionnaire<span style="color:red;">*</span></label>
+                    <div class="form-holder col-lg-12">
+                        <input type="text" id="txtpersonfilling" class="form-control form-control-sm" required />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group col-lg-12">
+            <div class="form-wrapper col-lg-12">
+                <div class="row">
+                    <label for="" class="col-lg-12">Relationship to child<span style="color:red;">*</span></label>
+                    <div class="form-holder select col-lg-12">
+                        <select id="ddlrelationshiptochild" class="form-control form-control-sm" required>
+                            <option value="">Select</option>
+                            @*<option value="Parent">Parent</option>*@
+                            <option value="Father">Father</option>
+                            <option value="Mother">Mother</option>
+                            @*<option value="Guardian">Guardian</option>
+                            <option value="Teacher">Teacher</option>
+                            <option value="Child care provider">Child care provider</option>
+                            <option value="Grandparent or other relative">Grandparent or other relative</option>
+                            <option value="Foster parent">Foster parent</option>
+                            <option value="Other">Other</option>*@
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

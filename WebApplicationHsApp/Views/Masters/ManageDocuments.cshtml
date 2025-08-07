@@ -1,0 +1,478 @@
+﻿
+@{
+    ViewBag.Title = "ManageDocuments";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    var validate = true;
+    $(document).ready(function () {
+        LoadLocation();
+        LoadData();
+    });
+    function LoadLocation() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- select Locations -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $(".ddlLocation").html(options.join(''));
+
+
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadCategory(Code) {
+        debugger;
+        if ($("#" + Code + "Location").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Masters/GetAllAdminCategoriesbylocationId",
+                data: "LocId=" + $("#" + Code + "Location").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- select category -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].CategoryId + '">' + data[i].Name + '</option>');
+                    }
+                    $("#"+ Code +"Category").html(options.join(''));
+
+
+                },
+                error: function () {
+                    debugger;
+                    alert("error")
+                }
+            });
+        }
+    }
+    function LoadCategoryEdit(Category) {
+        debugger;
+        if ($("#ELocation").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Masters/GetAllAdminCategoriesbylocationId",
+                data: "LocId=" + $("#ELocation").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- select category -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].CategoryId + '">' + data[i].Name + '</option>');
+                    }
+                    $("#ECategory").html(options.join(''));
+                    $("#ECategory").val(Category);
+
+                },
+                error: function () {
+                    debugger;
+                    alert("error")
+                }
+            });
+        }
+    }
+    function LoadsubCategory(Code) {
+        if ($("#" + Code + "Category").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Masters/GetAllAdminsubCategoriesbycategoryId",
+                data: "CategoryId=" + $("#" + Code + "Category").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- select subcategory -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].SubCategoryId + '">' + data[i].Name + '</option>');
+                    }
+                    $("#" + Code + "SubCategory").html(options.join(''));
+
+
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+    }
+    function LoadsubCategoryEdit(Category, subcategory) {
+        debugger;
+        if (Category != "") {
+            $("#ECategory").val(Category);
+            $.ajax({
+                type: "POST",
+                url: "/Masters/GetAllAdminsubCategoriesbycategoryId",
+                data: "CategoryId="+Category,
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- select subcategory -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].SubCategoryId + '">' + data[i].Name + '</option>');
+                    }
+                    $("#ESubCategory").html(options.join(''));
+                    $("#ESubCategory").val(subcategory);
+
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+    }
+    function LoadData() {
+        $('#tblAdminDocument').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Masters/AjaxGetAdminDocument",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "DocuementId" },
+                { "sName": "LocationId" },
+                { "sName": "CategoryId" },
+                { "sName": "SubCategoryId" },
+                { "sName": "DocumentType" },
+                { "sName": "DocumentTitle" },
+                { "sName": "DocumentDescription" },
+                { "sName": "IsActive" },
+                {
+                    "sName": "DocuementId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="Edit(this.id);">Edit</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="Delete(this.id);">Delete</a></li>' +
+                            '</ul></div>';
+                    }
+                }
+            ]
+        });
+        $("#tblAdminDocument_length").addClass("col-md-6");
+        $("#tblAdminDocument_length").addClass("col-md-6");
+    }
+    function Edit(id) {
+        $("#EcId").val(id);
+        var Url = "/Masters/GetAdminDocumentbyid?DocId=" + id;
+        $.ajax({
+            type: "GET",
+            url: Url,
+            success: function (data) {
+                $("#EditModel").modal('show');
+                var obj = data;
+                $("#ELocation").val(obj.LocationId);              
+                LoadCategoryEdit(obj.CategoryId);
+                $("#ECategory").val(obj.CategoryId);
+                $("#Etype").val(obj.DocumentType);
+                $("#ETitle").val(obj.DocumentTitle);              
+                LoadsubCategoryEdit(obj.CategoryId, obj.SubCategoryId);
+                $("#ESubCategory").val(obj.SubCategoryId);
+                $("#Eurl").val(obj.DocumentDescription);
+            }
+        })
+    }
+    function AjaxPost(Action) {
+        debugger;
+        var Posturl; var code="";
+        validateDocument(Action);
+        if (validate) {
+            // Checking whether FormData is available in browser
+            if (window.FormData !== undefined) {
+
+
+                // Create FormData object
+                var fileData = new FormData();
+                if (Action == 'Save') {
+                    Posturl = "/Administration/Masters/saveAdminDocument";
+                }
+                else if (Action == 'Update') {
+                    code = "E";
+                    Posturl = "/Administration/Masters/UpdateAdminDocument";
+                    fileData.append('DocuementId', $("#EcId").val());
+                }
+                var fileUpload = $("#" + code + "UploadDocument").get(0);
+                var files = fileUpload.files;
+
+                // Looping over all files and add it to FormData object
+                for (var i = 0; i < files.length; i++) {
+                    fileData.append("Upload", files[i]);
+                }
+
+                // Adding one more key to FormData object
+
+                fileData.append('DocumentType', $("#" + code + "type").val());
+                fileData.append('CategoryId', $("#" + code + "Category").val());
+                fileData.append('SubCategoryId', $("#" + code + "SubCategory").val());
+                fileData.append('LocationId', $("#" + code + "Location").val());
+                fileData.append('DocumentTitle', $("#" + code + "Title").val());
+                $.ajax({
+                    type: "POST",
+                    url: Posturl,
+                    contentType: false, // Not to set any content header
+                    processData: false, // Not to process data
+                    data: fileData,
+                    success: function (result) {
+                        alert(result);
+                        clearAll();
+
+                    },
+                    error: function (err) {
+                        alert(err.statusText);
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+        else {
+            return false;
+        }
+    }
+    function validateDocument(Action) {
+        validate = true; var code = "";
+        if (Action == "Update") {
+            code = "E";
+        }
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#" + code + "type").val() == "") {
+            $("#" + code + "type").after('<span class="error" style="color:Red;">select Type</span>');
+            $("#" + code + "type").addClass('css-error');
+            validate = false;
+        }
+        if ($("#" + code + "Title").val() == "") {
+            $("#" + code + "Title").after('<span class="error" style="color:Red;">Enter Title</span>');
+            $("#" + code + "Title").addClass('css-error');
+            validate = false;
+        }
+        if ($("#" + code + "Location").val() == "") {
+            $("#" + code + "Location").after('<span class="error" style="color:Red;">select Location</span>');
+            $("#" + code + "Location").addClass('css-error');
+            validate = false;
+        }
+        if ($("#" + code + "Category").val() == "" && $("#" + code + "Location").val() != "" ) {
+            $("#" + code + "Category").after('<span class="error" style="color:Red;">select Category</span>');
+            $("#" + code + "Category").addClass('css-error');
+            validate = false;
+        }
+        if ($("#" + code + "SubCategory").val() == "" && $("#" + code + "Category").val() != "") {
+            $("#" + code + "SubCategory").after('<span class="error" style="color:Red;">select Sub Category</span>');
+            $("#" + code + "SubCategory").addClass('css-error');
+            validate = false;
+        }
+        //if ($("#" + code + "UploadDocument").val() == "" ) {
+        //    $("#" + code + "UploadDocument").after('<span class="error" style="color:Red;">upload Document</span>');
+        //    $("#" + code + "UploadDocument").addClass('css-error');
+        //    validate = false;
+        //}
+    }
+    function clearAll() {
+        $("#Name").val("");
+        $("#Description").val("");
+        $("#Location").val("");
+        $("#FormType").val("")
+    }
+    var Delete = function (Id) {
+        debugger;
+
+        $("#Cid").val(Id);
+        $("#DeleteConfirmation").modal("show");
+    }
+    var ConfirmDelete = function () {
+        debugger;
+        var CId = $("#Cid").val();
+        $.ajax({
+            type: "POST",
+            url: "/Masters/DeleteAdminDocument?id=" + CId,
+            success: function (result) {
+                $("#DeleteConfirmation").modal("hide");
+            }
+        })
+        LoadData();
+    }
+</script>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Manage Admin Document<a href="#" data-toggle="modal" class="pull-right" data-target="#AddModel">New Admin Document</a></div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblAdminDocument">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Location</th>
+                    <th>CategoryId</th>
+                    <th>Sub Category</th>
+                    <th>Doc Type</th>
+                    <th>Title</th>
+                    <th>Docuement url</th>
+                    <th>Is Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div id="AddModel" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="clearAll();">×</button>
+                <h4 class="modal-title">Add New</h4>
+            </div>
+            <div class="modal-body">
+                <form id="Add" method="post" enctype="multipart/form-data" onsubmit="return AjaxPost('Save')">
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Location<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <select class="form-control ddlLocation" id="Location" onchange="LoadCategory('');"></select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Category<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <select class="form-control" id="Category" onchange="LoadsubCategory('');"></select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Sub Category</label>
+                        </div>
+                        <div class="col-md-8">
+                            <select class="form-control" id="SubCategory"></select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Type<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <select id="type" class="form-control"><option value="">-select type-</option><option value="New">New</option><option value="Renewal">Renewal</option></select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name">Title<span style="color:red;">*</span></label></div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="Title">
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name"> Docuement<span style="color:red;">*</span></label></div>
+                        <div class="col-md-8">
+                            <input type="file" id="UploadDocument" name="UploadDocument" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="submit" value="Save" class="btn btn-primary">
+                        <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearAll();">Close</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<div id="EditModel" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Update</h4>
+            </div>
+            <div class="modal-body">
+
+                <form id="Edit" method="post" enctype="multipart/form-data" onsubmit="return AjaxPost('Update')">
+                    <input type="hidden" id="EcId" />
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Location<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <select class="form-control ddlLocation" id="ELocation" onchange="LoadCategory('E');"></select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Category<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <select class="form-control" id="ECategory" onchange="LoadsubCategory('E');"></select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Sub Category</label>
+                        </div>
+                        <div class="col-md-8">
+                            <select class="form-control" id="ESubCategory"></select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Type<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                           <select id="Etype" class="form-control"><option value="">-select type-</option><option value="New">New</option><option value="Renewal">Renewal</option></select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name">Title<span style="color:red;">*</span></label></div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="ETitle">
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name"> Docuement URL<span style="color:red;">*</span></label></div>
+                        <div class="col-md-8">
+                            <input type="text" id="Eurl" disabled="disabled" />
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name"> Docuement<span style="color:red;">*</span></label></div>
+                        <div class="col-md-8">
+                            <input type="file" id="EUploadDocument" name="EUploadDocument" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="submit" value="Update" class="btn btn-primary">
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="modal fade" id="DeleteConfirmation">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4>Delete  Record</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" class="form-control" id="Cid">
+                <h4>Are You Sure? You Want To Delete This Record.</h4>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-primary" data-dismiss="modal" id="r">Cancel</a>
+                <a href="#" class="btn btn-danger" onclick="ConfirmDelete()">Confirm</a>
+            </div>
+        </div>
+    </div>
+</div>
+

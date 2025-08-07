@@ -1,0 +1,411 @@
+﻿
+@{
+    ViewBag.Title = "NewMobileAllotment";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@*<script src="~/Scripts/ManageAssetMaster.js"></script>*@
+<style>
+    textarea {
+        max-width: 100%;
+    }
+</style>
+<script>
+    var i = 1;
+    var Assetid = @ViewBag.id;
+    var requestId=@ViewBag.requestId;
+    var ComponentsList = [];
+    var ComponentsData = [];
+    var requestType = "Sim";
+    $(document).ready(function () {
+        debugger;
+        LoadAssetType();
+        $('input.decimal').blur(function () {
+            var num = parseFloat($(this).val());
+            var cleanNum = num.toFixed(2);
+            $(this).val(cleanNum);
+            if (num / cleanNum < 1) {
+                $('#error').text('Please enter only 2 decimal places, we have truncated extra points');
+            }
+        });
+
+        $("#PurchaseDate")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                Edit: true
+            });
+        debugger;
+        if (Assetid != 0) {
+            LoadData(Assetid);
+        }
+        if (requestId != 0) {
+            $("#CellPhoneRequestId").val(requestId);
+            $(".requestchange").hide();
+            $("#CellPhoneRequestId").attr("disabled", "disabled");
+            SearchCellRequestId();
+        }
+    });
+    function LoadVendor() {
+        $.ajax({
+            type: "POST",
+            url: "/Task/GetVendors",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- select Vendors -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].VendorId + '">' + data[i].Name + '</option>');
+                }
+                $("#VendorId").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadAssetBrand(val, model) {
+        $.get("/Asset/GetAssetBrandsByType?id=" + $("#AssetTypeId").val(), function (data) {
+            var options = [];
+            options.push('<option value="">- select Asset Brand -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].AssetBrandId + '">' + data[i].Name + '</option>');
+            }
+            $("#AssetBrandId").html(options.join(''));
+            if (val != "") {
+                $("#AssetBrandId").val(val);
+                LoadAssetModel(model);
+            }
+        });
+    }
+
+    function LoadAssetType() {
+        $.get("/Asset/GetAssetType", function (data) {
+            debugger;
+            var options = [];
+            options.push('<option value="">- select AssetType -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].AssetTypeId + '">' + data[i].Name + '</option>');
+            }
+            $("#AssetTypeId").html(options.join(''));
+            $("#AssetTypeId").val("2");
+            LoadAssetBrand("","");
+        });
+    }
+
+    function LoadAssetModel(val) {
+        debugger;
+        $.get("/Asset/GetAssetModelsByType?id=" + $("#AssetBrandId").val(), function (data) {
+            var options = [];
+            options.push('<option value="">- select AssetType -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].AssetModelId + '">' + data[i].Name + '</option>');
+            }
+            $("#Model").html(options.join(''));
+            if (val != '')
+                $('#Model').val(val);
+        });
+    }
+    function LoadData(id) {
+        if (id != 0) {
+            $.get("/Asset/GetMobileAllotment", { id: id }, function (data) {
+                debugger;
+                var obj = data;
+                $("#AssetTypeId").attr('disabled', true);
+                $("#AssetTypeId").val(data.AssetTypeId);
+                LoadAssetBrand(data.BrandID, data.ModelID);
+                $("#Subject").val(data.Subject);
+                $("#Description").val(data.Description);
+                $("#SerialNumber").val(data.SerialNumber);
+                $("#BatterySerialNo").val(data.BatterySerialNo);
+                $("#PurchaseDate").val(data.Dop);
+                $("#IMEINO").val(data.IMEINO);
+                $("#AssetLabel").val(data.AssetLabel);
+                $("#Accessories").val(data.Accessories);
+                $("#MonthlyPlan").val(data.MonthlyPlan);
+                $("#SIMNO").val(data.SIMNO);
+                $("#MobileNumber").val(data.MobileNumber);
+                $("#CellPhoneRequestId").val(data.CellPhoneRequestId);
+                SearchCellRequestId();
+            });
+        }
+    }
+    function isNumber(evt) {
+        var iKeyCode = (evt.which) ? evt.which : evt.keyCode
+        if (iKeyCode != 46 && iKeyCode > 31 && (iKeyCode < 48 || iKeyCode > 57)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+    function SaveAssetType() {
+        validateAssetType();
+        if (validate) {
+            if (window.FormData !== undefined) {
+                var fileData = new FormData();
+                fileData.append('Id', Assetid);
+                fileData.append('BrandID', $("#AssetBrandId").val());
+                fileData.append('ModelID', $("#Model").val());
+                fileData.append('Subject', $("#Subject").val());
+                fileData.append('Description', $("#Description").val());
+                fileData.append('SerialNumber', $("#SerialNumber").val());
+                fileData.append('BatterySerialNo', $("#BatterySerialNo").val());
+                fileData.append('DOP', $("#PurchaseDate").val());
+                fileData.append('IMEINO', $("#IMEINO").val());
+                fileData.append('IMEINO2', $("#IMEINO2").val());
+                fileData.append('AssetLabel', $("#AssetLabel").val());
+                fileData.append('Accessories', $("#Accessories").val());
+                fileData.append('MonthlyPlan', $("#MonthlyPlan").val());
+                fileData.append('SIMNO', $("#SIMNO").val());
+                fileData.append('MobileNumber', $("#MobileNumber").val());
+                fileData.append('AssetStatus', 'New');
+                fileData.append('CellPhoneRequestId', $("#CellPhoneRequestId").val());
+                $.ajax({
+                    type: "POST",
+                    url: "/Asset/SaveMobileAllotment",
+                    contentType: false,
+                    processData: false,
+                    data:fileData,
+                    success: function (data) {
+                        alert("Success");
+                        var cvalue = $("#CellPhoneRequestId").val();
+                        if (cvalue != null && cvalue != "" && cvalue != "0") {
+                            window.location.replace("/Custom/ManageCellPhoneRequest");
+                        } else {
+                            window.location.replace("/Asset/MobileAllotment");
+                        }
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+    }
+
+    function CancelAsset() {
+        var cvalue = $("#CellPhoneRequestId").val();
+        if (cvalue != null && cvalue != "" && cvalue != "0") {
+            window.location.replace("/Custom/ManageCellPhoneRequest");
+        } else {
+            window.location.replace("/Asset/MobileAllotment");
+        }
+    }
+    function validateAssetType() {
+        validate = true;
+        $(".error").hide();
+
+        if (requestType == "Only SIM") {
+            if ($("#MonthlyPlan").val() == "") {
+                $("#MonthlyPlan").after('<span class="error" style="color:Red;">Enter Monthly Plan</span>');
+                $("#MonthlyPlan").addClass('css-error');
+                validate = false;
+            }
+            if ($("#SIMNO").val() == "") {
+                $("#SIMNO").after('<span class="error" style="color:Red;">Enter SIMNO</span>');
+                $("#SIMNO").addClass('css-error');
+                validate = false;
+            }
+            if ($("#MobileNumber").val() == "") {
+                $("#MobileNumber").after('<span class="error" style="color:Red;">Enter MobileNumber</span>');
+                $("#MobileNumber").addClass('css-error');
+                validate = false;
+            }
+        }  else {
+            $(".css-error").removeClass('css-error');
+            if ($("#AssetBrandId").val() == "") {
+                $("#AssetBrandId").after('<span class="error" style="color:Red;">Select Brand</span>');
+                $("#AssetBrandId").addClass('css-error');
+                validate = false;
+            }
+            if ($("#SerialNumber").val() == "") {
+                $("#SerialNumber").after('<span class="error" style="color:Red;">Enter SerialNumber</span>');
+                $("#SerialNumber").addClass('css-error');
+                validate = false;
+            }
+            if ($("#Model").val() == "") {
+                $("#Model").after('<span class="error" style="color:Red;">Enter Model</span>');
+                $("#Model").addClass('css-error');
+                validate = false;
+            }
+            //if ($("#AssetLabel").val() == "") {
+            //    $("#AssetLabel").after('<span class="error" style="color:Red;">Enter Name</span>');
+            //    $("#AssetLabel").addClass('css-error');
+            //    validate = false;
+            //}
+            if ($("#AssetTypeId").val() == "") {
+                $("#AssetTypeId").after('<span class="error" style="color:Red;">Seelct Asset Type</span>');
+                $("#AssetTypeId").addClass('css-error');
+                validate = false;
+            }
+        }
+    }
+    function SearchCellRequestId() {
+        if ($("#CellPhoneRequestId").val() != "" && $("#CellPhoneRequestId").val() != null) {
+            $.get("/Custom/GetCellPhoneRequest?id=" + $("#CellPhoneRequestId").val(), function (data) {
+                if (data == "Enter Valid Request ID") {
+                    alert(data);
+                }
+                else {
+                    $("#RequestType").val(data.RequestType);
+                    requestType = data.RequestType;
+                    CheckRequestType();
+                    var hmtl = '<table class="table table-striped table-bordered"><tr><th>Name</th><th>Designation</th><th>EmpNo</th><th>Department</th><th>RequestType</th><th>Approved RequestType</th><th>Purpose</th></tr><tr><td>' + data.Name + '</td><td>' + data.Designation + '</td><td>' + data.EmpNo + '</td><td>' + data.Department + '</td><td>' + data.RequestType + '</td>';
+                    if (data.ApprovedRequestType!=null)
+                        hmtl +='<td>' + data.ApprovedRequestType + '</td><td>' + data.Purpose + '</td></tr></table>';
+                    else
+                        hmtl +='<td>&nbsp;</td><td>' + data.Purpose + '</td></tr></table>';
+
+                    $("#divRequest").html(hmtl);
+                   // $("#CellApproveRequestId").text(data.ApprovedRequestType);
+                }
+            });
+        }
+        else {
+            alert("Enter Cell Phone Request ID");
+        }
+    }
+    function CheckRequestType() {
+        requestType = $("#RequestType").val();
+        if (requestType == "Only SIM") {
+            $(".mobile").hide();
+            $(".sim").show();
+        } else  {
+            $(".mobile").show();
+            $(".sim").hide();
+        }
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading"><span class="glyphicon glyphicon-file" style="vertical-align:middle;color:darkcyan;"></span>&nbsp;New Mobile Allotment</div>
+    <div class="panel-body">
+        <form id="Add" method="post">
+            <div class="col-md-3" style="display:none;">
+                <span class="form-label">Cell Phone Request Id :<span style="color:red;">*</span></span>
+                <input type="text" class="form-control" id="CellPhoneRequestId" />
+                <br />
+            </div>
+
+            <div class="col-md-1" style="display:none;">
+                <br />
+                <input type="button" value="GO" onclick="SearchCellRequestId();" class="btn btn-sm btn-primary" />
+            </div>
+
+            <div id="divRequest">
+
+            </div>
+            <div class="row">
+                <input type="hidden" id="AssetId" />
+                <div class="col-md-3">
+                    <label>Request Type<span style="color:red;">*</span></label>
+                    <select class="form-control maxwidth" id="RequestType" onchange="CheckRequestType();">
+                        <option value="">Select Request Type</option>
+                        <option value="Only SIM">Only SIM</option>
+                        <option value="Only Basic Phone">Only Basic Phone</option>
+                        <option value="Only Smart Phone">Only Smart Phone</option>
+                    </select>
+                </div>
+                <div class="col-sm-3 mobile">
+                    <div class="form-group">
+                        <span class="form-label">Asset Type<span style="color:red;">*</span></span>
+                        <select class="form-control" id="AssetTypeId" onchange="LoadAssetBrand('','');"></select>
+                    </div>
+                </div>
+                <div class="col-sm-3 mobile">
+                    <div class="form-group">
+                        <span class="form-label">Asset Brand<span style="color:red;">*</span> <a href="/Asset/ManageBrand"><span class="glyphicon glyphicon-plus" style="vertical-align:middle;color:darkcyan;"></span></a></span>
+                        <select class="form-control" id="AssetBrandId" onchange="LoadAssetModel('');"></select>
+                    </div>
+                </div>
+                <div class="col-sm-3 mobile">
+                    <div class="form-group">
+                        <span class="form-label">Make / Model<span style="color:red;">*</span><a href="/Asset/ManageModel"><span class="glyphicon glyphicon-plus" style="vertical-align:middle;color:darkcyan;"></span></a> </span>
+                        <select class="form-control" id="Model"></select>
+                    </div>
+                </div>
+
+
+                <div class="col-sm-3 mobile">
+                    <div class="form-group">
+                        <span class="form-label">Serial Number: </span>
+                        <input type="text" class="form-control" id="SerialNumber" />
+                    </div>
+                </div>
+
+                <div class="col-sm-3 mobile">
+                    <div class="form-group">
+                        <span class="form-label">Battery Serial No: </span>
+                        <input type="text" class="form-control" id="BatterySerialNo" />
+                    </div>
+                </div>
+                <div class="col-sm-3 mobile">
+                    <div class="form-group">
+                        <span class="form-label">DOP<span style="color:red;">*</span>: </span>
+                        <input type="text" class="form-control" id="PurchaseDate" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="col-sm-3 mobile">
+                    <div class="form-group">
+                        <span class="form-label">IMEI NO 1<span style="color:red;">*</span>: </span>
+                        <input type="text" class="form-control" id="IMEINO" />
+                    </div>
+                </div>
+                <div class="col-sm-3 mobile">
+                    <div class="form-group">
+                        <span class="form-label">IMEI NO 2: </span>
+                        <input type="text" class="form-control" id="IMEINO2" />
+                    </div>
+                </div>
+                <div class="col-sm-3 mobile">
+                    <div class="form-group">
+                        <span class="form-label">Asset Label:</span>
+                        <input type="text" class="form-control" id="AssetLabel" />
+                    </div>
+                </div>
+                <div class="col-sm-3 sim">
+                    <div class="form-group">
+                        <span class="form-label">Monthly Plan<span style="color:red;">*</span>:</span>
+                        <input type="text" class="form-control" id="MonthlyPlan" />
+                    </div>
+                </div>
+                <div class="col-sm-3 sim">
+                    <div class="form-group">
+                        <span class="form-label">SIM NO<span style="color:red;">*</span>:</span>
+                        <input type="text" class="form-control" id="SIMNO" />
+                    </div>
+                </div>
+                <div class="col-sm-3 sim">
+                    <div class="form-group">
+                        <span class="form-label">Mobile Number<span style="color:red;">*</span>:</span>
+                        <input type="text" class="form-control" id="MobileNumber" />
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <span class="form-label">Subject : </span>
+                        <textarea class="form-control" placeholder="Enter Subject" rows="2" id="Subject"></textarea>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <span class="form-label"> Description</span>
+                        <textarea class="form-control" placeholder="Enter Description" rows="2" id="Description"></textarea>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <span class="form-label">Accessories : </span>
+                        <textarea class="form-control" placeholder="Enter Accessories" rows="2" id="Accessories"></textarea>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="row" style="text-align:center;">
+            <br />
+            <button type="submit" class="btn btn-primary" onclick="SaveAssetType();"><span class="glyphicon glyphicon-ok-circle"></span>&nbsp;Submit</button>&nbsp;
+            <button type="submit" class="btn btn-danger" onclick="CancelAsset();"><span class="glyphicon glyphicon-ok-circle"></span>&nbsp;Cancel</button>
+        </div>
+        <br />
+    </div>
+</div>
+

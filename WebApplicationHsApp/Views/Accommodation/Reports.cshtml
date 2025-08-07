@@ -1,0 +1,605 @@
+﻿
+@{
+    ViewBag.Title = "Reports";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+
+    .card {
+        margin-bottom: 1.875rem;
+        border: none;
+        border-radius: 0;
+        -webkit-box-shadow: 0 10px 40px 0 rgba(62,57,107,.07),0 2px 9px 0 rgba(62,57,107,.06);
+        box-shadow: 0 10px 40px 0 rgba(62,57,107,.07),0 2px 9px 0 rgba(62,57,107,.06)
+    }
+
+        .card .card {
+            -webkit-box-shadow: none !important;
+            box-shadow: none !important
+        }
+
+        .card .card-title {
+            font-weight: 500;
+            letter-spacing: .05rem;
+            font-size: 1.12rem
+        }
+
+        .card .card-bordered {
+            border: 1px solid rgba(0,0,0,.06)
+        }
+
+        .card.card-fullscreen {
+            display: block;
+            z-index: 9999;
+            position: fixed;
+            width: 100% !important;
+            height: 100% !important;
+            top: 0;
+            right: 0;
+            left: 0;
+            bottom: 0;
+            overflow: auto
+        }
+
+        .card .card-body[class*=border-bottom-] {
+            border-bottom-width: 2px !important
+        }
+
+        .card .card-img-overlay.bg-overlay {
+            background: rgba(0,0,0,.45)
+        }
+
+        .card .card-img-overlay .text-muted {
+            color: #1B2942 !important
+        }
+
+        .card.card-minimal {
+            border: none;
+            -webkit-box-shadow: none;
+            box-shadow: none
+        }
+
+    .card-body {
+        -webkit-box-flex: 1;
+        -webkit-flex: 1 1 auto;
+        -moz-box-flex: 1;
+        -ms-flex: 1 1 auto;
+        flex: 1 1 auto;
+        padding: 1.5rem;
+    }
+
+    .table-responsive {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .card-moved .card, .card-moved .card-header {
+        background-color: #FFA87D;
+        color: #FFF
+    }
+
+    .handle, .titleArea {
+        cursor: move
+    }
+
+    .card-header {
+        border-bottom: none
+    }
+
+        .card-header .card-title {
+            margin-bottom: 0
+        }
+
+        .card-header .heading-elements, .card-header .heading-elements-toggle {
+            background-color: inherit;
+            position: absolute;
+            top: 20px;
+            right: 21px
+        }
+
+            .card-header .heading-elements-toggle.heading-top-elements .page-item, .card-header .heading-elements.heading-top-elements .page-item {
+                display: inline-block
+            }
+
+            .card-header .heading-elements a, .card-header .heading-elements-toggle a {
+                padding: 0 8px
+            }
+
+                .card-header .heading-elements a.btn, .card-header .heading-elements-toggle a.btn {
+                    padding-top: 6px;
+                    padding-bottom: 6px
+                }
+
+    .card-footer {
+        border-top: 1px solid #EEE
+    }
+
+    .media {
+        display: flex;
+        -webkit-box-align: start;
+        -webkit-align-items: flex-start;
+        -moz-box-align: start;
+        -ms-flex-align: start;
+        align-items: flex-start
+    }
+
+    .media-body {
+        -webkit-box-flex: 1;
+        -webkit-flex: 1;
+        -moz-box-flex: 1;
+        -ms-flex: 1;
+        flex: 1;
+    }
+
+    .align-items-stretch {
+        -webkit-box-align: stretch !important;
+        -webkit-align-items: stretch !important;
+        -moz-box-align: stretch !important;
+        -ms-flex-align: stretch !important;
+        align-items: stretch !important;
+    }
+
+    .white {
+        color: #FFF !important;
+    }
+
+    .bg-primary {
+        background-color: #00B5B8 !important;
+    }
+
+        .bg-primary.bg-darken-2, .btn-primary.btn-darken-2 {
+            background-color: #008385 !important;
+        }
+
+    .bg-danger.bg-darken-2, .btn-danger.btn-darken-2 {
+        background-color: #FF425C !important;
+    }
+
+    .bg-warning.bg-darken-2, .btn-warning.btn-darken-2 {
+        background-color: #FF864A !important;
+    }
+
+    .bg-success.bg-darken-2, .btn-success.btn-darken-2 {
+        background-color: #11A578 !important;
+    }
+
+    .text-center {
+        text-align: center !important;
+    }
+
+    .p-2 {
+        padding: 1.5rem !important;
+    }
+
+    .font-large-2 {
+        font-size: 5rem !important;
+    }
+
+    .bg-gradient-x-primary {
+        background-image: -webkit-gradient(linear,left top,right top,from(#008385),to(#00E7EB));
+        background-image: -webkit-linear-gradient(left,#008385 0,#00E7EB 100%);
+        background-image: -moz-linear-gradient(left,#008385 0,#00E7EB 100%);
+        background-image: -o-linear-gradient(left,#008385 0,#00E7EB 100%);
+        background-image: linear-gradient(to right,#008385 0,#00E7EB 100%);
+        background-repeat: repeat-x;
+    }
+
+    .h5, h5 {
+        font-size: 1.74rem;
+    }
+
+    .text-bold-400 {
+        font-weight: 400;
+    }
+
+    .mb-0, .my-0 {
+        margin-bottom: 0 !important;
+    }
+
+    .primary {
+        color: #00B5B8 !important
+    }
+
+    .danger {
+        color: #FF7588 !important;
+    }
+
+    .bg-danger {
+        background-color: #FF7588 !important;
+    }
+
+    .success {
+        color: #16D39A !important;
+    }
+
+    .bg-success {
+        background-color: #16D39A !important;
+    }
+
+    .warning {
+        color: #FFA87D !important;
+    }
+
+    .bg-warning {
+        background-color: #FFA87D !important;
+    }
+
+    #container {
+        height: 400px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    /* Link the series colors to axis colors */
+    .highcharts-color-0 {
+        fill: #7cb5ec;
+        stroke: #7cb5ec;
+    }
+
+    .highcharts-axis.highcharts-color-0 .highcharts-axis-line {
+        stroke: #7cb5ec;
+    }
+
+    .highcharts-axis.highcharts-color-0 text {
+        fill: #7cb5ec;
+    }
+
+    .highcharts-color-1 {
+        fill: #90ed7d;
+        stroke: #90ed7d;
+    }
+
+    .highcharts-axis.highcharts-color-1 .highcharts-axis-line {
+        stroke: #90ed7d;
+    }
+
+    .highcharts-axis.highcharts-color-1 text {
+        fill: #90ed7d;
+    }
+
+
+    .highcharts-yaxis .highcharts-axis-line {
+        stroke-width: 2px;
+    }
+
+    .nav-pills li a {
+        color: white;
+    }
+
+        .nav-pills li a:hover {
+            color: black !important;
+        }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+        background-color: rgba(0,0,0,.2) !important;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        BindCharts()
+    });
+    function BindCharts() {
+        $.get("/CallCenter/GetCpxCountByCpxRelatedTo", function (data) {
+            var dataforchart = [];
+            var categoriesx = [];
+            for (var i = 0; i < data.length; i++) {
+                var localarray = [];
+                categoriesx.push(data[i].Key);
+                localarray.push(data[i].Key);
+                localarray.push(data[i].Count);
+                dataforchart.push(localarray)
+            }
+            Highcharts.chart('container', {
+                chart: {
+                    type: 'cylinder',
+                    //options3d: {
+                    //    enabled: true,
+                    //    //alpha: 15,
+                    //    //beta: 15,
+                    //    //depth: 100,
+                    //    //viewDistance: 25
+                    //}
+                },
+                title: {
+                    text: 'Requests Location'
+                },
+                xAxis: {
+                    categories: categoriesx,
+                    crosshair: true
+                },
+                plotOptions: {
+                    series: {
+                        //depth: 100,
+                        colorByPoint: true
+                    }
+                },
+                series: [{
+                    data: dataforchart,
+                    name: 'Related',
+                    showInLegend: true
+                }]
+            });
+        });
+        $.get("/CallCenter/GetCpxCountByRequestForTheDepartment", function (data) {
+            var dataforchart2 = [];
+            for (var i = 0; i < data.length; i++) {
+                var localarray = [];
+                localarray.push(data[i].Key);
+                localarray.push(data[i].Count);
+                dataforchart2.push({
+                    name: data[i].Key,
+                    y: data[i].Count
+                });
+            }
+
+            Highcharts.chart('container1', {
+                chart: {
+                    type: 'pie',
+                    options3d: {
+                        enabled: true,
+                        alpha: 45,
+                        beta: 0
+                    }
+                },
+                title: {
+                    text: 'Request For the Department'
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}</b>'
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        depth: 35,
+                        dataLabels: {
+                            enabled: true,
+                            format: '{point.name}'
+                        }
+                    }
+                },
+                series: [{
+                    type: 'pie',
+                    name: 'Department',
+                    data: dataforchart2
+                }]
+            });
+        });
+        $.get("/CallCenter/GetCpxCountByProjectTitle", function (data) {
+            var dataforchart1 = [];
+            var categoriesx = [];
+            for (var i = 0; i < data.length; i++) {
+                var localarray = [];
+                categoriesx.push(data[i].Key);
+                localarray.push(data[i].Key);
+                localarray.push(data[i].Count);
+                dataforchart1.push(localarray)
+            }
+            Highcharts.chart('container2', {
+                chart: {
+                    type: 'cylinder',
+                    //options3d: {
+                    //    enabled: true,
+                    //    //alpha: 15,
+                    //    //beta: 15,
+                    //    //depth: 100,
+                    //    //viewDistance: 25
+                    //}
+                },
+                title: {
+                    text: 'Category'
+                },
+                xAxis: {
+                    categories: categoriesx,
+                    crosshair: true
+                },
+                plotOptions: {
+                    series: {
+                        //depth: 25,
+                        colorByPoint: true
+                    }
+                },
+                series: [{
+                    data: dataforchart1,
+                    name: 'Count',
+                    showInLegend: true
+                }]
+            });
+        });
+    }
+</script>
+<div class="row">
+    <div class="col-md-2" style="padding-left:0px;padding-right:0px;">
+        @Html.Partial("_SideNavAccommodation")
+    </div>
+    <div class="col-md-10" style="padding-left:0px;padding-right:0px;">
+        <div class="panel panel-default" id="myleaestableshow">
+            <div class="panel-heading" id="titleofpage">Reports</div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-xl-3 col-lg-3 col-12">
+                        <div class="card">
+                            <div class="card-content">
+                                <div class="media align-items-stretch">
+                                    <div class="p-2 text-center bg-primary bg-darken-2">
+                                        <i class="glyphicon glyphicon-thumbs-up font-large-2 white"></i>
+                                    </div>
+                                    <div class="p-2 bg-gradient-x-primary white media-body">
+                                        <h5>Total Requests</h5>
+                                        <h5 class="text-bold-400 mb-0">23423</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-12">
+                        <div class="card">
+                            <div class="card-content">
+                                <div class="media align-items-stretch">
+                                    <div class="p-2 text-center bg-danger bg-darken-2">
+                                        <i class="glyphicon glyphicon-th-list font-large-2 white"></i>
+                                    </div>
+                                    <div class="p-2 bg-gradient-x-danger white media-body">
+                                        <h5>TotalCompleted</h5>
+                                        <h5 class="text-bold-400 mb-0">234</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-12">
+                        <div class="card">
+                            <div class="card-content">
+                                <div class="media align-items-stretch">
+                                    <div class="p-2 text-center bg-warning bg-darken-2">
+                                        <i class="glyphicon glyphicon-ok font-large-2 white"></i>
+                                    </div>
+                                    <div class="p-2 bg-gradient-x-warning white media-body">
+                                        <h5>Total Cancelled</h5>
+                                        <h5 class="text-bold-400 mb-0">10</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xl-3 col-lg-3 col-12">
+                        <div class="card">
+                            <div class="card-content">
+                                <div class="media align-items-stretch">
+                                    <div class="p-2 text-center bg-success bg-darken-2">
+                                        <i class="glyphicon glyphicon-info-sign font-large-2 white"></i>
+                                    </div>
+                                    <div class="p-2 bg-gradient-x-success white media-body">
+                                        <h5>In Progress</h5>
+                                        <h5 class="text-bold-400 mb-0">100</h5>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6" style="border: solid 5px lightsteelblue;">
+                        <div id="container">
+
+                        </div>
+                    </div>
+                    <div class="col-md-6" style="border: solid 5px lightsteelblue;">
+                        <div id="container2">
+
+                        </div>
+                    </div>
+                    <div class="col-md-12" style="border: solid 5px lightsteelblue;">
+                        <div id="container1">
+
+                        </div>
+                    </div>
+                </div>
+                <table class="table table-bordered" style="width:100%;">
+                    <thead>
+                        <tr style="background-color:teal;color:white;">
+                            <td>Guest Name</td>
+                            <th>Category</th>
+                            <td>Booking Location</td>
+                            <td>Booking Flat</td>
+                            <td>Arrival date</td>
+                            <td>From Date</td>
+                            <td>To Date</td>
+                            <td>Status</td>
+                            <td>Comments</td>
+                            <td></td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>xyz 1</td>
+                            <th>Doctor</th>
+                            <td>Majestic Apartments</td>
+                            <td>403</td>
+                            <td>20/11/2022 10:45AM</td>
+                            <td>21/11/2022 10:45AM</td>
+                            <td>22/11/2022 10:45PM</td>
+                            <td>Waiting for Approval</td>
+                            <td>Request for room</td>
+                            <td>
+                                <div class="btn-group">
+                                    <div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li class="dontScoll"><a href="javascript:void(0);" id="1">Confirm</a></li>
+                                        <li class="dontScoll"><a href="javascript:void(0);" id="2">Cancel</a></li>
+                                        <li class="dontScoll"><a href="javascript:void(0);" id="3">Check Out</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>xyz 2</td>
+                            <th>Midwife</th>
+                            <td>Shubhodaya Apartment</td>
+                            <td>404</td>
+                            <td>20/11/2022 10:45AM</td>
+                            <td>21/11/2022 10:45AM</td>
+                            <td>22/11/2022 10:45PM</td>
+                            <td>Waiting for Service</td>
+                            <td>Request for room</td>
+                            <td>
+                                <div class="btn-group">
+                                    <div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li class="dontScoll"><a href="javascript:void(0);" id="1">Confirm</a></li>
+                                        <li class="dontScoll"><a href="javascript:void(0);" id="2">Cancel</a></li>
+                                        <li class="dontScoll"><a href="javascript:void(0);" id="3">Check Out</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>xyz 3</td>
+                            <th>Nurse</th>
+                            <td>RK Residency</td>
+                            <td>405</td>
+                            <td>20/11/2022 10:45AM</td>
+                            <td>21/11/2022 10:45AM</td>
+                            <td>22/11/2022 10:45PM</td>
+                            <td>Occupied</td>
+                            <td>Request for room</td>
+                            <td>
+                                <div class="btn-group">
+                                    <div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li class="dontScoll"><a href="javascript:void(0);" id="1">Confirm</a></li>
+                                        <li class="dontScoll"><a href="javascript:void(0);" id="2">Cancel</a></li>
+                                        <li class="dontScoll"><a href="javascript:void(0);" id="3">Check Out</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>xyz 4</td>
+                            <th>New Employee</th>
+                            <td>Unique Residency</td>
+                            <td>406</td>
+                            <td>20/11/2022 10:45AM</td>
+                            <td>21/11/2022 10:45AM</td>
+                            <td>22/11/2022 10:45PM</td>
+                            <td>Check Out Completed</td>
+                            <td>Request for room</td>
+                            <td>
+                                <div class="btn-group">
+                                    <div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li class="dontScoll"><a href="javascript:void(0);" id="1">Confirm</a></li>
+                                        <li class="dontScoll"><a href="javascript:void(0);" id="2">Cancel</a></li>
+                                        <li class="dontScoll"><a href="javascript:void(0);" id="3">Check Out</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,506 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    var eId =@ViewBag.id;
+    var currentStatus = '@ViewBag.status';
+    $(document).ready(function () {
+        LoadData();
+        if (currentStatus != "InSupervisor") {
+            $("#divNormal").show();
+            LoadDatapatients();
+        }
+        else if (currentStatus == "InSupervisor") {
+            $("#divSupervisor").show();
+            LoadSupervisorpatients();
+        }
+
+        LoadLocations();
+        LoadMealType();
+    });
+    //$(document).ready(function () {
+    //    LoadDietforpatient();
+    //});
+    function LoadData() {
+        $.get("/InPatientCms/GetCMSP_OrderPlacebyId?id=" + eId, function (res) {
+
+            LoadLocations(res.LocationId, res.FloorId);
+            LoadMealType(res.MealTypeId);
+            $("#RequestNotes").val(res.RequestNotes);
+            $("#RequestType").val(res.RequestType);
+        });
+    }
+
+    function LoadDatapatients() {
+        $('#tblPatients').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/InPatientCms/AjaxGetCMSPatientsbyOrderId",
+            "bProcessing": true,
+            "bDestroy": true,
+            "scrollX": true,
+            "autoWidth": false,
+            "aLengthMenu": [[100, 200, 300, 500, -1], [100, 200, 300, 500, "All"]],
+            "aoColumns": [
+                { "sName": "Id" },
+                { "sName": "Id" },
+                { "sName": "Name" },
+                { "sName": "Mr No" },
+                { "sName": "Room No" },
+                { "sName": "Mobile" },
+                {
+                    "sName": "DietPlan",
+                    "bSortable": false,
+                    "render": function (data, row, r) {
+                        //console.log(r);
+
+                        var ids = data.split("-")[0];
+                        var val = data.split("-")[1];
+                        return LoadDietPlans(ids, val);;
+                    }
+                },
+                {
+                    "sName": "Notes",
+                    "bSortable": false,
+                    "render": function (data, row, r) {
+                        //console.log(r);
+                        var ids = data.split("-")[0];
+                        var val = data.split("-")[1];
+                        return '<textarea class="form-control" id="notes' + ids + '">'+val+'</textarea>';
+                    }
+                }
+            ],
+
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "OrderRequestId", "value": eId},
+
+                );
+            }
+        });
+        $("#tblPatients_length").addClass("col-md-6");
+        $("#tblPatients_length").addClass("col-md-6");
+    }
+
+    function LoadSupervisorpatients() {
+        $('#tblSupervisorPatients').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/InPatientCms/AjaxGetSupervisorCMSPatientsbyOrderId",
+            "bProcessing": true,
+            "bDestroy": true,
+            "scrollX": true,
+            "autoWidth": false,
+            "aLengthMenu": [[100, 200, 300, 500, -1], [100, 200, 300, 500, "All"]],
+            "aoColumns": [
+                { "sName": "Id" },
+                { "sName": "Id" },
+                { "sName": "Name" },
+                { "sName": "Mr No" },
+                { "sName": "Room No" },
+                {
+                    "sName": "Update Room No",
+                    "bSortable": false,
+                    "render": function (data, row, r) {
+                        //console.log(r);
+                        var ids = data.split("-")[0];
+                        var val = data.split("-")[1];
+                        return '<input type="textbox" class="form-control" id="UpdateRoomNo' + ids + '" value="' + val + '"/>';
+                    }},
+                { "sName": "Mobile" },
+                {
+                    "sName": "DietPlan",
+                    "bSortable": false,
+                    "render": function (data, row, r) {
+                        //console.log(r);
+
+                        var ids = data.split("-")[0];
+                        var val = data.split("-")[1];
+                        return LoadDietPlans(ids, val);;
+                    }
+                },
+                {
+                    "sName": "Notes",
+                    "bSortable": false,
+                    "render": function (data, row, r) {
+                        //console.log(r);
+                        var ids = data.split("-")[0];
+                        var val = data.split("-")[1];
+                        return '<textarea class="form-control" id="notes' + ids + '">' + val + '</textarea>';
+                    }
+                },
+                {
+                    "sName": "Delivered",
+                    "bSortable": false,
+                    "render": function (data, row, r) {
+                        //console.log(r);
+
+                        var ids = data.split("-")[0];
+                        var val = data.split("-")[1];
+                        return LoadDeliver(ids, val);
+                    }
+                },
+                {
+                    "sName": "NotDeliReason",
+                    "bSortable": false,
+                    "render": function (data, row, r) {
+                        //console.log(r);
+                        var ids = data.split("-")[0];
+                        var val = data.split("-")[1];
+                        return '<textarea class="form-control" id="reason' + ids + '">' + val + '</textarea>';
+                    }
+                },
+                {
+                    "sName": "DelDietPlan",
+                    "bSortable": false,
+                    "render": function (data, row, r) {
+                        //console.log(r);
+
+                        var ids = data.split("-")[0];
+                        var val = data.split("-")[1];
+                        return LoadDelDietPlans(ids, val);;
+                    }
+                },
+            ],
+
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "OrderRequestId", "value": eId },
+
+                );
+            }
+        });
+        $("#tblPatients_length").addClass("col-md-6");
+        $("#tblPatients_length").addClass("col-md-6");
+    }
+    function LoadDeliver(id, val) {
+        var field = "<select class='form-control' id='Delivered" + id + "'><option value='Yes'>Yes</option><option value='No'>No</option></select>";
+        if (val == "No") {
+            field = "<select class='form-control' id='Delivered" + id + "'><option value='Yes'>Yes</option><option selected value='No'>No</option></select>";
+        }
+        return field;
+    }
+    function LoadDietPlans(id,val) {
+        $.ajax({
+            type: "POST",
+            url: "/InPatientCms/GetDiets",
+            //data: "id=",
+            success: function (data) {
+
+                var options = [];
+                options.push('<option value="">- Select Diet -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].DietId + '">' + data[i].DietName + '</option>');
+                }
+                $("#DietPlan" + id).html(options.join(''));
+                $("#DietPlan"+id).val(val);
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+        return '<select class="form-control DietPlan" id="DietPlan' + id + '"><option value="">Select Plan</option>><select>';
+    }
+    function LoadDelDietPlans(id, val) {
+        $.ajax({
+            type: "POST",
+            url: "/InPatientCms/GetDiets",
+            //data: "id=",
+            success: function (data) {
+
+                var options = [];
+                options.push('<option value="">- Select Diet -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].DietId + '">' + data[i].DietName + '</option>');
+                }
+                $("#DelDietPlan" + id).html(options.join(''));
+                $("#DelDietPlan" + id).val(val);
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+        return '<select class="form-control DietPlan" id="DelDietPlan' + id + '"><option value="">Select Plan</option>><select>';
+    }
+    function LoadLocations(val,floorval) {
+        $.ajax({
+            type: "POST",
+            url: "/InPatientCms/GetCMSP_Location",
+            //data: "id=",
+            success: function (data) {
+
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#LocationId").html(options.join(''));
+                $("#LocationId option:contains(" + val + ")").attr('selected', 'selected');
+                LoadFloorByLocations(floorval);
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadFloorByLocations(val) {
+        var id = $("#LocationId").val();
+        if (id != "") {
+            $.ajax({
+                type: "POST",
+                url: "/InPatientCms/GetCMSP_FloorByLocation?id=" + id,
+                //data: "id=",
+                success: function (data) {
+
+                    var options = [];
+                    options.push('<option value="">- Select Floor -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].FloorId + '">' + data[i].FloorNo + '</option>');
+                    }
+                    $("#FloorId").html(options.join(''));
+                    //$("#FloorId").val(val);
+                    $("#FloorId option:contains(" + val + ")").attr('selected', 'selected');
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#FloorId").html('<option value="">- Select Floor -</option>');
+        }
+    }
+    function LoadMealType(val) {
+        $.ajax({
+            type: "POST",
+            url: "/CMS/GetMealType",
+            //data: "id=",
+            success: function (data) {
+
+                var options = [];
+                options.push('<option value="">- Select MealType -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].MealTypeId + '">' + data[i].MealTypeName + '</option>');
+                }
+                $("#MealTypeId").html(options.join(''));
+                $("#MealTypeId").val(val);
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function validatedetails() {
+        setTimeout(function () { $('.error1').fadeOut('fast'); }, 5000);
+        var valid = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#LocationId").val() == "") {
+            $("#LocationId").addClass('css-error');
+            valid = false;
+        }
+        else if ($("#FloorId").val() == "") {
+            $("#FloorId").addClass('css-error');
+            valid = false;
+        }
+        if ($("#MealTypeId").val() == "") {
+            $("#MealTypeId").addClass('css-error');
+            valid = false;
+        }
+        var table = $('#tblPatients').DataTable();
+        table.column(0).data().each(function (value, index) {
+            if ($("#DietPlan" + value).val() == "") {
+                $("#DietPlan" + value).addClass('css-error');
+                valid = false;
+            }
+        });
+
+        return valid;
+    }
+    function Save() {
+        var valid = validatedetails();
+        if (valid) {
+            var Status = currentStatus;
+            var previousstaus = currentStatus;
+            if (currentStatus == "InNursing") {
+                Status = "InDietitian";
+            }
+            else if (currentStatus == "InDietitian") {
+                Status = "InKitchen";
+            }
+            else if (currentStatus == "InKitchen") {
+                Status = "InSupervisor";
+            }
+            else if (currentStatus == "InCafeteria") {
+                Status = "InSupervisor";
+            }
+            else if (currentStatus == "InSupervisor") {
+                Status = "InSupervisor";
+            }
+            var task = {
+                OrderRequestId: eId,
+                MealTypeId: $("#MealTypeId").val(),
+
+                LocationId: $("#LocationId").val(),
+
+                FloorId: $("#FloorId").val(),
+                RequestType: $("#RequestType").val(),
+                RequestNotes: $("#RequestNotes").val(),
+                CurrentStatus: Status,
+                ModifiedBy: previousstaus,
+                IsActive: true
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "/InPatientCms/UpdateCMSPOrderRequest",
+                data: task,
+                success: function (data) {
+                    SavePatients(data);
+                }
+            });
+        }
+    }
+    function Cancel() {
+        if (currentStatus == "InNursing") {
+            window.location.href = "/InPatientCms/ManageOrders";
+        }
+        else if (currentStatus == "InDietitian") {
+            window.location.href = "/InPatientCms/ManageDietitianOrders";
+        }
+        else if (currentStatus == "InKitchen") {
+            window.location.href = "/InPatientCms/KitchenManager";
+        }
+        else if (currentStatus == "InSupervisor") {
+            window.location.href = "/InPatientCms/ManageSupervisorOrders";
+        }
+        else if (currentStatus == "InCafeteria") {
+            window.location.href = "/InPatientCms/ManageCafeteriaOrders";
+        }
+
+    }
+    function SavePatients(id) {
+        var PatientsList = [];
+        var url = "/InPatientCms/UpdateOrderRequestPatientsList";
+        if (currentStatus != "InSupervisor") {
+            var table = $('#tblPatients').DataTable();
+            table.column(0).data().each(function (value, index) {
+                PatientsList.push({
+                    PatientDietId: parseInt(value),
+                    DietId: parseInt($("#DietPlan" + value).val()),
+                    Notes: $("#notes" + value).val(),
+                    MealtypeId: $("#MealTypeId").val(),
+                    OrderRequestId: id
+                });
+            });
+        }
+        else if (currentStatus == "InSupervisor") {
+            url = "/InPatientCms/UpdateSupervisorOrderRequestPatientsList";
+            var table = $('#tblSupervisorPatients').DataTable();
+            table.column(0).data().each(function (value, index) {
+                var IsDelivered = $("#Delivered" + value).val() == "Yes" ? true : false;
+                PatientsList.push({
+                    PatientDietId: parseInt(value),
+                    DietId: parseInt($("#DietPlan" + value).val()),
+                    Notes: $("#notes" + value).val(),
+                    MealtypeId: $("#MealTypeId").val(),
+                    IsDelivered: IsDelivered,
+                    DeliverRoomNo: $('#UpdateRoomNo' + value).val(),
+                    ReasonToNotDeliver: $('#reason' + value).val(),
+                    DeliverDietId: parseInt($("#DelDietPlan" + value).val()),
+                    OrderRequestId: id
+                });
+            });
+            }
+
+
+        $.post(url, { model: PatientsList }, function (res) {
+            alert("Successfully Saved");
+            Cancel();
+        });
+    }
+</script>
+<div class="container">
+    <div class="panel panel-success">
+        <div class="panel-heading"><span class="glyphicon glyphicon-plane"></span>&nbsp; Dietitian Plan by floor</div>
+        <div class="panel-body">
+            <form>
+                @*<div class="alert alert-danger error1" role="alert">
+
+                    </div>*@
+                <div class="row">
+
+                    <div class="col-md-3">
+                        <label>Location :</label>
+                        <select class="form-control" id="LocationId" onchange="LoadFloorByLocations();" disabled></select>
+                    </div>
+                    <div class="col-md-3">
+                        <label>Floor :</label>
+                        <select class="form-control" id="FloorId" onchange="LoadData();" disabled></select>
+                    </div>
+                    <div class="col-md-3">
+                        <label>Meal Type :</label>
+                        <select class="form-control" id="MealTypeId"></select>
+                    </div>
+                    <div class="col-md-3">
+                        <label>Comments :</label>
+                        <input type="text" class="form-control" id="RequestNotes" />
+                    </div>
+                    <div class="col-md-3">
+                        <label>Request Type :<span style="color:red;">*</span></label>
+                        <select class="form-control" id="RequestType" disabled><option value="To Kitchen">To Kitchen</option><option value="To Cafeteria">To Cafeteria</option></select>
+                    </div>
+                </div>
+                <div class="row" style="padding:30px;display:none;" id="divNormal">
+                    <table class="table table-striped table-bordered  nowrap display" style="width:100%; text-align:center; " id="tblPatients">
+                        <thead>
+                            <tr style="background-color:chocolate;color:white;">
+                                <th>Id</th>
+                                <th>Patient Id</th>
+                                <th>Name</th>
+                                <th>Mr No</th>
+                                <th>Room No</th>
+                                <th>Mobile</th>
+                                <th>Diet Plan</th>
+                                <th>Customization Note</th>
+                                @*<th>Actions</th>*@
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="row" style="padding:30px;display: none;" id="divSupervisor">
+                    <table class="table table-striped table-bordered  nowrap display" style="width:100%; text-align:center; " id="tblSupervisorPatients">
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Patient Id</th>
+                                <th>Name</th>
+                                <th>Mr No</th>
+                                <th>Room No</th>
+                                <th>Update Room No</th>
+                                <th>Mobile</th>
+                                <th>Diet Plan</th>
+                                <th>Customization Note</th>
+                                <th>Delivered</th>
+                                <th>Reason if not Delivered</th>
+                                <th>Delivered Diet</th>
+                                @*<th>Actions</th>*@
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="form-group col-md-6">
+                    <br />
+                    @if (ViewBag.status != "InNursing")
+                    {
+                        <button type="button" class="btn save" onclick="Save();">SAVE</button>
+                    }
+                    <button type="button" onclick="Cancel();" class="btn cancel">Cancel</button>
+                </div>
+                <div class="clearfix"></div>
+            </form>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,49 @@
+﻿
+@{
+    ViewBag.Title = "PrintFHNDA";
+    Layout = "~/Views/Shared/_LayoutEmpty.cshtml";
+}
+<script>
+    window.onload = function () { window.print(); }
+</script>
+<style>
+    body {
+        font-size:12px;
+    }
+</style>
+<link href="~/Content/bootstrap.css" rel="stylesheet" />
+
+<div class="panel panel-default">
+
+    <div class="panel-body">
+        <div class="block-middle brand" style="text-align:justify;">
+            <div style="text-align:center; margin-bottom:5px;">
+                <img src="~/Images/institutions-logo.png" style="height:75px; width:180px;" />
+            </div>
+            <p style="text-align:center; font-weight:bold;color:black;font-size:17px; margin-bottom:5px;">Confidentiality and Non-Disclosure Agreement</p>
+            <p>Security and confidentiality are matters of concern for all persons who have access to Fernandez Hospital (for the purpose of efficiency, collectively referred to herein as &ldquo;Fernandez Hospital&rdquo;) confidential patient information and confidential information about the business and financial interests of &ldquo;Fernandez Hospital&rdquo; (referred to as &ldquo;Confidential Information&rdquo; in this Agreement). Each person accessing Fernandez Hospital Confidential Information holds a position of trust relative to this information and must recognize the responsibilities entrusted in preserving the security and confidentiality of this information. Therefore, all persons who are authorized to access Confidential Information must read and comply with all Fernandez Hospital Policies.</p>
+            <p>As a condition to receiving access to information, I, the undersigned, agree to comply with the following terms:</p>
+            <ol>
+                <li>I will not at any time during or after my affiliation with Fernandez Hospital disclose Confidential Information to which I have or had access in any form (i.e., electronic media, paper, microfilm, verbal etc.) to any unauthorized individuals.</li>
+                <li>My computer login/EMR Application Login is equivalent to my LEGAL SIGNATURE and I will not share or disclose this code to anyone or allow anyone to access any application using my log-in.</li>
+                <li>I will not access any medical record I am not legally authorized to, including but not limited to the medical record of any family member or co-worker.</li>
+                <li>I will utilize and access only the minimum amount of information necessary for performance of my job.</li>
+                <li>I will not access or request data on patients for whom I have no clinical/professional relationship and/or legitimate Fernandez Hospital business purpose. If I have reason to believe that the confidentiality of my user login has been compromised, I will immediately ensure that the password is changed by the approved procedure for password name change.</li>
+                <li>I will respect the confidentiality of any reports and handle, store and dispose of these reports appropriately.</li>
+                <li>I will utilize the Privacy Curtain or suspend access when leaving a workstation to prevent unauthorized access.</li>
+                <li>I will not install or operate any non-licensed software on any Fernandez Hospital.</li>
+                <li>I will comply with all policies and procedures and other rules relating to confidentiality of information and log-ins.</li>
+                <li>I am responsible for all e-mail messages generated from my e-mail.</li>
+                <li>I understand that the use of e-mail is for business purposes, however limited personal use is acceptable.</li>
+                <li>I understand that the e-mail administrator may monitor my e-mail if non-compliance with the electronic messaging policies is&nbsp;suspected.</li>
+            </ol>
+            <p>I understand that Confidential Information is protected in every form, such as written records and correspondence, oral communications, and electronic information systems and acknowledge my responsibility in preserving its confidentiality. I understand there are disciplinary procedures in place for handling breaches of confidentiality. I have read and understand the above Confidentiality and Non- Disclosure Agreement. I understand that my use of Fernandez Hospital information will be monitored to ensure compliance with this agreement. I further understand that if I violate any of the above terms, I may be subject to disciplinary action, including but not limited to discharge, loss of privileges to access information, termination of contract or any other remedy available to Fernandez Hospital.</p>
+
+            <p><input type="checkbox" id="cbcheckboxagree" checked="checked" /> I agree that I have read, understand and will comply with this Agreement.</p>
+            <table class="table">
+                <tr><td> Name : <b>@ViewBag.name</b></td><td>Department/ Specialty :<b>@ViewBag.department </b></td><td>Mobile:<b>@ViewBag.designation </b></td></tr>
+            </table>
+          
+        </div>
+    </div>
+</div>

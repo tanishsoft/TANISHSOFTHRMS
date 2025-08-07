@@ -1,0 +1,59 @@
+﻿
+@{
+    ViewBag.Title = "OurBrandView";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@*<h2>Our Brand</h2>*@
+
+<div class="row">
+    <div class="col-md-2">
+        <div style="position:fixed;">
+            <div class="list-group">
+                <a href="#img_01" class="list-group-item list-group-item-action active" style="background-color:#c4122f;">
+                    <span class="glyphicon glyphicon-home"></span>&nbsp;Brand Standards Manual 
+                </a>
+                <a href="#img_05" class="list-group-item list-group-item-action">
+                    <span class="glyphicon glyphicon-hand-right"></span>&nbsp;Fernandez Foundation
+                </a>
+                <a href="#img_14" class="list-group-item list-group-item-action">
+                    <span class="glyphicon glyphicon-hand-right"></span>&nbsp;Tanishsoft Hrms
+                </a>
+                <a href="#img_21" class="list-group-item list-group-item-action">
+                    <span class="glyphicon glyphicon-hand-right"></span>&nbsp;Fernandez Stork Home
+                </a>
+                <a href="#img_26" class="list-group-item list-group-item-action">
+                    <span class="glyphicon glyphicon-hand-right"></span>&nbsp;Fernandez Out Patient Clinic
+                </a>
+                <a href="#img_31" class="list-group-item list-group-item-action">
+                    <span class="glyphicon glyphicon-hand-right"></span>&nbsp;Promise
+                </a>
+                <a href="#img_35" class="list-group-item list-group-item-action">
+                    <span class="glyphicon glyphicon-hand-right"></span>&nbsp;Fernandez Child Development Center
+                </a>
+                <a href="#img_42" class="list-group-item list-group-item-action">
+                    <span class="glyphicon glyphicon-hand-right"></span>&nbsp;Unified Visual Identity
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-10">
+        <div style="text-align:center;">
+            <img id="img_01" src="~/Documents/Images/Our_Brand/01.jpg" style="width:1020px;border: solid 1px #c4122f;" /><br />
+            <img id="img_02" src="~/Documents/Images/Our_Brand/02.jpg" style="width:1020px;border: solid 1px #c4122f;" /><br />
+            <img id="img_03" src="~/Documents/Images/Our_Brand/03.jpg" style="width:1020px;border: solid 1px #c4122f;" /><br />
+            <img id="img_04" src="~/Documents/Images/Our_Brand/04.jpg" style="width:1020px;border: solid 1px #c4122f;" /><br />
+            <img id="img_05" src="~/Documents/Images/Our_Brand/05.jpg" style="width:1020px;border: solid 1px #c4122f;" /><br />
+            <img id="img_06" src="~/Documents/Images/Our_Brand/06.jpg" style="width:1020px;border: solid 1px #c4122f;" /><br />
+            <img id="img_07" src="~/Documents/Images/Our_Brand/07.jpg" style="width:1020px;border: solid 1px #c4122f;" /><br />
+            <img id="img_08" src="~/Documents/Images/Our_Brand/08.jpg" style="width:1020px;border: solid 1px #c4122f;" /><br />
+            <img id="img_09" src="~/Documents/Images/Our_Brand/09.jpg" style="width:1020px;border: solid 1px #c4122f;" /><br />
+            @for (var i = 10; i < 54; i++)
+            {
+                string Urlimp = "/Documents/Images/Our_Brand/" + i + ".jpg";
+                <img id="img_@i" src="@Urlimp" style="width:1020px;border: solid 1px #c4122f;" /><br />
+            }
+        </div>
+
+    </div>
+</div>

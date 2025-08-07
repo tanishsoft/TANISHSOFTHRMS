@@ -1,0 +1,104 @@
+﻿
+
+
+.RedColorBorderCSS {
+    border: 1px solid red;
+}
+
+.TextAlign_CenterCSS {
+    text-align: center !important;
+}
+
+.TextAlign_RightCSS {
+    text-align: right !important;
+}
+
+.TextAlign_LeftCSS {
+    text-align: left !important;
+}
+
+.TextAlign_JustifyCSS {
+    text-align: justify !important;
+}
+
+.TextAlign_WorkBreakCSS {
+    word-break: break-all !important;
+}
+
+
+.TextAlign_CenterCSS {
+    text-align: center !important;
+}
+
+.TextAlign_RightCSS {
+    text-align: right !important;
+}
+
+.TextAlign_LeftCSS {
+    text-align: left !important;
+}
+
+.TextAlign_JustifyCSS {
+    text-align: justify !important;
+}
+
+.TextAlign_WorkBreakCSS {
+    word-break: break-all !important;
+}
+
+.ReadOnlyField_CSS {
+    background-color: #f2f2f2;
+}
+
+.MandatorySpanCSS {
+    color: red;
+}
+
+    .MandatorySpanCSS:before {
+        content: "*";
+    }
+
+.CustomRowPadding_5PX_CSS {
+    padding: 5px;
+}
+
+.Text_FirstLetterCapital {
+    text-transform: capitalize !important;
+}
+
+.Asqrow {
+    width: 100%;
+}
+
+.Asqrowfirst {
+    width: 19%;
+    display: inline-block;
+}
+
+    .Asqrowfirst img {
+        padding-top: 10px;
+        padding-bottom: 26px;
+        padding-left: 5px;
+        padding-right: 5px;
+        
+    }
+
+@media screen and (max-width: 1000px) {
+    .Asqrowfirst {
+        width: 24%;
+    }
+}
+
+@media screen and (max-width: 750px) {
+
+    .Asqrowfirst {
+        width: 32%;
+    }
+}
+
+@media screen and (max-width: 500px) {
+
+    .Asqrowfirst {
+        width: 49%;
+    }
+}

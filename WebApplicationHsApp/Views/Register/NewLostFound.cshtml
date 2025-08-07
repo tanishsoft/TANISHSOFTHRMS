@@ -1,0 +1,355 @@
+﻿
+@{
+    ViewBag.Title = "NewLostFound";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+
+    #captureSignature {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+
+    #captureSignature2 {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+
+    #captureSignatureStaff {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+</style>
+<script src="~/Scripts/jSignature.min.js"></script>
+<!--[if lt IE 9]>
+<script  type="text/javascript" src="~/Scripts/flashcanvas.js"></script>
+    <![endif]-->
+<script>
+    var validate;
+    var eId = 0;
+
+    var $sigdiv, $sigdiv2;
+    $(document).ready(function () {
+
+        $sigdiv2 = $("#captureSignatureSecurity").jSignature({ 'UndoButton': true });
+        LoadLocations();
+        $("#txtLost_or_HandOverPerson").change(function () {
+            var value = $("#ddllostby").val();
+            if (value == "Employee") {
+                $.get("/Custom/GetUserDetailsByEmpId?id=" + $("#txtLost_or_HandOverPerson").val(), function (data) {
+                    if (data != "Enter Valid Request ID") {
+                        $("#txtLost_or_HandOverPersonText").html(data.FirstName + " " + data.PhoneNumber + " " + data.DepartmentName);
+                    }
+                });
+            } else if (value == "Patient") {
+                $.get("/CMS/GetCMS_PatitentNamebyMRno?id=" + $("#txtLost_or_HandOverPerson").val(), function (res) {
+                    if (res != null) {
+                        $("#txtLost_or_HandOverPersonText").html(res.Name + " " + res.MobileNumber + " " + res.RoomNo + " " + res.BedNo);
+                    }
+                    else {
+                        $("#txtLost_or_HandOverPersonText").html("");
+                    }
+                });
+            }
+        });
+
+        $("#txtFoundPerson").change(function () {
+            var value = $("#ddlFoundby").val();
+            if (value == "Employee") {
+                $.get("/Custom/GetUserDetailsByEmpId?id=" + $("#txtFoundPerson").val(), function (data) {
+                    if (data != "Enter Valid Request ID") {
+                        $("#txtFoundPersonText").html(data.FirstName + " " + data.PhoneNumber + " " + data.DepartmentName);
+                    }
+                });
+            } else if (value == "Patient") {
+                $.get("/CMS/GetCMS_PatitentNamebyMRno?id=" + $("#txtFoundPerson").val(), function (res) {
+                    if (res != null) {
+                        $("#txtFoundPersonText").html(res.Name + " " + res.MobileNumber + " " + res.RoomNo + " " + res.BedNo);
+                    }
+                    else {
+                        $("#txtFoundPersonText").html("");
+                    }
+                });
+            }
+        });
+        
+        $("#txtDate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            Edit: true
+        });
+        $('#txtApproximateTime').timepicker();
+        $(".LostItem").show();
+        $(".FoundItem").hide();
+    });
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Locations -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#LocationId").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function OnLocationchng() {
+        $.get("/Register/GetSecurityDetails?locationId=" + $("#LocationId").val(), function (data) {
+            var options = [];
+            options.push('<option value="">- Select Security -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].FirstName + '">' + data[i].FirstName + '</option>');
+            }
+            $("#ddlSecurity").html(options.join(''));
+        });
+    }
+    function SaveRegister() {
+        ValidateDetails();
+        var takingSecuritySign = $sigdiv2.jSignature('getData', 'image').toString();
+        if (takingSecuritySign == null || takingSecuritySign == "") {
+            validate = false;
+        }
+        if (validate) {
+            var task = {
+                Id: eId,
+                LocationId: $("#LocationId").val(),
+                RequestType: $("#ddlrequesttype").val(),
+                Items: $("#txtItems").val(),
+                IsActive: true,
+                LostIsEmployeeOrOther: "",
+                Lost_or_HandOverPerson: "",
+                LostRegisterSecurity: "",
+                LostRegisterSecuritySign: "",
+                LostRemarks: "",
+                LostPersonAddress:"",
+                FoundIsEmployeeOrOther: "",
+                FoundPerson: "",
+                FoundRegisterSecurity: "",
+                FoundRegisterSecuritySign: "",
+                FoundRemarks: "",
+                LostApproximateTime: "",
+                FoundApproximateTime: "",
+                FoundPersonAddress:"",
+                // HandoverToSecuritySign: "data:" + takingSecuritySign
+            };
+            if (task.RequestType == "Lost") {
+                task.LostIsEmployeeOrOther = $("#ddllostby").val();
+                task.Lost_or_HandOverPerson = task.LostIsEmployeeOrOther != "Other" ? $("#txtLost_or_HandOverPersonText").html() : $("#txtLost_or_HandOverPerson").val();
+                task.LostRegisterSecurity = $("#ddlSecurity").val();
+                task.LostRegisterSecuritySign = "data:" + takingSecuritySign;
+                task.LostRemarks = $("#txtRemarks").val();
+                task.LostApproximateTime = $("#txtDate").val() + "_" + $("#txtApproximateTime").val();
+                task.LostPersonAddress = $("#txtLostPersonAddress").val();
+            } else {
+                task.FoundIsEmployeeOrOther = $("#ddlFoundby").val();
+                task.FoundPerson = task.FoundIsEmployeeOrOther != "Other" ? $("#txtFoundPersonText").html() :  $("#txtFoundPerson").val();
+                task.FoundRegisterSecurity = $("#ddlSecurity").val();
+                task.FoundRegisterSecuritySign = "data:" + takingSecuritySign;
+                task.FoundRemarks = $("#txtRemarks").val();
+                task.FoundApproximateTime = $("#txtDate").val() + "_" + $("#txtApproximateTime").val();
+                task.FoundPersonAddress = $("#txtFoundPersonAddress").val();
+            }
+            $.ajax({
+                type: "POST",
+                url: "/Register/SaveNewLostFound",
+                data: task,
+                success: function (data) {
+                    alert(data);
+                    clearAll();
+                }
+            });
+        } else {
+            alert("Please enter all the required fields");
+        }
+    }
+    function ValidateDetails() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+
+        if ($("#LocationId").val() == "") {
+            $("#LocationId").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtProductDetails").val() == "") {
+            $("#txtProductDetails").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtVendorName").val() == "") {
+            $("#txtVendorName").addClass('css-error');
+            validate = false;
+        }
+        //if ($("#txtKeyNumber").val() == "") {
+        //    $("#txtKeyNumber").addClass('css-error');
+        //    validate = false;
+        //}
+        if ($("#txtQty").val() == "") {
+            $("#txtQty").addClass('css-error');
+            validate = false;
+        }
+    }
+    function clearAll() {
+        window.location.href = "/Register/LostFound";
+    }
+    function onchangerequesttype() {
+        var value = $("#ddlrequesttype").val();
+        if (value == "Lost") {
+            $(".LostItem").show();
+            $(".FoundItem").hide();
+        } else {
+            $(".FoundItem").show();
+            $(".LostItem").hide();
+        }
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading" style="height:35px;"><a href="~/Register/LostFound">Go Back</a> &nbsp;&nbsp;New Lost Found </div>
+    <div class="panel-body">
+        <div class="modal-body">
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Location<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <select id="LocationId" class="form-control" onchange="OnLocationchng();">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="name">Request Type</label>
+                </div>
+                <div class="col-md-4">
+                    <select id="ddlrequesttype" class="form-control" onchange="onchangerequesttype();">
+                        <option value="Lost">Lost</option>
+                        <option value="Found">Found</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Date<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtDate" class="form-control" />
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Approximate Time<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4 bootstrap-timepicker timepicker">
+                    <input type="text" id="txtApproximateTime" class="form-control" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Items<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <textarea type="text" id="txtItems" class="form-control"></textarea>
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Remarks<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <textarea type="text" id="txtRemarks" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="row LostItem" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Lost By</label>
+                </div>
+                <div class="col-md-4">
+                    <select id="ddllostby" class="form-control">
+                        <option value="">Select</option>
+                        <option value="Employee">Employee</option>
+                        <option value="Patient">Patient</option>
+                        <option value="Others">Others</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Lost Person Name<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtLost_or_HandOverPerson" class="form-control" />
+                    <span id="txtLost_or_HandOverPersonText"></span>
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Lost Person Address<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <textarea  id="txtLostPersonAddress" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="row FoundItem" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Found By</label>
+                </div>
+                <div class="col-md-4">
+                    <select id="ddlFoundby" class="form-control">
+                        <option value="">Select</option>
+                        <option value="Employee">Employee</option>
+                        <option value="Patient">Patient</option>
+                        <option value="Others">Others</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Found Person Name<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtFoundPerson" class="form-control" />
+                    <span id="txtFoundPersonText"></span>
+                </div>
+                <div class="col-md-2">
+                    <label for="name">Found Person Address<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <textarea id="txtFoundPersonAddress" class="form-control"></textarea>
+
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Security</label>
+                </div>
+                <div class="col-md-4">
+                    <select id="ddlSecurity" class="form-control">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row" style="padding:5px;">
+                <div class="col-md-1">
+                    <label for="name">Security Signature<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-5">
+                    <div id="captureSignatureSecurity">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <input type="button" id="btnasigntask" value="Save" onclick="SaveRegister();" class="btn btn-primary" />
+            <button type="button" class="btn btn-default" onclick="clearAll();">Cancel</button>
+        </div>
+    </div>
+</div>

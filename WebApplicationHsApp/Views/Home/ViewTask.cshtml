@@ -1,0 +1,112 @@
+﻿@model WebApplicationHsApp.DataModel.tbl_Task
+
+@{
+    ViewBag.Title = "ViewTask";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<ul class="breadcrumb">
+    <li><a href="~/Home/Index">Home</a></li>
+    <li class="active"><a href="~/Home/MyTask">MyTask</a></li>
+</ul>
+<div class="panel panel-success">
+    <div class="panel-heading">
+       
+            <h3 class="panel-title">View Task Details - @Model.TaskId </h3>
+       
+    </div>
+   
+    <div class="panel-body">
+        <table class="table table-bordered">
+            <tr>
+                <td>@Html.DisplayNameFor(model => model.CallDateTime)</td>
+                <td>@Html.DisplayFor(model => model.CallDateTime)</td>
+                <td>@Html.DisplayNameFor(model => model.CallStartDateTime)</td>
+                <td>@Html.DisplayFor(model => model.CallStartDateTime)</td>
+            </tr>
+            <tr>
+                <td>
+                    @Html.DisplayNameFor(model => model.CallStartDateTime)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.CallStartDateTime)
+                </td>
+                <td>@Html.DisplayNameFor(model => model.CreatorLocationName)</td>
+                <td>@Html.DisplayFor(model => model.CreatorLocationName)</td>
+            </tr>
+            <tr>
+                <td>
+                    @Html.DisplayNameFor(model => model.CreatorDepartmentName)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.CreatorDepartmentName)
+                </td>
+                <td>@Html.DisplayNameFor(model => model.CreatorName)</td>
+                <td>@Html.DisplayFor(model => model.CreatorName)</td>
+            </tr>
+            <tr>
+                <td>
+                    @Html.DisplayNameFor(model => model.CreatorPlace)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.CreatorPlace)
+                </td>
+                <td>@Html.DisplayNameFor(model => model.AssertEquipId)</td>
+                <td>@Html.DisplayFor(model => model.AssertEquipId)</td>
+            </tr>
+            <tr>
+                <td>
+                    @Html.DisplayNameFor(model => model.AssertEquipName)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.AssertEquipName)
+                </td>
+                <td>@Html.DisplayNameFor(model => model.CategoryOfComplaint)</td>
+                <td>@Html.DisplayFor(model => model.CategoryOfComplaint)</td>
+            </tr>
+            <tr>
+                <td>
+                    @Html.DisplayNameFor(model => model.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.Description)
+                </td>
+                <td>@Html.DisplayNameFor(model => model.AssignLocationName)</td>
+                <td>@Html.DisplayFor(model => model.AssignLocationName)</td>
+            </tr>
+            <tr>
+                <td>
+                    @Html.DisplayNameFor(model => model.AssignDepartmentName)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.AssignDepartmentName)
+                </td>
+                <td>@Html.DisplayNameFor(model => model.AssignName)</td>
+                <td>@Html.DisplayFor(model => model.AssignName)</td>
+            </tr>
+            <tr>
+                <td>
+                    @Html.DisplayNameFor(model => model.WorkDoneRemarks)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.WorkDoneRemarks)
+                </td>
+                <td>@Html.DisplayNameFor(model => model.CallEndDateTime)</td>
+                <td>@Html.DisplayFor(model => model.CallEndDateTime)</td>
+            </tr>
+            <tr>
+                <td>
+                    @Html.DisplayNameFor(model => model.AssignStatus)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => model.AssignStatus)
+                </td>
+                <td>@Html.DisplayNameFor(model => model.CreatorStatus)</td>
+                <td>@Html.DisplayFor(model => model.CreatorStatus)</td>
+            </tr>
+        </table>
+        
+        
+    </div>
+   
+</div>

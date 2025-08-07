@@ -1,0 +1,166 @@
+﻿
+@{
+    ViewBag.Title = "Manage Images";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+        Loadsuccess();
+        $(".opCategory").hide();
+    });
+    function Loadsuccess() {
+        $.get("/Hospital/GetProtocols", function (data) {
+            var html = "";
+            for (var i = 0; i < data.length; i++) {
+                html += "<tr><td>" + data[i].Name + "</td><td>" + data[i].Category + "</td><td><input type='button' id='" + data[i].Id + "' onclick='Delete(this.id);' value='Del' /></td></tr>";
+            }
+            $("#tblbodyprotocol").html(html);
+            $('#tblprotocol').dataTable();
+        });
+    }
+    function Delete(id) {
+        if (confirm("Are you sure you want to delete?")) {
+            $.get("/Hospital/DeleteProtocol?id=" + id, function (data) {
+                window.location.reload();
+            });
+        }
+    }
+    function ddlpagenamechange() {
+        $(".opCategory").hide();
+        var value = $("#PageName").val();
+        $("." + value).show();
+    }
+</script>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Add New Image</div>
+    <div class="panel-body">
+        @if (ViewBag.Message != null && ViewBag.Message == "Success")
+        {
+            <h4 style="color:green;">Updated successfully </h4>
+        }
+
+        @using (Html.BeginForm("ManageProtocaol", "Hospital", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            <table class="table" style="width:60%; margin:auto;">
+                <tr>
+                    <td>
+                        <div class="row" style="padding:5px;">
+                            <div class="col-md-4">
+                                <label for="name" class="required">Name</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="text" id="Name" name="Name" class="form-control" />
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="row" style="padding:5px;">
+                            <div class="col-md-4">
+                                <label for="name" class="required">Type Of The Page</label>
+                            </div>
+                            <div class="col-md-8">
+                                <select id="PageName" name="PageName" class="form-control" onchange="ddlpagenamechange();">
+                                    <option value="">Select Page </option>
+                                    <option value="Protocol">Protocol</option>
+                                    <option value="Events">Events</option>
+                                    <option value="NABH">NABH</option>
+                                    <option value="IRB">IRB</option>
+                                    <option value="HR">HR</option>
+                                    @*<option value="Neonatology">Neonatology</option>
+                                        <option value="Nutrition and Dietetics">Nutrition and Dietetics</option>*@
+                                </select>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+
+                        <div class="row" style="padding:5px;">
+                            <div class="col-md-4">
+                                <label for="name" class="required">Category</label>
+                            </div>
+                            <div class="col-md-8">
+                                <select id="Category" name="Category" class="form-control">
+                                    <option class="Protocol opCategory" value="">Select Category </option>
+                                    <option class="Protocol opCategory" value="Obstetrics">Obstetrics</option>
+                                    <option class="Protocol opCategory" value="Gynaecology">Gynaecology</option>
+                                    <option class="Protocol opCategory" value="FMU">FMU</option>
+                                    <option class="NABH opCategory" value="FH - Bogulkunta">FH - Bogulkunta</option>
+                                    <option class="NABH opCategory" value="FH - Hyderguda">FH - Hyderguda</option>
+                                    <option class="NABH opCategory" value="Training Topics">Training Topics</option>
+                                    <option class="NABH opCategory" value="Important Forms">Important Forms</option>
+                                    <option class="NABH opCategory" value="Important_Information">Important_Information</option>
+                                    <option class="NABH opCategory" value="Bi-LingualConsents-Telugu">Bi-LingualConsents-Telugu</option>
+                                    <option class="NABH opCategory" value="Bi-LingualConsents-Urdu">Bi-LingualConsents-Urdu</option>
+                                    <option class="NABH opCategory" value="FH - Common Manuals">FH - Common Manuals</option>
+                                    <option class="NABH opCategory" value="FH - Stork Home Manuals">FH - Stork Home Manuals</option>
+                                    <option class="NABH opCategory" value="KPI">KPI</option>
+                                    <option class="NABH opCategory" value="Reports">Reports</option>
+                                    <option class="NABH opCategory" value="Committees">Committees</option>
+                                    <option class="Events opCategory" value="Medical">Medical</option>
+                                    <option class="Events opCategory" value="In-House">In-House</option>
+                                    <option class="IRB opCategory" value="IRB">IRB</option>
+                                    <option class="HR opCategory" value="HR">HR</option>
+                                </select>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="row" style="padding:5px;">
+                            <div class="col-md-4">
+                                <label for="name" class="required">Select PDF or Image</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="file" id="ExcelFileData" name="ExcelFileData" />
+                                <p style="font-size:10px;"></p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="row" style="padding:5px;">
+                            <div class="col-md-4">
+                                &nbsp;
+                            </div>
+                            <div class="col-md-8">
+                                <input type="submit" id="btnuploadLeaveTypeExcel" value="Save" class="btn btn-primary" />
+                            </div>
+                        </div>
+
+                    </td>
+                </tr>
+            </table>
+
+        }
+
+    </div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">View Images</div>
+    <div class="panel-body">
+        <table style="width:80%;margin:auto;" class="table table-bordered" id="tblprotocol">
+            <thead>
+                <tr>
+                    <td>
+                        Name
+                    </td>
+                    <td>
+                        Protocol
+                    </td>
+                    <td>
+                        Action
+                    </td>
+                </tr>
+            </thead>
+            <tbody id="tblbodyprotocol"></tbody>
+        </table>
+    </div>
+</div>

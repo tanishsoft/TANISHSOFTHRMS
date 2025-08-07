@@ -1,0 +1,105 @@
+﻿
+<script>
+    var validate = true;
+    var eId = 0;
+    $(document).ready(function () {
+        LoadData();
+    });
+
+    function LoadData() {
+        $('#tblCategory').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/CMS/AjaxGetCMSBill",
+            "bProcessing": true,
+            "bDestroy": true,
+            "scrollX": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                       { "sName": "IsActive" },
+                       {
+                           "sName": "CategoryId",
+                           "bSortable": false,
+                           "render": function (data, row, r) {
+                               //console.log(r);
+                               return '<div class="btn-group">' +
+                                   '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                                   '<ul class="dropdown-menu dropdown-menu-right">' +
+                                   '<li><a href="javascript:void(0);"  onclick="onEdit(' + data + ')">Edit</a></li>' +
+                                   '<li><a href="javascript:void(0);"  onclick="onDelete(' + data + ')">Delete</a></li>' +
+                                   '</ul></div>';
+                           }
+                       }
+            ]
+        });
+        $("#tblCategory_length").addClass("col-md-6");
+        $("#tblCategory_length").addClass("col-md-6");
+    }
+
+    function onEdit(id) {
+        window.location.href = '/CMS/CreateCMSBill?id=' + id;
+
+    }
+
+
+    function onDelete(id) {
+        if (confirm('Are you sure you want to delete?')) {
+            $.getJSON("@Url.Action("DeleteCMBill", "CMS")", { id: id }, function (data) {
+                clearAll();
+                LoadData();
+            });
+        } return false;
+    }
+    function New()
+    {
+        window.location.href = '/CMS/CreateCMSBill';
+      }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading"  style="height:35px;background: #FEC20E;"><a href="#" class="pull-right" style="color:white;" onclick="New();">New Bill</a></div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblCategory">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Customer Type</th>
+                    <th>Employee</th>
+                    <th>Sales Employee</th>
+                    <th>Discount Type</th>
+                    <th>Mode Of Payment</th>
+                    <th>Discount</th>
+                    <th>TaxAmount</th>
+                    <th>Total Price</th>
+                    <th>Final Price</th>
+                    <th>Refund Amount</th>
+                    <th>Is FreeMeal</th>
+                    <th>Canteen Id</th>
+                    <th> Sales EmpNotes</th>
+                    <th>Bill Address</th>
+                    <th>Card Number</th>
+                    <th>NameOfTheCard</th>
+                    <th>Is Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+

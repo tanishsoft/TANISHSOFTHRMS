@@ -1,0 +1,62 @@
+﻿@{
+    ViewBag.Title = "Employees";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+        LoadData();
+    });
+    function LoadData() {
+        $('#tbltable').dataTable({
+
+            "bServerSide": true,
+            "sAjaxSource": "/Home/AjaxGetEmployees",
+            "bProcessing": true,
+
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            //"aaSorting": [[0, "desc"]],
+            "aoColumns": [
+                       { "sName": "CustomUserId" },
+                { "sName": "LocationName" },
+                { "sName": "DepartmentName" },
+                       { "sName": "FirstName" },
+                       //{ "sName": "CustomUserId" },
+                       { "sName": "EmailId" },
+                       { "sName": "PlaceAllocation" },
+                       { "sName": "PhoneNumber" },
+                        { "sName": "Extenstion" },
+                       { "sName": "DepartmentName" },
+                       { "sName": "Designation" }
+
+            ],
+
+        });
+        $("#tbltable_length").addClass("col-md-6");
+        $("#tbltable_length").addClass("col-md-6");
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading">List Of  Employees</div>
+    <div class="panel-body">
+        <table id="tbltable" class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;">
+            <thead>
+                <tr style="background-color:teal;color:white;">
+                    <th>Emp Id</th>
+                    <th>Location</th>
+                    <th>Department</th>
+                    <th>Name</th>
+                    @*<th>Emp Id</th>*@
+                    <th>Email Id</th>
+                    <th>Room No</th>
+                    <th>Mobile</th>
+                    <th>Extension Number</th>
+                    <th>Department</th>
+                    <th>Designation</th>
+
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>

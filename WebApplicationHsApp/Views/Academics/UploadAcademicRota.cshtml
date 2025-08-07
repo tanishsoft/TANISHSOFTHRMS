@@ -1,0 +1,58 @@
+﻿
+@{
+    ViewBag.Title = "UploadAcademicRota";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">Upload Academic Rota</div>
+    <div class="panel-body">
+        @if (ViewBag.Message != null && ViewBag.Message == "Success")
+        {
+            <h4 style="color:green;">Updated successfully </h4>
+        }
+
+
+        @using (Html.BeginForm("UploadAcademicRota", "Academics", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            <table class="table" style="width:60%; margin:auto;">
+                <tr>
+                    <td>
+                        <div class="row" style="padding:5px;">
+                            <div class="col-md-4">
+                                <label for="name" class="required">Select image</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="file" id="ExcelFileData" name="ExcelFileData" />
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="submit" id="btnuploadLeaveTypeExcel" value="Save" class="btn btn-primary" />
+                    </td>
+                </tr>
+            </table>
+
+        }
+        <br />
+        &nbsp;&nbsp;&nbsp;<input type="button" id="removeevent" value="Remove Academic Rota" onclick="RemoveGeneralEvent();" />
+    </div>
+</div>
+
+<script>
+    function RemoveGeneralEvent() {
+        if (confirm("Are you sure you want to remove")) {
+            $.ajax({
+                data: { type: "AcademicRota" },
+                type: "GET",
+                url: "/Hospital/RemoveSettingsimages",
+                success: function (data) {
+                    alert(data);
+                }
+            });
+        }
+    }
+</script>
+

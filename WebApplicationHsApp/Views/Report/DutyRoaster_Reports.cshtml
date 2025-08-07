@@ -1,0 +1,41 @@
+﻿@{
+    ViewBag.Title = "Duty Roaster Reports";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@Scripts.Render("~/Scripts/DutyRoasterReportsPage_JS")
+
+<div class="panel panel-default">
+    <div class="panel-heading">View DutyRoster</div>
+    <div class="panel-body">
+        <div id="divviewduty">
+
+            <div class="row" style="padding-top:10px;">
+                <div class="col-xs-2">
+                    Select Form Date
+                </div>
+                <div class="col-xs-2">
+                    <input type="text" id="txtfromdate">
+                </div>
+                <div class="col-xs-2">
+                    Todate
+                </div>
+                <div class="col-xs-2">
+                    <input type="text" id="txttodate">
+                </div>
+                <div class="col-xs-2">
+
+                    <input type="button" class="btn btn-primary" id="btncalender" value="Generate" onclick="btnviewclick();" />
+                </div>
+            </div>
+
+
+
+            <div id="viewdivroster" style="padding-bottom: 50px;">
+            </div>
+
+
+        </div>
+
+    </div>
+</div>

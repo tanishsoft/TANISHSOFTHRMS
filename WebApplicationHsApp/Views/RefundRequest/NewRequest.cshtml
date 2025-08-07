@@ -1,0 +1,420 @@
+﻿
+@{
+    ViewBag.Title = "NewRequest";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<script>
+    var a = ['', 'one ', 'two ', 'three ', 'four ', 'five ', 'six ', 'seven ', 'eight ', 'nine ', 'ten ', 'eleven ', 'twelve ', 'thirteen ', 'fourteen ', 'fifteen ', 'sixteen ', 'seventeen ', 'eighteen ', 'nineteen '];
+    var b = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+
+    function inWords(num) {
+        if ((num = num.toString()).length > 9) return 'overflow';
+        n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+        if (!n) return; var str = '';
+        str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + 'crore ' : '';
+        str += (n[2] != 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + 'lakh ' : '';
+        str += (n[3] != 0) ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + 'thousand ' : '';
+        str += (n[4] != 0) ? (a[Number(n[4])] || b[n[4][0]] + ' ' + a[n[4][1]]) + 'hundred ' : '';
+        str += (n[5] != 0) ? ((str != '') ? 'and ' : '') + (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) + '' : '';
+        return str;
+    }
+    $(document).ready(function () {
+        var id = parseInt($("#hdnIdRefundRequest").val());
+        $(".alltypes").hide();
+        $("#txtDateOfsubmit").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-0:+50",
+            Edit: true
+            //  minDate: 0
+        });
+        $("#txtValidity").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-0:+50",
+            Edit: true
+        });
+        LoadLocations();
+        $(".ConcessionSubcategory").hide();
+        $("#txtConcessionAdvised").select2();
+        if (id > 0) {
+            LoadData(id);
+        }
+        reqtypehaschange();
+        $("#BillAmount").on('change keydown paste input', function () {
+            $("#spanBillAmountInWords").html(inWords($("#BillAmount").val()));
+        });
+    });
+    var locationid = 0;
+    function LoadData(id) {
+        $.get("/RefundRequest/GetRefundRequests?id=" + id, function (data) {
+            $("#txtJustification").val(data.Justification);
+            $("#txtIPNumber").val(data.PatientIpNo);
+            $("#txtMrNumber").val(data.PatientMrNo);
+            $("#txtPatientName").val(data.PatientName);
+            $("#txtPatientMobile").val(data.PatientMobile);
+            $("#PatientEmail").val(data.PatientEmail);
+
+            $("#BillNo").val(data.RefundBillNo);
+            $("#ddlLocation").val(data.LocationId);
+            $("#BillAmount").val(data.RefundAmount);
+
+            $("#AccountHolderName").val(data.AccountHolderName);
+            $("#ddlmodeusedbypatient").val(data.ModeUsed);
+            $("#Modedetails").val(data.ModeUsedDetails);
+
+            $("#IFSC").val(data.IFSC);
+            $("#BankName").val(data.BankName);
+            $("#AccountNumber").val(data.AccountNumber);
+            $("#ReEnterAccountNumber").val(data.AccountNumber);
+            $("#Branch").val(data.Branch);
+            $("#txtRemarks").val(data.Remarks);
+
+
+        });
+    }
+
+    function SaveNewRequest() {
+        var validdetails = true;
+        $(".clsrequired").each(function () {
+            if ($(this).val() == "" || $(this).val() == null) {
+                validdetails = false;
+                $(this).css("border", "1px solid red");
+            } else {
+                $(this).css("border", "1px solid #dce4ec");
+            }
+        });
+        if ($("#txtIPNumber").val() != null && $("#txtIPNumber").val() != "" &&
+            $("#txtPatientName").val() != null && $("#txtPatientName").val() != "" &&
+            $("#ddlLocation").val() != null && $("#ddlLocation").val() != "" &&
+            $("#txtJustification").val() != null && $("#txtJustification").val() != ""
+            && $("#BillNo").val() != null && $("#BillNo").val() != "" && validdetails
+        ) {
+            var fileData = new FormData();
+            var fileUpload = $("#fileupload").get(0);
+            var files = fileUpload.files;
+            fileData.append("Upload", files[0]);
+            fileData.append('RefundRequestId', parseInt($("#hdnIdRefundRequest").val()));
+            fileData.append('LocationId', $("#ddlLocation").val());
+            fileData.append('Justification', $("#txtJustification").val());
+            fileData.append('ModeUsed', $("#ddlmodeusedbypatient").val());
+            fileData.append('ModeUsedDetails', $("#Modedetails").val());
+
+            fileData.append('PatientName', $("#txtPatientName").val());
+            fileData.append('PatientIpNo', $("#txtIPNumber").val());
+            fileData.append('PatientMrNo', "");
+            fileData.append('PatientMobile', $("#txtPatientMobile").val());
+            fileData.append('PatientEmail', $("#PatientEmail").val());
+
+            fileData.append('RefundAmount', $("#BillAmount").val());
+            fileData.append('RefundBillNo', $("#BillNo").val());
+            fileData.append('AccountHolderName', $("#AccountHolderName").val());
+            fileData.append('IFSC', $("#IFSC").val());
+            fileData.append('BankName', $("#BankName").val());
+            fileData.append('AccountNumber', $("#AccountNumber").val());
+            fileData.append('Branch', $("#Branch").val());
+            fileData.append('Remarks', $("#txtRemarks").val());
+            fileData.append('Column1', $("#ddltypeofreq").val());
+            if ($("#AccountNumber").val() == $("#ReEnterAccountNumber").val()) {
+                $.ajax({
+                    cache: true,
+                    type: "POST",
+                    url: "/RefundRequest/SaveRefundRequest",
+                    contentType: false,
+                    processData: false,
+                    data: fileData,
+                    success: function (data) {
+                        alert(data);
+                        CancelRequest();
+                    }
+                });
+            } else {
+                alert("Account number is not matching please reenter");
+            }
+        } else {
+            alert("Please enter all the required fields");
+        }
+    }
+    function LoadLocations() {
+        $.ajax({
+            type: "GET",
+            url: "/Common/GetLocations",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#ddlLocation").html(options.join(''));
+                var id = parseInt($("#hdnIdRefundRequest").val());
+                if (id > 0) {
+                    $("#ddlLocation").val(locationid);
+                }
+            },
+            error: function () {
+                alert("error");
+            }
+        });
+    }
+    function categorychange() {
+        if ($("#ddlCategory").val() == "Other") {
+            $("#ConcessionCategoryOther").show();
+        } else {
+            $("#ConcessionCategoryOther").hide();
+        }
+        $(".ConcessionSubcategory").hide();
+        $("." + $("#ddlCategory").val()).show();
+    }
+    function txtIPnumberchange() {
+        $("#tblpdetails").html("");
+
+        $.get("/RefundRequest/GetPatientDetailsforipnoOrMrno?ipno=" + $("#txtIPNumber").val() + "&mrno=", function (data) {
+
+            $("#txtPatientName").val(data.name);
+            $("#txtMrNumber").val(data.mrno);
+            $("#txtPatientMobile").val(data.PHNO);
+
+        });
+    }
+    function txtMrnumberchange() {
+        $("#tblpdetails").html("");
+
+        $.get("/RefundRequest/GetPatientDetailsforipnoOrMrno?ipno=&mrno=" + $("#txtMrNumber").val(), function (data) {
+
+            $("#txtPatientName").val(data.name);
+            $("#txtIPNumber").val(data.ipno);
+            $("#txtPatientMobile").val(data.PHNO);
+
+        });
+    }
+
+    function CancelRequest() {
+        window.location = "/RefundRequest/Index";
+    }
+    function chgbankname() {
+        $("#OtherBankName").hide();
+        if ($("#BankName").val() == "Others") {
+            $("#OtherBankName").show();
+        }
+    }
+    function reqtypehaschange() {
+        var value = $("#ddltypeofreq").val();
+        $(".IPCases").hide();
+        $(".OPCases").hide();
+        $(".OtherCases").hide();
+        if (value == "IP") {
+            $(".IPCases").show();
+        }
+        else if (value == "OP") {
+            $(".OPCases").show();
+        } else {
+            $(".OtherCases").show();
+        }
+    }
+</script>
+<style>
+    .CpxNewRequest label {
+        font-size: 13px;
+        color: darkslategray;
+    }
+</style>
+<input type="hidden" id="hdnIdRefundRequest" value="@ViewBag.Id" />
+<div class="panel panel-default" style="width:80%;margin:auto;">
+    <div class="panel-heading" style="font-weight:normal;">
+        <span class="glyphicon glyphicon-arrow-right"></span>&nbsp;New Request
+    </div>
+    <div class="panel-body CpxNewRequest" style="min-height:500px;">
+        <div class="row" style="width:95%;margin:auto;">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-4">
+
+                    </div>
+                    <div class="col-md-4">
+                        <label> Select Type:</label>
+                        <select id="ddltypeofreq" class="form-control" onchange="reqtypehaschange();">
+                            <option value="IP">IP</option>
+                            <option value="OP">OP</option>
+                            <option value="Pharmacy">Pharmacy</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>Location<span style="color:red;">*</span></label>
+                        <select id="ddlLocation" class="form-control">
+                            <option value="">Select</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label>Justification<span style="color:red;">*</span></label>
+                        <select class="form-control clsrequired" name="Justification" id="txtJustification">
+                            <option value="">Select Justification</option>
+                            <option value="IP Cases" class="IPCases" disabled="disabled" style="color:darkslategrey;font-weight:bold;">IP Cases</option>
+                            <option value="Excess of Advance - Cash Cases" class="IPCases">Excess of Advance - Cash Cases</option>
+                            <option value="Excess of Advance - Insurance Cases" class="IPCases">Excess of Advance - Insurance Cases</option>
+                            <option value="Service Cancellation" class="IPCases">Service Cancellation</option>
+                            <option value="Admission Cancellation" class="IPCases">Admission Cancellation</option>
+                            <option value="Post discount" class="IPCases">Post discount</option>
+                            <option value="Others" class="IPCases">Others</option>
+                            <option value="OP Cases" class="OPCases" disabled="disabled" style="color:darkslategrey;font-weight:bold;">OP Cases</option>
+                            <option value="Consultation Cancel" class="OPCases">Consultation Cancel</option>
+                            <option value="Video Consultation Cancel" class="OPCases">Video Consultation Cancel</option>
+                            <option value="Registration Cancel" class="OPCases">Registration Cancel</option>
+                            <option value="Wrong Billing" class="OPCases">Wrong Billing</option>
+                            <option value="Excess Amount swiped" class="OPCases">Excess Amount swiped</option>
+                            <option value="Scan Cancel" class="OPCases">Scan Cancel</option>
+                            <option value="Lab Test Cancel" class="OPCases">Lab Test Cancel</option>
+                            <option value="Other Services Cancel" class="OPCases">Other Services Cancel</option>
+                            <option value="Concession - Refund" class="OPCases">Concession - Refund</option>
+                            <option value="Double time paid by patient" class="OPCases">Double time paid by patient</option>
+                            <option value="Excess Amount noticed by Accounts" class="OPCases">Excess Amount noticed by Accounts</option>
+                            <option value="Pharmacy Cases" class="OtherCases" disabled="disabled" style="color:darkslategrey;font-weight:bold;">Pharmacy Cases</option>
+                            <option value="Double Swipe" class="OtherCases">Double Swipe</option>
+                            <option value="Sale Return" class="OtherCases">Sale Return</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label>IP No/MR NO/Pharmacy NO<span style="color:red;">*</span></label>
+                        <input type="text" name="IPNumber" id="txtIPNumber" autocomplete="off" class="form-control clsrequired" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Patient Name<span style="color:red;">*</span></label>
+                        <input type="text" name="PatientName" id="txtPatientName" autocomplete="off" class="form-control clsrequired" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Patient Mobile<span style="color:red;">*</span></label>
+                        <input type="text" name="PatientMobile" id="txtPatientMobile" autocomplete="off" class="form-control clsrequired" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Refund Bill No<span style="color:red;">*</span></label>
+                        <input type="text" name="BillNo" id="BillNo" autocomplete="off" class="form-control" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label>Refund Amount<span style="color:red;">*</span></label>
+                        <input type="number" name="BillAmount" id="BillAmount" autocomplete="off" class="form-control clsrequired" />
+                        <span id="spanBillAmountInWords"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label> Mode used by patient to pay amount</label>
+                        <select id="ddlmodeusedbypatient" class="form-control clsrequired">
+                            <option value="">Select</option>
+                            <option value="Card">Card</option>
+                            <option value="UPI/QR">UPI/QR</option>
+                            <option value="Link-2">Link-2</option>
+                            <option value="Cash">Cash</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Details</label>
+                        <input type="text" name="Modedetails" id="Modedetails" class="form-control" autocomplete="off" />
+                    </div>
+
+                    <div class="col-md-4">
+                        <label>Account Holder Name<span style="color:red;">*</span></label>
+                        <input type="text" name="AccountHolderName" id="AccountHolderName" autocomplete="off" class="form-control clsrequired" />
+                    </div>
+
+
+                    <div class="col-md-4">
+                        <label>IFSC<span style="color:red;">*</span></label>
+                        <input type="text" name="IFSC" id="IFSC" class="form-control clsrequired" autocomplete="off" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Bank Name<span style="color:red;">*</span></label>
+                        <select name="BankName" id="BankName" class="form-control clsrequired" onchange="chgbankname();">
+                            <option value="">Select</option>
+                            <option value='Axis Bank'>Axis Bank</option>
+                            <option value='Bandhan Bank'>Bandhan Bank</option>
+                            <option value='Bank of Baroda'>Bank of Baroda</option>
+                            <option value='Bank of India'>Bank of India</option>
+                            <option value='Bank of Maharashtra'>Bank of Maharashtra</option>
+                            <option value='Canara Bank'>Canara Bank</option>
+                            <option value='Central Bank of India'>Central Bank of India</option>
+                            <option value='City Union Bank'>City Union Bank</option>
+                            <option value='CSB Bank'>CSB Bank</option>
+                            <option value='DCB Bank'>DCB Bank</option>
+                            <option value='Dhanlaxmi Bank'>Dhanlaxmi Bank</option>
+                            <option value='Federal Bank'>Federal Bank</option>
+                            <option value='HDFC Bank'>HDFC Bank</option>
+                            <option value='ICICI Bank'>ICICI Bank</option>
+                            <option value='IDBI Bank'>IDBI Bank</option>
+                            <option value='IDFC FIRST Bank'>IDFC FIRST Bank</option>
+                            <option value='Indian Bank'>Indian Bank</option>
+                            <option value='Indian Overseas Bank'>Indian Overseas Bank</option>
+                            <option value='IndusInd Bank'>IndusInd Bank</option>
+                            <option value='Jammu & Kashmir Bank'>Jammu & Kashmir Bank</option>
+                            <option value='Karnataka Bank'>Karnataka Bank</option>
+                            <option value='Karur Vysya Bank'>Karur Vysya Bank</option>
+                            <option value='Kotak Mahindra Bank'>Kotak Mahindra Bank</option>
+                            <option value='Nainital bank'>Nainital bank</option>
+                            <option value='Punjab and Sind Bank'>Punjab and Sind Bank</option>
+                            <option value='Punjab National Bank'>Punjab National Bank</option>
+                            <option value='RBL Bank'>RBL Bank</option>
+                            <option value='South Indian Bank'>South Indian Bank</option>
+                            <option value='State Bank of India'>State Bank of India</option>
+                            <option value='Tamilnad Mercantile Bank'>Tamilnad Mercantile Bank</option>
+                            <option value='UCO Bank'>UCO Bank</option>
+                            <option value='Union Bank of India'>Union Bank of India</option>
+                            <option value='YES Bank'>YES Bank</option>
+                            <option value='Others'>Others</option>
+                        </select>
+                        <input type="text" id="OtherBankName" placeholder="Enter Name here" class="form-control" style="display:none" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Account Number<span style="color:red;">*</span></label>
+                        <input type="password" name="AccountNumber" id="AccountNumber" autocomplete="off" class="form-control clsrequired" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Re-Enter Account Number<span style="color:red;">*</span></label>
+                        <input type="text" name="ReEnterAccountNumber" id="ReEnterAccountNumber" autocomplete="off" class="form-control clsrequired" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Branch<span style="color:red;">*</span></label>
+                        <input type="text" name="Branch" id="Branch" class="form-control clsrequired" autocomplete="off" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Patient Email<span style="color:red;">*</span></label>
+                        <input type="text" name="PatientEmail" id="PatientEmail" class="form-control clsrequired" autocomplete="off" />
+                    </div>
+                    <div class="col-md-4">
+                        <div class="col-md-12">
+                            <label>Remarks</label>
+                            <textarea name="Remarks" id="txtRemarks" class="form-control"></textarea>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <br />
+                        Select File to Upload<br />
+                        <input type="file" id="fileupload" />
+                    </div>
+                </div>
+            </div>
+            <br /><br />
+            <div class="row">
+                <div class="col-md-8">
+                    &nbsp;
+                </div>
+
+                <div class="col-md-3">
+                    <br />
+                    <button type="button" class="btn save" onclick="SaveNewRequest();">SAVE</button>
+                    <button type="button" onclick="CancelRequest();" class="btn cancel">Cancel</button>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>

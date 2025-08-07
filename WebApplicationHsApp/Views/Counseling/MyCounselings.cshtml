@@ -1,0 +1,356 @@
+﻿
+@{
+    ViewBag.Title = "Counselings";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    var eventcurrentid = 0;
+    $(document).ready(function () {
+        $('#EventTime').timepicker({ timeFormat: 'hh:mm:ss tt' });
+        $('#endtime').timepicker({ timeFormat: 'hh:mm:ss tt' });
+        $('#tblfromdate').datepicker({ dateFormat: "dd/mm/yy", minDate: 0 });
+        $('#tbltodate').datepicker({ dateFormat: "dd/mm/yy", minDate: 0 });
+        $('#tblRepeatenddate').datepicker({ dateFormat: "dd/mm/yy", minDate: 0 });
+
+        $('#txtdateforprint').datepicker({ dateFormat: "dd/mm/yy", minDate: 0 });
+        $('#txttodateforprint').datepicker({ dateFormat: "dd/mm/yy", minDate: 0 });
+        ViewFullCalendar();
+        $(".showRepeat").css("display", "none");
+    });
+    function ViewFullCalendar() {
+        $('#calendar').fullCalendar({
+            theme: true,
+            header: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'month,agendaWeek,agendaDay,listWeek'
+            },
+            defaultView: 'agendaWeek',
+            minTime: "07:00:00", // Duration object that denotes the first visible time of any given day
+            maxTime: "21:00:00", // Duration object that denotes the exclusive visible end time of any given day
+
+            //defaultDate: '2016-06-12',
+            editable: true,
+            eventLimit: true, // allow "more" link when too many events
+            //events: '/Calender/GetBookingEvents/',
+            events: {
+                url: '/Counseling/GetmySchedule/',
+                data: function () { // a function that returns an object
+                    //return {
+                    //    LocationId: $('#ddlLocation_Current').val(),
+                    //};
+
+                }
+            },
+            eventClick: function (calEvent, jsEvent, view) {
+                evetclikdeid = calEvent.id;
+                fullinfo(calEvent.id);
+            },
+            eventDrop: function (event, dayDelta, minuteDelta, allDay, revertFunc) {
+                if (confirm("Confirm move?")) {
+                    UpdateEvent(event.id, event.start._i, event.start._d);
+                }
+                else {
+                    revertFunc();
+                }
+            },
+
+            eventResize: function (event, dayDelta, minuteDelta, revertFunc) {
+
+                if (confirm("Confirm change appointment length?")) {
+                    UpdateEvent(event.id, event.start, event.end);
+                }
+                else {
+                    revertFunc();
+                }
+            },
+
+            dayClick: function (date, allDay, jsEvent, view) {
+                //if (new Date(date) < new Date().addHours(-10)) {
+                //    alert("Invalid Date - Book Conference Will Allow Only Future Dates");
+                //}
+                //else {
+                //    var start = moment(date).format('DD/MM/YYYY');
+                //    $('#tblfromdate').val(start);
+                //    $("#tbltodate").val(start);
+                //    ShowEventPopup();
+                //}
+
+            }
+        });
+    }
+    Date.prototype.addHours = function (h) {
+        this.setHours(this.getHours() + h);
+        return this;
+    }
+    var currenteventdata;
+    function EditRoomDetails() {
+        $.get('/Calender/VerifyUserAbletoEdit/' + eventcurrentid, function (data) {
+            if (data == "True") {
+                $("#myModal2").modal('hide');
+                var data = currenteventdata;
+                $("#Edittbltitle").val(data.Titles);
+                $("#EditEventDescription").val(data.EventDescription);
+                $("#Edittblfromdate").val(data.FromDate);
+                $("#Edittbltodate").val(data.ToDate);
+                $("#EditEventTime").val(data.StartTime);
+                $("#Editendtime").val(data.EndTime);
+                $("#Editextension").val(data.UGC_Extension);
+                $("#Editnofchair").val(data.Chair);
+                $("#Editnoftable").val(data.Tables);
+                $("#Edititreq").val(data.ITReq);
+                $("#ditViph").val(data.video);
+                $("#lblseat").val(data.Arrangemnts);
+                $("#Editemailid").val(data.EmailID);
+                $('#EditEventTime').timepicker({ timeFormat: 'hh:mm:ss tt' });
+                $('#Editendtime').timepicker({ timeFormat: 'hh:mm:ss tt' });
+                $("#myModalEdit").modal('show');
+            } else {
+                alert("This Event Created by Different User Or Event is alredy done. You Dont Have Access to Edit");
+            }
+        });
+
+    }
+    function fullinfo(id) {
+        eventcurrentid = id;
+        $.get('/Counseling/GetFullBookingDetails?id=' + id, function (data) {
+            if (data != "NA") {
+                currenteventdata = data;
+                $("#lblEmpName").html(data.EmpName);
+                $("#lblEmpMobile").html(data.EmpMobile);
+                $("#lblDateOfSchedule").html(data.DateOfSchedule);
+                $("#lblSlotTime").html(data.SlotTime);
+                $("#lblCreatedBy").html(data.CreatedBy);
+                $("#lblCreatedOn").html(data.CreatedOn);
+                $("#txtObservation").val(data.Observation);
+                if (data.families.length > 0) {
+                    var html = "<table class='table table-bordered'><tr style='background-color:brown;color:white;'><td>Name</td><td>Age</td><td>Relation</td><td>Observation</td></tr>";
+                    for (var i = 0; i < data.families.length; i++) {
+                        html += "<tr><td>" + data.families[i].Name + "</td><td>" + data.families[i].Age + "</td><td>" + data.families[i].Relation + "</td><td><input type='text' id='txtObservation_" + data.families[i].Id + "' style='max-width: 100%;' value='" + data.families[i].Observation + "' class='familyObservation form-control' /></td></tr>";
+                    }
+                    html += "</table>";
+                    $("#divfamilies").html(html);
+                }
+                $("#myModal2").modal('show');
+            } else {
+                alert("We are unable to find the Event");
+            }
+        });
+    }
+    function ShowEventPopup() {
+        $("#myModal").modal('show');
+    }
+    function ConvertDatefromoneddmmyyytommddyyy(date) {
+        if (date != null && date != "") {
+            var cdate = date.split('/');
+            return cdate[1] + "/" + cdate[0] + "/" + cdate[2];
+        } else {
+            return "";
+        }
+    }
+
+
+    function UpdateEvent(id, start, end) {
+        alert(id + " " + start + " " + end);
+    }
+
+
+    function CancelEvent() {
+        if (eventcurrentid != null && eventcurrentid != "") {
+            if (confirm("Are you sure you want to cancel booking?")) {
+                $.get('/Calender/CancelRoomBooking/' + eventcurrentid, function (data) {
+                    alert(data);
+                    if (data == "Success")
+                        location.reload();
+                });
+            }
+        }
+    }
+    function EnableDisableTextBox(chair) {
+
+        var nofchair = document.getElementById("nofchair");
+        nofchair.disabled = chair.checked ? false : true;
+        if (!nofchair.disabled) {
+            nofchair.focus();
+        }
+    }
+    function EnableDisabletablebox(tables) {
+        var noftable = document.getElementById("noftable");
+        noftable.disabled = tables.checked ? false : true;
+        if (!noftable.disabled) {
+            noftable.focus();
+        }
+    }
+    function EnableReqtextbox(Req) {
+        var itreq = document.getElementById("itreq");
+        itreq.disabled = Req.checked ? false : true;
+        if (!itreq.disabled) {
+            itreq.focus();
+        }
+
+    }
+    function Enablevidotextbox(Viph) {
+        var videophoto = document.getElementById("videophoto");
+        videophoto.disabled = Viph.checked ? false : true;
+        if (!videophoto.disabled) {
+            videophoto.focus();
+        }
+
+    }
+    function UpdateEventDetails() {
+        if (confirm("Are you sure you want to udpate?")) {
+            var event = {
+                BookingId: eventcurrentid,
+                Titles: $("#Edittbltitle").val(),
+                StartTime: $("#EditEventTime").val(),
+                EndTime: $("#Editendtime").val(),
+                EventDescription: $("#EditEventDescription").val(),
+                Chair: $("#Editnofchair").val(),
+                Tables: $("#Editnoftable").val(),
+                ITReq: $("#Edititreq").val(),
+                video: $("#Editvideophoto").val(),
+                UGC_Extension: $("#Editextension").val(),
+                EmailID: $("#Editemailid").val()
+
+            };
+            $.ajax({
+                type: 'POST',
+                url: "/Calender/UpdateBooking",
+                data: event,
+                dataType: 'json',
+                success: function (result) {
+                    if (result == "Success") {
+                        $("#myModalEdit").modal('show');
+                        alert('Booking details updated Successfully');
+                        window.location.reload();
+                    } else {
+                        alert(result);
+                    }
+                }, error: function (result) {
+                    $("#myModalEdit").modal('show');
+                    alert('Error, could not Book the room!');
+                }
+            });
+        }
+    }
+    function btnGenerateEvents() {
+
+    }
+
+    function RepeatSelect(val) {
+        if (val) {
+            $(".showRepeat").css("display", "block");
+        } else
+            $(".showRepeat").css("display", "none");
+
+    }
+    function SaveObservations() {
+        if ($("#txtObservation").val() != null && $("#txtObservation").val() != "") {
+            var model = {
+                CounselingId: eventcurrentid,
+                Observation: $("#txtObservation").val(),
+                family: []
+            };
+            $(".familyObservation").each(function (index) {
+                var id = this.id;
+                id = id.replace('txtObservation_', '');
+                model.family.push({
+                    Id: id,
+                    Observation: $(this).val()
+                });
+            });
+            $.post("/Counseling/SaveCounselingObservation", model, function (data) {
+                alert(data);
+            });
+        } else {
+            alert("Please enter Observation");
+        }
+    }
+</script>
+<style>
+    td {
+        word-break: break-all;
+    }
+
+        td.fc-day.fc-past {
+            background-color: #EEEEEE;
+        }
+
+    #counselingmain span {
+        color: #c4122f;
+    }
+
+    .fc-time-grid-event {
+        height: 47px;
+        font-size: 14px;
+    }
+</style>
+<div id="counselingmain">
+
+
+    <div class="panel panel-default">
+        <div class="panel-heading" style="font-weight:normal;">
+            <span class="glyphicon glyphicon-arrow-right"></span>&nbsp;My Counselings
+        </div>
+        <div class="panel-body CpxNewRequest" style="min-height:500px;">
+            <div id='calendar'></div>
+        </div>
+    </div>
+    @if (ViewBag.CurrentUser != null)
+    {
+        <input id="UserLocationId" type="hidden" value="@ViewBag.CurrentUser.LocationId" />
+    }
+
+    <div id="myModal2" class="modal fade" role="dialog">
+        <div class="modal-dialog" style="width:900px;">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"> Details</h4>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-bordered">
+                        <tr>
+                            <td>Emp Name</td>
+                            <td><span id="lblEmpName"></span></td>
+                            <td>Emp Mobile</td>
+                            <td><span id="lblEmpMobile"></span></td>
+                        </tr>
+                        <tr>
+                            <td>Date Of Schedule</td>
+                            <td><span id="lblDateOfSchedule"></span></td>
+                            <td>Slot Time</td>
+                            <td><span id="lblSlotTime"></span></td>
+                        </tr>
+                        <tr>
+                            <td>Created By</td>
+                            <td><span id="lblCreatedBy"></span></td>
+                            <td>Created On</td>
+                            <td><span id="lblCreatedOn"></span></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Observation
+                            </td>
+                            <td colspan="3">
+                                <textarea id="txtObservation" style="max-width:100%;" class="form-control"></textarea>
+                            </td>
+                        </tr>
+
+                    </table>
+                    <div id="divfamilies">
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    @*<button type="button" class="btn btn-warning" onclick="EditRoomDetails();">Edit Booking</button>*@
+                    <button type="button" class="btn btn-warning" onclick="SaveObservations();">Save Observations</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

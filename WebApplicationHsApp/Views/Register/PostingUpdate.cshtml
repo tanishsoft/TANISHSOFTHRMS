@@ -1,0 +1,152 @@
+﻿
+@{
+    ViewBag.Title = "PostingUpdate";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+</style>
+
+<script src="~/Scripts/jSignature.min.js"></script>
+<!--[if lt IE 9]>
+<script  type="text/javascript" src="~/Scripts/flashcanvas.js"></script>
+    <![endif]-->
+<script>
+    var $sigdiv, $sigdiv2, id = 0;
+    $(document).ready(function () {
+        $sigdiv = $("#captureSignatureSecurity").jSignature({ 'UndoButton': true });
+        $sigdiv2 = $("#captureSignatureEmployee").jSignature({ 'UndoButton': true });
+
+        $("#txtstaffIdNumber").change(function () {
+            $.get("/Custom/GetUserDetailsByEmpId?id=" + $("#txtstaffIdNumber").val(), function (data) {
+                if (data != "Enter Valid Request ID") {
+                    $("#txtstaffName").html(data.FirstName + " " + data.PhoneNumber + " " + data.DepartmentName);
+
+                }
+            });
+        });
+        ViewDetails();
+        //LoadDropdownvalues();
+    });
+    function Cancel() {
+        window.location.replace("/Register/Posting");
+    }
+
+    function SaveUserSignoff() {
+        var model = {
+            PostingId: $("#hidBreakdownid").val(),
+            OutAuthorizeEmpSign: "data:" + $sigdiv2.jSignature('getData', 'image').toString(),
+            OutTimeEmpSign: "data:" + $sigdiv.jSignature('getData', 'image').toString(),
+            OutAuthorizeEmp: $("#txtstaffIdNumber").val()           
+        }
+        $.post('/Register/SavePostingUpdate', model, function (data) {
+            alert("Successfully updated");
+            window.location.replace("/Register/Posting");
+        });
+    }
+    function GetDatestr(date) {
+        var d = new Date(parseInt(date.substr(6)));
+        return d.toLocaleString("en-GB");
+    }
+    function ViewDetails() {
+        $.get("/Register/GetRegister_Posting?id=" + $("#hidBreakdownid").val(), function (data) {
+            var html = "<table class='table table-bordered'>";
+           
+            html += "<tr><td>Posting Type</td><td>" + data.PostingType + "</td></tr>";
+            html += "<tr><td>Posting Location</td><td>" + data.PostingLocation + "</td></tr>";
+            html += "<tr><td>Rank</td><td>" + data.Rank + "</td></tr>";
+            html += "<tr><td>Shift</td><td>" + data.Shift + "</td></tr>";
+            if (data.PostingDate != null && data.PostingDate != "") {
+                html += "<tr><td>Posting Date</td><td>" + GetDatestr(data.PostingDate) + "</td></tr>";
+
+            }
+            html += "<tr><td>Remarks</td><td>" + data.Remarks + "</td></tr>";
+
+            if (data.InTime != null && data.InTime != "") {
+                html += "<tr><td>InTime </td><td>" + GetDatestr(data.InTime) + "</td></tr>";
+            }
+            if (data.OutTime != null && data.OutTime != "") {
+                html += "<tr><td>Out Time </td><td>" + GetDatestr(data.OutTime) + "</td></tr>";
+            }
+            if (data.InAuthorizeEmp != null && data.InAuthorizeEmp != "") {
+                html += "<tr><td>InAuthorizeEmp </td><td>" + data.InAuthorizeEmp + "</td></tr>";
+            }
+            if (data.OutAuthorizeEmp != null && data.OutAuthorizeEmp != "") {
+                html += "<tr><td>OutAuthorizeEmp </td><td>" + data.OutAuthorizeEmp + "</td></tr>";
+            }
+            if (data.InAuthorizeEmpSign != null && data.InAuthorizeEmpSign != "") {
+                html += "<tr><td>In AuthorizeEmp Sign</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.InAuthorizeEmpSign + "' /></td></tr>";
+            }
+            if (data.OutAuthorizeEmpSign != null && data.OutAuthorizeEmpSign != "") {
+                html += "<tr><td> OutAuthorizeEmpSign</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.OutAuthorizeEmpSign + "' /></td></tr>";
+            }
+            if (data.InTimeEmpSign != null && data.InTimeEmpSign != "") {
+                html += "<tr><td>InTimeEmpSign</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.InTimeEmpSign + "' /></td></tr>";
+            }
+            if (data.OutTimeEmpSign != null && data.OutTimeEmpSign != "") {
+                html += "<tr><td>OutTimeEmpSign</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.OutTimeEmpSign + "' /></td></tr>";
+            }
+            html += "</table>";
+            $("#tableview").html(html);
+        });
+    }
+</script>
+
+<style>
+    #captureSignatureSecurity {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+    #captureSignatureEmployee {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+</style>
+<input type="hidden" id="hidBreakdownid" value="@ViewBag.Id" />
+<div class="panel panel-default">
+    <div class="panel-heading">Posting Update</div>
+    <div class="panel-body">        
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="tableview">
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    Out Authorize Emp
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtstaffIdNumber" class="form-control" />
+                    <span id="txtstaffName"></span>
+                </div>
+            </div>
+            <div class="row" style="padding:15px;">
+                <div class="form-group col-md-12">
+                    <label style="margin-bottom:5px;">Out Authorize Emp Sign</label><br />
+                    <div id="captureSignatureSecurity">
+                    </div>
+
+                </div>
+            </div>
+            <div class="row" style="padding:15px;">
+                <div class="form-group col-md-12">
+                    <label style="margin-bottom:5px;">Out Time EmpSign</label><br />
+                    <div id="captureSignatureEmployee">
+                    </div>
+                </div>
+            </div>        
+        <div>
+            <input type="button" id="btnasigntask" value="Save" onclick="SaveUserSignoff();" class="btn btn-primary" />
+            <button type="button" class="btn btn-default" onclick="Cancel();">Cancel</button>
+        </div>
+    </div>
+</div>

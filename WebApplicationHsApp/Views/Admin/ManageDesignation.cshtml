@@ -1,0 +1,82 @@
+﻿@{
+    ViewBag.Title = "ManageDesignation";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="~/Scripts/CustomJS/GlobalFunctionJS.js"></script>
+<script src="~/Scripts/CustomJS/CustomDataTable_DataJS.js"></script>
+
+<script>
+    $(function () {
+        GetSavedDesignationToAdmin_PageLevel();
+    });
+
+    function GetSavedDesignationToAdmin_PageLevel() {
+        $.ajax({
+            type: "GET",
+            url: "/Admin/GetDesignationListToAdmin",
+            //data: "id=" + $("#ddlDepartment1").val(),
+            success: function (data) {
+                BindDesignationListToDataTable(data);
+            }
+        });
+    }
+
+    function BindDesignationListToDataTable(List) {
+        var Row_Count = 1;
+        var Table = '<table class="table table-bordered" id="DesignationList_DataTable"><thead><tr><th>S.No</th><th>Designation</th> </tr></thead><tbody></tbody>';
+        $("#DesignationListDiviD").html(Table);
+        var HTML_Body = '';
+        for (var i in List) {
+            HTML_Body += '<tr>';
+            HTML_Body += '<td>' + Row_Count + '</td>';
+            HTML_Body += '<td>' + List[i].Designation_Name + '</td>';
+            HTML_Body += '</tr>';
+            Row_Count++;
+        }
+        $("#DesignationList_DataTable tbody").append(HTML_Body);
+        EnableDataTableByTableID_CustomDataTableDataJS("DesignationList_DataTable");
+    }
+    function SaveNewDesignationData() {
+        var DesName = $("#txtDesignationID").val();
+        if (CheckTheValueIsNullOrEmpty_GlobalJS(DesName)) {
+            var Dataparam = {
+                Designation_Name: DesName
+            }
+            $.ajax({
+                type: "POST",
+                url: "/Admin/SaveNewDesignation",
+                data: Dataparam,
+                success: function (data) {
+                   // alert(data);
+                    $("#txtDesignationID").val('');
+                    GetSavedDesignationToAdmin_PageLevel();
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+    }
+</script>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Manage Designation</div>
+    <div class="panel-body">
+        <table class="table" style="width:40%;">
+            <tr>
+                <td>Designation Name&nbsp;<span class="MandatorySpanCSS"></span></td>
+                <td>
+                    <input type="text" id="txtDesignationID" class="form-control" />
+                </td>
+                <td>
+                    <button class="btn btn-success btn-sm" onclick="SaveNewDesignationData();">Save</button>
+                </td>
+            </tr>
+
+        </table>
+    </div>
+    <div class="panel-body">
+        <div id="DesignationListDiviD"></div>
+    </div>
+</div>
+

@@ -1,0 +1,373 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="row">
+    <div class="col-md-4" style="padding:20px;">
+        <div class="box box-primary">
+            <div class="box-header with-border">
+                <h3 class="box-title">You</h3>
+                <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                        <i class="fa fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="box-body">
+                @if (ViewBag.User != null)
+                {
+                    <table class="table">
+                        <tr>
+                            <td>Name :</td>
+                            <td>@ViewBag.User.FirstName</td>
+                        </tr>
+                        <tr>
+                            <td>Designation :</td>
+                            <td>@ViewBag.User.Designation</td>
+                        </tr>
+                        <tr>
+                            <td>Location :</td>
+                            <td>@ViewBag.User.LocationName</td>
+                        </tr>
+                        <tr>
+                            <td>Department :</td>
+                            <td>@ViewBag.User.DepartmentName</td>
+                        </tr>
+                        <tr>
+                            <td>Date of Joining :</td>
+                            <td>@ViewBag.User.DateOfJoining.ToString("dd/MM/yyyy")</td>
+                        </tr>
+                    </table>
+                }
+            </div>
+        </div>
+
+    </div>
+    <div class="col-md-4" style="padding:20px;">
+        <div class="box box-warning">
+            <div class="box-header with-border">
+                <h3 class="box-title">Appraiser</h3>
+                <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                        <i class="fa fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="box-body">
+                @if (ViewBag.AppraiserUser != null)
+                {
+                    <table class="table">
+                        <tr>
+                            <td>Name :</td>
+                            <td>@ViewBag.AppraiserUser.FirstName</td>
+                        </tr>
+                        <tr>
+                            <td>Designation :</td>
+                            <td>@ViewBag.AppraiserUser.Designation</td>
+                        </tr>
+                        <tr>
+                            <td>Location :</td>
+                            <td>@ViewBag.AppraiserUser.LocationName</td>
+                        </tr>
+                        <tr>
+                            <td>Department :</td>
+                            <td>@ViewBag.AppraiserUser.DepartmentName</td>
+                        </tr>
+                        <tr>
+                            <td>Date of Joining :</td>
+                            <td>@ViewBag.AppraiserUser.DateOfJoining.ToString("dd/MM/yyyy")</td>
+                        </tr>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4" style="padding:20px;">
+        <div class="box box-success">
+            <div class="box-header with-border">
+                <h3 class="box-title">Reviewer</h3>
+                <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                        <i class="fa fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="box-body">
+                @if (ViewBag.ReviewerlistUser != null)
+                {
+                    <table class="table">
+                        <tr>
+                            <td>Name :</td>
+                            <td>@ViewBag.ReviewerlistUser.FirstName</td>
+                        </tr>
+                        <tr>
+                            <td>Designation :</td>
+                            <td>@ViewBag.ReviewerlistUser.Designation</td>
+                        </tr>
+                        <tr>
+                            <td>Location :</td>
+                            <td>@ViewBag.ReviewerlistUser.LocationName</td>
+                        </tr>
+                        <tr>
+                            <td>Department :</td>
+                            <td>@ViewBag.ReviewerlistUser.DepartmentName</td>
+                        </tr>
+                        <tr>
+                            <td>Date of Joining :</td>
+                            <td>@ViewBag.ReviewerlistUser.DateOfJoining.ToString("dd/MM/yyyy")</td>
+                        </tr>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="box box-info">
+    <div class="box-header with-border">
+        <h3 class="box-title">Reviews</h3>
+        <div class="box-tools pull-right">
+            <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                <i class="fa fa-minus"></i>
+            </button>
+
+        </div>
+    </div>
+    <!-- /.box-header -->
+    <div class="box-body">
+        <div class="table-responsive">
+            <table class="table no-margin" id="myReviews">
+                <thead>
+                    <tr>
+                        <th>Appraiser Name</th>
+                        <th>Reviewer Name</th>
+                        <th>Final Rating</th>
+                        <th>Year Of Rating</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+            </table>
+        </div>
+        <!-- /.table-responsive -->
+    </div>
+    <!-- /.box-body -->
+    <div class="box-footer clearfix">
+        <a href="~/Appraisal/MyReview" class="btn btn-sm btn-info btn-flat pull-right">Place New Review</a>
+        @*<a href="javascript:void(0)" class="btn btn-sm btn-default btn-flat pull-right">View All Orders</a>*@
+    </div>
+    <!-- /.box-footer -->
+</div>
+
+<br />
+@if (ViewBag.User != null)
+{
+    if (ViewBag.User.UserType.Trim().ToUpper() == "HOD" || ViewBag.User.UserType.Trim().ToUpper() == "HEAD OF HEAD")
+    {
+
+        <div class="box box-info">
+            <div class="box-header with-border">
+                <h3 class="box-title">As a Appraiser</h3>
+                <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                        <i class="fa fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+                <div class="table-responsive">
+                    <table class="table no-margin" id="Appraiser">
+                        <thead>
+                            <tr>
+                                <th>Appraiser Name</th>
+                                <th>Reviewer Name</th>
+                                <th>Final Rating</th>
+                                <th>Year Of Rating</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                <!-- /.table-responsive -->
+            </div>
+            <!-- /.box-body -->
+           
+            <!-- /.box-footer -->
+        </div>
+    }
+    if (ViewBag.User.UserType.Trim().ToUpper() == "HEAD OF HEAD" || ViewBag.User.UserType.Trim().ToUpper() == "DIRECTOR")
+    {
+
+      
+        <div class="box box-info">
+            <div class="box-header with-border">
+                <h3 class="box-title">As a Reviwer</h3>
+
+                <div class="box-tools pull-right">
+                    <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                        <i class="fa fa-minus"></i>
+                    </button>
+                    <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                </div>
+            </div>
+            <!-- /.box-header -->
+            <div class="box-body">
+                <div class="table-responsive" >
+                    <table class="table no-margin" id="Reviwer">
+                        <thead>
+                            <tr>
+                                <th>Appraiser Name</th>
+                                <th>Reviewer Name</th>
+                                <th>Final Rating</th>
+                                <th>Year Of Rating</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+                <!-- /.table-responsive -->
+            </div>
+            <!-- /.box-body -->
+           
+            <!-- /.box-footer -->
+        </div>
+    }
+}
+
+<script>
+    LoadTableReviews();
+    function LoadTableReviews() {
+        $('#myReviews').dataTable({
+            //  "bServerSide": true,
+            "sAjaxSource": "@Url.Action("GetMyReviewViewJson", "Appraisal")",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aoColumns": [
+
+                            { "sName": "Appraiser_Name" },
+                            { "sName": "Reviewer_Name" },
+                            { "sName": "Final_Rating" },
+                            { "sName": "Year_Of_Rating" },
+            {
+                "sName": "PerfomanceReview_Id",
+                "bSortable": false,
+                "render": function (data, row, r) {
+                    return '<div ><div style="width: 50px; float: left;"><span class="icon-edit"></span><a href="javascript:void(0)" onclick="onAction(0,' + data + ')" >Action</a></div></div>';
+                }
+            }
+            ],
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, 500, 1000], [10, 20, 30, 50, 100, 150, 200, 500, 1000]],
+            "sDom": 'T<"clear">lfrtip',
+            "oTableTools": {
+                "sSwfPath": "/swf/copy_csv_xls_pdf.swf",
+                "aButtons": [
+                    "copy", "xls", "pdf"
+                ]
+            }
+
+        }); Applyclassdt();
+    }
+    function Applyclassdt() {
+        $("#myReviews_length").addClass("col-md-6");
+        $("#myReviews_info").addClass("col-md-6");
+
+        $("#Appraiser_length").addClass("col-md-6");
+        $("#Appraiser_info").addClass("col-md-6");
+
+        $("#Reviwer_length").addClass("col-md-6");
+        $("#Reviwer_info").addClass("col-md-6");
+
+    }
+
+    function LoadTableAppraiser() {
+        $('#Appraiser').dataTable({
+            //  "bServerSide": true,
+            "sAjaxSource": "@Url.Action("GetAppraiserViewJson", "Appraisal")",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aoColumns": [
+
+                            { "sName": "Appraiser_Name" },
+                            { "sName": "Reviewer_Name" },
+                            { "sName": "Final_Rating" },
+                            { "sName": "Year_Of_Rating" },
+                            {
+                                "sName": "PerfomanceReview_Id",
+                                "bSortable": false,
+                                "render": function (data, row, r) {
+                                    return '<div ><div style="width: 50px; float: left;"><span class="icon-edit"></span><a href="javascript:void(0)" onclick="onAction(1,' + data + ')" >Action</a></div></div>';
+                                }
+                            }
+
+
+            ],
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, 500, 1000], [10, 20, 30, 50, 100, 150, 200, 500, 1000]],
+            "sDom": 'T<"clear">lfrtip',
+            "oTableTools": {
+                "sSwfPath": "/swf/copy_csv_xls_pdf.swf",
+                "aButtons": [
+                    "copy", "xls", "pdf"
+                ]
+            }
+
+        }); Applyclassdt();
+    }
+    function LoadTableReviwer() {
+        $('#Reviwer').dataTable({
+            //  "bServerSide": true,
+            "sAjaxSource": "@Url.Action("GetReviwerViewJson", "Appraisal")",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aoColumns": [
+
+                            { "sName": "Appraiser_Name" },
+                            { "sName": "Reviewer_Name" },
+                            { "sName": "Final_Rating" },
+                            { "sName": "Year_Of_Rating" },
+                        {
+                            "sName": "PerfomanceReview_Id",
+                            "bSortable": false,
+                            "render": function (data, row, r) {
+                                return '<div ><div style="width: 50px; float: left;"><span class="icon-edit"></span><a href="javascript:void(0)" onclick="onAction(2,' + data + ')" >Action</a></div></div>';
+                            }
+                        }
+
+
+            ],
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, 500, 1000], [10, 20, 30, 50, 100, 150, 200, 500, 1000]],
+            "sDom": 'T<"clear">lfrtip',
+            "oTableTools": {
+                "sSwfPath": "/swf/copy_csv_xls_pdf.swf",
+                "aButtons": [
+                    "copy", "xls", "pdf"
+                ]
+            }
+
+        }); Applyclassdt();
+    }
+    var editmyreview_url = '@Url.Action("MyReview", "Appraisal")';
+    var Appraiser_url = '@Url.Action("Appraiser", "Appraisal")';
+    var Reviewer_url = '@Url.Action("Reviewer", "Appraisal")';
+    function onAction(a, id) {
+        if (a == 0) {
+
+            window.location.href = editmyreview_url + '/' + id;
+        }
+        else if (a == 1) {
+            window.location.href = Appraiser_url + '/' + id;
+        }
+        else if (a == 2) {
+            window.location.href = Reviewer_url + '/' + id;
+        }
+    }
+    if ('@ViewBag.User.UserType.Trim().ToUpper()' == "HOD" || '@ViewBag.User.UserType.Trim().ToUpper()' == "HEAD OF HEAD") {
+        LoadTableAppraiser();
+
+    }
+    if ('@ViewBag.User.UserType.Trim().ToUpper()' == "HEAD OF HEAD" || '@ViewBag.User.UserType.Trim().ToUpper()' == "DIRECTOR") {
+
+        LoadTableReviwer();
+
+    }
+</script>

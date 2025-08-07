@@ -1,0 +1,97 @@
+﻿
+@{
+    ViewBag.Title = "DailyRoundUserSignOff";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+</style>
+
+<script src="~/Scripts/jSignature.min.js"></script>
+<!--[if lt IE 9]>
+<script  type="text/javascript" src="~/Scripts/flashcanvas.js"></script>
+    <![endif]-->
+<script>
+    var $sigdiv;
+    $(document).ready(function () {
+        $sigdiv = $("#captureSignature").jSignature({ 'UndoButton': true });
+
+        EmployeeSearch();
+    });
+    function EmployeeSearch() {
+        $(".EmpId").select2({
+            ajax: {
+                url: "/Biomedical/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term,
+                        id: $("#hidBreakdownid").val(),
+                        table: "BreakDown"// search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            width: 'element',
+            minimumInputLength: 2
+        });
+    }
+    function Cancel() {
+        window.location.replace("/Biomedical/ManageDailyRounds");
+    }
+    function SaveUserSignoff() {
+        var model = {
+            id: $("#hidBreakdownid").val(),
+            signature: "data:" + $sigdiv.jSignature('getData', 'image').toString(),
+            userempId: $("#signoffUser").val()
+        }
+        $.post('/Biomedical/SaveUsersignDailyRound', model, function (data) {
+            alert("Successfully mark as completed");
+            window.location.replace("/Biomedical/ManageDailyRounds");
+        });
+    }
+</script>
+<style>
+    #captureSignature {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+</style>
+<input type="hidden" id="hidBreakdownid" value="@ViewBag.Id" />
+<div class="panel panel-default">
+    <div class="panel-heading">DailyRound User SignOff</div>
+    <div class="panel-body">
+        <div>
+            <div class="row" style="padding:15px;">
+                <div class="form-group col-md-12">
+                    <div style="margin-bottom:5px;">
+                        <label>Employee</label><br />
+                        <select id="signoffUser" class="form-control typeahead EmpId" name="query" data-provide="typeahead" autocomplete="off"></select>
+                    </div>
+                </div>
+                <div class="form-group col-md-12">
+                    <label style="margin-bottom:5px;">Signature</label><br />
+                    <div id="captureSignature">
+                    </div>
+                    <input type="hidden" id="signatureJSON" />
+                </div>
+            </div>
+        </div>
+        <div>
+            <input type="button" id="btnasigntask" value="Save" onclick="SaveUserSignoff();" class="btn btn-primary">
+            <button type="button" class="btn btn-default" onclick="Cancel();">Cancel</button>
+        </div>
+    </div>
+</div>

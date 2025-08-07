@@ -1,0 +1,634 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    var oTable;
+    var currentrequestid;
+    var validall = true;
+    $(document).ready(function () {
+        LoadData();
+        $(".date").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-50:+50",
+            Edit: true
+            //  minDate: 0
+        });
+    });
+    function LoadData() {
+        $('#tblManageTaskReimbursementApprovers').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/TravelDesk/AjaxMyReimbursementRequestsAll",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "Id" },
+                { "sName": "EmpId" },
+                { "sName": "EmpName" },
+                { "sName": "ConferenceName" },
+                { "sName": "Venue" },
+                { "sName": "ConferenceDate" },
+                { "sName": "TotalAmount" },
+                { "sName": "PaidThrough" },
+                { "sName": "Status" },
+
+                {
+                    "sName": "Id",
+                    "bSortable": false,
+                    "render": function (data) {
+                        var isrequired = false;
+                        var n = data.includes("Y");
+                        if (n) {
+                            isrequired = true;
+                            data = data.replace("Y_", "");
+                        } else {
+                            data = data.replace("N_", "");
+                        }
+                        var htmlcontect = "";
+                        htmlcontect += '<div class="btn-group">';
+                        htmlcontect += '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>';
+                        htmlcontect += '<ul class="dropdown-menu dropdown-menu-right">';
+                        htmlcontect += '<li class="dontScoll"><a href="javascript:void(0);" id="' + data + '" onclick="ViewReimbursementDetails(this.id);">View Details</a></li>';
+                        //if (isrequired) {
+                        //    htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="ApproveReimbursementRequest(this.id);">Approve Request</a></li>';
+                        //    htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="RejectReimbursementRequest(this.id);">Reject Request</a></li>';
+                        //}
+                        htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="CancelReimbursementRequest(this.id);">Cancel Request</a></li>';
+                        htmlcontect += '</ul></div>';
+                        return htmlcontect;
+
+                    }
+                }
+            ],
+            "fnServerParams": function (aoData) {
+                aoData.push(
+
+                    { "name": "fromdate", "value": $("#FromDateExcel").val() },
+                    { "name": "todate", "value": $("#ToDateExcel").val() }
+                );
+            },
+
+        });
+        oTable = $('#tblManageTaskApprovers').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/TravelDesk/AjaxbyTravelDeskDetailsToaddtraveldek",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "TravelDeskId" },
+                { "sName": "EmpId" },
+                { "sName": "EmpName" },
+                { "sName": "NameOfConference" },
+                { "sName": "EmployeeCategory" },
+                { "sName": "TravelCategory" },
+                //{ "sName": "TravelSubCategory" },
+                { "sName": "DateOfJourney" },
+                { "sName": "DateOfReturnJourney" },
+                { "sName": "PlaceFrom" },
+                { "sName": "PlaceTo" },
+                { "sName": "ReturnPlaceFrom" },
+                { "sName": "ReturnPlaceTo" },
+                { "sName": "Status" },
+                {
+                    "sName": "approverId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        //var isapproved = false;
+                        //var n = data.includes("Pending");
+                        //if (n) {
+                        //    isapproved = true;
+                        //    data = data.replace("Pending-", "");
+                        //}
+                        var htmlcontect = '';
+                        htmlcontect += '<div class="btn-group">';
+                        htmlcontect += '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>';
+                        htmlcontect += '<ul class="dropdown-menu dropdown-menu-right">';
+                        htmlcontect += '<li class="dontScoll"><a href="javascript:void(0);" id="' + data + '" onclick="ViewTaskDetails(this.id);">View Request</a></li>';
+                        htmlcontect += '<li class="dontScoll"><a href="javascript:void(0);" id="' + data + '" onclick="Addtraveldesk(this.id);">TravelDesk</a></li>';
+
+
+                        //if (!isapproved) {
+                        //    htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="ApproveTask(this.id);" style="color:green;"><span class="glyphicon glyphicon-thumbs-up"></span>&nbsp;Approve</a></li>';
+                        //    htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="CancelRequest(this.id);" style="color:red;"><span class="glyphicon glyphicon-thumbs-down"></span>&nbsp;Reject</a></li>';
+                        //    htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="HoldRequest(this.id);" style="color:red;"><span class="glyphicon glyphicon-thumbs-down"></span>&nbsp;Hold</a></li>';
+                        //}
+                        htmlcontect += '</ul></div>';
+                        return htmlcontect;
+                        //'<a href="javascript:void(0);" id="' + data + '" title="Cancel" class="btn btn-danger" onclick="ViewTaskDetails(this.id);">View</a>';
+
+                    }
+                }
+            ],
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "status", "value": $("#ddlapproverstatus").val() },
+                    { "name": "fromdate", "value": $("#FromDateExcel1").val() },
+                    { "name": "todate", "value": $("#ToDateExcel1").val() }
+                );
+            },
+            "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                switch (aData[14]) {
+                    case 'No':
+                        $('td:eq(14)', nRow).css('color', '#E67D21');
+                        break;
+                    case 'New':
+                        $('td:eq(14)', nRow).css('color', '#3598dc');
+                        break;
+                    case 'Yes':
+                        $('td:eq(14)', nRow).css('color', '#8E44AD');
+                        break;
+                    case 'Reopen':
+                        $('td:eq(14)', nRow).css('color', '#5FC29D');
+                        break;
+                    case 'Rejected':
+                        $('td:eq(14)', nRow).css('color', '#a71f23');
+                        break;
+                    default:
+                        $('td:eq(14)', nRow).css('color', 'Green');
+                        break;
+                }
+                switch (aData[13]) {
+                    case 'Pending':
+                        $('td:eq(13)', nRow).css('color', '#E67D21');
+                        break;
+                    case 'New':
+                        $('td:eq(13)', nRow).css('color', '#3598dc');
+                        break;
+                    case 'In Progress':
+                        $('td:eq(13)', nRow).css('color', '#8E44AD');
+                        break;
+                    case 'Reopen':
+                        $('td:eq(13)', nRow).css('color', '#5FC29D');
+                        break;
+                    case 'Rejected':
+                        $('td:eq(13)', nRow).css('color', '#a71f23');
+                        break;
+                    default:
+                        $('td:eq(13)', nRow).css('color', 'Green');
+                        break;
+                }
+
+            }
+
+
+        });
+        $("#tblManageTaskApprovers_length").addClass("col-md-6");
+
+        $("#tblManageTaskApprovers_filter").prepend('<div style="float:left;margin-right: 100px;padding-bottom: 2px;"> Select Approval Status : <select id="ddlapproverstatus" onchange="onchangeapprovers()" class="form-control" title="Pending For approval"><option value="All" selected>All</option><option value="Approved">Approve</option><option value="Reject">Reject</option><option value="Hold">Hold</option></div></select>');
+    }
+    function onchangeapprovers() {
+        oTable.api().ajax.reload(null, false);
+    }
+    function ApproveReimbursementRequest(id) {
+
+        if (confirm("Are you sure you want to Approve?")) {
+            $.get("/TravelDesk/ApproverReimbursementRequest?id=" + id + "&comments=Ok&status=Approved", function (data) {
+                LoadData();
+            });
+        }
+    }
+    function RejectReimbursementRequest(id) {
+        if (confirm("Are you sure you want to Approve?")) {
+            $.get("/TravelDesk/ApproverReimbursementRequest?id=" + id + "&comments=&status=Rejected", function (data) {
+                LoadData();
+            });
+        }
+    }
+    function CancelReimbursementRequest(id) {
+        if (confirm("Are you sure you want to cancel?")) {
+            $.get("/TravelDesk/CancelReimbursementRequest?id=" + id + "&comments=cancel", function (data) {
+                LoadData();
+            });
+        }
+    }
+    function ViewReimbursementDetails(id) {
+        var html = "";
+        $.get("/TravelDesk/GetReimbursementRequestDetails?id=" + id, function (data) {
+            console.log(data);
+            html = "<table class='table table-bordered table-striped'>";
+
+            html += "<tr><td style='color:teal;'>Name</td><td>" + data.Name + "</td><td style='color:teal;'>Designation</td><td>" + data.Designation + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Conference Name</td><td>" + data.ConferenceName + "</td><td style='color:teal;'>Venue</td><td>" + data.Venue + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Conference Date</td><td>" + data.ConferenceDate + "</td><td style='color:teal;'>Sponsored by</td><td>" + data.PaidThrough + "</td></tr>";
+       
+            html += "<tr><td style='color:teal;'>HOD Name</td><td>" + data.HodName + "</td><td style='color:teal;'>Hod Action</td><td>" + data.HodAction + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Notes</td><td>" + data.Notes + "</td><td style='color:teal;'>Traveller </td><td>" + data.TravellerDetails + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Total Amount</td><td>" + data.TotalAmount + "</td><td style='color:teal;'></td><td></td></tr>";
+            html += "<tr><td style='color:teal;'>Travel Expense</td><td>" + (data.IsTravelExpense == 'true' ? data.TravelExpense : 0) + "</td><td style='color:teal;'>Accommodation</td><td>" + (data.IsAccommodation == 'true' ? data.Accommodation : 0) + "</td></tr>";
+
+            html += "<tr><td style='color:teal;'>Miscellaneous</td><td>" + (data.IsMiscellaneous == 'true' ? data.MiscellaneousAmount : 0) + "</td><td style='color:teal;'>Registration Fee</td><td>" + (data.IsRegistrationFee == 'true' ? data.RegistrationFeeAmount : 0) + "</td></tr>";
+            html += "</table>";
+            if (data.documents != null && data.documents.length > 0) {
+                for (var i = 0; i < data.documents.length; i++) {
+                    html += "<a target='_blank' href='/Documents/AdministrationDocuments/" + data.documents[i].DocumentUrl + "'> " + data.documents[i].ReimbursementType + "</a> &nbsp;&nbsp;";
+                }
+            }
+            $("#divfullrequestdetails").html(html);
+            $("#myModalFullrequest").modal("show");
+        });
+    }
+    function ViewTaskDetails(id) {
+        var html = "";
+        $.get("/TravelDesk/GetTravelDeskDetails?id=" + id, function (data) {
+
+
+            html = "<table class='table table-bordered table-striped'>";
+
+            html += "<tr><td style='color:teal;'>Id</td><td>" + data.TravelDeskId + "</td><td style='color:teal;'>Emp ID</td><td>" + data.EmpId + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Mail Id</td><td>" + data.MailId + "</td><td style='color:teal;'>Employee</td><td>" + data.EmpName + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Date Of Birth</td><td>" + data.DateOfBirth + "</td><td style='color:teal;'>Mobile</td><td>" + data.Mobile + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Mode Of Travel</td><td>" + data.ModeOfTravel + "</td><td style='color:teal;'>Name Of " + data.PurposeOfTrip + "</td><td>" + data.NameOfConference + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Purpose Of Trip</td><td>" + data.PurposeOfTrip + "</td><td style='color:teal;'>TSMCNO</td><td>" + checkNullValueString(data.TSMCNO) + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Accommodation</td><td>" + data.Accommodation + "</td><td style='color:teal;'>Event End Date</td><td>" + data.EventEndDate + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Event Start Date</td><td>" + data.EventStartDate + "</td><td style='color:teal;'>Date Of Birth</td><td>" + data.DateOfBirth + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Place From - To </td><td>" + data.PlaceFrom + " - " + data.PlaceTo + "</td><td style='color:teal;'>Date Of Journey</td><td>" + data.DateOfJourney + " " + data.OnwardTime + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Return From - To</td><td>" + data.ReturnPlaceFrom + " " + data.ReturnPlaceTo + "</td><td style='color:teal;'>Date Of Return</td><td>" + data.DateOfReturnJourney + " " + data.ReturnTime + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Registration Needed</td><td>" + data.RegistrationNeeded + "</td><td style='color:teal;'>If Yes: Link Details</td><td>" + checkNullValueString(data.IfRegistrationNeededDetails) + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Reimbursement By Conference</td><td>" + data.ReimbursementByConference + "</td><td style='color:teal;'>If Yes: </td><td>" + checkNullValueString(data.IfReimbursementByConference) + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Current State</td><td>" + data.CurrentState + "</td><td style='color:teal;'>Sponsored By</td><td>" + checkNullValueString(data.SponsoredBy) + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Status</td><td>" + data.Status + "</td><td style='color:teal;'>Invited As</td><td>" + data.InvitedAs + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Accommodation Note</td><td>" + checkNullValueString( data.AccommodationNote) + "</td><td style='color:teal;'>VenueDetails</td><td>" + data.VenuDetails + "</td></tr>";
+            if (data.ApprovalList != null && data.ApprovalList.length > 0) {
+                for (var i = 0; i < data.ApprovalList.length; i++) {
+                    html += "<tr><td style='color:teal;'>Approver</td><td>" + data.ApprovalList[i].ApproverName + "(" + data.ApprovalList[i].ApproverEmpId + ")</td><td style='color:teal;'>Status</td><td>" + data.ApprovalList[i].ApproverStatus + " - " + data.ApprovalList[i].TypeOfApprover + "</td></tr>";
+                }
+            }
+            html += "</table>";
+
+
+            if (data.Documents != null && data.Documents.length > 0) {
+                for (var i = 0; i < data.Documents.length; i++) {
+                    html += "<a target='_blank' href='/Documents/AdministrationDocuments/" + data.Documents[i].DocumentUrl + "'>" + data.Documents[i].DocumentName + "</a> &nbsp;&nbsp;";
+                }
+            }
+            $("#divfullrequestdetails").html(html);
+            $("#myModalFullrequest").modal("show");
+        });
+    }
+    function checkNullValueString(data) {
+        if (data == null)
+            return "";
+        else
+            return data;
+    }
+    function Addtraveldesk(id) {
+        currentrequestid = id;
+        $("#myModalAddtravel").modal("show");
+    }
+    function Savetraveldesk() {
+        var validate = true;
+        var data = [];
+        if ($('#txttravel1').val() != "") {
+            data = addtravel(data, $('#txttravel1').val(), 'ddlmot1', 'txtcot1', 'Travel');
+        }
+        if ($('#txttravel2').val() != "") {
+
+            data = addtravel(data, $('#txttravel2').val(), 'ddlmot2', 'txtcot2', 'Travel');
+        }
+        if ($('#txttravel3').val() != "") {
+
+            data = addtravel(data, $('#txttravel3').val(), 'ddlmot3', 'txtcot3', 'Travel');
+        }
+        if ($('#txtAccomedation1').val() != "") {
+
+            data = addtravel(data, $('#txtAccomedation1').val(), 'ddlmotAcc1', 'txtcostAcc1', 'Accomedation');
+        }
+        if ($('#txtAccomedation2').val() != "") {
+
+            data = addtravel(data, $('#txtAccomedation2').val(), 'ddlmotAcc2', 'txtcostAcc2', 'Accomedation');
+        }
+        if ($("#txtcostofRegistration").val() != "" && $("#txtcostofRegistration").val() != "0") {
+
+            var modal = {
+                TravelDeskId: currentrequestid,
+                ModeOfTravel: "",
+                TravelDetails: "",
+                CostOfTravel: $("#txtcostofRegistration").val(),
+                TypeOfBooking: "Registration Cost",
+                IsActive: true
+            }
+            data.push(modal);
+        }
+        if ($("#txtcostofMiscellaneous").val() != "" && $("#txtcostofMiscellaneous").val() != "0") {
+
+            var modal = {
+                TravelDeskId: currentrequestid,
+                ModeOfTravel: "",
+                TravelDetails: "",
+                CostOfTravel: $("#txtcostofMiscellaneous").val(),
+                TypeOfBooking: "Miscellaneous Cost",
+                IsActive: true
+            }
+            data.push(modal);
+        }
+        if (validall) {
+            $.post("/TravelDesk/savetraveldesktravel", { Travel: data }, function (data) {
+                alert('sucessfully saved..');
+                $("#myModalAddtravel").modal("hide");
+                window.location.reload();
+            });
+        }
+
+
+
+    }
+    function validateDetails() {
+
+    }
+    function addtravel(data, value, modeselector, costselector, type) {
+        var validate = true;
+
+        if ($("#" + modeselector).val() == " ") {
+
+            $("#" + modeselector).addClass('css-error');
+            validate = false;
+            validall = false;
+        }
+        if ($("#" + costselector).val() == "") {
+
+            $("#" + costselector).addClass('css-error');
+            validate = false;
+            validall = false;
+        }
+        if (validate) {
+            var modal = {
+                TravelDeskId: currentrequestid,
+                ModeOfTravel: $("#" + modeselector).val(),
+                TravelDetails: value,
+                CostOfTravel: $("#" + costselector).val(),
+                TypeOfBooking: type,
+                IsActive: true
+            }
+            data.push(modal);
+        }
+        return data;
+    }
+    function ExportExcelData() {
+        var params = "FromDate=" + $("#FromDateExcel").val() + "&ToDate=" + $("#ToDateExcel").val();
+
+
+        window.location = "/TravelDesk/TravelReimbursementDetails_ExportToExcel?" + params;
+    }
+    function ExportExcelData1() {
+        var params = "FromDate=" + $("#FromDateExcel1").val() + "&ToDate=" + $("#ToDateExcel1").val();
+
+
+        window.location = "/TravelDesk/TravelDeskDetails_ExportToExcel?" + params;
+    }
+
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading" style=" font-weight:normal;">
+        <span class="glyphicon glyphicon-arrow-right"></span>&nbsp;Approve Travel Desk
+    </div>
+    <div class="panel-body">
+        <div class="row" style="margin-bottom:5px;">
+            <div class="col-md-2">
+                <input class="date form-control" readonly="readonly" autocomplete="off" type="text" placeholder="From Date" id="FromDateExcel1" />
+            </div>
+            <div class="col-md-2">
+                <input class="date form-control" readonly="readonly" autocomplete="off" type="text" placeholder="To Date" id="ToDateExcel1" />
+            </div>
+            <div class="col-md-2">
+                <input type="button" id="btnExport" value="Export Excel" class="btn btn-link" onclick="ExportExcelData1()" />
+                <input type="button" class="btn btn-primary" style="padding-left:30px;padding-right:30px;" id="btnGo" onclick="LoadData();" value="Go" />
+            </div>
+
+        </div>
+        <table class="table table-bordered" id="tblManageTaskApprovers">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>Id</th>
+                    <th>Emp ID</th>
+                    <th>User</th>
+                    <th>Nameof conference</th>
+                    <th>Emp category</th>
+                    <th>Travel Category</th>
+                    @*<th>Travel Sub category</th>*@
+                    <th>Date of jounary</th>
+                    <th>Date of Return</th>
+                    <th>Palce from</th>
+                    <th>Place to</th>
+                    <th>Return from</th>
+                    <th>Return To</th>
+                    <th>Status</th>
+
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading" style=" font-weight:normal;">
+        <span class="glyphicon glyphicon-arrow-right"></span>&nbsp;Reimbursement Requests
+    </div>
+    <div class="panel-body">
+        <div class="row" style="margin-bottom:5px;">
+            <div class="col-md-2">
+                <input class="date form-control" readonly="readonly" autocomplete="off" type="text" placeholder="From Date" id="FromDateExcel" />
+            </div>
+            <div class="col-md-2">
+                <input class="date form-control" readonly="readonly" autocomplete="off" type="text" placeholder="To Date" id="ToDateExcel" />
+            </div>
+            <div class="col-md-2">
+                <input type="button" id="btnExport" value="Export Excel" class="btn btn-link" onclick="ExportExcelData()" />
+                <input type="button" class="btn btn-primary" style="padding-left:30px;padding-right:30px;" id="btnGo" onclick="LoadData();" value="Go" />
+            </div>
+
+        </div>
+        <table class="table table-bordered" id="tblManageTaskReimbursementApprovers">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>Id</th>
+                    <th>Emp Id</th>
+                    <th>Emp Name</th>
+                    <th>Conference Name</th>
+                    <th>Venue</th>
+                    <th>Conference Date</th>
+                    <th>Total Amount</th>
+                    <th>Sponsored by</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div class="modal fade" id="myModalFullrequest" role="dialog">
+    <div class="form-block" style="width:95%;">
+        <h3>View Request<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <div id="divfullrequestdetails">
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="myModalAddtravel" role="dialog">
+    <div class="form-block">
+        <h3>At Travel Desk Team<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <div id="divapproverequesst">
+            <div class="Row">
+                <h4 style="color:crimson;"> Travel Details</h4>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <span class="form-label"> Travel 1</span>
+                        <input type="text" id="txttravel1" placeholder="Enter Travel Detail" class="form-control" />
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <span class="form-label"> Mode of Travel</span>
+                        <select id="ddlmot1" class="form-control">
+                            <option value=" ">select</option>
+                            <option value="BUS">BUS</option>
+                            <option value="CAR">CAR</option>
+                            <option value="TRAIN">TRAIN</option>
+                            <option value="FLIGHT">FLIGHT</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <span class="form-label">Cost of Travel</span>
+                        <input type="text" id="txtcot1" class="form-control" placeholder="Enter Cost of travel" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <span class="form-label"> Travel 2</span>
+                        <input type="text" id="txttravel2" placeholder="Enter Travel Detail" class="form-control" />
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <span class="form-label"> Mode of Travel</span>
+                        <select id="ddlmot2" class="form-control">
+                            <option value=" ">select</option>
+                            <option value="BUS">BUS</option>
+                            <option value="CAR">CAR</option>
+                            <option value="TRAIN">TRAIN</option>
+                            <option value="FLIGHT">FLIGHT</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <span class="form-label">Cost of Travel</span>
+                        <input type="text" id="txtcot2" class="form-control" placeholder="Enter Cost of travel" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <span class="form-label"> Travel 3</span>
+                        <input type="text" id="txttravel3" placeholder="Enter Travel Detail" class="form-control" />
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <span class="form-label"> Mode of Travel</span>
+                        <select id="ddlmot3" class="form-control">
+                            <option value=" ">select</option>
+                            <option value="BUS">BUS</option>
+                            <option value="CAR">CAR</option>
+                            <option value="TRAIN">TRAIN</option>
+                            <option value="FLIGHT">FLIGHT</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <span class="form-label">Cost of Travel</span>
+                        <input type="text" id="txtcot3" class="form-control" placeholder="Enter Cost of travel" />
+                    </div>
+                </div>
+            </div>
+            <div class="Row">
+                <h4 style="color:crimson;"> Accommodation  Details</h4>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <span class="form-label"> Accommodation  1</span>
+                        <input type="text" id="txtAccomedation1" placeholder="Enter Accomedation Detail" class="form-control" />
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <span class="form-label"> Mode of Accommodation </span>
+                        <select id="ddlmotAcc1" class="form-control">
+                            <option value=" ">select</option>
+                            <option value="HOTEL">HOTEL</option>
+
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <span class="form-label">Cost of Accommodation </span>
+                        <input type="text" id="txtcostAcc1" class="form-control" placeholder="Enter Cost of Accomedation" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <span class="form-label"> Accommodation  2</span>
+                        <input type="text" id="txtAccomedation2" placeholder="Enter Accomedation Detail" class="form-control" />
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <span class="form-label"> Mode of Accommodation </span>
+                        <select id="ddlmotAcc2" class="form-control">
+                            <option value=" ">select</option>
+                            <option value="HOTEL">HOTEL</option>
+
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <span class="form-label">Cost of Accommodation </span>
+                        <input type="text" id="txtcostAcc2" class="form-control" placeholder="Enter Cost of Accomedation" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    <h4 style="color:crimson;"> Other  Details</h4>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <span class="form-label"> Cost of Registration</span>
+                        <input type="number" id="txtcostofRegistration" placeholder="Price" class="form-control" />
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <span class="form-label"> Cost of Miscellaneous</span>
+                        <input type="number" id="txtcostofMiscellaneous" placeholder="Price" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="text-align:center">
+                <button type="button" class="btn  btn-warning" onclick="Savetraveldesk();"><span class="glyphicon glyphicon-ok-circle"></span>&nbsp;Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+

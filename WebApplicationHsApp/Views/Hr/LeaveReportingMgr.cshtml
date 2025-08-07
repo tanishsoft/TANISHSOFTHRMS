@@ -1,0 +1,176 @@
+﻿@{
+    ViewBag.Title = "LeaveReportingMgr";
+}
+
+<script>
+    var validate = true;
+    $(document).ready(function () {
+      //  LoadLocation();
+
+    });
+ 
+    function LoadEmployees() {
+        if ($("#ddlDepartment").val() != null && $("#ddlDepartment").val() != " ") {
+
+            $.ajax({
+                type: "POST",
+                url: "/Common/GetEmployeesByDepartment",
+                data: "id=" + $("#ddlDepartment").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- Select Employee -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].CustomUserId + '">' + data[i].FirstName + " " + data[i].LastName + '</option>');
+                    }
+                    $("#ddlEmployees").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        } else {
+            var options = [];
+            options.push('<option value="">-  Select Employee -</option>');
+
+            $("#ddlEmployees").html(options.join(''));
+        }
+
+    }
+
+    function SaveForm() {
+        var skillsSelect = document.getElementById("ddlLocation");
+        var selectedText = skillsSelect.options[skillsSelect.selectedIndex].text;
+
+        var deptSelect = document.getElementById("ddlDepartment");
+        var deptText = deptSelect.options[deptSelect.selectedIndex].text;
+
+        var custSelect = document.getElementById("ddlEmployees");
+        var custText = custSelect.options[custSelect.selectedIndex].text;
+
+        var st = $("#chkleave").is(':checked')
+        debugger;
+        var task = {
+            Is_OnLeave: st,
+            LocationId: $("#ddlLocation").val() != undefined ? $("#ddlLocation").val().trim() : "",
+            DepartmentId: $("#ddlDepartment").val() != undefined ? $("#ddlDepartment").val().trim() : "",
+            LocationName: selectedText,
+            DepartmentName: deptText,
+            Emp_UserId: $("#ddlEmployees").val() != undefined ? $("#ddlEmployees").val().trim() : "",
+            UserName: custText
+        };
+        validateForm(task);
+
+        if (validate) {
+
+
+            $.ajax({
+                type: "POST",
+                url: "/Hr/LeaveReportingMgr",
+                data: task,
+                success: function (data) {
+                    alert(data);
+                    clearAll();
+
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        } else {
+            alert("Fields Required");
+        }
+    }
+    function validateForm(task) {
+        validate = true;
+
+        if ($("#chkleave").is(':checked')) {
+
+            $(".css-error").removeClass('css-error');
+
+            if (task.LocationId == "") {
+                //  $("#ddlLeaveType1").addClass('css-error');
+                validate = false;
+            }
+
+            if (task.DepartmentId == "") {
+                // $("#ddlLocation1").addClass('css-error');
+                validate = false;
+            }
+            if (task.UserId == "") {
+                //  $("#ddlDepartment1").addClass('css-error');
+                validate = false;
+            }
+
+        }
+
+    }
+    function clearAll() {
+        $("#ddlLocation").val("");
+        $("#ddlDepartment").val("");
+        $("#ddlEmployees").val("");
+
+
+        LoadLocations();
+
+        validate = true;
+    }
+</script>
+
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Manage On Leave Manager
+    </div>
+    <div class="panel-body">
+        <div class="col-md-2">
+            &nbsp;
+        </div>
+        <div class="col-md-8">
+            <table class="table" style="width:80%;">
+                <tr>
+                    <td>On leave<span style="color:red;">*</span></td>
+                    <td>
+                        <input type="checkbox" id="chkleave" checked="checked" />
+                    </td>
+
+                </tr>
+                <tr>
+                    <td>Location<span style="color:red;">*</span></td>
+                    <td>
+                        <select class="form-control" id="ddlLocation" onchange="LoadDepartment();">
+                            <option value="">Select Location</option>
+                        </select>
+                    </td>
+
+                </tr>
+                <tr>
+                    <td>Department <span style="color:red">*</span></td>
+                    <td>
+                        <select class="form-control" id="ddlDepartment" onchange="LoadEmployees()">
+                            <option value=""> Select Department</option>
+                        </select>
+                    </td>
+
+                </tr>
+                <tr>
+                    <td>
+                        Employee<span style="color:red;">*</span>
+                    </td>
+                    <td>
+                        <select id="ddlEmployees" class="form-control">
+                            <option value="">Select Employee</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+
+                    <td colspan="2" style="text-align:center">
+                        <input class="btn btn-primary" type="button" value="Save" onclick="SaveForm()" />
+
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

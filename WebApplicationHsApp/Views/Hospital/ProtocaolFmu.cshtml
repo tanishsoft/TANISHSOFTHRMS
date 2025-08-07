@@ -1,0 +1,24 @@
+﻿
+@{
+    ViewBag.Title = "Protocol Fmu";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">Protocol FMU </div>
+    <div class="panel-body">
+
+        @if (ViewBag.ProtocaolFmu != null && ViewBag.ProtocaolFmu != "")
+        {
+            if (ViewBag.ProtocaolFmu.Contains("pdf"))
+            {
+                <iframe height="680" style="width:100%;" src="~/ExcelUplodes/@ViewBag.ProtocaolFmu#toolbar=0&amp;navpanes=0&amp;statusbar=0&amp;readonly=true; disableprint=true; "></iframe>
+            }
+            else
+            {
+                <img src="~/ExcelUplodes/@ViewBag.ProtocaolFmu" class="img-responsive" />
+            }
+        }
+    </div>
+</div>

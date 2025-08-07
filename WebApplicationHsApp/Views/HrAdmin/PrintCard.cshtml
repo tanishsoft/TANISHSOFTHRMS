@@ -1,0 +1,50 @@
+﻿@model WebApplicationHsApp.DataModel.tbl_User
+@{
+    ViewBag.Title = "PrintCard";
+    Layout = "~/Views/Shared/_LayoutEmpty.cshtml";
+}
+@{
+    string imageurl = "/Images/Employees/" + Model.EmpId + ".jpg";
+}
+
+<script src="~/Scripts/jquery-1.10.2.js"></script>
+<script src="~/Scripts/jspdf.umd.min.js"></script>
+<script>
+    //$(document).ready(function () {
+
+    
+    //    var doc = window.jspdf.jsPDF;
+    //    var specialElementHandlers = {
+    //        '#editor': function (element, renderer) {
+    //            return true;
+    //        }
+    //    };
+
+    //    $('#cmd').click(function () {
+    //        doc.fromHTML($('#content').html(), 15, 15, {
+    //            'width': 170,
+    //            'elementHandlers': specialElementHandlers
+    //        });
+    //        doc.save('sample-file.pdf');
+    //    });
+    //});
+    function printDiv(divName) {
+        var printContents = document.getElementById(divName).innerHTML;
+        var originalContents = document.body.innerHTML;
+
+        document.body.innerHTML = printContents;
+
+        window.print();
+
+        document.body.innerHTML = originalContents;
+    }
+</script>
+<div id="divcontent">
+    <div style="width: 250px; height: 400px; background: url('/Images/Idcard.JPG') no-repeat center; text-align:center;">
+        <img src="@imageurl" style=" width:80px;height:80px;margin-top:100px; text-align:center; border-radius:75px; " />
+        <h4 style="margin-top:10px;text-align:center;">@Model.FirstName</h4>
+    </div>
+</div>
+
+<div id="editor"></div>
+<button id="cmd" onclick="printDiv('divcontent')">generate PDF</button>

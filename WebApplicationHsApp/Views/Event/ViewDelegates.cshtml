@@ -1,0 +1,127 @@
+﻿
+@{
+    ViewBag.Title = "ViewDelegates";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+        var eventid = $("#hidEventId").val();
+        GetEventDelegateDetails(eventid);
+    });
+    function ExportExcelEventDelegate() {
+        if (parseInt($('#hdnEventId').val()) > 0) {
+            var tab_text = "<h3>Delegate Details</h3><table border='2px'><tr bgcolor='#87AFC6'>";
+            tab = document.getElementById('tblEventDelegates'); // id of table
+
+            for (j = 0; j < tab.rows.length; j++) {
+                tab.rows[j] = tab.rows[j].lastChild.remove();
+                tab_text = tab_text + tab.rows[j].innerHTML + "</tr>";
+            }
+
+            tab_text = tab_text + "</table>";
+            window.open('data:application/vnd.ms-excel,' + encodeURIComponent(tab_text));
+        }
+        else {
+            alert('Events not found');
+        }
+    }
+
+    function GetEventDelegateDetails(eventId) {
+        $('#tblEventDelegates').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Event/GetFullEventDelegateDetails?eventId=" + eventId,
+            "bSortable": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "DelegateId" },
+                { "sName": "Name" },
+                { "sName": "Name" },
+                { "sName": "BookingFromDate" },
+                { "sName": "BookingToDate" },
+                { "sName": "Comments" },
+                { "sName": "IsWelcomeKitReceived" },
+                { "sName": "IsActive" },
+                { "sName": "Type" },
+                { "sName": "CreatedBy" },
+                { "sName": "BarCode" },
+                {
+                    "sName": "EventDelegateId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="Barcode(this.id);">Barcode</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="DelegatePayment(this.id);">Payments</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="DelegateMealType(this.id);">Meal Types</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="MealHistory(this.id);">Meal History</a></li>' +
+                            '<li><a href="/Event/PrintIdCard/' + data + '" id="' + data + '">Generate Id Card</a></li>' +
+                            '</ul></div>';
+                    }
+                }
+            ],
+            "fnRowCallback": function (nRow, aData, iDisplayIndex) {
+                $("td:nth-child(1)", nRow).html(iDisplayIndex + 1);
+                return nRow;
+            }
+        });
+        $("#tblEventDelegates_length").addClass("col-md-6");
+        $("#tblEventDelegates_length").addClass("col-md-6");
+    }
+    function UploadDelagates() {
+        $("#myModalEventUploadDelegate").modal("show");
+    }
+</script>
+<input type="hidden" id="hidEventId" value="@ViewBag.EventId" />
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title" style="color:#c4122f;">
+            <a href="/Event/Index" style="float:left;margin-right:10px;color:teal;cursor:pointer;" id="btnExport" value="Export Excel Delegate">Go Back </a> Event  Delegate <a href="javascript:void(0);" style="color:teal;cursor:pointer;" onclick="UploadDelagates();">Upload Delagates</a>
+            <a href="javascript:void(0);" style="float:right;margin-right:10px;margin-top:-7px;color:teal;cursor:pointer;" id="btnExport" value="Export Excel Delegate" onclick="ExportExcelEventDelegate()">Export To Excel</a>
+        </h3>
+    </div>
+    <div class="panel-body" style="text-align:center;height:320px;">
+        <table class="table table-striped" id="tblEventDelegates" style="width:100%;">
+            <thead>
+                <tr>
+                    <th>SL.No</th>
+                    <th>Event Name</th>
+                    <th>Delegate Name</th>
+                    <th>StartDate</th>
+                    <th>End Date</th>
+                    <th>Comments</th>
+                 
+                    <th>Is Welcome Kit</th>
+                    <th>Active</th>
+                    <th>Type</th>
+                    <th>Created By</th>
+                    <th>Bar Code</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+    </div>
+</div>
+
+<div id="myModalEventUploadDelegate" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Upload Delegates</h4>
+            </div>
+            <div class="modal-body">
+                @using (Html.BeginForm("UploadDelegates", "Event", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {
+                    <input type="hidden" name="hfileEventId" id="hfileEventId" value="@ViewBag.EventId" />
+                    <input type="file" name="postedFile" />
+                    <input type="submit" value="Import" />
+                }
+            </div>
+        </div>
+    </div>
+</div>

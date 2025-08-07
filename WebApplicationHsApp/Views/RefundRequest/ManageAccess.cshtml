@@ -1,0 +1,149 @@
+﻿
+@{
+    ViewBag.Title = "ManageAccess";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<script>
+    var currentid = 0;
+    $(document).ready(function () {
+        $(".selUser").select2({
+            ajax: {
+                url: "/Home/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 4
+        });
+        LoadLocations();
+        LoadData();
+    });
+    function LoadData() {
+        oTable = $('#myDataTable').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/RefundRequest/AjaxGetManageAccess",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aoColumns": [
+                { "sName": "Id" },
+                { "sName": "LocationName" },
+                { "sName": "EmpName" },
+                { "sName": "Name" },
+                { "sName": "AccessType" },
+                { "sName": "CreatedBy" },
+                { "sName": "CreatedOn" },
+                {
+                    "sName": "Id",
+                    "bSortable": false,
+                    "render": function (data, row, r) {
+                        var htmlcontect = "";
+                        htmlcontect += '<div class="btn-group">';
+                        htmlcontect += '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>';
+                        htmlcontect += '<ul class="dropdown-menu dropdown-menu-right">';
+
+                        htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="RemoveApprove(this.id);">Remove</a></li>';
+                        htmlcontect += '</ul></div>';
+                        return htmlcontect;
+                    }
+                }
+            ],
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, 500, 1000], [10, 20, 30, 50, 100, 150, 200, 500, 1000]],
+
+        });
+    }
+    function LoadLocations() {
+        $.ajax({
+            type: "GET",
+            url: "/Common/GetLocations",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#ddlLocation").html(options.join(''));
+            },
+            error: function () {
+                alert("error");
+            }
+        });
+    }
+    var currentid = 0;
+    function RemoveApprove(id) {
+        currentid = id;
+        if (confirm("Are you sure you want to delete?")) {
+            $.get("/RefundRequest/DeleteManageAccess?id=" + id, function (data) {
+               /* alert("Success");*/
+                window.location.reload();
+            });
+        }
+    }
+    function SaveApproversNew() {
+        $.get("/RefundRequest/SaveManageAccess?locid=" + $("#ddlLocation").val() + "&empid=" + $("#selUser").val() + "&accesstype=" + ($("#ddlAccessType").val()), function (data) {
+          /*  alert("Success");*/
+            LoadData();
+        });
+    }
+</script>
+
+<div class="panel panel-default">
+    <div class="panel-heading" style="font-weight:normal;">
+        <span class="glyphicon glyphicon-arrow-right"></span>&nbsp;Manage Task Approvers
+    </div>
+    <div class="panel-body" style="min-height:600px;">
+        <table style="width:100%;" class="table">
+            <tr>
+                <td>
+                    Select Location:<br />
+                    <select id="ddlLocation" class="form-control">
+                        <option value="">Select</option>
+                    </select>
+                </td>
+                <td>
+                    Select Employee:<br />
+                    <select id="selUser" class="form-control typeahead border-primary selUser" name="query" data-provide="typeahead" autocomplete="off" style="width:200px;"></select>
+                </td>
+                <td>
+                    Access Type:<br />
+                    <select id="ddlAccessType" class="form-control">
+                        <option value="">Select Approver Level</option>
+                        <option value="Accounts">Accounts</option>
+                        <option value="Approver">Approver</option>
+                    </select>
+                </td>
+                <td>
+                    <input type="button" value="Save" class="btn btn-sm btn-primary" onclick="SaveApproversNew();" />
+                </td>
+            </tr>
+
+        </table>
+        <table class="table table-bordered" id="myDataTable">
+            <thead>
+                <tr>
+                    <td>Id</td>
+                    <td>Location</td>
+                    <td>EmpId</td>
+                    <th>Emp Name</th>
+                    <td>Approver Level</td>
+                    <td>Created On</td>
+                    <td>Created By</td>
+                    <td>Action</td>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,109 @@
+﻿
+@{
+    ViewBag.Title = "HelpDeskReports";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="~/Scripts/exporting.js"></script>
+<script src="~/Scripts/CalCulateReports.js"></script>
+<script>
+    $(document).ready(function () {
+        Loademployeesbytoassign();
+    });
+    function EmployeeChangebyassigntotask() {
+        $("#UserIdofemp").val($("#ddlassignemployeetothetask").val());
+        var skillsSelects = document.getElementById("ddlassignemployeetothetask");
+        var selectedText = skillsSelects.options[skillsSelects.selectedIndex].text;
+        $("#UserNameofemp").val(selectedText);
+    }
+    function Loademployeesbytoassign() {
+        $.ajax({
+            type: "POST",
+            url: "/Report/GetEmployeesByDepartmentByName",
+            success: function (data) {
+                var options = [];
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].UserId + '">' + data[i].FirstName + '</option>');
+                }
+                $("#ddlassignemployeetothetask").html(options.join(''));
+
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+
+    function EmployeeChange() {
+        var department = $('#ddlDepartmentForFilter').val();
+        var dept = $('#ddlassignemployeetothetask').val();
+        
+        $.ajax({
+            type: 'POST',
+            url: "/Report/GetTasksbyDeptDate",
+            data: { 'AssignDepartmentName': department, 'AssignId': dept },
+            success: function (Result) {
+                var datares = ConvertTasklisttoarry(Result);
+                $('#taskcontainer').highcharts({
+                    title: {
+                        text: 'Monthly Average Tasks',
+                        x: -20 //center
+                    },
+                    subtitle: {
+                        text: 'FH',
+                        x: -20
+                    },
+                    xAxis: {
+                        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                            'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+                    },
+                    yAxis: {
+                        title: {
+                            text: 'Tasks'
+                        },
+                        plotLines: [{
+                            value: 0,
+                            width: 1,
+                            color: '#808080'
+                        }]
+                    },
+                    tooltip: {
+                        valueSuffix: ' Tasks'
+                    },
+                    legend: {
+                        layout: 'vertical',
+                        align: 'right',
+                        verticalAlign: 'middle',
+                        borderWidth: 0
+                    },
+                    series: datares
+                });
+            }
+        });
+    }
+</script>
+<input type="hidden" id="UserIdofemp" /><input type="hidden" id="UserNameofemp" />
+<div class="panel panel-danger">
+    <div class="panel-heading">
+        <h4 class="modal-title">Help Desk Reports</h4>
+    </div>
+    <div class="panel-body">
+        <div class="row" style="padding:5px;">
+            <div class="col-md-3"><label for="name">Department<span style="color:red;">*</span></label></div>
+            <div class="col-md-3">
+               
+                @*<input type="text" name="name" id="ddlDepartmentForFilter" disabled class="form-control" value="@ViewBag.CurrentUser.DepartmentName" />*@
+
+            </div>
+            <div class="col-md-3"><label for="name">Select Employee<span style="color:red;">*</span></label></div>
+            <div class="col-md-3">
+                <select id="ddlassignemployeetothetask" class="form-control" onchange="EmployeeChange();">
+                    <option value="">Select</option>
+                </select>
+            </div>
+        </div>
+        <div class="row">
+            <div id="taskcontainer" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+        </div>
+    </div>
+
+</div>

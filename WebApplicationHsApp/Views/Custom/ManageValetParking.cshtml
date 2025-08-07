@@ -1,0 +1,650 @@
+﻿
+@{
+    ViewBag.Title = "ManageValetParking";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    var validate = true;
+    var eId = 0;
+    var oTable;
+    $(document).ready(function () {
+        LoadData();
+        LoadLocations();
+        LoadDropdownvalues();
+        //$("#txtOutDate").datepicker({
+        //    changeMonth: true,
+        //    changeYear: true,
+        //    dateFormat: "dd/mm/yy",
+        //    yearRange: "-30:+30",
+        //    Edit: true
+        //});
+        //$('#txtOutDate').datepicker('setDate', 'today');
+
+
+        $("#txtFromDate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            Edit: true
+        });
+        $("#txtToDate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            Edit: true
+        });
+        LoadParkingLocations();
+        $("#OtherInDrivername").hide();
+    });
+    var parkinglocations;
+    function LoadParkingLocations() {
+        $.get("/Register/GetAllParkingLocations?locid=0", function (data) {
+            parkinglocations = data;
+            var options = [];
+            options.push('<option value="">- Select ParkingLocation -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].ParkingLocation + '">' + data[i].ParkingLocation + '</option>');
+            }
+            $("#ParkingLocation").html(options.join(''));
+        });
+    }
+    function LoadDropdownvalues() {
+        $.get("/Common/GetCommonDropdownValues?dtype=Driver", function (data) {
+            var options = [];
+            options.push('<option value="">- Select -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].Name + '">' + data[i].Name + '</option>');
+            }
+            options.push('<option value="Other">Other</option>');
+            $("#InDrivername").html(options.join(''));
+            $("#txtupoutdriver").html(options.join(''));
+            $("#txtupindriver2").html(options.join(''));
+            $("#txtupoutdriver2").html(options.join(''));
+        });
+    }
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- All Locations -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].LocationId == 1 || data[i].LocationId == 2 || data[i].LocationId == 9 || data[i].LocationId == 4 || data[i].LocationId == 5|| data[i].LocationId == 20) {
+                        options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                    }
+                }
+                $("#LocationId").html(options.join(''));
+                $("#LocationId2").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadData() {
+        oTable =$('#tblValetParking').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Custom/AjaxGetValetParking",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "Id" },
+                { "sName": "Name" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "IsActive" },
+                {
+                           "sName": "Id",
+                           "bSortable": false,
+                           "render": function (data, row, r) {
+
+                               return '<div class="btn-group">' +
+                                   '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                                   '<ul class="dropdown-menu dropdown-menu-right">' +
+                                   '<li><a href="javascript:void(0);"  onclick="onEdit(' + data + ')">Update Exist</a></li>' +
+                                   '<li><a href="javascript:void(0);"  onclick="UpdateDriver(' + data + ')">Update Driver</a></li>' +
+                                   //'<li><a href="javascript:void(0);"  onclick="onDelete(' + data + ')">Delete</a></li>' +
+                                   '</ul></div>';
+                           }
+                }
+            ],
+            "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                $('td:eq(2)', nRow).html('<a href="javascript:void(0);" id="' + aData[0] + '" onclick="onEdit(this.id);">' + aData[2] + '</a>');
+                //if (aData[8] == "") {
+                //    $(nRow).css("background", "#ffcc00");
+                //}
+                var myDate = new Date();
+                var day = moment(aData[3], "DD/MM/YYYY HH:mm tt");
+                var date = day.toDate();
+                var Difference_In_Time = myDate.getTime() - date.getTime();
+                var Difference_In_Days = parseFloat(Difference_In_Time / (1000 * 3600 * 24));
+                if (Difference_In_Days > 1 && aData[8] == "") {
+                    $(nRow).css("background", "#ffcc00");
+                }
+            }
+            ,
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "locationid", "value": $("#LocationId2").val() },
+                    { "name": "fromdate", "value": $("#txtFromDate").val() },
+                    { "name": "todate", "value": $("#txtToDate").val() },
+                    { "name": "FormType", "value": $("#ddlselectFilter").val() },
+                );
+            }
+        });
+        $("#tblValetParking_length").addClass("d-none");
+        $("#tblValetParking_length").addClass("d-sm-block");
+        //$("#tblValetParking_length").addClass("col-xs-6");
+    }
+    function Savevaletparking() {
+        validateCategory();
+        var InDriverName = $("#InDrivername").val();
+        if (InDriverName == "Other") {
+            InDriverName = $("#OtherInDrivername").val();
+        }
+        if (validate) {
+            var task = {
+                ValetParkingId: eId,
+                LocationId: $("#LocationId").val(),
+                VehicleNo: $("#txtVehicleNo").val(),
+                InTime: $("#Intime").val(),
+                InDriverName: InDriverName,
+                Remarks: $("#Remarks").val(),
+                MobileNumber: $("#txtMobileNo").val(),
+                TokenNumber: $("#txtTokenNo").val(),
+                IsActive: true,
+                ParkingAreaName: $("#ParkingLocation").val(),
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Custom/SaveValetParking",
+                data: task,
+                success: function (data) {
+                    $("#myModalnew").modal('hide');
+                    clearAll(); oTable.api().ajax.reload(null, false);
+
+                }
+            });
+        }
+    }
+    function validateCategory() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#txtVehicleNo").val() == "") {
+            $("#txtVehicleNo").addClass('css-error');
+            validate = false;
+        }
+        if ($("#Intime").val() == "") {
+            $("#Intime").addClass('css-error');
+            validate = false;
+        }
+        if ($("#InDrivername").val() == "") {
+            $("#InDrivername").addClass('css-error');
+            validate = false;
+        }
+    }
+    function onDelete(id) {
+        if (confirm('Are you sure you want to delete?')) {
+            $.getJSON("@Url.Action("DeleteValetParking", "Custom")", { id: id }, function (data) {
+                clearAll();
+                oTable.api().ajax.reload(null, false);
+            });
+        } return false;
+    }
+    function onEdit(id) {
+        clearAll();
+        eId = id;
+        $.get("/Custom/GetValetParking?id=" + id, function (data) {
+            $("#txtupVehicleNo").val(data.VehicleNo);
+            $("#txtupoutdriver").val(data.OutDriverName);
+            $("#txtupRemarks").val(data.CheckoutRemarks);
+            $("#txtupMobileNo").val(data.MobileNumber);
+            $("#txtupTokenNo").val(data.TokenNumber);
+            $("#txtupintime").val(data.InTime);
+            $("#txtupindriver").val(data.InDriverName);
+            $("#header").html("Update Exist Details");
+            $("#myModal").modal('show');
+        });
+
+    }
+
+    function UpdateDriver(id) {
+        eId = id;
+        $.get("/Custom/GetValetParking?id=" + id, function (data) {
+
+            $("#txtupVehicleNo1").val(data.VehicleNo);
+            $("#txtupMobileNo1").val(data.MobileNumber);
+            $("#txtupTokenNo1").val(data.TokenNumber);
+            $("#txtupintime1").val(data.InTime);
+
+            $("#txtupindriver2").val(data.InDriverName);
+            $("#txtupoutdriver2").val(data.OutDriverName);
+            $("#myModalUpdateDriver").modal('show');
+        });
+    }
+    function clearAll() {
+        $(".css-error").removeClass('css-error');
+        $("#txtVehicleNo").val("");
+        $("#txtMobileNo").val("");
+        $("#txtTokenNo").val("");
+        $("#InDrivername").val("");
+        $("#Intime").val("");
+        $("#Remarks").val("");
+        $("#LocationId").val("");
+        eId = 0;
+    }
+    function OnclickSave() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#txtupVehicleNo").val() == "") {
+            $("#txtupVehicleNo").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtupouttime").val() == "") {
+            $("#txtupouttime").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtupoutdriver").val() == "") {
+            $("#txtupoutdriver").addClass('css-error');
+            validate = false;
+        }
+        if (validate) {
+            var task = {
+                ValetParkingId: eId,
+               // ModifiedBy: $("#txtOutDate").val(),
+                VehicleNo: $("#txtupVehicleNo").val(),
+                //OutTime: $("#txtupouttime").val(),
+                OutDriverName: $("#txtupoutdriver").val(),
+                CheckoutRemarks: $("#txtupRemarks").val()
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Custom/UpdateValetParking",
+                data: task,
+                success: function (data) {
+
+                    closeandclear(); oTable.api().ajax.reload(null, false);
+
+                }
+            });
+        }
+    }
+    function closeandclear() {
+        $("#txtupVehicleNo").val("");
+        $("#txtupouttime").val("");
+        $("#txtupoutdriver").val("");
+        $("#txtupRemarks").val("");
+        $("#myModal").modal('hide');
+        clearAll();
+    }
+    function closeallnew() {
+        $("#myModalnew").modal('hide');
+    }
+    function Loaddynamicdata() {
+        oTable.api().ajax.reload(null, false);
+    }
+    function ExportExcelData() {
+        $("#myModalExportExcel").modal('show');
+    }
+    function FinalExportExcel() {
+        if ($("#txtFromDate").val() != null && $("#txtFromDate").val() != "" && $("#txtToDate").val() != null && $("#txtToDate").val() != "") {
+            var url = '/Custom/ExportExcelValetParking?FromDate=' + $("#txtFromDate").val() + '&ToDate=' + $("#txtToDate").val();
+            window.location = url;
+
+        } else {
+            alert("Please select from date and todae");
+        }
+    }
+    function newmodalshow() {
+        $("#myModalnew").modal('show');
+    }
+    function SaveUpdateDriver() {
+        $.get("/Custom/UpdateDriverValetParking?id=" + eId + "&indriver=" + $("#txtupindriver2").val() + "&outdriver=" + $("#txtupoutdriver2").val(), function (data) {
+
+            $("#txtupVehicleNo1").val("");
+            $("#txtupMobileNo1").val("");
+            $("#txtupTokenNo1").val("");
+            $("#txtupintime1").val("");
+
+            $("#txtupindriver2").val("");
+            $("#txtupoutdriver2").val("");
+            $("#myModalUpdateDriver").modal('hide');
+            Loaddynamicdata();
+        });
+    }
+    function Drivernamehaschnge() {
+        $("#OtherInDrivername").hide();
+        if ($("#InDrivername").val() == "Other") {
+            $("#OtherInDrivername").show();
+        }
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading" style="height:35px;"><a href="~/Register/Index">Go Back</a> &nbsp;&nbsp;  Manage Valet Parking <span style="color:orangered; cursor:pointer; float:right;" onclick="newmodalshow()">&nbsp;&nbsp;&nbsp;&nbsp;New</span> </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-2">
+                <select id="LocationId2" class="form-control" onchange="Loaddynamicdata();">
+                    <option value="">Select</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <input type="text" class="form-control" placeholder="From Date" id="txtFromDate" readonly="readonly" autocomplete="off" />
+            </div>
+            <div class="col-md-2">
+
+                <input type="text" class="form-control" placeholder="To Date" id="txtToDate" readonly="readonly" autocomplete="off" />
+            </div>
+            <div class="col-md-2 col-xs-6">
+
+                <select class="form-control" id="ddlselectFilter">
+                    <option value="All">All</option>
+                    <option value="Pending" selected>Pending For Out</option>
+                </select>
+            </div>
+            <div class="col-md-1">
+                <input type="button" id="btn" value="Go" onclick="Loaddynamicdata();" class="btn btn-primary" />
+            </div>
+            <div class="col-md-1">
+                <input type="button" id="btnasigntask" value="Export Excel" onclick="FinalExportExcel();" class="btn btn-primary" />
+            </div>
+        </div>
+        <div class="row" style="padding:5px;">
+
+            <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblValetParking">
+                <thead>
+                    <tr style="background-color:chocolate;color:white;">
+                        <th>Id</th>
+                        <th>Location</th>
+                        <th>Vehicle No</th>
+                        <th>In Time</th>
+                        <th>In Driver</th>
+                        <th>Valet Token</th>
+                        <th>Mobile</th>
+                        <th>In Remarks</th>
+                        <th>Out Time</th>
+                        <th>Out Driver</th>
+                        <th>Out Remarks</th>
+                        <th>Check In By</th>
+                        <th>Check Out By</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="myModalUpdateDriver" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" id="header122">Driver Update</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Vehicle No<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="txtupVehicleNo1" disabled="disabled" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Mobile No<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="txtupMobileNo1" disabled="disabled" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Valet Token No<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="txtupTokenNo1" disabled="disabled" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">In Time<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="txtupintime1" disabled="disabled" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">In Driver<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select id="txtupindriver2" class="form-control">
+                            <option value="">Select</option>
+
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Out Driver<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select id="txtupoutdriver2" class="form-control">
+                            <option value="">Select</option>
+
+                        </select>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Update" onclick="SaveUpdateDriver();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="myModal" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="closeandclear();">×</button>
+                <h4 class="modal-title" id="header">Update</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Vehicle No<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="txtupVehicleNo" disabled="disabled" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Mobile No<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="txtupMobileNo" disabled="disabled" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Valet Token No<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="txtupTokenNo" disabled="disabled" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">In Time<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="txtupintime" disabled="disabled" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">In Driver<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="txtupindriver" disabled="disabled" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Out Driver<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        @*<input type="text" class="form-control" id="txtupoutdriver" autocomplete="off" />*@
+                        <select id="txtupoutdriver" class="form-control">
+                            <option value="">Select</option>
+                            <option value="Driver 1">Driver 1</option>
+                            <option value="Driver 2">Driver 2</option>
+                            <option value="Driver 3">Driver 3</option>
+                            <option value="Driver 4">Driver 4</option>
+                            <option value="Driver 5">Driver 5</option>
+                            <option value="Driver 6">Driver 6</option>
+                            <option value="Driver 7">Driver 7</option>
+                            <option value="Driver 8">Driver 8</option>
+                            <option value="Driver 9">Driver 9</option>
+                            <option value="Driver 10">Driver 10</option>
+                            <option value="Driver 11">Driver 11</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Remarks</label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="txtupRemarks" autocomplete="off" />
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Update" onclick="OnclickSave();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearAll();">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<div id="myModalnew" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="closeallnew();">×</button>
+                <h4 class="modal-title" id="header22">New</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Location<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select id="LocationId" class="form-control">
+                            <option value="">Select</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Parking Location<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select id="ParkingLocation" class="form-control">
+                            <option value="">Select</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Vehicle No<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="txtVehicleNo" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Mobile No<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="number" class="form-control" id="txtMobileNo" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Valet Token No<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="number" class="form-control" id="txtTokenNo" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">In Driver Name<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select id="InDrivername" class="form-control" onchange="Drivernamehaschnge();">
+                            <option value="">Select</option>
+                            <option value="Driver 1">Driver 1</option>
+                            <option value="Driver 2">Driver 2</option>
+                            <option value="Driver 3">Driver 3</option>
+                            <option value="Driver 4">Driver 4</option>
+                            <option value="Driver 5">Driver 5</option>
+                            <option value="Driver 6">Driver 6</option>
+                            <option value="Driver 7">Driver 7</option>
+                            <option value="Driver 8">Driver 8</option>
+                            <option value="Driver 9">Driver 9</option>
+                            <option value="Driver 10">Driver 10</option>
+                            <option value="Driver 11">Driver 11</option>
+                        </select>
+                        <input type="text" id="OtherInDrivername" placeholder="Driver Name" class="form-control" style="margin-top:5px;" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Remarks<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="Remarks" autocomplete="off" />
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" onclick="Savevaletparking();" class="btn btn-primary" />
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearAll();">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

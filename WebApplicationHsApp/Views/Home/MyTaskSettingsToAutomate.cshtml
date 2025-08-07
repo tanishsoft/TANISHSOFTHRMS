@@ -1,0 +1,271 @@
+﻿
+@{
+    ViewBag.Title = "MyTaskSettingsToAutomate";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+        LoadLocations();
+        datatablebind();
+    });
+    function SaveAutomateSettings() {
+        var model = {
+            LocationId: $("#ddlLocationForFilter").val(),
+            DepartmentId: $("#ddlDepartmentForFilter").val(),
+            CreatorLocationId: $("#ddlLocation").val(),
+            CreatorDepartmentId: $("#ddlDepartment").val(),
+            AssignToUserid: $("#ddlEmployeesForFilter").val(),
+            Subject: $("#txtsubject").val(),
+            SendSMS: $("#cbsms").prop('checked'),
+            SendEmail: $("#cbemail").prop('checked')
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/Home/SaveTaskAutoassignSettings",
+            data: model,
+            success: function (data) {
+                alert(data);
+                datatablebind();
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- All -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+
+                $("#ddlLocation").html(options.join(''));
+                $("#ddlLocationForFilter").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadDepartmentForFilter() {
+        if ($("#ddlLocationForFilter").val() != null && $("#ddlLocationForFilter").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Common/GetDepartmentByLocation",
+                data: "id=" + $("#ddlLocationForFilter").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- Select Department -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                    }
+                    $("#ddlDepartmentForFilter").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        } else {
+            var options = [];
+            options.push('<option value="">- Select Department -</option>');
+
+            $("#ddlDepartmentForFilter").html(options.join(''));
+        }
+    }
+    function LoadDepartment() {
+        if ($("#ddlLocation").val() != null && $("#ddlLocation").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Common/GetDepartmentByLocation",
+                data: "id=" + $("#ddlLocation").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- Select Department -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                    }
+                    $("#ddlDepartment").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        } else {
+            var options = [];
+            options.push('<option value="">- Select Department -</option>');
+
+            $("#ddlDepartment").html(options.join(''));
+        }
+    }
+    function LoadEmployeesForFilter() {
+        if ($("#ddlDepartmentForFilter").val() != null && $("#ddlDepartmentForFilter").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Common/GetEmployeesByDepartment",
+                data: "id=" + $("#ddlDepartmentForFilter").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- Select Employee -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].CustomUserId + '">' + data[i].FirstName + " " + data[i].LastName + '</option>');
+                    }
+                    $("#ddlEmployeesForFilter").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+    }
+
+    function datatablebind() {
+        $('#myDataTable').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Home/AjaxbyTaskAutoassignSettings",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aoColumns": [
+                            { "sName": "Id" },
+                            { "sName": "CreatorLocationName" },
+                            { "sName": "CreatorDepartmentName" },
+                             { "sName": "LocationName" },
+                            { "sName": "DepartmentName" },
+                            { "sName": "AssignToUserName" },
+                            { "sName": "Subject" },
+                            { "sName": "NotifySMS" },
+                            { "sName": "NotifyEmail" },
+                            {
+                                "sName": "id",
+                                "bSortable": false,
+                                "render": function (data) {
+                                    return "<input type='button' id='" + data + "' value='del' onclick='funcdeletesetting(this.id);' /> ";
+                                }
+                            }
+            ],
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, 500, 1000], [10, 20, 30, 50, 100, 150, 200, 500, 1000]]
+        });
+    }
+    function funcdeletesetting(id) {
+        if (confirm("Are you sure you want to delete?")) {
+            var tdata = {
+                id: id
+            };
+            $.ajax({
+                type: "GET",
+                url: "/Home/DeleteTaskAuto",
+                data: tdata,
+                success: function (data) {
+                    alert(data);
+                    datatablebind();
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+    }
+</script>
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        My Task Settings To Automate
+    </div>
+    <div class="panel-body" style="padding:4px;">
+        <table style="width:80%;margin:auto;" class="table">
+            <tr>
+                <td>
+                    Creator Location
+                </td>
+                <td>
+                    <select id="ddlLocation" class="form-control" style="max-width:200px;" onchange="LoadDepartment();">
+                        <option value="">Select Location</option>
+                    </select>
+                </td>
+
+                <td>
+                    Creator  Department
+                </td>
+                <td>
+                    <select id="ddlDepartment" class="form-control" style="max-width:200px;">
+                        <option value="">Select Department</option>
+                    </select>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    Assign Location
+                </td>
+                <td>
+                    <select id="ddlLocationForFilter" class="form-control" style="max-width:200px;" onchange="LoadDepartmentForFilter();">
+                        <option value="">Select Location</option>
+                    </select>
+                </td>
+
+                <td>
+                    Assign  Department
+                </td>
+                <td>
+                    <select id="ddlDepartmentForFilter" class="form-control" style="max-width:200px;" onchange="LoadEmployeesForFilter();">
+                        <option value="">Select Department</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Subject Contains:
+                </td>
+                <td>
+                    <input type="text" class="form-control" id="txtsubject" />
+                </td>
+
+                <td>
+                    Assign To:
+                </td>
+                <td>
+                    <select id="ddlEmployeesForFilter" class="form-control" style="max-width:200px;">
+                        <option value="">Select Employee</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Notification
+                </td>
+                <td>
+                    <input type="checkbox" id="cbemail" />Email  &nbsp;&nbsp;&nbsp;<input type="checkbox" id="cbsms" />SMS
+                </td>
+
+                <td>
+                    &nbsp;
+                </td>
+                <td>
+                    <input type="button" id="btnprimary" value="Save" class="btn btn-primary" onclick="SaveAutomateSettings();" />
+                </td>
+            </tr>
+        </table>
+        <table id="myDataTable" class="table table-striped table-bordered  dt-responsive table-hover dataTables_wrapper " style="width:100%;">
+            <thead>
+                <tr style="background-color:teal;color:white;">
+                    <th>Id</th>
+                    <th>Creator Location</th>
+                    <th>Creator Department</th>
+
+                    <th>Assign Location</th>
+                    <th>Assign Department</th>
+                    <th>AssignTo</th>
+                    <th>Subject</th>
+                    <th>NotifySMS</th>
+                    <th>NotifyEmail</th>
+
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>

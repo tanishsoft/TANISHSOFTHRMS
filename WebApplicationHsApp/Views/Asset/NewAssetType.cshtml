@@ -1,0 +1,211 @@
+﻿
+@{
+    ViewBag.Title = "NewAssetType";
+}
+
+<script>
+    var i = 1; var AssetTypeid;
+    $(document).ready(function () {
+        AssetTypeid=@ViewBag.AssetTypeId;
+        GetAssetType(AssetTypeid);
+        //$("#addmore").on('click', function () {
+
+        //    $('table').append("<tr><td style='display:none;'><input type='hidden' value='0' class='form-control'/></td><td style='display:none;'><input type='hidden' value=" + true + " class='form-control'/></td><td><input type='text' id='Component_Name_" + i + "' class='form-control'/></td><td> <a href='javascript: void(0);' class='remCF'><span class='glyphicon glyphicon-trash' style='color: red'></span></a></td></tr>");
+        //    //<td><input type='text' id='Component_Des_" + i + "' class='form-control' /></td> <td><input type='text' id='Component_ShortCode_" + i + "' class='form-control' /></td>
+        //i++;
+        //});
+
+        //$("#tblComponent").on('click', '.remCF', function () {
+        //    debugger;
+        //    if (AssetTypeid != 0) {
+        //        var row = $(this).parents("tr");
+        //        var Comid = $(this).parents('tr').find("td:eq(0) input").val();
+        //        if (Comid != "0") {
+        //            row.children().eq(1).html("<input type='hidden' value=" + false + " class='form - control'/>");
+        //            row.hide();
+        //        }
+        //        else {
+        //            $(this).parents("tr").remove();
+        //        }
+        //    }
+        //    else {
+        //         $(this).parents("tr").remove();
+        //    }
+
+        //});
+    });
+    function GetAssetType(id) {
+        if (id != 0) {
+            $('#statusdiv').show();
+            $.get("/Asset/GetAssetTypesandtypecomponents", { id: id }, function (data) {
+                debugger;
+                var obj = data;
+                $('#AssetTypeId').val(data.AssetType[0].AssetTypeId);
+                $('#Name').val(data.AssetType[0].Name);
+                $("#Description").val(data.AssetType[0].Description);
+                $("#ShortCode").val(data.AssetType[0].ShortCode);
+                if (data.AssetType[0].IsActive == true) {
+                    $("#status").val("1");
+                }
+                else {
+                    $("#status").val("0");
+                }
+                //if (data.Components.length == 0) {
+                //    $('table').append("<tr><td style='display:none;'><input type='hidden' value='0' class='form-control'/></td><td style='display:none;'><input type='hidden' value=" + true + " class='form-control'/></td><td><input type='text' class='form-control'/></td></tr>");
+                //    //<td><input type='text' class='form-control' /></td> <td><input type='text' class='form-control' /></td>
+                //}
+                //else {
+                //    $('table tbody').html("");
+                //    for (var i = 0; i < data.Components.length; i++) {
+                //        var Name = " "; var Description = ""; var ShortCode = "";
+                //        $('table').append("<tr><td style='display:none;'><input type='hidden' id='Comid" + i + "' class='form-control'/></td><td style='display:none;'><input type='hidden' id='ComStatus" + i + "' class='form-control'/></td><td><input type='text' id='Comname" + i + "' class='form-control'/></td><td><a href='javascript: void(0);' class='remCF'><span class='glyphicon glyphicon-trash' style='color: red'></span></a></td></tr>");
+                //        //<td><input type='text' id='Comdes" + i + "' class='form-control' /></td> <td><input type='text' id='Comshort" + i + "' class='form-control' /></td>
+                //        if (data.Components[i].Name != null) {
+                //            Name = data.Components[i].Name;
+                //        }
+                //        if (data.Components[i].Description != null) {
+                //            Description = data.Components[i].Description;
+                //        }
+                //        if (data.Components[i].Name != null) {
+                //            ShortCode = data.Components[i].ShortCode;
+                //        }
+                //        $('#Comid' + i).val(data.Components[i].AssetTypeComponentId); $('#Comname' + i).val(Name); $('#Comdes' + i).val(Description); $('#Comshort' + i).val(ShortCode); $('#ComStatus' + i).val(true);
+                //    }
+                //}
+            });
+        }
+
+    }
+    function SaveAssetType() {
+        validateAssetType();
+        if (validate) {
+            debugger;
+            var Status = true;
+            if ($('#status').val() == '0') {
+                Status = false;
+            }
+            var AssetType = {
+                AssetTypeId: $('#AssetTypeId').val(),
+                Name: $('#Name').val(),
+                Description: $("#Description").val(),
+                ShortCode: $('#ShortCode').val(),
+                IsActive: Status
+            };
+            var ComponentsList=[];
+            //$("table#tblComponent > tbody > tr").each(function (row, tr) {
+            //    debugger;
+            //    if (row == 0 && $('td:eq(2) input', this).val() == "" ) {
+            //      //  if (row == 0 && $('td:eq(2) input', this).val() == "" && $('td:eq(3) input', this).val() == "" && $('td:eq(4) input', this).val() == "") {
+            //        ComponentsList = [];
+            //    }
+            //    else {
+            //        //"Description": $('td:eq(3) input', this).val(),
+            //            //"ShortCode": $('td:eq(4) input', this).val()
+            //        var Component = {
+            //            "AssetTypeComponentId": $('td:eq(0) input', this).val(),
+            //            "IsActive": $('td:eq(1) input', this).val(),
+            //            "Name": $('td:eq(2) input', this).val(),
+
+            //        };
+            //        ComponentsList.push(Component);
+            //    }
+            //});
+            //debugger;
+
+            $.ajax({
+                type: "POST",
+                url: "/Asset/SaveAssetTypeandComponentsTypes",
+                data: {
+                   Asset: AssetType,
+                    ComponentsList: ComponentsList
+            },
+                success: function (data) {
+                    alert("Success");
+                    window.location.replace("/Asset/AssetTypeMaster");
+                }
+            });
+        }
+    }
+    function CancelAssetType() { window.location.replace("/Asset/AssetTypeMaster");}
+    function validateAssetType() {
+        validate = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+
+        if ($("#Name").val() == "") {
+            $("#Name").after('<span class="error" style="color:Red;">Enter Name</span>');
+            $("#Name").addClass('css-error');
+            validate = false;
+        }
+        //if ($("#Description").val() == "") {
+        //    $("#Description").after('<span class="error" style="color:Red;">Enter Description</span>');
+        //    $("#Description").addClass('css-error');
+        //    validate = false;
+        //}
+        //if ($("#ShortCode").val() == "") {
+        //    $("#ShortCode").after('<span class="error" style="color:Red;">Enter ShortCode</span>');
+        //    $("#ShortCode").addClass('css-error');
+        //    validate = false;
+        //}
+
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading"><span class="glyphicon glyphicon-file" style="vertical-align:middle;color:darkcyan;"></span>&nbsp;Asset Type</div>
+    <div class="panel-body" style="min-height:450px;">
+        <form id="Add" method="post">
+
+            <div class="row">
+                <input type="hidden" id="AssetTypeId" />
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <span class="form-label">Name</span>
+                        <input type="text" class="form-control" id="Name" placeholder="Enter Name" />
+                    </div>
+                </div>
+                <div class="col-sm-3" style="display:none;">
+                    <div class="form-group">
+                        <span class="form-label">ShortCode</span>
+                        <input type="text" class="form-control" id="ShortCode" placeholder="Enter Short Code" />
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <span class="form-label">Description</span>
+                        <textarea class="form-control" placeholder="Enter Description" id="Description"></textarea>
+                    </div>
+                </div>
+                <div class="col-sm-3" id="statusdiv" style="display:none;">
+                    <div class="form-group">
+                        <span class="form-label">Status</span>
+                        <select id="status" class="form-control"> <option value="1">Active</option><option value="0">InActive</option></select>
+                    </div>
+                </div>
+                <div class="col-sm-3" style="text-align:center;">
+                    <br />
+                    <button type="submit" class="btn btn-primary" onclick="SaveAssetType();"><span class="glyphicon glyphicon-ok-circle"></span>&nbsp;Submit</button>&nbsp;
+                    <button type="submit" class="btn btn-danger" onclick="CancelAssetType();"><span class="glyphicon glyphicon-ok-circle"></span>&nbsp;Cancel</button>
+                </div>
+            </div>
+        </form>
+        @*<hr />
+            <table id="tblComponent" class="table table-bordered text-center">
+                <thead>
+                    <tr>
+                        <th>Component Name</th>
+
+                        <th><button type="button" class="btn-link btn-primary" id="addmore" value="Add new "> <span class="glyphicon glyphicon-plus"></span> </button></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td ><input type="text" id="Component_Name_0" class="form-control" /></td>
+
+                        <td></td>
+                    </tr>
+                </tbody>
+            </table>*@
+
+    </div>
+</div>
+

@@ -1,0 +1,947 @@
+﻿@model WebApplicationHsApp.Models.RegisterEmployeeViewModel
+@{
+    ViewBag.Title = "AddEmployee";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    if (ViewBag.UploadImportMsg != null)
+    {
+        <script>
+            OpenSuccessAlertPopUpBox_ConfirmPopUpJS("@ViewBag.UploadImportMsg");
+        </script>
+    }
+}
+<style>
+    .form-group {
+        margin-bottom: 20px !important;
+    }
+</style>
+
+<script>
+    var arrayofreportingmanater = [];
+    $(document).ready(function () {
+        LoadLocations();
+        LoadDesignationData();
+        LoadVendors();
+        $('.txtdate').datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            maxDate: "0",
+            yearRange: "-100:+0",
+        });
+        $(".ddlverndorcheck").hide();
+        if ($("#hdnVendoremp").val() == "true") {
+            $(".ddlverndorcheck").show();
+        }
+        $('#UserRole').on('change', function () {
+            var ddlvalue = $(this).val();
+            $(".ddlverndorcheck").hide();
+            if (ddlvalue == 'OutSource') {
+                $(".ddlverndorcheck").show();
+            }
+        });
+        $("#BlockLogin").hide();
+        $("#BlockReporting").hide();
+        $("#ReportingManageName").hide();
+        // $("#UserId").val($("#HiddenUserID").val());
+        $("#EmployeeId").change(function () {
+            $("#UserId").val($("#EmployeeId").val());
+            $.ajax({
+                type: "POST",
+                url: "/Account/CheckUserIdExitsOrNot",
+                data: { UserId: $("#UserId").val() },
+                success: function (data) {
+                    if (data) {
+                        alert("User already register please try again");
+                        $("#UserId").val("");
+                        $("#EmployeeId").val("");
+                    }
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        });
+
+        GetAllUserEmailListToAdmin_GlobalFunctionJS();
+    });
+    var Vendors = [];
+    function LoadVendors() {
+        $.get("/Admin/GetVendorlist", function (data) {
+            Vendors = data;
+            var filtervendor = false;
+            if ($("#hdnVendoremp").val() == "true") {
+                //Email
+                filtervendor = true;
+            }
+            var vendorid = 0;
+            var currentuser = $("#hdnvendorcurrentusername").val();
+            var options = [];
+            options.push('<option value="">- Select Vendor -</option>');
+            if (filtervendor) {
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].Email == currentuser) {
+                        options.push('<option value="' + data[i].VendorId + '">' + data[i].Name + '</option>');
+                        vendorid = data[i].VendorId;
+                    }
+                }
+            } else {
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].VendorId + '">' + data[i].Name + '</option>');
+                }
+            }
+            $("#ddlVendor2").html(options.join(''));
+            if (filtervendor) {
+                $("#ddlVendor2").val(vendorid);
+                $("#ddlVendor2").prop("disabled", true);
+            }
+        });
+    }
+    $(document).on('click', 'removebutton', function () {
+        $(this).closest('tr').remove();
+        return false;
+    });
+
+
+    function LoadDesignationData() {
+        $.ajax({
+            type: "GET",
+            url: "/Common/GetDesignationListToAdmin",
+            //data: "id=" + $("#ddlDepartment1").val(),
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Designation -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].ID + '">' + data[i].Designation_Name + '</option>');
+                }
+                $("#DesignationID").html(options.join(''));
+            }
+        });
+    }
+
+    function BindDesignationName_OnDesChange() {
+        var DesID = $("#DesignationID").val();
+        $("#Designation").val("");
+        if ($.isNumeric(DesID)) {
+            $("#Designation").val($("#DesignationID option:selected").text());
+        } else {
+
+        }
+    }
+
+
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#ddlLocation").html(options.join(''));
+                $("#ddllocationsReporting").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadDepartment() {
+        $("#LocationId").val($("#ddlLocation").val());
+        var skillsSelect = document.getElementById("ddlLocation");
+        var selectedText = skillsSelect.options[skillsSelect.selectedIndex].text;
+        $("#LocationName").val(selectedText);
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetDepartmentByLocation",
+            data: "id=" + $("#ddlLocation").val(),
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Department -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                }
+                $("#ddlDepartment").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function DepartmentChange() {
+        $("#DepartmentId").val($("#ddlDepartment").val());
+        var skillsSelect = document.getElementById("ddlDepartment");
+        var selectedText = skillsSelect.options[skillsSelect.selectedIndex].text;
+        $("#DepartmentName").val(selectedText);
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetSubDepartmentByDepartment",
+            data: "id=" + $("#ddlDepartment").val(),
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select sub Department -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].SubDepartmentId + '">' + data[i].Name + '</option>');
+                }
+                $("#ddlSubDepartment").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function SubDepartmentChange() {
+        $("#SubDepartmnetId").val($("#ddlSubDepartment").val());
+        var skillsSelect = document.getElementById("ddlSubDepartment");
+        var selectedText = skillsSelect.options[skillsSelect.selectedIndex].text;
+        $("#SubDepartmentName").val(selectedText);
+    }
+    function LoadDepartment1() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetDepartmentByLocation",
+            data: "id=" + $("#ddllocationsReporting").val(),
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Department -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                }
+                $("#ddlDepartmentReporting").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function DepartmentChange1() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetSubDepartmentByDepartment",
+            data: "id=" + $("#ddlDepartmentReporting").val(),
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select sub Department -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].SubDepartmentId + '">' + data[i].Name + '</option>');
+                }
+                $("#ddlSubDepartmentReporting").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+
+
+    function FunShowReport() {
+        $("#divReportingManageName").html("");
+        var s = $("#ddlemployeetype").val();
+        $("#UserType").val(s);
+        $("#BlockReporting").hide();
+        $("#ReportingManageName").hide();
+        if (s == "HOD") {
+            $("#BlockReporting").show();
+
+            if ($("#SubDepartmnetId").val() != null && $("#SubDepartmnetId").val() != "") {
+                var data = {
+                    locationid: $("#LocationId").val(),
+                    departmentid: $("#DepartmentId").val(),
+                    subdepartmentid: $("#SubDepartmnetId").val(),
+                    type: "HOD"
+                };
+                $.ajax({
+                    type: "POST",
+                    url: "/HrAdmin/GetSubDepartmentReporingManager",
+                    data: data,
+                    success: function (data) {
+                        if (data != "No Data") {
+                            $("#ReportingManageName").show();
+                            $("#divReportingManageName").html("<h4> You are reporting to : " + data.UserName + "</h4>");
+                        }
+                    },
+                    error: function () {
+                        alert("error")
+                    }
+                });
+            } else {
+                var data = {
+                    locationid: $("#LocationId").val(),
+                    departmentid: $("#DepartmentId").val(),
+                    type: "HOD"
+                };
+                $.ajax({
+                    type: "POST",
+                    url: "/HrAdmin/GetDepartmentReporingManager",
+                    data: data,
+                    success: function (data) {
+                        if (data != "No Data") {
+                            $("#ReportingManageName").show();
+                            $("#divReportingManageName").html("<h4> You are reporting to : " + data.UserName + "</h4>");
+                        }
+                    },
+                    error: function () {
+                        alert("error")
+                    }
+                });
+            }
+        }
+        else if (s == "HeadofHOD") {
+
+            $("#BlockReporting").show();
+
+            if ($("#SubDepartmnetId").val() != null && $("#SubDepartmnetId").val() != "") {
+                var data = {
+                    locationid: $("#LocationId").val(),
+                    departmentid: $("#DepartmentId").val(),
+                    subdepartmentid: $("#SubDepartmnetId").val(),
+                    type: "HeadofHOD"
+                };
+                $.ajax({
+                    type: "POST",
+                    url: "/HrAdmin/GetSubDepartmentReporingManager",
+                    data: data,
+                    success: function (data) {
+                        if (data != "No Data") {
+                            $("#ReportingManageName").show();
+                            $("#divReportingManageName").html("<h4> You are reporting to : " + data.UserName + "</h4>");
+                        }
+                    },
+                    error: function () {
+                        alert("error")
+                    }
+                });
+            } else {
+                var data = {
+                    locationid: $("#LocationId").val(),
+                    departmentid: $("#DepartmentId").val(),
+                    type: "HeadofHOD"
+                };
+                $.ajax({
+                    type: "POST",
+                    url: "/HrAdmin/GetDepartmentReporingManager",
+                    data: data,
+                    success: function (data) {
+                        if (data != "No Data") {
+                            $("#ReportingManageName").show();
+                            $("#divReportingManageName").html("<h4> You are reporting to : " + data.UserName + "</h4>");
+                        }
+                    },
+                    error: function () {
+                        alert("error")
+                    }
+                });
+            }
+        } else if (s == "ManagerOfHod" || s == "Director") {
+            $("#BlockReporting").show();
+        }
+        else if (s == "Employee") {
+            $("#ReportingManageName").show();
+
+            if ($("#SubDepartmnetId").val() != null && $("#SubDepartmnetId").val() != "") {
+                var data = {
+                    locationid: $("#LocationId").val(),
+                    departmentid: $("#DepartmentId").val(),
+                    subdepartmentid: $("#SubDepartmnetId").val(),
+                    type: "Employee"
+                };
+                $.ajax({
+                    type: "POST",
+                    url: "/HrAdmin/GetSubDepartmentReporingManager",
+                    data: data,
+                    success: function (data) {
+                        if (data != "No Data") {
+                            $("#divReportingManageName").html("<h4> You are reporting to : " + data.UserName + "</h4>");
+                        }
+                    },
+                    error: function () {
+                        alert("error")
+                    }
+                });
+            } else {
+                var data = {
+                    locationid: $("#LocationId").val(),
+                    departmentid: $("#DepartmentId").val(),
+                    type: "Employee"
+                };
+                $.ajax({
+                    type: "POST",
+                    url: "/HrAdmin/GetDepartmentReporingManager",
+                    data: data,
+                    success: function (data) {
+                        if (data != "No Data") {
+                            $("#divReportingManageName").html("<h4> You are reporting to : " + data.UserName + "</h4>");
+                        }
+                    },
+                    error: function () {
+                        alert("error")
+                    }
+                });
+            }
+        } else {
+            $("#BlockReporting").hide();
+        }
+
+
+    }
+    function validationstolocations() {
+
+        if ($("#ddllocationsReporting").val() == null || $("#ddllocationsReporting").val() == "") {
+            return false;
+        }
+        if ($("#ddlDepartmentReporting").val() == null || $("#ddlDepartmentReporting").val() == "") {
+            return false;
+        }
+
+        return true;
+    }
+    function SaveDepartment() {
+
+        //validation
+        if (validationstolocations()) {
+            var skillsSelect = document.getElementById("ddllocationsReporting");
+            var selectedText = skillsSelect.options[skillsSelect.selectedIndex].text;
+            var deptSelect = document.getElementById("ddlDepartmentReporting");
+            var deptText = deptSelect.options[deptSelect.selectedIndex].text;
+            var SubdeptSelect = document.getElementById("ddlSubDepartmentReporting");
+            var SubdeptText = SubdeptSelect.options[SubdeptSelect.selectedIndex].text;
+            var SubDepartmentId = 0;
+            var SubDepartmentName = "";
+            if ($("#ddlSubDepartmentReporting").val() != null && $("#ddlSubDepartmentReporting").val() != "") {
+                SubDepartmentId = $("#ddlSubDepartmentReporting").val();
+                SubDepartmentName = SubdeptText;
+            }
+            var employee = false;
+            var hod = false;
+            var headofhod = false;
+            var managerofhod = false;
+            var s = $("#ddlemployeetype").val();
+            if (s == "HOD") {
+                hod = true;
+            }
+            if (s == "HeadofHOD") {
+                headofhod = true;
+            }
+            if (s == "ManagerOfHod") {
+                managerofhod = true;
+            }
+            var task = {
+                LocationId: $("#ddllocationsReporting").val(),
+                DepartmentId: $("#ddlDepartmentReporting").val(),
+                LocationName: selectedText,
+                DepartmentName: deptText,
+                SubDepartmentId: SubDepartmentId,
+                SubDepartmentName: SubDepartmentName,
+                IsHod: hod,
+                IsHodOfHod: headofhod,
+                IsManagerOfHod: managerofhod
+            };
+            arrayofreportingmanater.push(task);
+            PopultaeHtml();
+        } else {
+            alert("please select all required fields");
+        }
+    }
+    function PopultaeHtml() {
+        var html = "<table class='table table-striped table-bordered dt-responsive nowrap'>  <thead>";
+        html += "<tr><th>Location</th> <th>Department</th><th>Sub Department</th>  <th>Action</th> </tr>     </thead>    <tbody>";
+        for (var i = 0; i < arrayofreportingmanater.length; i++) {
+            var id = arrayofreportingmanater[i].LocationId + "$" + arrayofreportingmanater[i].DepartmentId + "$" + arrayofreportingmanater[i].SubDepartmentId;
+            html += "<tr>";
+            html += "<td>" + arrayofreportingmanater[i].LocationName + "</td>";
+            html += "<td>" + arrayofreportingmanater[i].DepartmentName + "</td>";
+            html += "<td>" + arrayofreportingmanater[i].SubDepartmentName + "</td>";
+            html += "<td>  <span id='" + id + "' class='glyphicon glyphicon-remove' onclick='OnclickRemovebutton(this.id);' style='color:red;cursor:pointer;font-size:15px;'></span></td>";
+            html += "</tr>";
+        }
+        html += "</tbody></table>";
+        $("#tblreporting").html(html);
+    }
+    function OnclickRemovebutton(id) {
+        var newarray = [];
+        for (var i = 0; i < arrayofreportingmanater.length; i++) {
+            var id1 = arrayofreportingmanater[i].LocationId + "$" + arrayofreportingmanater[i].DepartmentId + "$" + arrayofreportingmanater[i].SubDepartmentId;
+            if (id != id1) {
+                newarray.push(arrayofreportingmanater[i]);
+            }
+        }
+        arrayofreportingmanater = newarray;
+        PopultaeHtml();
+    }
+    function Clear() {
+
+    }
+    function Updateinputdata() {
+        $("#strtbl_ReportingManager").val(JSON.stringify(arrayofreportingmanater));
+        var data = {
+            data: JSON.stringify(arrayofreportingmanater),
+            type: $("#ddlemployeetype").val()
+        };
+        $.ajax({
+            type: "POST",
+            url: "/HrAdmin/ValidateDepartment",
+            data: data,
+            success: function (data) {
+                if (data.IsSuccess) {
+                    $("#btnregister").removeAttr("disabled");
+                    return true;
+                } else {
+                    alert(data.Message);
+                    $("#btnregister").attr("disabled", "disabled");
+                    return false;
+                }
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+
+    }
+    function ValidateAddEmployee_ImportExcelFile() {
+        var Valid = false;
+        if ($("#ExcelFileData").val() != null && $("#ExcelFileData").val() != "") {
+            $("#ExcelFileData").removeClass("RedColorBorderCSS");
+            Valid = true;
+        } else {
+            $("#ExcelFileData").addClass("RedColorBorderCSS");
+        }
+        return Valid;
+    }
+
+    function ValidateEmailID_PageLevel(ElementID) {
+        var EnteredEmailID = $("#" + ElementID).val();
+        if (ValidateEmailFormat_GlobalValidationJS(EnteredEmailID)) {
+            var EmailExistStatus = CheckUserEmailIDExistsOrNot_GlobalFunJS(EnteredEmailID);
+            if (!EmailExistStatus) {
+                OpenSuccessAlertPopUpBox_ConfirmPopUpJS("Email ID Already Exist. Please Enter Another Email ID");
+                $("#" + ElementID).val('');
+            }
+        } else {
+            OpenSuccessAlertPopUpBox_ConfirmPopUpJS("Please Enter Valid Email ID");
+            $("#" + ElementID).val('');
+        }
+    }
+    function updateDateinthecolumns() {
+        var dobvalue = $("#DateOfBirth").val();
+        var dojvalue = $("#DateOfJoining").val();
+        $("#ddlVendor").val($("#ddlVendor2").val());
+        $.ajax({
+            type: "POST",
+            url: "/Account/CheckUserIdExitsOrNot",
+            data: { UserId: $("#UserId").val() },
+            success: function (data) {
+                if (data) {
+
+                    alert("User already register please try again");
+                    return false;
+                } else
+                    return true;
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+
+    }
+    function ConvertDatefromoneddmmyyytommddyyy(date) {
+        if (date != null && date != "") {
+            var cdate = date.split('/');
+            return cdate[1] + "/" + cdate[0] + "/" + cdate[2];
+        } else {
+            return "";
+        }
+    }
+    function searchemployees() {
+        $("#myModalsearchemaployee").modal("show");
+        Bindhtisemployees();
+    }
+    var hrisemployees;
+    function Bindhtisemployees() {
+        hrisemployees = [];
+        $("#tablehrisemployeesbody").html("");
+        $.get("/HrAdmin/AjaxGetEmployeesInOracle", function (data) {
+            hrisemployees = data;
+            var html = "";
+            for (var i = 0; i < data.length; i++) {
+                html += " <tr><td>" + data[i].empcode + "</td> <td>" + data[i].empnm + "</td><td>" + data[i].companynm + "</td><td>" + data[i].sdeptid + "</td>  <td>" + data[i].designationid + "</td>  <td>" + data[i].dob + "</td>  <td>" + data[i].doj + "</td> <td>" + data[i].emailid + "</td><td><input type='button' value='Select' onclick='selectemployeeofif(this.id);' id='" + data[i].empcode + "' class='btn btn-parimary' /></td> </tr>";
+            }
+            $("#tablehrisemployeesbody").html(html);
+            $('#tablehrisemployees').dataTable({
+                "bDestroy": true
+            });
+        });
+    }
+    function selectemployeeofif(id) {
+
+        $("#myModalsearchemaployee").modal("hide");
+        for (var i = 0; i < hrisemployees.length; i++) {
+            if (hrisemployees[i].empcode == id) {
+                $("#EmployeeId").val(id);
+                $("#UserId").val(id);
+                $("#FirstName").val(hrisemployees[i].empnm);
+                $("#ddlLocation option:contains(" + hrisemployees[i].companynm + ")").attr('selected', 'selected');
+                //$("#ddlLocation").val(hrisemployees[i].companynm);
+                //$("#ddlDepartment").val(hrisemployees[i].empnm);
+                $("#Email").val(hrisemployees[i].emailid);
+                $("#DateOfBirth").val(hrisemployees[i].dob.replace(" 00:00:00", "").replace(" 12:00:00 AM", ""));
+                $("#DateOfJoining").val(hrisemployees[i].doj.replace(" 00:00:00", "").replace(" 12:00:00 AM", ""));
+                $("#Gender").val(hrisemployees[i].sex);
+                //$("#Designation").val(hrisemployees[i].empnm);
+            }
+        }
+    }
+    $(document).ready(function () {
+
+        $("#ReportingManagerId").select2({
+            ajax: {
+                url: "/Chat/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+                data: function (params) {
+                    return {
+                        searchTerm: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 3
+        });
+    });
+    var loadFile = function (event) {
+        var reader = new FileReader();
+        reader.onload = function () {
+            var output = document.getElementById('output');
+            output.src = reader.result;
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    };
+</script>
+@if (User.IsInRole("Vendor"))
+{
+    <input type="hidden" id="hdnVendoremp" value="true" />
+}
+else
+{
+<input type="hidden" id="hdnVendoremp" value="false" />
+}
+
+<input type="hidden" id="hdnvendorcurrentusername" value="@User.Identity.Name" />
+<div class="panel panel-default">
+    <div class="panel-heading">New Employee<a href="#" data-toggle="modal" class="pull-right" data-target="#AddEmployeeModalPopUp">&nbsp;&nbsp;Import Employees</a></div>
+    <div class="panel-body">
+        @using (Html.BeginForm("AddEmployee", "Account", FormMethod.Post, new { enctype = "multipart/form-data", @class = "form-horizontal", role = "Addform" }))
+        {
+            @Html.AntiForgeryToken()
+
+
+            List<SelectListItem> list = new List<SelectListItem>();
+            list.Add(new SelectListItem
+            {
+                Text = "Select",
+                Value = ""
+
+            });
+            list.Add(new SelectListItem
+            {
+                Text = "Male",
+                Value = "Male"
+
+            });
+            list.Add(new SelectListItem
+            {
+                Text = "Female",
+                Value = "Female"
+                //    Selected = true
+            });
+
+            List<SelectListItem> list2 = new List<SelectListItem>();
+            list2.Add(new SelectListItem
+            {
+                Text = "Select",
+                Value = "",
+                //    Selected = true
+            });
+
+
+            List<SelectListItem> list3 = new List<SelectListItem>();
+
+            list3.Add(new SelectListItem
+            {
+                Text = "Onroll",
+                Value = "Employee",
+                Selected = true
+            });
+            list3.Add(new SelectListItem
+            {
+                Text = "Offroll",
+                Value = "Offroll"
+            });
+            list3.Add(new SelectListItem
+            {
+                Text = "Student",
+                Value = "Student"
+            });
+            list3.Add(new SelectListItem
+            {
+                Text = "Trainee",
+                Value = "Trainee"
+            });
+            list3.Add(new SelectListItem
+            {
+                Text = "OutSource",
+                Value = "OutSource"
+            });
+
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            @Html.HiddenFor(m => m.LocationId)
+            @Html.HiddenFor(m => m.LocationName)
+            @Html.HiddenFor(m => m.DepartmentId)
+            @Html.HiddenFor(m => m.DepartmentName)
+
+            @Html.HiddenFor(m => m.SubDepartmnetId)
+            @Html.HiddenFor(m => m.SubDepartmentName)
+            @Html.HiddenFor(m => m.UserType)
+            @Html.HiddenFor(m => m.ddlVendor)
+            <div class="row">
+                <div class="col-md-6 form-group">
+
+                    @Html.LabelFor(m => m.EmployeeId, new { @class = "col-md-6 control-label required" })
+
+                    <div class="col-md-5">
+                        @Html.TextBoxFor(m => m.EmployeeId, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.EmployeeId, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="col-md-1">
+                        <button type="button" onclick="searchemployees();"><i class="fa fa-search"></i></button>
+                    </div>
+                </div>
+                <div class="col-md-6 form-group">
+                    @Html.LabelFor(m => m.FirstName, new { @class = "col-md-6 control-label required" })
+                    <div class="col-md-6">
+                        @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control TxtOnly" })
+                        @Html.ValidationMessageFor(m => m.FirstName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="col-md-6 form-group">
+                    @Html.LabelFor(m => m.ddlLocation, new { @class = "col-md-6 control-label required" })
+                    <div class="col-md-6">
+                        @Html.DropDownListFor(m => m.ddlLocation, list2, new { @class = "form-control", onchange = "LoadDepartment()" })
+                        @Html.ValidationMessageFor(m => m.ddlLocation, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="col-md-6 form-group">
+                    @Html.LabelFor(m => m.ddlDepartment, new { @class = "col-md-6 control-label required" })
+                    <div class="col-md-6">
+                        @Html.DropDownListFor(m => m.ddlDepartment, list2, new { @class = "form-control", onchange = "DepartmentChange()" })
+                        @Html.ValidationMessageFor(m => m.ddlDepartment, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="col-md-6 form-group">
+                    @Html.LabelFor(m => m.MobileNumber, new { @class = "col-md-6 control-label required" })
+                    <div class="col-md-6">
+                        @Html.TextBoxFor(m => m.MobileNumber, new { @class = "form-control MobileNumber MaxCharTextBox_10" })
+                    </div>
+                </div>
+                <div class="col-md-6 form-group">
+                    @Html.LabelFor(m => m.ddlSubDepartment, new { @class = "col-md-6 control-label" })
+                    <div class="col-md-6">
+                        @Html.DropDownListFor(m => m.ddlSubDepartment, list2, new { @class = "form-control", onchange = "SubDepartmentChange()" })
+                        @Html.ValidationMessageFor(m => m.ddlSubDepartment, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="col-md-6 form-group">
+                    @Html.LabelFor(m => m.Email, new { @class = "col-md-6 control-label" })
+                    <div class="col-md-6">
+                        @Html.TextBoxFor(m => m.Email, new { @class = "form-control", @onchange = "ValidateEmailID_PageLevel(this.id);" })
+                        @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="col-md-6 form-group">
+                    @Html.LabelFor(m => m.DateOfJoining, new { @class = "col-md-6 control-label required" })
+                    <div class="col-md-6">
+                        @Html.TextBoxFor(m => m.DateOfJoining, new { @class = "form-control txtdate" })
+                        @Html.ValidationMessageFor(m => m.DateOfJoining, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="col-md-6 form-group">
+                    @Html.LabelFor(m => m.DateOfBirth, new { @class = "col-md-6 control-label required" })
+                    <div class="col-md-6">
+                        @Html.TextBoxFor(m => m.DateOfBirth, new { @class = "form-control txtdate" })
+                        @Html.ValidationMessageFor(m => m.DateOfBirth, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="col-md-6 form-group">
+                    @Html.LabelFor(m => m.Gender, new { @class = "col-md-6 control-label" })
+                    <div class="col-md-6">
+                        @Html.DropDownListFor(m => m.Gender, list, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.Gender, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="col-md-6 form-group">
+                    @Html.LabelFor(m => m.DesignationID, new { @class = "col-md-6 control-label required" })
+                    <div class="col-md-6">
+                        @Html.DropDownListFor(m => m.DesignationID, list2, new { @class = "form-control", onchange = "BindDesignationName_OnDesChange()" })
+                        @Html.HiddenFor(m => m.Designation, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.DesignationID, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="col-md-6 form-group" style="display:none;">
+                    <label class="col-md-6 control-label"> Select Type</label>
+                    <div class="col-md-6">
+                        <select id="ddlemployeetype" class="form-control">
+                            <option value="">Select</option>
+                            <option value="Employee" selected>Employee</option>
+                            <option value="HOD">HOD</option>
+                            <option value="HeadofHOD">Head of HOD</option>
+                            <option value="ManagerOfHod">Head of Manager</option>
+                            <option value="Director">Director</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6 form-group" style="display:none;">
+                    <label class="col-md-6 control-label"> Is Login Required @Html.CheckBoxFor(model => model.IsLogin, new { onclick = "CheckISLogin()", @checked = true })</label>
+                </div>
+
+                <div class="col-md-6 form-group">
+                    <label class="col-md-6 control-label required" for="UserId" readonly="readonly">Login Id</label>
+                    <div class="col-md-6">
+                        @Html.TextBoxFor(m => m.UserId, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.UserId, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="col-md-6 form-group">
+                    <label class=" col-md-6 control-label" for="AdhaarCard" readonly="readonly">Adhaar Card</label>
+                    <div class="col-md-6">
+                        @Html.TextBoxFor(m => m.AdhaarCard, new { @class = "form-control" })
+
+                    </div>
+                </div>
+
+                <div class="col-md-6 form-group">
+                    <label class="col-md-6 control-label" for="PanCard" readonly="readonly">Pan Card</label>
+                    <div class="col-md-6">
+                        @Html.TextBoxFor(m => m.PanCard, new { @class = "form-control" })
+
+                    </div>
+                </div>
+                <div class="col-md-6 form-group">
+                    @Html.LabelFor(m => m.UserRole, new { @class = "col-md-6 control-label" })
+                    <div class="col-md-6">
+                        @Html.DropDownListFor(m => m.UserRole, list3, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.UserRole, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="col-md-6 form-group">
+                    <label class="control-label col-md-6">Reporting Manager</label>
+                    <div class="col-md-6">
+                        <select id="ReportingManagerId" class="form-control typeahead border-primary" name="ReportingManagerId" data-provide="typeahead" autocomplete="off"></select>
+                    </div>
+                </div>
+                <div class="col-md-6 form-group ddlverndorcheck">
+                    <label class="control-label col-md-6">Vendor</label>
+                    <div class="col-md-6">
+                        <select id="ddlVendor2" class="form-control typeahead border-primary" name="ddlVendor2" data-provide="typeahead" autocomplete="off"></select>
+                    </div>
+                </div>
+
+                <div class=" col-md-6 form-group">
+                    <label class="col-md-6 control-label" for="UserId" readonly="readonly">Photo</label>
+                    <div class="col-md-6">
+                        <input type="file" name="ImageFile" accept="image/*" onchange="loadFile(event)" />
+                        <img id="output" style="border-radius: 50%; width:100px;" />
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="col-md-6 form-group">
+                <input type="submit" id="btnregister" class="btn btn-default" onclick="updateDateinthecolumns();" value="Register" />
+
+            </div>
+        }
+
+        @section Scripts {
+            @Scripts.Render("~/bundles/jqueryval")
+        }
+    </div>
+</div>
+
+
+<div id="AddEmployeeModalPopUp" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            @using (Html.BeginForm("AddNewEmployeeData_ImportExcel", "ImportExcelData", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Employees Set</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name" class="required">Select File</label>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="file" id="ExcelFileData" name="ExcelFileData" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <input type="submit" id="btnuploadLeaveTypeExcel" value="Save" class="btn btn-primary" onclick="return ValidateAddEmployee_ImportExcelFile();" />
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            }
+        </div>
+
+    </div>
+</div>
+
+
+
+<div id="myModalsearchemaployee" class="modal fade" role="dialog">
+    <div class="modal-dialog  modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Search Employee</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table" id="tablehrisemployees">
+                    <thead>
+                        <tr>
+                            <th>Emp Id</th>
+                            <th>Name</th>
+                            <th>Location</th>
+                            <th>Department</th>
+                            <th>Designation</th>
+                            <th>DOJ</th>
+                            <th>DOB</th>
+                            <th>Email Id</th>
+                            <th>Select</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablehrisemployeesbody"></tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>

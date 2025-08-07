@@ -1,0 +1,323 @@
+﻿
+@{
+    ViewBag.Title = "ManageCpxItems";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+
+        LoadData();
+        LoadLocations();
+    });
+    var locationsdata;
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">Select</option>');
+                locationsdata = data;
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].ShowinCPX == true && data[i].ShowasSubLocation == false)
+                        options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                //options.push('<option value="Others">Others</option>');
+                $("#ddlMainlocation").html(options.join(''));
+                $("#ddlupdatelocation").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function SaveCpxItemMaster() {
+        var model = {
+            LocationId: $("#ddlMainlocation").val(),
+            DepartmentId: 0,
+            CommonDepartment: $("#CPXRelatedTo").val(),
+            BudgetAmount: $("#txtAmount").val(),
+            ItemName: $("#txtItemName").val(),
+            Description: $("#txtDescription").val(),
+            ItemType: $("#ddlItemType").val(),
+            IsActive: true
+        };
+        $.post("/Cpx/SaveCpxItems/", model, function (data) {
+            $("#exampleModalCenter").modal("hide");
+            $("#CPXRelatedTo").val("");
+            $("#txtAmount").val("");
+            $("#txtItemName").val("");
+            $("#txtDescription").val("");
+            alert(data);
+            LoadData();
+        });
+    }
+
+    function LoadData() {
+        $('#tblCpxItemDetails').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Cpx/AjaxbyCpxItemsDetails",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "id" },
+                { "sName": "Location" },
+                { "sName": "Department" },
+                { "sName": "name" },
+                { "sName": "descritpion" },
+                { "sName": "ItemType" },
+                
+                { "sName": "Amount" },
+                { "sName": "CreatedON" },
+                { "sName": "CreatedBy" },
+
+
+                {
+                    "sName": "Id",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<a href="javascript:void(0);" id="' + data + '" onclick="Edit(this.id);"><span class="glyphicon glyphicon-edit"></span></a><a href="javascript:void(0);" id="' + data + '" title="Delete" class="btn btn-danger" onclick="DeleteTask(this.id);"><span class="glyphicon glyphicon-trash"></span></a>&nbsp;';
+                        //'<a href="javascript:void(0);" id="' + data + '" title="Cancel" class="btn btn-danger" onclick="CancelRequest(this.id);"><span class="glyphicon glyphicon-trash"></span></a>&nbsp;';
+
+                    }
+                }
+            ]
+        });
+        $("#tblCpxItemDetails_length").addClass("col-md-6");
+    }
+    var eid = 0;
+    function Edit(id) {
+        eid = id;
+        $("#ddlApproveredit").val("");
+        $.get("/Cpx/GetCpxItemsDetails?id=" + id, function (data) {
+            $("#ddlupdatelocation").val(data.LocationId);
+            $("#uCPXRelatedTo").val(data.CommonDepartment);
+            $("#utxtAmount").val(data.BudgetAmount);
+            $("#utxtItemName").val(data.ItemName);
+            $("#utxtDescription").val(data.Description);
+            $("#ddlupdateItemType").val(data.ItemType);
+            $("#exampleModalCenterUpdate").modal('show');
+        });
+    }
+    function DeleteTask(id) {
+        if (confirm("Please confirm to delete?")) {
+            $.get("/Cpx/DeleteCpxItemsDetails?id=" + id, function (data) {
+                alert(data);
+                LoadData();
+            });
+        }
+    }
+    function updatecpxitemdetails() {
+        var model = {
+            id: eid,
+            LocationId: $("#ddlupdatelocation").val(),
+            DepartmentId: 0,
+            CommonDepartment: $("#uCPXRelatedTo").val(),
+            BudgetAmount: $("#utxtAmount").val(),
+            ItemName: $("#utxtItemName").val(),
+            Description: $("#utxtDescription").val(),
+            ItemType: $("#ddlupdateItemType").val(),
+            IsActive: true
+        };
+
+        $.post("/Cpx/UpdateCpxItems/", model, function (data) {
+            $("#exampleModalCenterUpdate").modal("hide");
+            alert(data);
+            LoadData();
+        });
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading" style="font-weight:normal;">
+        <span class="glyphicon glyphicon-arrow-right"></span>&nbsp;Manage CPAX Items   <span class="glyphicon glyphicon-plus-sign" style="cursor:pointer;float:right;" data-toggle="modal" data-target="#exampleModalCenter">New </span>
+    </div>
+    <div class="panel-body" style="min-height:600px;">
+        <table class="table table-bordered" id="tblCpxItemDetails">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <td>Id</td>
+                    <td>Location</td>
+                    <td>Department</td>
+                    <td>Item Name</td>
+                    <td>Code</td>
+                    <td>Type</td>
+                    <td>Qty</td>
+                    <td>Created By</td>
+                    <td>Created On</td>
+                    <td>
+                        Action
+                    </td>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="exampleModalCenter">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4>New Item </h4>
+            </div>
+            <div class="modal-body">
+                <table class="table table-striped">
+                    <tr>
+                        <td>Item Type </td>
+                        <td>
+                            <select class="form-control clsrequired" id="ddlItemType">
+                                <option value="CAPEX">CAPEX</option>
+                                <option value="OPEX">OPEX</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Location </td>
+                        <td>
+                            <select class="form-control clsrequired" id="ddlMainlocation">
+                                <option value="">Select</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Department </td>
+                        <td>
+                            <select class="form-control clsrequired" id="CPXRelatedTo">
+                                <option value="">Select</option>
+                                <option value="IT">IT</option>
+                                <option value="Biomedical">Biomedical</option>
+                                <option value="Maintenance">Maintenance</option>
+                                <option value="Maintenance Renovation">Maintenance Renovation</option>
+                                <option value="Pharmacy">Pharmacy</option>
+                                <option value="Finance">Finance</option>
+                                <option value="Food & Beverage">Food & Beverage</option>
+                                <option value="Brand & Communication">Brand & Communication</option>
+
+                                <option value="Security and Transport">Security and Transport</option>
+                                <option value="HR">HR</option>
+                                <option value="House Keeping">House Keeping</option>
+                                <option value="HICC">HICC</option>
+                                <option value="OT-OBS">OT-OBS</option>
+                                <option value="OT-GYN">OT-GYN</option>
+                                <option value="OT-Neonatal-and-Pediatric">OT-Neonatal-and-Pediatric</option>
+                                <option value="OT-Others">OT-Others</option>
+                                <option value="Vehicle">Vehicle</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Item Name </td>
+                        <td>
+                            <input type="text" id="txtItemName" class="form-control" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Code </td>
+                        <td>
+                            <input type="text" id="txtDescription" class="form-control" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Qty </td>
+                        <td>
+                            <input type="number" id="txtAmount" class="form-control" />
+                        </td>
+                    </tr>
+
+
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="SaveCpxItemMaster();">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="exampleModalCenterUpdate">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4>Update Items </h4>
+            </div>
+            <div class="modal-body">
+                <table class="table table-striped">
+                    <tr>
+                        <td>Item Type </td>
+                        <td>
+                            <select class="form-control clsrequired" id="ddlupdateItemType">
+                                <option value="CAPEX">CAPEX</option>
+                                <option value="OPEX">OPEX</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Location </td>
+                        <td>
+                            <select class="form-control clsrequired" id="ddlupdatelocation">
+                                <option value="">Select</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Department </td>
+                        <td>
+                            <select class="form-control clsrequired" id="uCPXRelatedTo">
+                                <option value="">Select</option>
+                                <option value="IT">IT</option>
+                                <option value="Biomedical">Biomedical</option>
+                                <option value="Maintenance">Maintenance</option>
+                                <option value="Maintenance Renovation">Maintenance Renovation</option>
+                                <option value="Pharmacy">Pharmacy</option>
+                                <option value="Finance">Finance</option>
+                                <option value="Food & Beverage">Food & Beverage</option>
+                                <option value="Brand & Communication">Brand & Communication</option>
+
+                                <option value="Security and Transport">Security and Transport</option>
+                                <option value="HR">HR</option>
+                                <option value="House Keeping">House Keeping</option>
+                                <option value="HICC">HICC</option>
+                                <option value="OT-OBS">OT-OBS</option>
+                                <option value="OT-GYN">OT-GYN</option>
+                                <option value="OT-Neonatal-and-Pediatric">OT-Neonatal-and-Pediatric</option>
+                                <option value="OT-Others">OT-Others</option>
+                                <option value="Vehicle">Vehicle</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Item Name </td>
+                        <td>
+                            <input type="text" id="utxtItemName" class="form-control" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Code </td>
+                        <td>
+                            <input type="text" id="utxtDescription" class="form-control" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Qty </td>
+                        <td>
+                            <input type="number" id="utxtAmount" class="form-control" />
+                        </td>
+                    </tr>
+
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="updatecpxitemdetails();">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

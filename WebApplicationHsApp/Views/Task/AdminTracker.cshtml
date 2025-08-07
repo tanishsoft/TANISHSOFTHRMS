@@ -1,0 +1,770 @@
+﻿
+@{
+    ViewBag.Title = "AdminTracker";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    /*.form-label {
+        color: teal;
+        font-size: 15px;
+        font-weight: 600;
+    }*/
+
+    input, select, textarea {
+        max-width: 100%;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        //$(".date")
+        //    .datepicker({
+        //        changeMonth: true,
+        //        changeYear: true,
+        //        dateFormat: "dd/mm/yy",
+        //        Edit: true,
+        //        minDate: 0
+
+        //    })
+        $("#startdate")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                yearRange: "-80:+50",
+                Edit: true,
+                //  minDate: 0,
+                onSelect: function (dateText, inst) {
+                    $("#enddate").datepicker("option", "minDate",
+                        $("#startdate").datepicker("getDate"));
+                }
+
+            })
+        $("#enddate")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                yearRange: "-80:+50",
+                Edit: true,
+                //   minDate: 0,
+                //onSelect: function (dateText, inst) {
+                //    $("#renewaldate").datepicker("option", "minDate",
+                //        $("#enddate").datepicker("getDate"));
+                //}
+
+            })
+        $("#renewaldate")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                yearRange: "-80:+50",
+                Edit: true,
+                //  minDate: 0
+            })
+        LoadLocation();
+        ddlFormTypechange();
+        LoadDepartment();
+    });
+    function LoadLocation() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- select Locations -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#Location").html(options.join(''));
+                $("#ALocation").html(options.join(''));
+
+                $('#Location').select2({
+                    placeholder: "Select Location"
+                })
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadEmployees() {
+        if ($("#Department").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Common/GetEmployeesByDepartment",
+                data: "id=" + $("#Department").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- Select Employee -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].CustomUserId + '">' + data[i].FirstName + " " + data[i].LastName + '</option>');
+                    }
+                    $("#Pempid").html(options.join(''));
+                    $("#Sempid").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#Pempid").html("");
+            $("#Sempid").html("");
+        }
+    }
+    function LoadCategory() {
+
+        if ($('#Department option').length != 0 && $("#Department").val() != "" && $("#FormType").val() != "") {
+            var tdata = {
+                LocId: $("#Department").val(),
+                formtype: $("#FormType").val()
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Masters/GetAllAdminCategoriesbyDepartmentId",
+                data: tdata,
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- select category -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].CategoryId + '">' + data[i].Name + '</option>');
+                    }
+                    $("#Category").html(options.join(''));
+
+
+                },
+                error: function () {
+
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#Category").html("");
+        }
+    }
+    function LoadsubCategory() {
+        if ($("#Category").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Masters/GetAllAdminsubCategoriesbycategoryId",
+                data: "CategoryId=" + $("#Category").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- select subcategory -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].SubCategoryId + '">' + data[i].Name + '</option>');
+                    }
+                    $("#SubCategory").html(options.join(''));
+
+
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#SubCategory").html("");
+        }
+    }
+    function LoadDepartment() {
+
+        //if ($("#Location").val() != "") {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetCommonDepartments",
+            //data: "id=" + $("#Location").val(),
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Department -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].CommonDepartmentId + '">' + data[i].Name + '</option>');
+                }
+                $("#Department").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+        //}
+        //else {
+        //    $("#Department").html("");
+        //}
+    }
+    function LoadDepartmentC() {//category department
+
+        if ($("#ALocation").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Common/GetDepartmentByLocation",
+                data: "id=" + $("#ALocation").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- Select Department -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                    }
+                    $("#ADepartment").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#ADepartment").html("");
+        }
+    }
+    function ClearAll() {
+
+        var Controls = $("#Requestform");
+        for (var i = 0; i < Controls[0].length; i++) {
+            if (Controls[0][i].type != "button")
+                $("#" + Controls[0][i].id).val("");
+        }
+        $("#Category").html("");
+        $("#Department").html("");
+        $("#SubCategory").html("");
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+    }
+    function validatetracker() {
+        validate = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#Location").val() == "") {
+            //$("#Location").after('<span class="error" style="color:Red;">select Location</span>');
+            $("#Location").addClass('css-error');
+            validate = false;
+        }
+        else if ($("#Department").val() == "") {
+            //$("#Department").after('<span class="error" style="color:Red;">select Department</span>');
+            $("#Department").addClass('css-error');
+            validate = false;
+        }
+        else if ($("#Pempid").val() == "") {
+            //if ($("#Category").val() == "") {
+            //    $("#Category").after('<span class="error" style="color:Red;">select category</span>');
+            //    $("#Category").addClass('css-error');
+            //}
+            if ($("#Pempid").val() == "") {
+                //$("#Pempid").after('<span class="error" style="color:Red;">select Employee</span>');
+                $("#Pempid").addClass('css-error');
+            }
+            validate = false;
+        }
+        //else if ($("#SubCategory").val() == "") {
+
+        //    $("#SubCategory").after('<span class="error" style="color:Red;">select sub category</span>');
+        //    $("#SubCategory").addClass('css-error');
+        //    validate = false;
+        //}
+        if ($("#startdate").val() == "") {
+            //$("#startdate").after('<span class="error" style="color:Red;">Start Date</span>');
+            $("#startdate").addClass('css-error');
+            validate = false;
+        }
+        if ($("#enddate").val() == "") {
+            //$("#enddate").after('<span class="error" style="color:Red;">end Date</span>');
+            $("#enddate").addClass('css-error');
+            validate = false;
+        }
+        if ($("#Status").val() == "") {
+            //$("#Status").after('<span class="error" style="color:Red;">Select Status</span>');
+            $("#Status").addClass('css-error');
+            validate = false;
+        }
+        if ($("#Remarks").val() == "") {
+            //$("#Remarks").after('<span class="error" style="color:Red;">Enter Remarks</span>');
+            $("#Remarks").addClass('css-error');
+            validate = false;
+        }
+        if ($("#title").val() == "") {
+            //$("#title").after('<span class="error" style="color:Red;">Enter Name</span>');
+            $("#title").addClass('css-error');
+            validate = false;
+        }
+        if ($("#FormType").val() == "") {
+            //$("#FormType").after('<span class="error" style="color:Red;">Select From Type</span>');
+            $("#FormType").addClass('css-error');
+            validate = false;
+        }
+    }
+    function OnclickSaveRequest() {
+        validatetracker();
+        if (validate) {
+
+
+            // Create FormData object
+            var fileData = new FormData();
+
+            var fileUpload = $("#Remarks").get(0);
+            var files = fileUpload.files;
+
+            // Looping over all files and add it to FormData object
+            for (var i = 0; i < files.length; i++) {
+                fileData.append("Upload", files[i]);
+            }
+
+            fileUpload = $("#UserHelpDocument").get(0);
+            files = fileUpload.files;
+
+            // Looping over all files and add it to FormData object
+            for (var i = 0; i < files.length; i++) {
+                fileData.append("UserHelpDocument", files[i]);
+            }
+
+            var fileUpload = $("#OtherDocuments").get(0);
+            var files = fileUpload.files;
+
+            // Looping over all files and add it to FormData object
+            for (var i = 0; i < files.length; i++) {
+                fileData.append("OtherDocuments", files[i]);
+            }
+
+            fileData.append('Title', $("#title").val());
+            fileData.append('LicenseDepartmentName_Gov', $("#LicenseDepartmentName_Gov").val());
+            fileData.append('AgreementSubType', $("#AgreementSubType").val());
+            fileData.append('FormType', $("#FormType").val());
+            fileData.append('Description', $("#Description").val());
+            fileData.append('LocationId', $("#Location").val());
+            fileData.append('DepartmentId', $("#Department").val());
+
+            fileData.append('StartDate', $("#startdate").val());
+            fileData.append('EndDate', $("#enddate").val());
+            fileData.append('NextRenewalDate', $("#renewaldate").val());
+            fileData.append('Remainder1NoOfDays', $("#R1NDays").val());
+            fileData.append('Remainder1NoOfDaysNotes', $("#R1NDaysnotes").val());
+
+            fileData.append('Status', $("#Status").val());
+            fileData.append('PrimaryUserId', $("#PrimaryUserId").val());
+            fileData.append('SecondaryUserid', $("#SecondaryUserid").val());
+            $.ajax({
+                type: "POST",
+                url: "/Task/SaveAdminTracker",
+                contentType: false,
+                processData: false,
+                data: fileData,
+                success: function (data) {
+                    alert(data);
+                    window.location.reload();
+                }
+            });
+        }
+    }
+    function GetFiles() {
+        var subId = $("#Category").val();
+        if (subId != "") {
+            $('#tblFiles tbody').replaceWith("<tbody><tr><td></td><td></td><td></td><td></td></tr></tbody>");
+            $.ajax({
+                type: "POST",
+                url: '/Task/GetDocbycategoryid?Subid=' + subId,
+                data: '{}',
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (files) {
+                    $('#divtable').show();
+                    $.each(files, function () {
+                        AppendRow(this.Did, this.url, this.type, this.title);
+                    });
+                },
+                failure: function (r) {
+                    alert(r.d);
+                },
+                error: function (r) {
+                    alert(r.d);
+                }
+            });
+        }
+        else {
+            $('#divtable').hide();
+        }
+    };
+    function AppendRow(Did, url, type, title) {
+        var row = $("#tblFiles tbody tr:last-child");
+        //Remove if the row is dummy row.
+        if (row.find("td:empty").length > 0) {
+            row.remove();
+        }
+        row = row.clone();
+        $("td", row).eq(0).html(Did);
+        $("td", row).eq(1).html(type);
+        $("td", row).eq(2).html(title);
+        $("td", row).eq(3).html("<a href='/Documents/AdministrationDocuments/" + url + "'  target='_blank'>Download</a>");
+        $("#tblFiles tbody").append(row);
+    };
+
+    function OnclickCategory(Action) {
+        var Posturl; var code = "";
+        validateCategory(Action);
+        if (validate) {
+            // Checking whether FormData is available in browser
+            if (window.FormData !== undefined) {
+                var code = "A";
+                // Create FormData object
+                var fileData = new FormData();
+                if (Action == 'save') {
+                    Posturl = "/Masters/SaveAdminCategory";
+                }
+                else if (Action == 'Update') {
+                    code = "E";
+                    Posturl = "/Masters/UpdateAdminCategory";
+                    fileData.append('CategoryId', $("#EcId").val());
+                }
+                var fileUpload = $("#" + code + "UploadDocument").get(0);
+                var files = fileUpload.files;
+
+                // Looping over all files and add it to FormData object
+                for (var i = 0; i < files.length; i++) {
+                    fileData.append("Upload", files[i]);
+                }
+                // Adding one more key to FormData object
+                var Loc = $("#" + code + "Location").val();
+                var Dep = $("#" + code + "Department").val();
+                fileData.append('Name', $("#" + code + "Name").val());
+                fileData.append('FormType', $("#" + code + "FormType").val());
+                fileData.append('Description', $("#" + code + "Description").val());
+                fileData.append('LocationId', $("#" + code + "Location").val());
+                fileData.append('DepartmentId', $("#" + code + "Department").val());
+                $.ajax({
+                    type: "POST",
+                    url: Posturl,
+                    contentType: false,
+                    processData: false,
+                    data: fileData,
+                    success: function (data) {
+                        if (Action == "save") {
+                            clearAll();
+                            $("#AddCategory").modal('hide');
+                            console.log("category added successfully")
+                        }
+                        else if (Action == "Update") {
+                            $("#EditModel").modal('hide');
+                            console.log("category Updated successfully")
+                        }
+                        clearAll();
+                        //LoadCategory();
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+    }
+    function validateCategory(Action) {
+        validate = true; var code = "A";
+        if (Action == "Update") {
+            code = "E";
+        }
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#" + code + "Name").val() == "") {
+            $("#" + code + "Name").after('<span class="error" style="color:Red;">Enter Name</span>');
+            $("#" + code + "Name").addClass('css-error');
+            validate = false;
+        }
+        if ($("#" + code + "Description").val() == "") {
+            $("#" + code + "Description").after('<span class="error" style="color:Red;">Enter Description</span>');
+            $("#" + code + "Description").addClass('css-error');
+            validate = false;
+        }
+        if ($("#" + code + "Location").val() == "") {
+            $("#" + code + "Location").after('<span class="error" style="color:Red;">select Location</span>');
+            $("#" + code + "Location").addClass('css-error');
+            validate = false;
+        }
+        if ($("#" + code + "Department").val() == "") {
+            $("#" + code + "Department").after('<span class="error" style="color:Red;">select Department</span>');
+            $("#" + code + "Department").addClass('css-error');
+            validate = false;
+        }
+        if ($("#" + code + "FormType").val() == "") {
+            $("#" + code + "FormType").after('<span class="error" style="color:Red;">select Form Type</span>');
+            $("#" + code + "FormType").addClass('css-error');
+            validate = false;
+        }
+    }
+    function clearAll() {
+        $("#AName").val("");
+        $("#ADescription").val("");
+        $("#AFormType").val("");
+        $("#ALocation").val("");
+        $("#ADepartment").html("");
+    }
+    function ddlFormTypechange() {
+        var value = $("#FormType").val();
+        $(".LicenseSelect").hide();
+        $(".AgreementSelect").hide();
+        if (value == "License") {
+            $(".LicenseSelect").show();
+        } else if (value == "Agreement") {
+            $(".AgreementSelect").show();
+        }
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading" style="background: #FEC20E;color:white;"><span class="glyphicon glyphicon-plane"></span>&nbsp;Admin Tracker Request</div>
+    <div class="panel-body">
+        <form style="width:80%;margin:auto;" id="Requestform">
+            <div style="margin:15px;">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <label>Form Type<span style="color:red;">*</span></label>
+                            <select class="form-control" id="FormType" onchange="ddlFormTypechange();">
+                                <option value="">-select FormType-</option>
+                                <option value="License" selected>License</option>
+                                <option value="Agreement">Agreement</option>
+                                <option value="Lease Deed">Lease Deed</option>
+                                <option value="Legal Case">Legal Case</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-3 LicenseSelect">
+                        <div class="form-group">
+                            <label>Department Name(Government)<span style="color:red;">*</span></label>
+                            <input type="text" class="form-control" id="LicenseDepartmentName_Gov" placeholder="Enter Department Name" />
+                        </div>
+                    </div>
+                    <div class="col-sm-3 AgreementSelect">
+                        <div class="form-group">
+                            <label>Sub Option<span style="color:red;">*</span></label>
+                            <select class="form-control" id="AgreementSubType">
+                                <option value="">-select Sub Option-</option>
+                                <option value="Lab Services" selected>Lab Services</option>
+                                <option value="Man power">Man power</option>
+                                <option value="Other Agreements">Other Agreements</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <label>Name<span style="color:red;">*</span></label>
+                            <input type="text" class="form-control" id="title" placeholder="Enter Name" />
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <label>Status<span style="color:red;">*</span></label>
+                            <select id="Status" class="form-control">
+                                <option value="">Select Status</option>
+                                <option value="New" selected>New</option>
+                                <option value="Valid">Valid</option>
+                                <option value="Not using">Not using</option>
+                                <option value="Expired">Expired</option>
+                                <option value=" Renew In Progress"> Renew In Progress</option>
+                                <option value="Others">Others</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="margin-top:10px;margin-bottom:10px;">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label>Location<span style="color:red;">*</span></label><br />
+                            <select class="form-control" id="Location" multiple></select>
+                        </div>
+
+                    </div>
+
+
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label>Department<span style="color:red;">*</span></label>
+                            <select class="form-control" id="Department"></select>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label>Primary Emp id<span style="color:red;">*</span></label>
+                            <select class="form-control" id="Pempid">
+                                <option value="">Select</option>
+                                <option value="4529">Mr. Ravi Sharma</option>
+                                <option value="5629">Ms. Meena Shrivastava</option>
+                                @*<option value="">Ms. Chandrika</option>*@
+                                <option value="4845" selected>Ms. Vasavi</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-3" style="display:none;">
+                        <div class="form-group">
+                            <label>Secondary Emp id</label>
+                            <select class="form-control" id="Sempid">
+                                <option value="" selected>Select</option>
+                                <option value="4529">Mr. Ravi Sharma</option>
+                                <option value="5629">Ms. Meena Shrivastava</option>
+                                @*<option value="">Ms. Chandrika</option>*@
+                                <option value="4845">Ms. Vasavi</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-4" style="display:none;">
+                        <div class="form-group">
+                            <label>Category<span style="color:red;">*</span></label>
+                            <select class="form-control" id="Category" onchange="GetFiles();"></select>@*LoadsubCategory();*@
+                        </div>
+                    </div>
+                    @*<div class="col-sm-4">
+                            <div class="form-group">
+                                <span>Sub Category</span>
+                                <select class="form-control" id="SubCategory" ></select>
+                            </div>
+                        </div>*@
+
+                </div>
+                <div class="row" id="divtable" style="display:none;">
+                    <div class="col-sm-12">
+                        <table id="tblFiles" class="table table-bordered text-center">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Type</th>
+                                    <th>Title</th>
+                                    <th>url</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label>Start Date<span style="color:red;">*</span></label>
+                            <input type="text" autocomplete="off" class="form-control date" id="startdate" placeholder="startDate" />
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label>End Date<span style="color:red;">*</span></label>
+                            <input type="text" autocomplete="off" class="form-control date" id="enddate" placeholder="endDate" />
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label>Next Renewal Date</label>
+                            <input type="text" autocomplete="off" class="form-control date" id="renewaldate" placeholder="renewaldate" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <label>Description</label>
+                        </div>
+
+                        <div class="form-group">
+                            <textarea class="form-control" rows="3" placeholder="Enter Description" id="Description"></textarea>
+                        </div>
+
+                    </div>
+                    <div class="col-sm-3">
+                        <br />
+                        <div class="form-group">
+                            <label>Upload Documents required<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="form-group">
+                            <input type="file" name="Remarks" id="Remarks" />
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <br />
+                        <div class="form-group">
+                            <label>User Help Document<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="form-group">
+                            <input type="file" name="UserHelpDocument" id="UserHelpDocument" />
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <br />
+                        <div class="form-group">
+                            <label>Other Documents</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="file" multiple name="OtherDocuments" id="OtherDocuments" />
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="row" style="border-bottom:solid 2px #ff6a00;">
+                    <h4>Reminder Settings</h4>
+                </div>
+                <div class="row">
+
+
+                    <div class="col-sm-2">
+                        <div class="form-group">
+                            <label> NoOf Days </label>
+                            <input type="number" id="R1NDays" min="0" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-group">
+                            <label> Notes</label>
+                            <input type="text" id="R1NDaysnotes" class="form-control" style="width:100%;" />
+                        </div>
+                    </div>
+                    <div class="col-sm-2" style="display:none;">
+                        <div class="form-group">
+                            <label> NoOf Days2</label>
+                            <input type="number" id="R2NDays" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-sm-4" style="display:none;">
+                        <div class="form-group">
+                            <label>  Notes2</label>
+                            <input type="text" id="R2NDaysnotes" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="display:none;">
+
+
+                    <div class="col-sm-2">
+                        <div class="form-group">
+                            <label> NoOf Days3</label>
+                            <input type="number" id="R3NDays" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <label> Notes3</label>
+                            <input type="text" id="R3NDaysnotes" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        &nbsp;
+                    </div>
+
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-4">
+
+                    </div>
+                    <div class="col-md-4">
+                        <button type="button" class="btn btn-success" onclick="OnclickSaveRequest();" style="padding-left:30px;padding-right:30px;"><span class="glyphicon glyphicon-ok-circle"></span>&nbsp;Submit</button>
+                    </div>
+                    <div class="col-md-4">
+
+                    </div>
+
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

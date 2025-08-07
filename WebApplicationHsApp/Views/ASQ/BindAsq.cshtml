@@ -1,0 +1,354 @@
+﻿@model IEnumerable<WebApplicationHsApp.Models.AsqViewModel>
+<script>
+    var dataModel = [];
+    $(document).ready(function () {
+        bindonload();
+    });
+    function bindonload() {
+        var current_fs, next_fs, previous_fs; //fieldsets
+        var opacity;
+
+        $(".next").click(function () {
+
+            current_fs = $(this).parent();
+            next_fs = $(this).parent().next();
+
+            //Add Class Active
+            $("#progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
+
+            //show the next fieldset
+            next_fs.show();
+            //hide the current fieldset with style
+            current_fs.animate({ opacity: 0 }, {
+                step: function (now) {
+                    // for making fielset appear animation
+                    opacity = 1 - now;
+
+                    current_fs.css({
+                        'display': 'none',
+                        'position': 'relative'
+                    });
+                    next_fs.css({ 'opacity': opacity });
+                },
+                duration: 600
+            });
+        });
+
+        $(".previous").click(function () {
+
+            current_fs = $(this).parent();
+            previous_fs = $(this).parent().prev();
+
+            //Remove class active
+            $("#progressbar li").eq($("fieldset").index(current_fs)).removeClass("active");
+
+            //show the previous fieldset
+            previous_fs.show();
+
+            //hide the current fieldset with style
+            current_fs.animate({ opacity: 0 }, {
+                step: function (now) {
+                    // for making fielset appear animation
+                    opacity = 1 - now;
+
+                    current_fs.css({
+                        'display': 'none',
+                        'position': 'relative'
+                    });
+                    previous_fs.css({ 'opacity': opacity });
+                },
+                duration: 600
+            });
+        });
+
+        $('.radio-group .radio').click(function () {
+            $(this).parent().find('.radio').removeClass('selected');
+            $(this).addClass('selected');
+        });
+
+        $(".submit").click(function () {
+            return false;
+        })
+    }
+    function SaveData() {
+        console.log(dataModel);
+        if (ValidateDate()) {
+            var childinfo = {
+                MotherName: $("#txtMothername").val(),
+                BabyMRNumber: $("#txtBabyMRNumber").val(),
+                BabyNo: $("#txtnumber").val(),
+                BabyGender: $("input[type=radio][name=childgeneder]:checked").val(),
+                DateOfBirth: $("#txtdateofbirth").val(),
+                PhoneNumber: $("#txtPhoneNumber").val(),
+                PersonFilling: $("#txtpersonfilling").val(),
+                RelationshipChild: $("#ddlrelationshiptochild").val(),
+                FillingMonth: $("#ddlselect").val()
+            }
+
+
+
+            var mainModel = {
+                asq: childinfo,
+                SubForm: []
+            }
+            console.log(mainModel);
+            for (var i = 0; i < dataModel.length; i++) {
+                var ques = dataModel[i].questions;
+                var model = {
+                    FillingType: dataModel[i].header,
+                    QuestionId1: ques.length > 0 ? ques[0] : 0,
+                    QuestionId2: ques.length > 1 ? ques[1] : 0,
+                    QuestionId3: ques.length > 2 ? ques[2] : 0,
+                    QuestionId4: ques.length > 3 ? ques[3] : 0,
+                    QuestionId5: ques.length > 4 ? ques[4] : 0,
+                    QuestionId6: ques.length > 5 ? ques[5] : 0,
+                    QuestionId7: ques.length > 6 ? ques[6] : 0,
+                    QuestionId8: ques.length > 7 ? ques[7] : 0,
+                    QuestionId9: ques.length > 8 ? ques[8] : 0,
+                    QuestionId10: ques.length > 9 ? ques[9] : 0,
+                    QuestionId11: ques.length > 10 ? ques[10] : 0,
+                    QuestionId12: ques.length > 11 ? ques[11] : 0,
+                    Answner1: ques.length > 0 ? ($("input[type=radio][name=inlineRadioOptions_" + ques[0] + "]:checked").val()) : "",
+                    Answner2: ques.length > 1 ? ($("input[type=radio][name=inlineRadioOptions_" + ques[1] + "]:checked").val()) : "",
+                    Answner3: ques.length > 2 ? ($("input[type=radio][name=inlineRadioOptions_" + ques[2] + "]:checked").val()) : "",
+                    Answner4: ques.length > 3 ? ($("input[type=radio][name=inlineRadioOptions_" + ques[3] + "]:checked").val()) : "",
+                    Answner5: ques.length > 4 ? ($("input[type=radio][name=inlineRadioOptions_" + ques[4] + "]:checked").val()) : "",
+                    Answner6: ques.length > 5 ? ($("input[type=radio][name=inlineRadioOptions_" + ques[5] + "]:checked").val()) : "",
+                    Answner7: ques.length > 6 ? ($("input[type=radio][name=inlineRadioOptions_" + ques[6] + "]:checked").val()) : "",
+                    Answner8: ques.length > 7 ? ($("input[type=radio][name=inlineRadioOptions_" + ques[7] + "]:checked").val()) : "",
+                    Answner9: ques.length > 8 ? ($("input[type=radio][name=inlineRadioOptions_" + ques[8] + "]:checked").val()) : "",
+                    Answner10: ques.length > 9 ? ($("input[type=radio][name=inlineRadioOptions_" + ques[9] + "]:checked").val()) : "",
+                    Answner11: ques.length > 10 ? ($("input[type=radio][name=inlineRadioOptions_" + ques[10] + "]:checked").val()) : "",
+                    Answner12: ques.length > 11 ? ($("input[type=radio][name=inlineRadioOptions_" + ques[11] + "]:checked").val()) : "",
+                    Remarks1: ques.length > 0 ? $("#txtcommments_" + ques[0]).val() : "",
+                    Remarks2: ques.length > 1 ? $("#txtcommments_" + ques[1]).val() : "",
+                    Remarks3: ques.length > 2 ? $("#txtcommments_" + ques[2]).val() : "",
+                    Remarks4: ques.length > 3 ? $("#txtcommments_" + ques[3]).val() : "",
+                    Remarks5: ques.length > 4 ? $("#txtcommments_" + ques[4]).val() : "",
+                    Remarks6: ques.length > 5 ? $("#txtcommments_" + ques[5]).val() : "",
+                    Remarks7: ques.length > 6 ? $("#txtcommments_" + ques[6]).val() : "",
+                    Remarks8: ques.length > 7 ? $("#txtcommments_" + ques[7]).val() : "",
+                    Remarks9: ques.length > 8 ? $("#txtcommments_" + ques[8]).val() : "",
+                    Remarks10: ques.length > 9 ? $("#txtcommments_" + ques[9]).val() : "",
+                    Remarks11: ques.length > 10 ? $("#txtcommments_" + ques[10]).val() : "",
+                    Remarks12: ques.length > 11 ? $("#txtcommments_" + ques[11]).val() : "",
+                }
+                mainModel.SubForm.push(model);
+            }
+            $.ajax({
+                type: "POST",
+                url: "/ASQ/SaveAsq",
+                data: mainModel,
+                success: function (result) {
+                    //alert(result);
+                    $("#divbinddata").html(result);
+                    $("#myModalAlert").modal('show');
+                },
+                error: function (err) {
+                    alert(err.statusText);
+                }
+            });
+        } else {
+            alert("Please enter all the required fields at child information");
+        }
+    }
+
+    function ValidateDate() {
+        var isvalid = true;
+        if ($("#txtMothername").val() == null || $("#txtMothername").val() == "") {
+            isvalid = false;
+        }
+        if ($("#txtBabyMRNumber").val() == null || $("#txtBabyMRNumber").val() == "") {
+            isvalid = false;
+        }
+        if ($("#txtdateofbirth").val() == null || $("#txtdateofbirth").val() == "") {
+            isvalid = false;
+        }
+        if ($("#txtPhoneNumber").val() == null || $("#txtPhoneNumber").val() == "") {
+            isvalid = false;
+        }
+        if ($("#txtpersonfilling").val() == null || $("#txtpersonfilling").val() == "") {
+            isvalid = false;
+        }
+        if ($("#ddlrelationshiptochild").val() == null || $("#ddlrelationshiptochild").val() == "") {
+            isvalid = false;
+        }
+        return isvalid;
+    }
+    function close_window() {
+        window.close();
+    }
+</script>
+@{
+    int number = 0;
+    int subnumber = 0;
+}
+<div class="container-fluid">
+    <div class="row justify-content-center mt-0">
+        <div class="col-12">
+            <div class="card px-0 pt-1 pb-0 mt-1 mb-3">
+                <div class="row">
+                    <div class="col-md-12 mx-0">
+                        <form id="msform">
+                            <ul id="progressbar">
+                                <li class="active" id="account">Child’s information</li>
+                                @foreach (var m in Model)
+                                {
+                                    number++;
+                                    <li id="li_@m.header" class="payment">@m.header</li>
+                                }
+                            </ul>
+                            <fieldset>
+                                <div class="form-card" style="min-height:440px;">
+                                    <div class="row">
+                                        <div class="col-md-7">
+                                            <h2 class="fs-title">Child’s information</h2>
+                                            @Html.Partial("ChildInformation")
+                                        </div>
+                                        <div class="col-md-5">
+                                            <h2 class="fs-title">Instructions</h2>
+                                            @Html.Partial("Instructions")
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="button" name="next" class="next action-button" value="Next Step" />
+                            </fieldset>
+                            @foreach (var m in Model.ToList())
+                            {
+                                subnumber++;
+                                <fieldset>
+                                    <script>
+                                    var jmodel=({
+                                        header: '@m.header',
+                                        questions: [],
+                                        answners:[],
+                                    });
+                                    </script>
+                                    <div class="form-card" style="min-height:440px">
+                                        <h2 class="fs-title">@m.header</h2>
+                                        @foreach (var q in m.questions.OrderBy(l => l.orderNumber))
+                                        {
+                                            var options = q.answners.Split(',');
+
+                                            <div class="form-group">
+                                                <div class="form-wrapper col-lg-12">
+                                                    <div class="row">
+                                                        @if (q.image != null && q.image != "")
+                                                        {
+                                                            <div class="col-lg-6">
+                                                                <label>
+                                                                    @Html.Raw(q.question)
+                                                                </label>
+                                                                  @if (q.IsNotesRequired == true)
+                                                                    { 
+                                                                      <input type="text" id="txtcommments_@q.questionId" maxlength="500" class="form-control" style="width:100%;" />
+                                                                    }
+                                                            </div>
+                                                            <div class="col-lg-2">
+                                                                <img src="@q.image" class="img-responsive" style="height:100px;" />
+                                                            </div>
+                                                            <div class="col-lg-4">
+                                                                @foreach (var opt in options)
+                                                                {
+                                                                    <div class="form-check form-check-inline">
+                                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions_@q.questionId" id="inlineRadio_@opt" value="@opt">
+                                                                        <label class="form-check-label" for="inlineRadio_@opt">@opt</label>
+                                                                    </div>
+                                                                }
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+
+                                                            if (m.header == "OVERALL")
+                                                            {
+                                                                <div class="col-lg-6">
+                                                                    <label>
+                                                                        @Html.Raw(q.question)
+                                                                    </label>                                                                   
+                                                                </div>
+                                                                <div class="col-lg-2">
+                                                                    @foreach (var opt in options)
+                                                                    {
+                                                                        <div class="form-check form-check-inline">
+                                                                            <input class="form-check-input" type="radio" name="inlineRadioOptions_@q.questionId" id="inlineRadio_@opt" value="@opt">
+                                                                            <label class="form-check-label" for="inlineRadio_@opt">@opt</label>
+                                                                        </div>
+                                                                    }
+                                                                </div>
+
+                                                                <div class="col-md-4" style="text-align:left;">
+                                                                    <input type="text" id="txtcommments_@q.questionId" maxlength="500" class="form-control" style="width:100%;" />
+                                                                </div>
+                                                            }
+                                                            else
+                                                            {
+                                                                <div class="col-lg-8">
+                                                                    <label>
+                                                                        @Html.Raw(q.question)
+                                                                    </label>
+                                                                     @if (q.IsNotesRequired == true)
+                                                                    { 
+                                                                      <input type="text" id="txtcommments_@q.questionId" maxlength="500" class="form-control" style="width:100%;" />
+                                                                    }
+                                                                </div>
+                                                                <div class="col-lg-4">
+                                                                    @foreach (var opt in options)
+                                                                    {
+                                                                        <div class="form-check form-check-inline">
+                                                                            <input class="form-check-input" type="radio" name="inlineRadioOptions_@q.questionId" id="inlineRadio_@opt" value="@opt">
+                                                                            <label class="form-check-label" for="inlineRadio_@opt">@opt</label>
+                                                                        </div>
+                                                                    }
+                                                                </div>
+                                                            }
+                                                        }
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <script>
+                                        jmodel.questions.push('@q.questionId');
+                                        jmodel.answners.push('@q.answners');
+                                            </script>
+                                        }
+                                        <script>
+                                            dataModel.push(jmodel);
+                                        </script>
+                                    </div>
+                                    @if (subnumber == number)
+                                    {
+                                        <input type="button" name="previous" class="previous action-button-previous" value="Previous" /> <input type="button" name="submit" class="btn action-button" value="Submit" onclick="SaveData()" style="float:none;" />
+                                    }
+                                    else
+                                    {
+                                        <input type="button" name="previous" class="previous action-button-previous" value="Previous" /> <input type="button" name="next" class="next action-button" value="Next Step" />
+                                    }
+
+                                </fieldset>
+                            }
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalAlert" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" style="color:white;">Alert</h4>
+            </div>
+            <div class="modal-body">
+                <div id="divbinddata">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" onclick="close_window()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

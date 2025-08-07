@@ -1,0 +1,477 @@
+﻿
+@{
+    ViewBag.Title = "ManageCellPhoneRequest";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+
+    var eId = 0;
+    var mobileId = new Array();
+    var type = "Approval";
+    $(document).ready(function () {
+        LoadData();
+        LoadLocations1();
+        $('#checkbox1').change(function () {
+            debugger
+            if (this.checked) {
+                if (mobileId == "")
+                    mobileId = this.value;
+                else
+                    mobileId += "," + this.value;
+            }
+
+        });
+    });
+    function LoadDepartment123() {
+        if ($("#ddllocation1").val() != "") {
+            $.ajax({
+                type: "GET",
+                url: "/Common/GetDepartmentByLocation",
+                data: "id=" + $("#ddllocation1").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- Select Department -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                    }
+                    $("#ddldepartment12").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#ddldepartment12").html('<option value="">- Select Department -</option>');
+        }
+
+    }
+
+    function LoadDepartmentEmployees() {
+        if ($("#ddldepartment12").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Common/GetEmployeesByDepartment",
+                data: "id=" + $("#ddldepartment12").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- Select User -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].CustomUserId + '">' + data[i].FirstName + " " + data[i].LastName + '</option>');
+                    }
+                    $("#ddlEmployee123").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#ddlEmployee123").html('<option value="">- Select User -</option>');
+        }
+    }
+    function LoadData() {
+        $('#tblRequest').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Custom/AjaxGetCellPhoneRequest",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "Id" },
+                { "sName": "Date" },
+                { "sName": "EmpNo" },
+                { "sName": "Name" },
+                { "sName": "Designation" },
+                { "sName": "Department" },
+                { "sName": "Purpose" },
+                { "sName": "RequestType" },
+                { "sName": "NewOrRepair" },
+                { "sName": "CurrentApprover" },
+                { "sName": "Status" },
+                {
+                    "sName": "Id",
+                    "bSortable": false,
+                    "render": function (data) {
+                        var id = data.split("-")[0];
+                        var print = data.split("-")[1];
+                        var html = '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><a href="javascript:void(0);"  onclick="View(' + id + ')">View</a></li>' +
+                            '<li><a href="javascript:void(0);"  onclick="ReceivedConfirmation(' + id + ')">Confirm</a></li>';
+                        if (print == "yes") {
+                            html += '<li><a href="/Custom/PrintMobilePhonePolicy/' + id + '" id="' + id + '" target="_blank">Print</a></li>';
+                        } else {
+                            html += '<li><a href="javascript:void(0);"  onclick="Delete(' + id + ')">Cancel</a></li>' +
+                                '<li><a href="javascript:void(0);"  onclick="Approval(' + id + ')">Approval</a></li>' +
+                                '<li><a href="javascript:void(0);"  onclick="Reject(' + id + ')">Reject</a></li>' +
+                                '<li><a href="javascript:void(0);"  onclick="ChangeRequest(' + id + ')">IT Update</a></li>';
+                        }
+                        html += '</ul></div>';
+                        return html;
+                    }
+                }
+            ]
+            ,
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "locationid", "value": $("#ddllocation1").val() },
+                    { "name": "departmentid", "value": $("#ddldepartment12").val() },
+                    { "name": "typeofitem", "value": $("#ddlRequesttype").val() },
+                    { "name": "status", "value": $("#ddlStatus").val() },
+                    { "name": "Emp", "value": $("#ddlEmployee123").val() }
+                );
+            }
+        });
+        $("#tblRequest_length").addClass("col-md-6");
+        $("#tblRequest_length").addClass("col-md-6");
+    }
+    function ReceivedConfirmation(id) {
+        if (confirm("Are you sure you want to Confirm that you received it?")) {
+            $.get("/Custom/AcceptCellPhoneRequest?id=" + id, function (data) {
+                if (data == "Success") {
+                    alert("Thank you for confirmation! Your request has been completed.");
+                    LoadData();
+                } else {
+                    alert(data);
+                }
+            });
+        }
+    }
+    function Delete(id) {
+        if (confirm("Are you sure you want to delete?")) {
+            $.get("/Custom/DeleteCellPhoneRequest?id=" + id, function (data) {
+                alert("Successfully Deleted ");
+                LoadData();
+            });
+        }
+    }
+    function Print(id) {
+        $.get("/Custom/PrintMobileRequest?id=" + id, function (data) {
+            //alert("Successfully Deleted ");
+            LoadData();
+        });
+    }
+    function NewRequest() {
+        window.location.replace("/Custom/CellPhoneRequest");
+    }
+    function ChangeRequest(requestid) {
+        eId = requestid;
+        $.get("/Asset/GetPendingMobileAllotment", function (data) {
+            var simslist = [];
+            var table = "<table class='table table-bordered'><tr><th></th><th>Id</th><th>IMEI NO</th><th>Serial Number</th><th>Subject</th><th>Accessories</th></tr>";
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].SIMNO != null && data[i].SIMNO != "") {
+                    simslist.push(data[i]);
+                } else {
+                    table += "<tr><td><input type='checkbox' name='selectAsset' id='" + data[i].Id + "'  value='" + data[i].Id + "' onchange='selectradiochange(this.value)'/></td>";
+                    table += "<td>" + data[i].Id + "</td>";
+                    table += "<td>" + data[i].IMEINO + "</td>";
+                    table += "<td>" + data[i].SerialNumber + "</td>";
+                    table += "<td>" + data[i].Subject + "</td>";
+                    table += "<td>" + data[i].Accessories + "</td>";
+                    table += "</tr>";
+                }
+            }
+            table += "</table>";
+
+            table += "<table class='table table-bordered' style='margin-top:5px;'><tr><th></th><th>Id</th><th>Monthly Plan</th><th>Sim Number</th><th>Mobile Number</th></tr>";
+
+            for (var i = 0; i < simslist.length; i++) {
+
+                table += "<tr><td><input type='checkbox' name='selectAsset' id='" + simslist[i].Id + "'  value='" + simslist[i].Id + "' onchange='selectradiochange(this.value)'/></td>";
+                table += "<td>" + simslist[i].Id + "</td>";
+                table += "<td>" + simslist[i].MonthlyPlan + "</td>";
+                table += "<td>" + simslist[i].SIMNO + "</td>";
+                table += "<td>" + simslist[i].MobileNumber + "</td>";
+                table += "</tr>";
+
+            }
+            table += "</table>";
+            $("#tbl_mobileAllotment").html(table);
+            $("#ItUpdate").modal("show");
+        });
+    }
+    function selectradiochange(id) {
+        debugger;
+        if ($("#" + id).prop('checked') == true) {
+            mobileId.push(id);
+        }
+        else {
+            mobileId = jQuery.grep(mobileId, function (value) {
+                return value != id;
+            });
+        }
+
+    }
+    function ItUpdateSave() {
+        if ($("#txtItUpdateapprovecomments").val() != "") {
+            if (mobileId.length != 0) {
+                $.get("/Custom/Assgin_Mobile_CellPhoneRequest?id=" + eId + "&mobileId=" + mobileId + "&comments=" + $("#txtItUpdateapprovecomments").val(), function (data) {
+                    $("#ItUpdate").modal("hide");
+                    alert(data);
+                    LoadData();
+                    mobileId = 0;
+                });
+            }
+            else {
+                alert("Please select any one mobile");
+            }
+        }
+        else {
+            $(".error").hide();
+            $(".css-error").removeClass('css-error');
+            $("#txtItUpdateapprovecomments").after('<span class="error" style="color:Red;">Enter comment</span>');
+            $("#txtItUpdateapprovecomments").addClass('css-error');
+        }
+    }
+    function Edit(id) {
+        window.location.replace("/Custom/CellPhoneRequest?id=" + id);
+    }
+    function View(id) {
+        $.get("/Custom/GetCellPhoneRequestforView?id=" + id, function (data) {
+            var table = "<table class='table table-bordered'>"
+            table += "<tr><td> Id </td><td>" + data.cellPhoneRequest.CellPhoneRequestId + "</td></tr>";
+            table += "<tr><td> EmpNo </td><td>" + data.cellPhoneRequest.EmpNo + "</td></tr>";
+            table += "<tr><td> Name </td><td>" + data.cellPhoneRequest.Name + "</td></tr>";
+            table += "<tr><td> Designation  </td><td>" + data.cellPhoneRequest.Designation + "</td></tr>";
+            table += "<tr><td> Department </td><td>" + data.cellPhoneRequest.Department + "</td></tr>";
+            table += "<tr><td> Purpose</td><td>" + data.cellPhoneRequest.Purpose + "</td></tr>";
+            table += "<tr><td> Request Type </td><td>" + data.cellPhoneRequest.RequestType + "</td></tr>";
+            table += "<tr><td> Apprvoed Request Type</td><td>" + data.cellPhoneRequest.ApprovedRequestType + "</td></tr>";
+            table += "<tr><td> Current Approver </td><td>" + data.cellPhoneRequest.CurrentApprover + "</td></tr>";
+            table += "<tr><td> Status  </td><td>" + data.cellPhoneRequest.Status + "</td></tr>";
+            table += "</table><br/>";
+            if (data.mobileAllotmentList != null && data.mobileAllotmentList.length > 0) {
+                var simslist = [];
+                table += "<table class='table table-bordered'></th><th>Id</th><th>IMEI NO</th><th>Serial Number</th><th>Subject</th><th>Accessories</th></tr>";
+                for (var i = 0; i < data.mobileAllotmentList.length; i++) {
+                    if (data.mobileAllotmentList[i].SIMNO != null && data.mobileAllotmentList[i].SIMNO != "") {
+                        simslist.push(data.mobileAllotmentList[i]);
+                    } else {
+                        table += "<td>" + data.mobileAllotmentList[i].Id + "</td>";
+                        table += "<td>" + data.mobileAllotmentList[i].IMEINO + "</td>";
+                        table += "<td>" + data.mobileAllotmentList[i].SerialNumber + "</td>";
+                        table += "<td>" + data.mobileAllotmentList[i].Subject + "</td>";
+                        table += "<td>" + data.mobileAllotmentList[i].Accessories + "</td>";
+                        table += "</tr>";
+                    }
+                }
+                table += "</table>";
+
+                table += "<table class='table table-bordered' style='margin-top:5px;'><tr><th>Id</th><th>Monthly Plan</th><th>Sim Number</th><th>Mobile Number</th></tr>";
+
+                for (var i = 0; i < simslist.length; i++) {
+
+
+                    table += "<td>" + simslist[i].Id + "</td>";
+                    table += "<td>" + simslist[i].MonthlyPlan + "</td>";
+                    table += "<td>" + simslist[i].SIMNO + "</td>";
+                    table += "<td>" + simslist[i].MobileNumber + "</td>";
+                    table += "</tr>";
+
+                }
+                table += "</table>";
+            }
+
+            $("#divfullrequestdetails").html(table);
+            $("#myModalFullrequest").modal("show");
+        });
+    }
+
+    function Approval_Reject_Request() {
+        if ($("#txtapprovecomments").val() != "") {
+            $.get("/Custom/Approval_Reject_CellPhoneRequest?id=" + eId + "&status=" + type + "&comments=" + $("#txtapprovecomments").val() + "&type=" + $("#RequestType").val(), function (data) {
+                $("#myModal").modal("hide");
+                alert(data);
+                LoadData();
+            });
+        }
+        else {
+            $(".error").hide();
+            $(".css-error").removeClass('css-error');
+            $("#txtapprovecomments").after('<span class="error" style="color:Red;">Enter comment</span>');
+            $("#txtapprovecomments").addClass('css-error');
+        }
+    }
+    function Reject(id) {
+        eId = id;
+        type = "Reject";
+        $.get("/Custom/GetCellPhoneRequest", { id: id }, function (data) {
+            $("#RequestType").val(data.RequestType);
+            $('#btnApproveReject').val("Reject");
+            $("#headerapprove").html('<b>Reject</b> <button type="button" class="pull-right close" data-dismiss="modal">&times;</button>');
+            $("#myModal").modal("show");
+        });
+    }
+    function NewRequest() {
+        window.location.replace("/Custom/CellPhoneRequest");
+    }
+    function Approval(id) {
+        eId = id;
+        type = "Approval";
+        $.get("/Custom/GetCellPhoneRequest", { id: id }, function (data) {
+            $("#RequestType").val(data.RequestType);
+            $("#headerapprove").html('<b>Approve</b> <button type="button" class="pull-right close" data-dismiss="modal">&times;</button>');
+            $('#btnApproveReject').val("Approve");
+            $("#myModal").modal("show");
+        });
+    }
+    function LoadLocations1() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#ddllocation1").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+
+
+</script>
+
+<div class="modal fade" id="myModalFullrequest" role="dialog">
+    <div class="form-block">
+        <h3>View <button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <div id="divfullrequestdetails">
+
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Manage Cell Phone Request<span style="cursor:pointer;" onclick="NewRequest();" class="pull-right">New</span></div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-2">
+                <select id="ddllocation1" class="form-control" onchange="LoadDepartment123();">
+                    <option value="">Select Location</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select id="ddldepartment12" class="form-control" onchange="LoadDepartmentEmployees();">
+                    <option value="">Select Department</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select id="ddlEmployee123" class="form-control">
+                    <option value="">Select Employee</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select id="ddlStatus" class="form-control">
+                    <option value="">Select Status</option>
+                    <option value="Pending for HOD Approval">Pending for HOD Approval</option>
+                    <option value="Pending for Admin Approval">Pending for Admin Approval</option>
+                    <option value="Admin Approved">Admin Approved</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select id="ddlRequesttype" class="form-control">
+                    <option value="">Select Request Type</option>
+                    <option value="Only SIM">Only SIM</option>
+                    <option value="SIM + Normal Mobile">SIM + Normal Mobile</option>
+                    <option value="SIM + Touch Phone">SIM + Touch Phone</option>
+                    <option value="Only Touch Phone">Only Touch Phone</option>
+                    <option value="Only Normal Phone">Only Normal Phone</option>
+                </select>
+            </div>
+            @*<td>
+                    <input class="date form-control" autocomplete="off" type="text" placeholder="From Date" id="FromDateExcel" />
+                </td>
+                <td>
+                    <input class="date form-control" autocomplete="off" type="text" placeholder="To Date" id="ToDateExcel" />
+                </td>*@
+            <div class="col-md-2">
+                @* <input type="button" id="btnExport" value="Export Excel" class="btn btn-link" />*@
+                <input type="button" class="btn btn-danger" id="btnGo" onclick="LoadData();" value="Go" />
+            </div>
+
+        </div>
+        <table class="table table-striped table-bordered nowrap" style="width:100%;" id="tblRequest">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+
+                    <th>Id</th>
+                    <th>Date</th>
+                    <th>Emp No</th>
+                    <th>Name</th>
+                    <th>Designation</th>
+                    <th>Department</th>
+                    <th>Purpose</th>
+                    <th>Request Type</th>
+                    <th>NewOrRepair</th>
+                    <th>Current Approver</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="form-block">
+        <div class="header" style="font:100px; " id="headerapprove">Approve<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></div>
+        <form id="AddNewTask" method="post" enctype="multipart/form-data">
+            <div class="form-row">
+                <div class="form-group col-md-12">
+                    <label>Request Type<span style="color:red;">*</span></label>
+                    <select class="form-control maxwidth" id="RequestType">
+                        <option value="">Select Request Type</option>
+                        <option value="Only SIM">Only SIM</option>
+                        <option value="SIM + Normal Mobile">SIM + Normal Mobile</option>
+                        <option value="SIM + Touch Phone">SIM + Touch Phone</option>
+                        <option value="Only Touch Phone">Only Touch Phone</option>
+                        <option value="Only Normal Phone">Only Normal Phone</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-12">
+                    <label>Comments<span style="color:red;">*</span></label>
+                    <textarea id="txtapprovecomments" class="form-control"></textarea>
+                </div>
+                <div class="form-group col-md-12">
+                    <input type="button" id="btnApproveReject" class="btn save header" onclick="Approval_Reject_Request();" />
+                    <button type="button" data-dismiss="modal" class="btn cancel">Cancel</button>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal fade" id="ItUpdate" role="dialog">
+    <div class="form-block">
+        <div class="header" style="font:100px; " id="headerapprove">Assign Asset<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></div>
+        <form id="AddNewTask" method="post" enctype="multipart/form-data">
+            <div class="form-row">
+                <div id="tbl_mobileAllotment" style="max-height:400px;overflow-y:auto;">
+
+                </div>
+                <div class="form-group col-md-12">
+                    <label>Comments<span style="color:red;">*</span></label>
+                    <textarea id="txtItUpdateapprovecomments" class="form-control"></textarea>
+                </div>
+                <div class="form-group col-md-12">
+                    <input type="button" id="btnApproveReject" value="Save" class="btn save header" onclick="ItUpdateSave();" />
+                    <button type="button" data-dismiss="modal" class="btn cancel">Cancel</button>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </form>
+    </div>
+</div>
+

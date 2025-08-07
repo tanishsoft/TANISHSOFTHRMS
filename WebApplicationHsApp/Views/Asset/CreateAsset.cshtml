@@ -1,0 +1,519 @@
+﻿@{
+    ViewBag.Title = "CreateAsset";
+}
+<style>
+    textarea {
+        max-width: 100%;
+    }
+</style>
+<script>
+    var i = 1; var Assetid; var ComponentsList = []; var ComponentsData = [];
+    $(document).ready(function () {
+        $('input.decimal').blur(function () {
+            var num = parseFloat($(this).val());
+            var cleanNum = num.toFixed(2);
+            $(this).val(cleanNum);
+            if (num / cleanNum < 1) {
+                $('#error').text('Please enter only 2 decimal places, we have truncated extra points');
+            }
+        });
+        LoadAssetType(); LoadVendor();
+        $("#PurchaseDate")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                Edit: true
+                //minDate: 0
+
+            })
+       Assetid=@ViewBag.Assetid;
+        GetAsset(Assetid);
+
+
+    });
+    function LoadAssetBrand(val, model) {
+        $.get("/Asset/GetAssetBrandsByType?id=" + $("#AssetTypeId").val(), function (data) {
+            var options = [];
+            options.push('<option value="">- select Asset Brand -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].AssetBrandId + '">' + data[i].Name + '</option>');
+            }
+            $("#AssetBrandId").html(options.join(''));
+            if (val != "") {
+                $("#AssetBrandId").val(val);
+                LoadAssetModel(model);
+            }
+        });
+        BindAssetSerialNumber();
+    }
+    function BindAssetSerialNumber() {
+        $.get("/Asset/GetAssetSerialNumber?assettypeid=" + $("#AssetTypeId").val(), function (data) {
+            $("#Name").val(data);
+        });
+    }
+
+    function LoadAssetType() {
+        $.get("/Asset/GetAssetType", function (data) {
+
+            var options = [];
+            options.push('<option value="">- select AssetType -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].AssetTypeId + '">' + data[i].Name + '</option>');
+            }
+            $("#AssetTypeId").html(options.join(''));
+        });
+    }
+    function BindComponents(Aid) {
+         "";
+        for (var i = 0; i < ComponentsData[0].length; i++) {
+            var id = ComponentsData[0][i].AssetTypeComponentId;
+            var Component = {
+                "AssetId": Aid,
+              "AssetTypeId": $("#AssetTypeId").val(),
+                "AssetComponentId": $("#AssetComponentId" + id).val(),
+                "AssetTypeComponentId": id,
+              "IsActive": true,
+                "Manufacturer": $("#Manufacturer" + id).val(),
+                "Model": $("#Model" + id).val(),
+                "Price": $("#Price" + id).val(),
+                "Quantity": $("#Quantity" + id).val(),
+                //"Warranty": $(this).parents('tr').find('td:eq(8) input').val(),
+                //"Remarks": $(this).parents('tr').find('td:eq(9) input').val(),
+                //"Impact": $(this).parents('tr').find('td:eq(10) input').val(),
+                "SerialNumber": $("#SerialNumber" + id).val()
+            };
+            ComponentsList.push(Component);
+        }
+
+
+    }
+    function LoadVendor() {
+        $.ajax({
+            type: "POST",
+            url: "/Task/GetVendors",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- select Vendors -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].VendorId + '">' + data[i].Name + '</option>');
+                }
+                $("#VendorId").html(options.join(''));
+
+
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+
+    function LoadAssetModel(val) {
+
+        $.get("/Asset/GetAssetModelsByType?id=" + $("#AssetBrandId").val(), function (data) {
+            var options = [];
+            options.push('<option value="">- select AssetType -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].AssetModelId + '">' + data[i].Name + '</option>');
+            }
+            $("#Model").html(options.join(''));
+            if (val != '')
+                $('#Model').val(val);
+        });
+    }
+
+
+
+    function GetAsset(id) {
+        if (id != 0) {
+            $.get("/Asset/GetAssetandcomponents", { id: id }, function (data) {
+
+                var obj = data;
+                $("#AssetTypeId").attr('disabled', true);
+                $("#AssetTypeId").val(data.Asset[0].AssetTypeId);
+                LoadAssetBrand(data.Asset[0].BrandId, data.Asset[0].Model);
+                $("#Description").val(data.Asset[0].Description);
+                $("#Manufacturer").val(data.Asset[0].Manufacturer);
+                $("#Name").val(data.Asset[0].Name);
+                $("#Status").val(data.Asset[0].Status);
+                $("#ModeOfProcurement").val(data.Asset[0].ModeOfProcurement);
+                $("#VendorId").val(data.Asset[0].VendorId);
+                $("#Price").val(data.Asset[0].Price);
+                $("#Quantity").val(data.Asset[0].Quantity);
+                $("#Warranty").val(data.Asset[0].Warranty);
+                $("#LicenceTrackerId").val(data.Asset[0].LicenceTrackerId);
+                $('#PurchaseDate').datepicker('setDate', new Date(data.purchaseDate));
+                $("#Remarks").val(data.Asset[0].Remarks);
+                $("#Impact").val(data.Asset[0].Impact);
+                $("#SerialNumber").val(data.Asset[0].SerialNumber);
+                $("#Insurance").val(data.Asset[0].Insurance);
+                $("#ServiceSupportdetails").val(data.Asset[0].ServiceSupportDetails);
+            $("#RegistrationNo").val(data.Asset[0].RegistrationNo);
+            $("#Model").val(data.Asset[0].Model);
+               // if (data.Components.length != 0) {
+               //     ComponentsList = data.Components;
+               // }
+               //// bindComponentsbyassettype();
+
+            });
+        }
+
+    }
+    function isNumber(evt) {
+
+        var iKeyCode = (evt.which) ? evt.which : evt.keyCode
+        if (iKeyCode != 46 && iKeyCode > 31 && (iKeyCode < 48 || iKeyCode > 57)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+    function SaveAssetType() {
+        validateAssetType();
+        if (validate) {
+
+            if (window.FormData !== undefined) {
+                var Fileslist = []; var files = "";
+                // Create FormData object
+                var fileData = new FormData();
+                var fileUpload = $("#RefferenceDocument1").get(0);
+                files = fileUpload.files;
+
+              //  if (files.length != 0) {
+                fileData.append("UploadRefferenceDocument1", files[0]);
+              //  }
+                fileUpload = $("#RefferenceDocument2").get(0);
+                files = fileUpload.files;
+              //  if (files.length != 0) {
+                fileData.append("UploadRefferenceDocument2", files[0]);
+               // }
+                fileUpload = $("#RefferenceDocument3").get(0);
+                files = fileUpload.files;
+               // if (files.length != 0) {
+                fileData.append("UploadRefferenceDocument3", files[0]);
+               // }
+
+                // Looping over all files and add it to FormData object
+                // Adding one more key to FormData object
+                fileData.append('AssetId', Assetid);
+                fileData.append('AssetTypeId', $("#AssetTypeId").val());
+                fileData.append('Manufacturer', $("#Manufacturer").val());
+                fileData.append('Description', $("#Description").val());
+                fileData.append('Name', $("#Name").val());
+                fileData.append('Status', $("#Status").val());
+                fileData.append('ModeOfProcurement', $("#ModeOfProcurement").val());
+                fileData.append('VendorId', $("#VendorId").val());
+                fileData.append('Price', $("#Price").val());
+                fileData.append('Quantity', $("#Quantity").val());
+                fileData.append('Warranty', $("#Warranty").val());
+                fileData.append('LicenceTrackerId',$("#LicenceTrackerId").val());
+                fileData.append('PurchaseDate', $("#PurchaseDate").val());
+                fileData.append('Remarks', $("#Remarks").val());
+                fileData.append('Impact', $("#Impact").val());
+                fileData.append('SerialNumber', $("#SerialNumber").val());
+                fileData.append('Insurance', $("#Insurance").val());
+                fileData.append('ServiceSupportdetails', $("#ServiceSupportdetails").val());
+                fileData.append('RegistrationNo', $("#RegistrationNo").val());
+                fileData.append('Model', $("#Model").val());
+                fileData.append('BrandId', $("#AssetBrandId").val());
+                fileData.append('PONumber', $("#PONumber").val());
+                $.ajax({
+                    type: "POST",
+                    url: "/Asset/SaveAssetandComponents",
+                    contentType: false,
+                    processData: false,
+                    data:fileData,
+                    success: function (data) {
+                        alert("Success");
+                        window.location.replace("/Asset/NewAssetMaster");
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+    }
+
+    function CancelAsset() { window.location.replace("/Asset/NewAssetMaster"); }
+    function validateAssetType() {
+        validate = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#AssetBrandId").val() == "") {
+            $("#AssetBrandId").after('<span class="error" style="color:Red;">Select Brand</span>');
+            $("#AssetBrandId").addClass('css-error');
+            validate = false;
+        }
+        if ($("#SerialNumber").val() == "") {
+            $("#SerialNumber").after('<span class="error" style="color:Red;">Enter SerialNumber</span>');
+            $("#SerialNumber").addClass('css-error');
+            validate = false;
+        }
+        if ($("#Model").val() == "") {
+            $("#Model").after('<span class="error" style="color:Red;">Enter Model</span>');
+            $("#Model").addClass('css-error');
+            validate = false;
+        }
+        //if ($("#ServiceSupportDetails").val() == "") {
+        //    $("#ServiceSupportDetails").after('<span class="error" style="color:Red;">Enter Service Support Details</span>');
+        //    $("#ServiceSupportDetails").addClass('css-error');
+        //    validate = false;
+        //}
+        if ($("#Name").val() == "") {
+            $("#Name").after('<span class="error" style="color:Red;">Enter Name</span>');
+            $("#Name").addClass('css-error');
+            validate = false;
+        }
+        if ($("#AssetTypeId").val() == "") {
+            $("#AssetTypeId").after('<span class="error" style="color:Red;">Seelct Asset Type</span>');
+            $("#AssetTypeId").addClass('css-error');
+            validate = false;
+        }
+        if ($("#Status").val() == "") {
+            $("#Status").after('<span class="error" style="color:Red;">Select Status</span>');
+            $("#Status").addClass('css-error');
+            validate = false;
+        }
+        if ($("#VendorId").val() == "") {
+            $("#VendorId").after('<span class="error" style="color:Red;">Select Vendor</span>');
+            $("#VendorId").addClass('css-error');
+            validate = false;
+        }
+        //if ($("#Price").val() == "") {
+        //    $("#Price").after('<span class="error" style="color:Red;">Enter Price</span>');
+        //    $("#Price").addClass('css-error');
+        //    validate = false;
+        //}
+        //if ($("#Quantity").val() == "") {
+        //    $("#Quantity").after('<span class="error" style="color:Red;">Enter Quantity</span>');
+        //    $("#Quantity").addClass('css-error');
+        //    validate = false;
+        //}
+        //if ($("#PurchaseDate").val() == "") {
+        //    $("#PurchaseDate").after('<span class="error" style="color:Red;">Select Purchase Date</span>');
+        //    $("#PurchaseDate").addClass('css-error');
+        //    validate = false;
+        //}
+
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading"><span class="glyphicon glyphicon-file" style="vertical-align:middle;color:darkcyan;"></span>&nbsp;Asset</div>
+    <div class="panel-body">
+        <form id="Add" method="post">
+
+            <div class="row">
+                <input type="hidden" id="AssetId" />
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <span class="form-label">Asset Type<span style="color:red;">*</span></span>
+                        <select class="form-control" id="AssetTypeId" onchange="LoadAssetBrand('','');"></select>
+                        @*//onchange="bindComponentsbyassettype();"*@
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <span class="form-label">Asset Brand<span style="color:red;">*</span> <a href="/Asset/ManageBrand"><span class="glyphicon glyphicon-plus" style="vertical-align:middle;color:darkcyan;"></span></a></span>
+                        <select class="form-control" id="AssetBrandId" onchange="LoadAssetModel('');"></select>
+                        @*//onchange="bindComponentsbyassettype();"*@
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <span class="form-label">Make / Model<span style="color:red;">*</span><a href="/Asset/ManageModel"><span class="glyphicon glyphicon-plus" style="vertical-align:middle;color:darkcyan;"></span></a> </span>
+                        <select class="form-control" id="Model"></select>
+                        @*<input type="text" class="form-control" id="Model" />*@
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <span class="form-label">Vendor <span style="color:red;">*</span><a href="/Admin/ManageVendor"><span class="glyphicon glyphicon-plus" style="vertical-align:middle;color:darkcyan;"></span></a></span>
+                        <select class="form-control" id="VendorId"></select>
+                    </div>
+                </div>
+
+
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <span class="form-label">Serial Key<span style="color:red;">*</span>: </span>
+                        <input type="text" class="form-control" id="SerialNumber" placeholder="Enter Serial Number" />
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <span class="form-label">Asset Label<span style="color:red;">*</span>:</span>
+                        <input type="text" class="form-control" id="Name" readonly="readonly" placeholder="Enter Name" />
+                    </div>
+                </div>
+
+                <div class="col-sm-3" style="display:none;">
+                    <div class="form-group">
+                        <span class="form-label">Manufacturer</span>
+                        <input type="text" class="form-control" id="Manufacturer" placeholder="Enter Manufacturer" />
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <span class="form-label">Purchase Date</span>
+                        <input type="text" class="form-control" id="PurchaseDate" readonly="readonly" autocomplete="off" placeholder="Purchase Date" />
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <span class="form-label">Price</span>
+                        <input type="text" class="form-control decimal" id="Price" placeholder="Enter Price" onkeypress="javascript:return isNumber(event)" value="0.00" />
+                    </div>
+                </div>
+                <div class="col-sm-3" style="display:none;">
+                    <div class="form-group">
+                        <span class="form-label">Quantity</span>
+                        <input type="text" class="form-control" id="Quantity" placeholder="Enter Quantity" onkeypress="javascript:return isNumber(event)" value="1" disabled />
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <span class="form-label">Warranty (in Years)</span>
+                        <input type="text" class="form-control" id="Warranty" placeholder="Enter Warranty" onkeypress="javascript:return isNumber(event)" />
+                    </div>
+                </div>
+
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <span class="form-label">Insurance</span>
+                        <input type="text" class="form-control" id="Insurance" />
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <span class="form-label">Service Support details</span>
+                        <input type="text" class="form-control" id="ServiceSupportdetails" />
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <span class="form-label">Registration No (only for Vehicles)</span>
+                        <input type="text" class="form-control" id="RegistrationNo" />
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <span class="form-label">Asset Description</span>
+                        <textarea class="form-control" placeholder="Enter Asset Description" rows="3" id="Description"></textarea>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <span class="form-label">Accessories : </span>
+                        <textarea class="form-control" placeholder="Enter Accessories" rows="3" id="Remarks"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <span class="form-label">PO Number</span>
+                        <input type="text" class="form-control" id="PONumber" placeholder="Enter PO Number" onkeypress="javascript:return isNumber(event)" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3" style="display:none;">
+                    <div class="form-group">
+                        <span class="form-label">Licence Tracker Id</span>
+                        <input type="text" class="form-control" id="LicenceTrackerId" placeholder="Enter Licence Tracker Id" onkeypress="javascript:return isNumber(event)" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-3" style="display:none;">
+                    <div class="form-group">
+                        <span class="form-label">Refference Document 1</span>
+                        <input type="file" class="form-control" id="RefferenceDocument1" />
+                    </div>
+                </div>
+                <div class="col-sm-3" style="display:none;">
+                    <div class="form-group">
+                        <span class="form-label">Mode of Procurement</span>
+                        <input type="text" class="form-control" id="ModeOfProcurement" placeholder="Enter Mode Of Procurement" />
+                    </div>
+                </div>
+                <div class="col-sm-3" style="display:none;">
+                    <div class="form-group">
+                        <span class="form-label">Impact</span>
+                        <input type="text" class="form-control" id="Impact" placeholder="Enter Impact" />
+                    </div>
+                </div>
+
+                <div class="col-sm-3" style="display:none;">
+                    <div class="form-group">
+                        <span class="form-label">Refference Document 2</span>
+                        <input type="file" class="form-control" id="RefferenceDocument2" />
+                    </div>
+                </div>
+                <div class="col-sm-3" style="display:none;">
+                    <div class="form-group">
+                        <span class="form-label">Refference Document 3</span>
+                        <input type="file" class="form-control" id="RefferenceDocument3" />
+                    </div>
+                </div>
+
+                <div class="col-sm-3" style="display:none;">
+                    <div class="form-group">
+                        <span class="form-label">Status</span>
+                        <select class="form-control" id="Status">
+                            <option value="">select Status</option>
+                            <option value="New" selected>New</option>
+                            <option value="Status1">Status1</option>
+                            <option value="Status1">Status2</option>
+                            <option value="Status3">Status3</option>
+                        </select>
+                    </div>
+                </div>
+
+
+
+            </div>
+            <div class="row">
+
+
+
+            </div>
+        </form>
+
+        <table id="tblComponent" class="table table-bordered text-center" style="display:none;">
+            <thead>
+                <tr style="background-color:#eee;">
+                    <th style="width:50px">Component Name</th>
+                    <th style="width:50px">Manufacturer</th>
+                    <th style="width:50px">Model</th>
+                    <th style="width:50px">Price</th>
+                    <th style="width:50px">Quantity</th>
+                    @*// <th style="width:50px">Warranty</th>
+                        // <th style="width:50px">Remarks</th>
+                        // <th style="width:50px">Impact</th>*@
+                    <th style="width:50px">SerialNumber</th>
+                    @*// <th style="width:50px">Action</th>*@
+                    @*// <th style="width:50px"><input type="button" class="Button  btn-primary" id="addmore" value="Add new " /></th>*@
+                </tr>
+            </thead>
+            <tbody>
+                @*<tr>
+                        <td><input type="text" id="Component_Name_0" class="form-control" /></td>
+                        <td><input type="text" id="Component_Des_0" class="form-control" /></td>
+                        <td><input type="text" id="Component_ShortCode_0" class="form-control" /></td>
+                        <td></td>
+                    </tr>*@
+            </tbody>
+        </table>
+        <div class="row" style="text-align:center;">
+            <br />
+            <button type="submit" class="btn btn-primary" onclick="SaveAssetType();"><span class="glyphicon glyphicon-ok-circle"></span>&nbsp;Submit</button>&nbsp;
+            <button type="submit" class="btn btn-danger" onclick="CancelAsset();"><span class="glyphicon glyphicon-ok-circle"></span>&nbsp;Cancel</button>
+        </div>
+        <br />
+        <br />
+        <br />
+    </div>
+</div>
+

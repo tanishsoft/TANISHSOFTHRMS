@@ -1,0 +1,48 @@
+﻿@using Microsoft.AspNet.Identity
+@if (Request.IsAuthenticated)
+{
+
+    <li class="dropdown navbar-right">
+        @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
+        {
+            @Html.AntiForgeryToken()
+
+            string urlemp = "/Images/Employees/" + User.Identity.Name.ToLower().Replace("fh_", "") + ".jpg";
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false" style="color:#c4122f!important;"><img src="@urlemp" style="width:50px;height:30px;border-radius:82px;" /><span class="caret"></span></a>
+            <input type="hidden" id="hidcurrentuserid" value="@User.Identity.Name" />
+            <ul class="dropdown-menu" role="menu">
+                <li><a href="/Manage/Index" id="Usernametoshow" style="color:#c4122f;"> </a></li>
+                @*<li>@Html.ActionLink("View Duty Roster", "ViewDutyRoster", "Hr")</li>
+                @if (User.IsInRole("Admin") || User.IsInRole("DepartmentManager") || User.IsInRole("SubDepartmentManager"))
+                {
+                    <li>@Html.ActionLink("Edit Duty Roster", "EditDutyRoster", "Hr")</li>
+                }
+
+                @if (User.IsInRole("Admin") || User.IsInRole("DepartmentManager"))
+                {
+                    <li>@Html.ActionLink("Dashboard", "Index", "Manager")</li>
+                    <li>@Html.ActionLink("Employees", "MyEmployees", "Manager")</li>
+                    <li>@Html.ActionLink("Available Leave Count", "ViewLeaveBalances", "Manager")</li>
+                    <li>@Html.ActionLink("Employee Leaves", "MyEmployeeLeaves", "Manager")</li>
+                    <li>@Html.ActionLink("Employee Permissions", "MyEmployeePermissions", "Manager")</li>
+                    <li>@Html.ActionLink("Employee CompOffRequests", "EmployeeCompOffRequests", "Manager")</li>
+                    <li>@Html.ActionLink("Employees Attendance", "Manager", "Attendance")</li>
+                }*@
+                <li>
+                    @Html.ActionLink("My Profile", "MyProfile", "Home")
+
+            </li>
+            <li><a href="javascript:document.getElementById('logoutForm').submit()"> <span class='glyphicon glyphicon-ban-circle'></span>&nbsp;Log off</a></li>
+        </ul>
+    }
+    </li>
+
+
+}
+else
+{
+    @*<ul class="nav navbar-nav navbar-right">
+            <li>@Html.ActionLink("Register", "EmployeeRegister", "Account", routeValues: null, htmlAttributes: new { id = "registerLink" })</li>
+            <li style="font-size:40px;">@Html.ActionLink("Log in", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink" })</li>
+        </ul>*@
+}

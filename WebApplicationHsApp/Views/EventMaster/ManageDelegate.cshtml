@@ -1,0 +1,476 @@
+﻿
+@{
+    ViewBag.Title = "ManageDelegate";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">Delegate Details<a href="#" data-toggle="modal" class="pull-right" data-target="#myModalDelegate">Add Delegate</a></div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;overflow-x:auto;" id="tblDelegate">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>SL.No</th>
+                    <th>Title</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>PhoneNumber</th>
+                    <th class="none">Gender</th>
+                    <th>Address</th>
+                    <th>State</th>
+                    <th>City</th>
+                    <th>RegistrationNo</th>
+                    <th class="none">Qualification</th>
+                    <th class="none">Comments</th>
+                    <th class="none">Status</th>
+
+                    <th class="none">Document1</th>
+                    <th class="none">Document2</th>
+                    <th class="none">Document3</th>
+                    <th class="none">Document4</th>
+                    <th>Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div id="myModalDelegate" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Add Delegate Information</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" class="form-control" id="dDelegateId">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-2">
+                        <label for="name">Title<span style="color:red;">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="dTitle">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="name">Name<span style="color:red;">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="dName">
+                    </div>
+
+
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-2">
+                        <label for="name">Email<span style="color:red;">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="dEmailId">
+                    </div>
+
+                    <div class="col-md-2">
+                        <label for="name">Phone Number<span style="color:red;">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" onKeyPress="return isNumber(event);" class="form-control" id="dPhoneNumber">
+                    </div>
+
+                  
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-2">
+                        <label for="name">Gender<span style="color:red;">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="radio" id="dMale" checked name="transaction"> Male &nbsp;&nbsp;
+                        <input type="radio" id="dFemale" name="transaction"> Female &nbsp;&nbsp;
+                        <input type="radio" id="dTransgender" name="transaction"> Transgender
+                    </div>
+                    <div class="col-md-2">
+                        <label for="name">Address<span style="color:red;">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="dAddress">
+                    </div>
+                  
+
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-2">
+                        <label for="name">State<span style="color:red;">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="dState">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="name">City<span style="color:red;">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="dCity">
+                    </div>
+
+                 
+                </div>
+
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-2">
+                        <label for="name">Qualification<span style="color:red;">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="dQualification">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="name">Comments<span style="color:red;">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="dComments">
+                    </div>
+                 
+                 
+                </div>
+
+                <div class="row" style="padding:5px;">
+
+                    <div class="col-md-2">
+                        <label for="name">Status<span style="color:red;">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="dStatus">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="name">Registration No<span style="color:red;">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="dRegistrationNo">
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-2">
+                        <label for="name">Document 1</label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="file" class="form-control" id="dDocument1">
+                    </div>
+                   
+                    <div class="col-md-2">
+                        <label for="name">Document 2</label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="file" class="form-control" id="dDocument2">
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-2">
+                        <label for="name">Document 3</label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="file" class="form-control" id="dDocument3">
+                    </div>
+                    
+                    <div class="col-md-2">
+                        <label for="name">Document 4</label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="file" class="form-control" id="dDocument4">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="button" id="btnSave" value="Save" onclick="validateDelegate();" class="btn btn-primary">
+                    <button type="button" class="btn btn-default" id="btnClear" data-dismiss="modal" onclick="clearData();">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="DeleteConfirmation">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4>Delete  Record</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" class="form-control" id="Cid">
+                <h4>Are You Sure? You Want To Delete This Record.</h4>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-primary" data-dismiss="modal" id="r">Cancel</a>
+                <a href="#" class="btn btn-danger" onclick="ConfirmDelete()">Confirm</a>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var validate = true;
+    $(document).ready(function () {
+        GetAllDelegateDetails();
+    });
+    function GetAllDelegateDetails() {
+         var oTable = $('#tblDelegate').dataTable({
+            "bServerSide": true,
+             "sAjaxSource": "/EventMaster/GetActiveDelegateDetails",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "DelegateId" },
+                { "sName": "Name" },
+                { "sName": "EmailId" },
+                { "sName": "PhoneNumber" },
+                { "sName": "Gender" },
+                { "sName": "Address" },
+                { "sName": "Qualification" },
+                { "sName": "Comments" },
+                { "sName": "Status" },
+                { "sName": "State" },
+                { "sName": "City" },
+                { "sName": "Title" },
+                { "sName": "RegistrationNo" },
+                { "sName": "Document1" },
+                { "sName": "Document2" },
+                { "sName": "Document3" },
+                { "sName": "Document4" },
+                { "sName": "IsActive" },
+                {
+                    "sName": "DelegateId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="EditDelagateDetails(this.id);">Edit</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="Delete(this.id);">Delete</a></li>' +
+                            '</ul></div>';
+                    }
+                }
+            ],
+            "fnRowCallback": function (nRow, aData, iDisplayIndex) {
+                $("td:nth-child(1)", nRow).html(iDisplayIndex + 1);
+                return nRow;
+            }
+        });
+         $("#tblDelegate_length").addClass("col-md-6");
+        $("#tblDelegate_length").addClass("col-md-6");
+    }
+    function validateDelegate() {
+        validate = true;
+         $(".css-error").removeClass('css-error');
+        if ($("#dName").val() == "") {
+            $("#dName").addClass('css-error');
+             validate = false;
+        }
+        var mobileNumber = $("#dPhoneNumber").val();
+        if (mobileNumber == "" || mobileNumber.length < 10 || mobileNumber.length > 10) {
+            $("#dPhoneNumber").addClass('css-error');
+             validate = false;
+        } else if (mobileNumber.length == 10) {
+            if (parseInt(mobileNumber[0]) < 6) {
+                $("#dPhoneNumber").addClass('css-error');
+                alert("enter valid Phone number.");
+                validate = false;
+            }
+        }
+        if ($("#dAddress").val() == "") {
+            $("#dAddress").addClass('css-error');
+             validate = false;
+        }
+        if ($("#dQualification").val() == "") {
+            $("#dQualification").addClass('css-error');
+             validate = false;
+        }
+        if ($("#dComments").val() == "") {
+            $("#dComments").addClass('css-error');
+             validate = false;
+        }
+        if ($("#dStatus").val() == "") {
+            $("#dStatus").addClass('css-error');
+             validate = false;
+        }
+        if ($("#dState").val() == "") {
+            $("#dState").addClass('css-error');
+             validate = false;
+        }
+        if ($("#dCity").val() == "") {
+            $("#dCity").addClass('css-error');
+             validate = false;
+        }
+        if ($("#dTitle").val() == "") {
+            $("#dTitle").addClass('css-error');
+             validate = false;
+        }
+        if ($("#dRegistrationNo").val() == "") {
+            $("#dRegistrationNo").addClass('css-error');
+             validate = false;
+        }
+        var emailReg = /^([\w-\.]+@@([\w-]+\.)+[\w-]{2,4})?$/;
+
+        var emailaddressVal = $("#dEmailId").val();
+        if (emailaddressVal == '') {
+             $("#dEmailId").addClass('css-error');
+            validate = false;
+        }
+        else if (!emailReg.test(emailaddressVal)) {
+            alert('Enter a valid email address.');
+            $("#dEmailId").addClass('css-error');
+            validate = false;
+        }
+
+        if (validate) {       
+             var DelegateId = parseInt($("#dDelegateId").val()) > 0 ? $("#dDelegateId").val() : 0;
+                $.ajax({
+                    type: "POST",
+                    url: "/EventMaster/checkDelegateStatus",
+                    data: { name: $("#dName").val(), EmailId: $("#dEmailId").val(), DelegateId: DelegateId },
+                    async: false,
+                    success: function (result) {
+                         if (result) {
+                            alert("Delegate Name and Email existed.!");
+                            validate = false;
+                        }
+                        else {
+                            saveDelegateDetails();
+                        }
+                    },
+                    error: function (err) {
+                        validate = false;
+                    }
+                });            
+         
+        }
+    }
+    function saveDelegateDetails() {
+        if (validate) {
+             var fileData = new FormData();
+            var files = new Array();
+            files.push($("#dDocument1").get(0).files != undefined && $("#dDocument1").get(0).files.length > 0 ? $("#dDocument1").get(0).files[0] : null);
+            files.push($("#dDocument2").get(0).files != undefined && $("#dDocument2").get(0).files.length > 0 ? $("#dDocument2").get(0).files[0] : null);
+            files.push($("#dDocument3").get(0).files != undefined && $("#dDocument3").get(0).files.length > 0 ? $("#dDocument3").get(0).files[0] : null);
+            files.push($("#dDocument4").get(0).files != undefined && $("#dDocument4").get(0).files.length > 0 ? $("#dDocument4").get(0).files[0] : null);
+            for (var i = 0; i < files.length; i++) {
+                if (files[i] != null) {
+                    fileData.append("httpPostedFileBase", files[i]);
+                }
+                fileData.append("Document" + (i + 1), files[i] == null ? '' : files[i].name);
+            }
+            fileData.append('DelegateId', $("#dDelegateId").val());
+            fileData.append('Name', $("#dName").val());
+            fileData.append('EmailId', $("#dEmailId").val());
+            fileData.append('PhoneNumber', $("#dPhoneNumber").val());
+            fileData.append('Address', $("#dAddress").val());
+            fileData.append('Qualification', $("#dQualification").val());
+            fileData.append('Comments', $("#dComments").val());
+            fileData.append('Status', $("#dStatus").val());
+            fileData.append('State', $("#dState").val());
+            fileData.append('City', $("#dCity").val());
+            fileData.append('Title', $("#dTitle").val());
+            fileData.append('RegistrationNo', $("#dRegistrationNo").val());
+            //Gender
+            var gender = '';
+            if ($("#dMale").is(":checked")) { gender = 'Male'; }
+            else if ($("#dFemale").is(":checked")) { gender = 'Female'; }
+            else if ($("#dTransgender").is(":checked")) { gender = 'Transgender'; }
+            fileData.append('Gender', gender);
+            fileData.append('IsActive', true);
+            fileData.append('CreatedBy', "Hari");
+            $.ajax({
+                type: "POST",
+                url: "/EventMaster/SaveDelegateDetails",
+                contentType: false, // Not to set any content header
+                processData: false, // Not to process data
+                data: fileData,
+                success: function (result) {
+                    alert(result);
+                    clearData();
+                },
+                error: function (err) {
+                    alert(err.statusText);
+                    clearData();
+                }
+            });
+        }
+    }
+    function clearData() {
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        $("#dDelegateId").val("");
+        $("#dName").val("");
+        $("#dEmailId").val("");
+        $("#dPhoneNumber").val("");
+        $("#dAddress").val("");
+        $("#dQualification").val("");
+        $("#dComments").val("");
+        $("#dStatus").val("");
+        $("#dState").val("");
+        $("#dCity").val("");
+        $("#dTitle").val("");
+        $("#dRegistrationNo").val("");
+        $('#btnSave').val('Save');
+        $('#dDocument1').val(null); 
+        $('#dDocument2').val(null);
+        $('#dDocument3').val(null);
+        $('#dDocument4').val(null);
+        $("#dMale").attr('checked', true);
+        $("#dFemale").attr('checked', false);
+        $("#dTransgender").attr('checked', false);
+        $("#myModalDelegate").modal("hide");
+        GetAllDelegateDetails();
+    }
+    function EditDelagateDetails(dDelegateId) {
+        var Url = "/EventMaster/GetDelegateDetails?delagateId=" + dDelegateId;
+        $.ajax({
+            type: "GET",
+            url: Url,
+            success: function (data) {
+                $("#myModalDelegate").modal();
+                $('#btnSave').val('Update');
+                var obj = data;
+                $("#dDelegateId").val(obj.DelegateId);
+                $("#dName").val(obj.Name);
+                $("#dEmailId").val(obj.EmailId);
+                $("#dPhoneNumber").val(obj.PhoneNumber);
+                $("#dAddress").val(obj.Address);
+                $("#dQualification").val(obj.Qualification);
+                $("#dComments").val(obj.Comments);
+                $("#dStatus").val(obj.Status);
+                $("#dState").val(obj.State);
+                $("#dCity").val(obj.City);
+                $("#dTitle").val(obj.Title);
+                $("#dRegistrationNo").val(obj.RegistrationNo);
+                //gender.
+                if (obj.Gender.toUpperCase() == "MALE") { $("#dMale").attr('checked', true); }
+                else if (obj.Gender.toUpperCase() == "FEMALE") { $("#dFemale").attr('checked', true); }
+                else if (obj.Gender.toUpperCase() == "TRANSGENDER") { $("#dTransgender").attr('checked', true); }
+            }
+        });
+    }
+    //Show The Popup Modal For DeleteComfirmation
+    var Delete = function (Id) {
+        $("#dDelegateId").val(Id);
+        $("#DeleteConfirmation").modal("show");
+    }
+    var ConfirmDelete = function () {
+        $.ajax({
+            type: "POST",
+            url: "/EventMaster/DeleteDelegate?delagateId=" + $("#dDelegateId").val(),
+            success: function (result) {
+                $("#DeleteConfirmation").modal("hide");
+                clearData();
+            }
+        });
+
+    }
+    //Number Validation
+    function isNumber(evt) {
+        evt = (evt) ? evt : window.event;
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode != 46) {
+            return false;
+        }
+        return true;
+    }
+
+</script>

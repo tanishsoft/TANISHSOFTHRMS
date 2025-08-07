@@ -1,0 +1,64 @@
+﻿
+@{
+    ViewBag.Title = "EventResult";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+@using (Html.BeginForm("UploadEventResult", "MainEvent", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <input type="hidden" id="eventId" name="eventId" value="@ViewBag.EventId" />
+    
+
+    <div class="modal-body">
+        <div class="row" style="padding:5px;">
+            <div class="col-md-4">
+
+            </div>
+            <div class="col-md-8">
+                <h3>@ViewBag.EventTitle</h3>
+            </div>
+        </div>
+        <div class="row" style="padding:5px;">
+            <div class="col-md-4">
+                <label for="name">ResultTitle</label>
+            </div>
+            <div class="col-md-8">
+                <input type="text" id="ResultTitle" name="ResultTitle" />
+            </div>
+        </div>
+        <div class="row" style="padding:5px;">
+            <div class="col-md-4">
+                <label for="name">Result Description</label>
+            </div>
+            <div class="col-md-8">
+                <input type="text" id="ResultDescription" name="ResultDescription" />
+            </div>
+        </div>
+        <div class="row" style="padding:5px;">
+            <div class="col-md-4">
+                <label for="name"> Banner</label>
+            </div>
+            <div class="col-md-8">
+                <input type="file" id="MainBanner" name="MainBanner" />
+            </div>
+        </div>
+        <div class="row" style="padding:5px;">
+            <div class="col-md-5">
+                <div style="text-align:center;">
+                    <input type="submit" id="btnasigntask" value="Save" class="btn btn-primary" />
+                    <button type="button" class="btn btn-default" onclick="Cancelethispage();">Cancel</button>
+                </div>
+            </div>
+            <div class="col-md-4">
+
+            </div>
+        </div>
+    </div>
+}
+<br /><br />
+<script>
+    function Cancelethispage() {
+        window.location = "/MainEvent/Index";
+    }
+</script>

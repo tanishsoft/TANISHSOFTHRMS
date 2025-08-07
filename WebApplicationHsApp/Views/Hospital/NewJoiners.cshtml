@@ -1,0 +1,68 @@
+﻿
+@{
+    ViewBag.Title = "NewJoiners";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<script>
+    $(document).ready(function () {
+     
+        GetTodayJoines();
+        BindBirthDayImage();
+    });
+   
+
+    function GetTodayJoines() {
+        $.ajax({
+            type: "GET",
+            url: "/Home/GetTodayJoines",
+            success: function (data) {
+                var html = "";
+                if (data != "No Joines") {
+                    for (var i = 0; i < data.length; i++) {
+                        html += "<div style='font-size: 22px;font-style: italic;font-family: cambria;color:teal;padding:5px;'>" + data[i].FirstName + " " + data[i].LastName + " -  " + data[i].DepartmentName + "</div>";
+                    }
+                    $("#todayemployeebirthday").html(html);
+                }
+                else {
+                    $("#todayemployeebirthday").html("No Joiners");
+                }
+            },
+            error: function () {
+
+            }
+        });
+    }
+    function BindBirthDayImage() {
+        var d = new Date();
+        var n = d.getDate();
+        if (n > 0 && n < 7) {
+            $("#borthdaybackgroundimg").css("background", "url('/Images/wc1.jpg')  no-repeat center");
+        } else if (n > 7 && n < 15) {
+            $("#borthdaybackgroundimg").css("background", "url('/Images/wc2.jpg')  no-repeat center");
+        }
+        else if (n > 15 && n < 22) {
+            $("#borthdaybackgroundimg").css("background", "url('/Images/wc3.jpg')  no-repeat center");
+        }
+        else {
+            $("#borthdaybackgroundimg").css("background", "url('/Images/wc4.jpg')  no-repeat center");
+        }
+    }
+</script>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-danger">
+            <div class="panel-heading">New Joinees  </div>
+            <div class="panel-body">
+                <div style="height:544px; overflow-y:scroll;" id="borthdaybackgroundimg">
+                    <div class="col-md-12" style="padding-top:218px; ">
+                        <div id="todayemployeebirthday" style="text-align:center;height:291px;overflow-y:scroll;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+   </div>
+</div>

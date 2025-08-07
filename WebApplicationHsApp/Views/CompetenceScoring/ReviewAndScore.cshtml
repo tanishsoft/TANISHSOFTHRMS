@@ -1,0 +1,229 @@
+﻿
+@{
+    ViewBag.Title = "ReviewAndScore";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<link href="~/Content/jquery.magnify.min.css" rel="stylesheet" />
+<script src="~/Scripts/jquery.magnify.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("[data-magnify=gallery]").magnify({
+            draggable: true,
+            resizable: true,
+            movable: true
+        });
+    });
+</script>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">Review And Score</div>
+    <div class="panel-body">
+        <table class="table table-bordered">
+            <tr>
+                <td>
+                    Select Module :
+                </td>
+                <td>
+                    <select class="form-control" id="ddlselect">
+                        <option value="Basic OBS USG Module" selected="selected">Basic OBS USG Module</option>
+                        <option value="Basic Gynec Module">Basic Gynec Module</option>
+                        <option value="Advanced Obs USG Module">Advanced Obs USG Module</option>
+                        <option value="Doppler">Doppler</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Select Category :
+                </td>
+                <td>
+                    <select class="form-control" id="ddlselect">
+                        <option value="MEAN SAC DIAMETER" selected="selected">MEAN SAC DIAMETER</option>
+                        <option value="CROWN-RUMP LENGTH">CROWN-RUMP LENGTH</option>
+                        <option value="FETAL PRESENTATION">FETAL EXTREMITIES</option>
+                        <option value="BIPARIETAL DIAMETER">BIPARIETAL DIAMETER</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <table class="table table-bordered">
+                        <tr>
+                            <td>
+                            </td>
+                            <td>
+                                Option
+                            </td>
+                            <td>
+                                Comments
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <td>
+                                Image 1: Image magnified appropriately
+                            </td>
+                            <td>
+                                <select class="form-control" id="ddlselect">
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                    <option value="Cannot Assess">Cannot Assess</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" id="txtNo" class="form-control" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Focal zone at appropriate level
+                            </td>
+                            <td>
+                                <select class="form-control" id="ddlselect">
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                    <option value="Cannot Assess">Cannot Assess</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" id="txtNo" class="form-control" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Ultrasound plane at widest dimensions of gestational sac
+                            </td>
+                            <td>
+                                <select class="form-control" id="ddlselect">
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                    <option value="Cannot Assess">Cannot Assess</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" id="txtNo" class="form-control" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Gestational sac measured in 2 orthogonal dimensions using inner-to-inner technique
+                            </td>
+                            <td>
+                                <select class="form-control" id="ddlselect">
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                    <option value="Cannot Assess">Cannot Assess</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" id="txtNo" class="form-control" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Image 2:   Image magnified
+                            </td>
+                            <td>
+                                <select class="form-control" id="ddlselect">
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                    <option value="Cannot Assess">Cannot Assess</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" id="txtNo" class="form-control" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Focal zone at appropriate level
+                            </td>
+                            <td>
+                                <select class="form-control" id="ddlselect">
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                    <option value="Cannot Assess">Cannot Assess</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" id="txtNo" class="form-control" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Ultrasound plane at widest dimensions of gestational sac
+                            </td>
+                            <td>
+                                <select class="form-control" id="ddlselect">
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                    <option value="Cannot Assess">Cannot Assess</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" id="txtNo" class="form-control" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Gestational sac measured in 2 orthogonal dimensions using inner-to-inner technique
+                            </td>
+                            <td>
+                                <select class="form-control" id="ddlselect">
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                    <option value="Cannot Assess">Cannot Assess</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" id="txtNo" class="form-control" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                *Mean sac diameter appropriately calculated from mean of all 3 dimensions from images 1 & 2
+                            </td>
+                            <td>
+                                <select class="form-control" id="ddlselect">
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                    <option value="Cannot Assess">Cannot Assess</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" id="txtNo" class="form-control" />
+                            </td>
+                        </tr>
+                    </table>
+                    <p>
+                        Mean sac diameter : A, Gestational sac visualized in sagittal plane of uterus. Note length and height of gestational sac (measurements 1 and 2, respectively).  B,Maximum width of gestational sac measured in plane perpendicular to that of A. Mean sac diameter is calculated from mean of length, height (A), and width (B).
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="text-align:center;">
+                    <div class="image-set m-t-20">
+                        <a data-magnify="gallery" data-src="" data-caption="Image 1" data-group="a" href="https://prod-images-static.radiopaedia.org/images/530178/b42aca6b3a2173a8bbbf6f2449e601_big_gallery.jpg">
+                            <img src="https://prod-images-static.radiopaedia.org/images/530178/b42aca6b3a2173a8bbbf6f2449e601_big_gallery.jpg" alt="" style="width:150px;" />
+                        </a>
+                        <a data-magnify="gallery" data-src="" data-caption="Image 2" data-group="a" href="https://prod-images-static.radiopaedia.org/images/530179/a81665dbc5ea60562d5e3a235c4cbe_big_gallery.jpg">
+                            <img src="https://prod-images-static.radiopaedia.org/images/530179/a81665dbc5ea60562d5e3a235c4cbe_big_gallery.jpg" alt="" style="width:150px;" />
+                        </a>
+                    </div>
+                </td>
+               
+            </tr>
+            <tr>
+                <td>
+                    &nbsp;
+                </td>
+                <td style="text-align:center;">
+                    <input type="button" id="btnsubmito" value="Approve" class="btn btn-lg btn-primary" />
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+

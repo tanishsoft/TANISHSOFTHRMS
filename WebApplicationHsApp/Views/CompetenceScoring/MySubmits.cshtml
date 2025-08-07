@@ -1,0 +1,41 @@
+﻿
+@{
+    ViewBag.Title = "MySubmits";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="panel panel-default">
+    <div class="panel-heading" style=" font-weight:normal;">
+        <span class="glyphicon glyphicon-arrow-right"></span>&nbsp; My Submits
+        <a href="/CompetenceScoring/SubmitImage" style="float:right;">New</a>
+    </div>
+    <div class="panel-body" style="min-height:600px;">
+        <table class="table table-bordered" id="myDataTable">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <td>No.</td>
+                    <td>Module</td>
+                    <td>Category</td>
+                    <td>Images</td>
+                    <td>Submitted On</td>
+                    <td>Score</td>
+                    <td>Verified By</td>
+                    <td>Verified On</td>
+                    <td>Action</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>Basic OBS USG</td>
+                    <td>MEAN SAC DIAMETER</td>
+                    <td>2</td>
+                    <td>15/11/2021</td>
+                    <td>7</td>
+                    <td>Admin</td>
+                    <td>16/11/2021</td>
+                    <td>&nbsp;</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

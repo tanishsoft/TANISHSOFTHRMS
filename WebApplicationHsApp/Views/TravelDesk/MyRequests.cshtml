@@ -1,0 +1,381 @@
+﻿
+@{
+    ViewBag.Title = "MyRequests";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    var isAccomedation = false;
+    $(document).ready(function () {
+        LoadData();
+    });
+    function LoadData() {
+        $('#tblManageTravelDesk').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/TravelDesk/AjaxbyMyRequests",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "TravelDeskId" },
+                { "sName": "EmpId" },
+                { "sName": "EmpName" },
+                { "sName": "EmployeeCategory" },
+                { "sName": "DateOfJourney" },
+                { "sName": "DateOfReturnJourney" },
+                { "sName": "NameOfConference" },
+                { "sName": "Status" },
+                { "sName": "TravelCategory" },
+                {
+                    "sName": "TravelDeskId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return GetHtmlContent(data);
+
+                    }
+                }
+            ],
+            "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+
+
+                switch (aData[8]) {
+                    case 'User-New':
+                        $('td:eq(8)', nRow).css('color', '#E67D21');
+                        break;
+                    case 'Admin-Approved':
+                        $('td:eq(8)', nRow).css('color', '#3598dc');
+                        break;
+                    case 'HOD-Approved':
+                        $('td:eq(8)', nRow).css('color', '#8E44AD');
+                        break;
+                    case 'HOD-Reject':
+                        $('td:eq(8)', nRow).css('color', '#FF0000');
+                        break;
+                    case 'HOD-Hold':
+                        $('td:eq(8)', nRow).css('color', '#FF8333');
+                        break;
+                    case 'Admin-Hold':
+                        $('td:eq(8)', nRow).css('color', '#5FC29D');
+                        break;
+                    case 'Admin-Reject':
+                        $('td:eq(8)', nRow).css('color', '#a71f23');
+                        break;
+                    default:
+                        $('td:eq(8)', nRow).css('color', 'Green');
+                        break;
+                }
+
+            }
+        });
+        $("#tblManageTravelDesk_length").addClass("col-md-6");
+
+        $('#tblManageReimbursementTravelDesk').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/TravelDesk/AjaxMyReimbursementRequests",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "Id" },
+                { "sName": "EmpId" },
+                { "sName": "EmpName" },
+                { "sName": "ConferenceName" },
+                { "sName": "Venue" },
+                { "sName": "ConferenceDate" },
+                { "sName": "TotalAmount" },
+                { "sName": "PaidThrough" },
+                { "sName": "Status" },
+
+                {
+                    "sName": "Id",
+                    "bSortable": false,
+                    "render": function (data) {
+                        var htmlcontect = "";
+                        htmlcontect += '<div class="btn-group">';
+                        htmlcontect += '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>';
+                        htmlcontect += '<ul class="dropdown-menu dropdown-menu-right">';
+                        htmlcontect += '<li class="dontScoll"><a href="javascript:void(0);" id="' + data + '" onclick="ViewReimbursementDetails(this.id);">View Details</a></li>';
+
+                        htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="CancelReimbursementRequest(this.id);">Cancel Request</a></li>';
+                        htmlcontect += '</ul></div>';
+                        return htmlcontect;
+
+                    }
+                }
+            ],
+
+        });
+        $("#tblManageTravelDesk_length").addClass("col-md-6");
+    }
+    function CancelReimbursementRequest(id) {
+        if (confirm("Are you sure you want to cancel?")) {
+            $.get("/TravelDesk/CancelReimbursementRequest?id=" + id + "&comments=cancel", function (data) {
+                LoadData();
+            });
+        }
+    }
+    function ViewReimbursementDetails(id) {
+        var html = "";
+        $.get("/TravelDesk/GetReimbursementRequestDetails?id=" + id, function (data) {
+            console.log(data);
+            html = "<table class='table table-bordered table-striped'>";
+
+            html += "<tr><td style='color:teal;'>Name</td><td>" + data.Name + "</td><td style='color:teal;'>Designation</td><td>" + data.Designation + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Conference Name</td><td>" + data.ConferenceName + "</td><td style='color:teal;'>Venue</td><td>" + data.Venue + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Conference Date</td><td>" + data.ConferenceDate + "</td><td style='color:teal;'>Sponsored by</td><td>" + data.PaidThrough + "</td></tr>";
+            html += "<tr><td style='color:teal;'>TotalAmount</td><td>" + data.TotalAmount + "</td><td style='color:teal;'>Hod Action</td><td>" + data.HodAction + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Travel Expense</td><td>" + (data.IsTravelExpense == 'true' ? data.TravelExpense : 0) + "</td><td style='color:teal;'>Accommodation</td><td>" + (data.IsAccommodation == 'true' ? data.Accommodation : 0) + "</td></tr>";
+
+            html += "<tr><td style='color:teal;'>Miscellaneous</td><td>" + (data.IsMiscellaneous == 'true' ? data.MiscellaneousAmount : 0) + "</td><td style='color:teal;'>Registration Fee</td><td>" + (data.IsRegistrationFee == 'true' ? data.RegistrationFeeAmount : 0) + "</td></tr>";
+             html += "</table>";
+            if (data.documents != null && data.documents.length > 0) {
+                for (var i = 0; i < data.documents.length; i++) {
+                    html += "<a target='_blank' href='/Documents/AdministrationDocuments/" + data.documents[i].DocumentUrl + "'> " + data.documents[i].ReimbursementType + "</a> &nbsp;&nbsp;";
+                }
+            }
+            $("#divfullrequestdetails").html(html);
+            $("#myModalFullrequest").modal("show");
+        });
+    }
+    function GetHtmlContent(data) {
+
+        var isapproved = false;
+        var n = data.includes("Requestor");
+        if (n) {
+            isapproved = true;
+            data = data.replace("Requestor-", "");
+        }
+        var htmlcontect = "";
+        htmlcontect += '<div class="btn-group">';
+        htmlcontect += '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>';
+        htmlcontect += '<ul class="dropdown-menu dropdown-menu-right">';
+        htmlcontect += '<li class="dontScoll"><a href="javascript:void(0);" id="' + data + '" onclick="ViewTaskDetails(this.id);">View Details</a></li>';
+        //htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="DoneTaks(this.id);"> Close</a></li> ';
+        //htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="ApproveTask(this.id);">Approve</a></li>';
+        if (isapproved) {
+            htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="ChooseTravel(this.id);">Choose Travel</a></li>';
+        }
+        htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="ViewApprovers(this.id);">View Approvers</a></li> ';
+        htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="CancelRequest(this.id);">Cancel Request</a></li>';
+        //htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="PostConferenceApprovalForm(this.id);">Post Conference Approval</a></li>';
+        htmlcontect += '</ul></div>';
+        return htmlcontect;
+    }
+    function ViewTaskDetails(id) {
+        var html = "";
+        $.get("/TravelDesk/GetTravelDeskDetails?id=" + id, function (data) {
+
+            html = "<table class='table table-bordered table-striped'>";
+
+            html += "<tr><td style='color:teal;'>Id</td><td>" + data.TravelDeskId + "</td><td style='color:teal;'>Emp ID</td><td>" + data.EmpId + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Mail Id</td><td>" + data.MailId + "</td><td style='color:teal;'>Employee</td><td>" + data.EmpName + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Date Of Birth</td><td>" + data.DateOfBirth + "</td><td style='color:teal;'>Mobile</td><td>" + data.Mobile + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Mode Of Travel</td><td>" + data.ModeOfTravel + "</td><td style='color:teal;'>Name Of " + data.PurposeOfTrip + "</td><td>" + data.NameOfConference + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Purpose Of Trip</td><td>" + data.PurposeOfTrip + "</td><td style='color:teal;'>TSMCNO</td><td>" + data.TSMCNO + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Accommodation</td><td>" + data.Accommodation + "</td><td style='color:teal;'>Event End Date</td><td>" + data.EventEndDate + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Event Start Date</td><td>" + data.EventStartDate + "</td><td style='color:teal;'>Date Of Birth</td><td>" + data.DateOfBirth + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Place From - To </td><td>" + data.PlaceFrom + " - " + data.PlaceTo + "</td><td style='color:teal;'>Date Of Journey</td><td>" + data.DateOfJourney + " " + data.OnwardTime + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Return From - To</td><td>" + data.ReturnPlaceFrom + " " + data.ReturnPlaceTo + "</td><td style='color:teal;'>Date Of Return</td><td>" + data.DateOfReturnJourney + " " + data.ReturnTime + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Registration Needed</td><td>" + data.RegistrationNeeded + "</td><td style='color:teal;'>If Yes: Link Details</td><td>" + data.IfRegistrationNeededDetails + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Reimbursement By Conference</td><td>" + data.ReimbursementByConference + "</td><td style='color:teal;'>If Yes: </td><td>" + data.IfReimbursementByConference + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Current State</td><td>" + data.CurrentState + "</td><td style='color:teal;'>Sponsored By</td><td>" + data.SponsoredBy + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Status</td><td>" + data.Status + "</td><td style='color:teal;'>Invited As</td><td>" + data.InvitedAs + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Accommodation Note</td><td>" + data.AccommodationNote + "</td><td style='color:teal;'>VenueDetails</td><td>" + data.VenuDetails + "</td></tr>";
+            if (data.ApprovalList != null && data.ApprovalList.length > 0) {
+                for (var i = 0; i < data.ApprovalList.length; i++) {
+                    html += "<tr><td style='color:teal;'>Approver</td><td>" + data.ApprovalList[i].ApproverName + "(" + data.ApprovalList[i].ApproverEmpId + ")</td><td style='color:teal;'>Status</td><td>" + data.ApprovalList[i].ApproverStatus + " - " + data.ApprovalList[i].TypeOfApprover + "</td></tr>";
+                }
+            }
+            html += "</table>";
+            if (data.Documents != null && data.Documents.length > 0) {
+                for (var i = 0; i < data.Documents.length; i++) {
+                    html += "<a target='_blank' href='/Documents/AdministrationDocuments/" + data.Documents[i].DocumentUrl + "'>" + data.Documents[i].DocumentName + "</a> &nbsp;&nbsp;";
+                }
+            }
+            $("#divfullrequestdetails").html(html);
+            $("#myModalFullrequest").modal("show");
+        });
+    }
+    function ViewApprovers(id) {
+
+        var html = "";
+        $.get("/TravelDesk/GetApproversList?id=" + id, function (data) {
+            html = "<table class='table table-bordered table-striped'>";
+            html += "<tr><th>ID</th><th>Approver Type </th><th>Approval Name</th><th>Status</th><th>Approve Comments</th></tr>";
+            for (var i = 0; i < data.length; i++) {
+                html += "<tr><td>" + data[i].TravelDeskApproverId + "</td>";
+                html += "<td>" + data[i].TypeOfApprover + "</td>";
+                html += "<td>" + data[i].FirstName + "</td>";
+                html += "<td>" + data[i].ApproverStatus + "</td>";
+                html += "<td>" + data[i].ApproverComments + "</td></tr>";
+            }
+            html += "</table>";
+            $("#divfullapproversdetails").html(html);
+            $("#myModalViewApprovers").modal("show");
+        });
+    }
+    function CancelRequest(id) {
+        if (confirm("Are you sure you want to Cancel?")) {
+            $.get("/TravelDesk/CancelRequest?id=" + id + "&comments=cancel", function (data) {
+                LoadData();
+            });
+        }
+    }
+    function ChooseTravel(id) {
+        var html = "";
+
+        $.get("/TravelDesk/GetTravelDetailsbytraveldeskid?id=" + id, function (data) {
+
+            html = "<table class='table table-bordered table-striped' id='tblTravel'>";
+            html += " <tr><th>Choose</th><th>Mode of Travel</th><th>Travel Deatils</th><th>Cost Of Travel</th></tr>";
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].TypeOfBooking == 'Travel')
+                    html += "<tr><td style='color:teal;'><input type='radio' name='Travel' value='" + data[i].TravelDeskBookingDetailsId + "'/></td><td>" + data[i].ModeOfTravel + "</td><td style='color:teal;'>" + data[i].TravelDetails + "</td><td>" + data[i].CostOfTravel + "</td></tr>";
+
+            }
+            html += "</table>";
+            html += "<div><label>Comments</lablel><input type='text' class='form-control' id='TravelComments' placeholder='Enter Comments'/></div>";
+            $("#divfullTraveldetails").html(html);
+            html = " <div id='headeracc'><h4 style='color: crimson;'>Choose Accomedation</h4></div>";
+
+            html += "<table class='table table-bordered table-striped' id='tblAccomedation'>";
+            html += " <tr><th>Choose</th><th>Mode of Travel</th><th>Travel Deatils</th><th>Cost Of Travel</th></tr>";
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].TypeOfBooking == 'Accomedation') {
+                    isAccomedation = true;
+                    html += "<tr><td><input type='radio' name='Accomedation' value='" + data[i].TravelDeskBookingDetailsId + "'/></td><td>" + data[i].ModeOfTravel + "</td><td style='color:teal;'>" + data[i].TravelDetails + "</td><td>" + data[0].CostOfTravel + "</td></tr>";
+
+                }
+
+            }
+            html += "</table>";
+            html += "<div><label>Comments</lablel><input type='text' class='form-control' id='AccomedationComments' placeholder='Enter Comments'/></div>";
+            if (isAccomedation) {
+                $("#divfullAccomedationdetails").html(html);
+            }
+
+            $("#myModalChooseTravel").modal("show");
+        });
+    }
+    function PostConferenceApprovalForm(id) {
+        $("#myModalPostConferenceApprovalForm").modal("show");
+
+    }
+    function Saveusertravel() {
+        var valid = true; var Travelid = 0; var Accomedationid = 0;
+        var Travelcomments = ""; var Accomedationcomments = "";
+        if ($('input[name=Travel]').is(':checked')) {
+            if ($('#TravelComments').val() == "") {
+                $('#TravelComments').addClass('css-error');
+                valid = false;
+            } else {
+                Travelid = $('input[name=Travel]:checked').val();
+                Travelcomments = $('#TravelComments').val();
+            }
+
+        }
+        else {
+            $('#divfullTraveldetails').before('<span style="color:red">Please choose any one travel</span>');
+            valid = false;
+        }
+        if (isAccomedation) {
+            if ($('input[name=Accomedation]').is(':checked')) {
+                if ($('#AccomedationComments').val() == "") {
+                    $('#AccomedationComments').addClass('css-error');
+                    valid = false;
+                } else {
+                    Accomedationid = $('input[name=Accomedation]:checked').val();
+                    Accomedationcomments = $('#AccomedationComments').val();
+                }
+            }
+            else {
+                $('#headeracc').after('<span style="color:red">Please choose any one Accomedation</span>');
+                valid = false;
+            }
+        }
+        if (valid) {
+            $.post("/TravelDesk/savetraveldesktravelUser?Travelid=" + Travelid + "&Accomedationid=" + Accomedationid + "&TravelComments=" + Travelcomments + "&AccomedationComments=" + Accomedationcomments, function (data) {
+                alert("Successfully updated");
+                window.location.reload();
+            });
+        }
+    }
+</script>
+
+<div class="panel panel-default">
+    <div class="panel-heading" style="font-weight:normal;">
+        <span class="glyphicon glyphicon-arrow-right"></span>&nbsp;Manage My Requests
+    </div>
+    <div class="panel-body">
+        <table class="table table-bordered table-striped" id="tblManageTravelDesk">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>Id</th>
+                    <th>Emp Id</th>
+                    <th>Emp Name</th>
+                    <th>Category</th>
+                    <th>Event Start</th>
+                    <th>Event End</th>
+                    <th>Name Of Conference</th>
+                    <th>Mobile</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading" style="font-weight:normal;">
+        <span class="glyphicon glyphicon-arrow-right"></span>&nbsp;My Reimbursement Requests
+    </div>
+    <div class="panel-body">
+        <table class="table table-bordered table-striped" id="tblManageReimbursementTravelDesk">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>Id</th>
+                    <th>Emp Id</th>
+                    <th>Emp Name</th>
+                    <th>Conference Name</th>
+                    <th>Venue</th>
+                    <th>Conference Date</th>
+                    <th>Total Amount</th>
+                    <th>Sponsored by</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div class="modal fade" id="myModalViewApprovers" role="dialog">
+    <div class="form-block">
+        <h3>View Approvers<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <div id="divfullapproversdetails">
+
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="myModalFullrequest" role="dialog">
+    <div class="form-block">
+        <h3>View Request<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <div id="divfullrequestdetails">
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="myModalChooseTravel" role="dialog">
+    <div class="form-block">
+        <h3>Choose Travel<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <div><h4 style="color:crimson;">Choose Travel</h4></div>
+        <div id="divfullTraveldetails">
+        </div>
+
+        <div id="divfullAccomedationdetails">
+        </div>
+        <div class="row" style="text-align:center">
+            <button type="button" class="btn  btn-warning" onclick="Saveusertravel();"><span class="glyphicon glyphicon-ok-circle"></span>&nbsp;Submit</button>
+        </div>
+    </div>
+</div>

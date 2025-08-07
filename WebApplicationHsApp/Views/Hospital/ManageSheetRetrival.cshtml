@@ -1,0 +1,329 @@
+﻿@model WebApplicationHsApp.DataModel.tbl_CaseSheetRetrival
+@{
+    ViewBag.Title = "ManageSheetRetrival";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="~/Content/CustomCSS/font-awesome.css" rel="stylesheet" />
+<style>
+    h1, .h1, h2, .h2, h3, .h3 {
+        margin-top: 0px !important;
+        margin-bottom: 0px !important;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        $(".date")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd-mm-yy",
+                Edit: true
+
+            })
+        LoadData();
+        $('#btnExport').click(function () {
+            validateDate();
+
+            if (validate) {
+                FromDate = $("#FromDateExcel").val();
+                ToDate = $("#ToDateExcel").val();
+                window.location = '/Hospital/ExportExcelCaseSheet?FromDate=' + FromDate + '&ToDate=' + ToDate;
+                $("#FromDateExcel").val("");
+                $("#ToDateExcel").val("");
+            }
+        });
+        $('#btnGO').click(function () {
+            //$('#tblVehicleRequest').dataTable().draw();
+        });
+
+
+        $('#btnRejected').click(function () {
+            if ($("#RejecttxtRemarks").val() != "") {
+                UpadateStatus($("#RejectReqId").val(), $('#btnRejected').val(), $("#RejecttxtRemarks").val());
+                $("#UpdateRemarksmodal").modal("hide");
+            }
+            else {
+                alert("Enter Remarks");
+            }
+        });
+
+    });
+    $.fn.dataTable.ext.search.push(
+        function (settings, data, dataIndex) {
+            FromDate = $("#FromDateExcel").val();
+            ToDate = $("#ToDateExcel").val();
+            var Date = data[7] || 0;
+
+            if (
+                (ToDate <= Date && Date >= FromDate)) {
+                return true;
+            }
+            return false;
+        }
+    );
+    function validateDate() {
+        debugger;
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#FromDateExcel").val() == "") {
+            $("#FromDateExcel").addClass('css-error');
+            validate = false;
+        }
+        if ($("#ToDateExcel").val() == "") {
+            $("#ToDateExcel").addClass('css-error');
+            validate = false;
+        }
+    }
+    function LoadData() {
+        debugger;
+        var Table = $('#tblCase').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Hospital/AjaxGetCaseSheet",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+
+                { "sName": "CaseSheetRetrivalId" },
+                { "sName": "SheetType" },
+                { "sName": "EmpNo" },
+                { "sName": "EmpName" },
+                { "sName": "DepartmentId" },
+                { "sName": "Email" },
+                { "sName": "Mobile" },
+                { "sName": "DataRequestedBy" },
+                { "sName": "DataRequestedDate" },
+                { "sName": "PurposeOfTheData" },
+                { "sName": "SpecificData" },
+                { "sName": "SpecificDataValue" },
+                { "sName": "Description" },
+                { "sName": "FromDate" },
+                { "sName": "ToDate" },
+                { "sName": "Comments" },
+                { "sName": "Status" },
+                { "sName": "ApprovedBy" },
+
+                {
+                    "sName": "CaseSheetRetrivalId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><a href="javascript:void(0);"  id="' + data + '" onclick="UpadateStatus(this.id,this.title,null);" title="Approved">Approved</a></li>' +
+                            '<li><a href="javascript:void(0);"  id="' + data + '" onclick="UpdateRemarks(this.id,this.title);" title="Rejected">Rejected</a></li>' +
+                            '<li><a href="javascript:void(0);"  id="' + data + '" onclick="UpdateRemarks(this.id,this.title);" title="On Hold" >On Hold</a></li>' +
+                            '</ul></div>';
+                    }
+                }
+            ]
+        });
+        $("#tblCase_length").addClass("col-md-6");
+        $("#tblCase_length").addClass("col-md-6");
+    }
+
+    function UpdateRemarks(Id, value) {
+        if (value == "Rejected") {
+            $('#btnRejected').val("Rejected");
+
+        }
+        else {
+            $('#btnRejected').val("On Hold");
+        }
+        $("#RejectReqId").val(Id);
+        $("#UpdateRemarksmodal").modal("show");
+    }
+    function UpadateStatus(RequestId, val, Remarks) {
+        $.ajax({
+            type: "POST",
+            url: '/Hospital/UpdateStatus?Id=' + RequestId + '&Status=' + val + '&Remarks=' + Remarks,
+            success: function (data) {
+                debugger;
+                $("#UpdateRemarksmodal").modal("hide");
+                LoadData();
+            }
+        });
+
+    }
+</script>
+<div class="row">
+    <div class="col-md-12">
+        <div class="col-lg-3 col-md-2">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <h2><span class="glyphicon glyphicon-hand-up"></span></h2>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                            <div class="h1" id="NewTask">
+                                <span>
+                                    @if (ViewBag.Total != null)
+                                    {
+                                        @ViewBag.Total;
+                                    }
+                                </span>
+                            </div>
+                            <div>Total Case Sheet!</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-2">
+            <div class="panel panel-success">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-xs-3">
+
+                            <h2><span class="glyphicon glyphicon-thumbs-up"></span></h2>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                            <div class="h1" id="InprogessTask">
+                                <span>
+                                    @if (ViewBag.Approved != null)
+                                    {
+                                        @ViewBag.Approved;
+                                    }
+                                </span>
+                            </div>
+                            <div>Approved</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-2">
+            <div class="panel panel-danger">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <h2><span class="glyphicon glyphicon-thumbs-down"></span></h2>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                            <div class="h1" id="ReopenTask">
+                                <span>
+                                    @if (ViewBag.Rejected != null)
+                                    {
+                                        @ViewBag.Rejected;
+                                    }
+                                </span>
+                            </div>
+                            <div>Rejected</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-2">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <h2> <span class="glyphicon glyphicon-hand-right"></span></h2>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                            <div class="h1" id="CompletedTask">
+                                <span>
+                                    @if (ViewBag.onhold != null)
+                                    {
+                                        @ViewBag.onhold;
+                                    }
+                                </span>
+                            </div>
+                            <div>On Hold!</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            View All Case Sheets
+            <input type="button" id="btnExport" value="Export Excel" class="btn btn-link pull-right" />
+
+        </div>
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-3">
+
+                </div>
+                <div class="col-md-6">
+                    <table style="width:100%;">
+                        <tr>
+                            <td><label for="name" class="lbl">From Date</label> </td>
+                            <td><input class="date form-control" type="text" placeholder="Select Date" id="FromDateExcel" /></td>
+                            <td><label for="name" class="lbl">TO Date</label></td>
+                            <td><input class="date form-control" type="text" placeholder="Select Date" id="ToDateExcel" /></td>
+                            <td><input type="button" id="btnGO" value="GO" class="btn btn-primary" /></td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-3">
+
+                </div>
+
+            </div>
+            <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblCase">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Type</th>
+                        <th>Employee No</th>
+                        <th>Employee Name </th>
+                        <th>Employee Department</th>
+                        <th>Email</th>
+                        <th class="none">Mobile</th>
+                        <th>Data Requested By</th>
+                        <th>Data Requested Date</th>
+                        <th>Purpose Of The Data</th>
+                        <th class="none">Specific Data</th>
+                        <th class="none">Specific Data Value</th>
+                        <th class="none">Description</th>
+                        <th class="none">From Date</th>
+                        <th class="none">To Date</th>
+                        <th class="none">Comments</th>
+                        <th>Status</th>
+                        <th class="none">Approved By</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="UpdateRemarksmodal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4>Enter Remarks </h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="RejectReqId" />
+                <div class="row">
+                    <div class="col-md-3">
+                        <label>Remarks</label>
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" id="RejecttxtRemarks" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-primary" data-dismiss="modal" id="r">Cancel</a>
+                <input type="button" href="#" class="btn btn-danger" id="btnRejected" value="Reject" />
+            </div>
+        </div>
+    </div>
+</div>

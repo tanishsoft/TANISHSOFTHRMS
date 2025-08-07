@@ -1,0 +1,117 @@
+﻿
+@{
+    ViewBag.Title = "ApproveRequests";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="row">
+    <div class="col-md-2" style="padding-left:0px;padding-right:0px;">
+        @Html.Partial("_SideNavAccommodation")
+    </div>
+    <div class="col-md-10" style="padding-left:0px;padding-right:0px;">
+        <div class="panel panel-default" id="myleaestableshow">
+            <div class="panel-heading" id="titleofpage">Approve Requests</div>
+            <div class="panel-body">
+                <table class="table table-bordered" style="width:100%;">
+                    <thead>
+                        <tr style="background-color:teal;color:white;">
+                            <td>Guest Name</td>
+                            <th>Category</th>
+                            <td>Booking Location</td>
+                            <td>Booking Flat</td>
+                            <td>Arrival date</td>
+                            <td>From Date</td>
+                            <td>To Date</td>
+                            <td>Status</td>
+                            <td>Comments</td>
+                            <td></td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>xyz 1</td>
+                            <th>Doctor</th>
+                            <td>Majestic Apartments</td>
+                            <td>403</td>
+                            <td>20/11/2022 10:45AM</td>
+                            <td>21/11/2022 10:45AM</td>
+                            <td>22/11/2022 10:45PM</td>
+                            <td>Waiting for Approval</td>
+                            <td>Request for room</td>
+                            <td>
+                                <div class="btn-group">
+                                    <div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li class="dontScoll"><a href="javascript:void(0);" id="1">Approve</a></li>
+                                        <li class="dontScoll"><a href="javascript:void(0);" id="2">Reject</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>xyz 2</td>
+                            <th>Midwife</th>
+                            <td>Shubhodaya Apartment</td>
+                            <td>404</td>
+                            <td>20/11/2022 10:45AM</td>
+                            <td>21/11/2022 10:45AM</td>
+                            <td>22/11/2022 10:45PM</td>
+                            <td>Waiting for Approval</td>
+                            <td>Request for room</td>
+                            <td>
+                                <div class="btn-group">
+                                    <div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li class="dontScoll"><a href="javascript:void(0);" id="1">Approve</a></li>
+                                        <li class="dontScoll"><a href="javascript:void(0);" id="2">Reject</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>xyz 3</td>
+                            <th>Nurse</th>
+                            <td>RK Residency</td>
+                            <td>405</td>
+                            <td>20/11/2022 10:45AM</td>
+                            <td>21/11/2022 10:45AM</td>
+                            <td>22/11/2022 10:45PM</td>
+                            <td>Waiting for Approval</td>
+                            <td>Request for room</td>
+                            <td>
+                                <div class="btn-group">
+                                    <div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li class="dontScoll"><a href="javascript:void(0);" id="1">Approve</a></li>
+                                        <li class="dontScoll"><a href="javascript:void(0);" id="2">Reject</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>xyz 4</td>
+                            <th>New Employee</th>
+                            <td>Unique Residency</td>
+                            <td>406</td>
+                            <td>20/11/2022 10:45AM</td>
+                            <td>21/11/2022 10:45AM</td>
+                            <td>22/11/2022 10:45PM</td>
+                            <td>Waiting for Approval</td>
+                            <td>Request for room</td>
+                            <td>
+                                <div class="btn-group">
+                                    <div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li class="dontScoll"><a href="javascript:void(0);" id="1">Approve</a></li>
+                                        <li class="dontScoll"><a href="javascript:void(0);" id="2">Reject</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

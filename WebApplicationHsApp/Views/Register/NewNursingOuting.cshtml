@@ -1,0 +1,474 @@
+﻿
+@{
+    ViewBag.Title = "NewNursingOuting";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+
+    #captureSignature {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+
+    #captureSignature2 {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+
+    #captureSignatureStaff {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+</style>
+<script src="~/Scripts/jSignature.min.js"></script>
+<!--[if lt IE 9]>
+<script  type="text/javascript" src="~/Scripts/flashcanvas.js"></script>
+    <![endif]-->
+<script>
+    var validate;
+    var eId = 0;
+
+    var $sigdiv, $sigdiv1, $sigdiv2;
+    $(document).ready(function () {
+
+        $(".datecheck").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            Edit: true
+        });
+        $sigdiv = $("#captureSignatureIn").jSignature({ 'UndoButton': true });
+        $sigdiv1 = $("#captureSignatureInNurseInChargeSign").jSignature({ 'UndoButton': true });
+        $sigdiv2 = $("#captureSignatureInSupervisorSign").jSignature({ 'UndoButton': true });
+        LoadLocations();
+
+
+        $("#txtEmployeeNo").change(function () {
+            $.get("/Custom/GetUserDetailsByEmpId?id=" + $("#txtEmployeeNo").val(), function (data) {
+                if (data != "Enter Valid Request ID") {
+                    $("#txtEmployeeName").val(data.FirstName);
+                    $("#txtMobileNo").val(data.PhoneNumber);
+                    $("#txtEmail").val(data.EmailId);
+                    $("#txtDepartment").val(data.DepartmentName);
+                    $("#txtDesignation").val(data.Designation);
+                }
+            });
+        });
+        $("#txtotherreason").hide();
+        $("#txtothersecurity").hide();
+        $("#ddlgoingonleave").hide();
+        $("#ddlgoingonPermission").hide();
+        //LoadDropdownvalues();
+    });
+    function LoadDropdownvalues() {
+        $.get("/Common/GetCommonDropdownValues?dtype=Security", function (data) {
+            var options = [];
+            options.push('<option value="">- Select -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].Name + '">' + data[i].Name + '</option>');
+            }
+            $("#txtSecurity").html(options.join(''));
+        });
+    }
+    function OnLocationchng() {
+        $.get("/Register/GetSecurityDetails?locationId=" + $("#LocationId").val(), function (data) {
+            var options = [];
+            options.push('<option value="">- Select Security -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].FirstName + '">' + data[i].FirstName + '</option>');
+            }
+            options.push('<option value="Others">Others</option>');
+            $("#txtSecurity").html(options.join(''));
+        });
+    }
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Locations -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#LocationId").html(options.join(''));
+                //options.push('<option value="Other">Other</option>');
+                //$("#LocationId2").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+
+    function SaveRegister() {
+
+        ValidateDetails();
+        var LeaveFromDate = $("#txtFromDate").val();
+        var LeaveToDate = $("#txtToDate").val();
+        var security = $("#txtSecurity").val();
+        if (security == "Others") {
+            security = $("#txtothersecurity").val()
+        }
+        var reason = $("#ddlreasonforgoing").val();
+        if (reason == "Other") {
+            reason = $("#txtotherreason").val()
+        } else if (reason == "Permission") {
+            LeaveFromDate = $("#ddlFromTime").val();
+            LeaveToDate = $("#ddlToTime").val();
+        }
+
+
+        if (validate) {
+            var task = {
+                Id: eId,
+                LocationId: $("#LocationId").val(),
+                EmployeeNo: $("#txtEmployeeNo").val(),
+                EmployeeName: $("#txtEmployeeName").val(),
+                MobileNo: $("#txtMobileNo").val(),
+                EmailId: $("#txtEmail").val(),
+                Designation: $("#txtDesignation").val(),
+                Deparment: $("#txtDepartment").val(),
+                OutRemarks: $("#txtRemarks").val(),
+                ReasonForGoing: reason,
+                IsActive: true,
+                ConsultantName: $("#txtConsultantName").val(),
+                OutSecurity: security,
+                LeaveFromDate: LeaveFromDate,
+                LeaveToDate: LeaveToDate,
+                ShiftName: $("#ddlShiftName").val(),
+                //ContactNumber: $("#ParamedicContactNo").val(),
+                //Security: $("#txtSecurity").val(),
+                //InRemarks: $("#txtRemarks").val(),
+                OutSecuritySign: "data:" + $sigdiv.jSignature('getData', 'image').toString(),
+                OutEmployeeSign: "data:" + $sigdiv1.jSignature('getData', 'image').toString(),
+                /* SecuritySupervisorSign: "data:" + $sigdiv2.jSignature('getData', 'image').toString()*/
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Register/SaveNewNursingOuting",
+                data: task,
+                success: function (data) {
+                    alert(data);
+                    clearAll();
+                }
+            });
+        }
+    }
+    function ValidateDetails() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+
+        if ($("#LocationId").val() == "") {
+            $("#LocationId").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtPatientMrNumber").val() == "") {
+            $("#txtPatientMrNumber").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtPatientName").val() == "") {
+            $("#txtPatientName").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtMobileNo").val() == "") {
+            $("#txtMobileNo").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtPasses").val() == "") {
+            $("#txtPasses").addClass('css-error');
+            validate = false;
+        }
+    }
+    function clearAll() {
+        window.location.href = "/Register/NursingOuting";
+    }
+    function OnchangeSecurity() {
+        $("#txtothersecurity").hide();
+        var security = $("#txtSecurity").val();
+        if (security == "Others") {
+            $("#txtothersecurity").show()
+        }
+    }
+    function OnchangeReason() {
+        $("#txtotherreason").hide();
+        $("#ddlgoingonleave").hide();
+        $("#ddlgoingonPermission").hide();
+        $("#ddlshiftname").hide();
+        var reason = $("#ddlreasonforgoing").val();
+        if (reason == "Other") {
+            $("#txtotherreason").show()
+        } else if (reason == "Leave" || reason == "Night Off Permission") {
+            $("#ddlgoingonleave").show();
+        }
+        else if (reason == "Permission") {
+            $("#ddlgoingonPermission").show();
+        }
+        else if (reason == "Duty") {
+            $("#ddlshiftname").show();
+        }
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading" style="height:35px;"><a href="~/Register/NursingOuting">Go Back</a> &nbsp;&nbsp;New </div>
+    <div class="panel-body">
+        <div class="modal-body">
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Location<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <select id="LocationId" class="form-control" onchange="OnLocationchng();">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="name">Employee No<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtEmployeeNo" class="form-control" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+
+                </div>
+                <div class="col-md-4">
+                    <table class="table" style="width:100%;">
+                        <tr>
+                            <td>
+                                Last Swipe Time
+
+                                <span style="color:green;font-weight:bold;"> @DateTime.Now.AddMinutes(-15).ToString("HH:mm tt")</span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="col-md-2">
+
+                </div>
+
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Employee Name<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtEmployeeName" class="form-control" />
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Mobile No<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtMobileNo" class="form-control" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Email<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtEmail" class="form-control" />
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Designation<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtDesignation" class="form-control" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+
+
+                <div class="col-md-2">
+                    <label for="name">Department<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtDepartment" class="form-control" />
+
+                </div>
+                <div class="col-md-2">
+                    <label for="name"> Security<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+
+                    <select id="txtSecurity" class="form-control" onchange="OnchangeSecurity();">
+                        <option value="">Select</option>
+                    </select>
+                    <input type="text" id="txtothersecurity" class="form-control" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Reason for Going<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-control" id="ddlreasonforgoing" onchange="OnchangeReason();">
+                        <option value="">Select</option>
+                        <option value="Duty">Duty</option>
+                        <option value="Permission">Permission</option> @*// Permission How much time*@
+                        <option value="Leave">Leave</option>
+                        <option value="Night Off Permission">Night Off Permission</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <input type="text" id="txtotherreason" class="form-control" />
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Remarks<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <textarea rows="2" id="txtRemarks" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="row" id="ddlgoingonleave">
+                <div class="col-md-2">
+                    Leave From Date
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtFromDate" class="form-control datecheck" readonly="readonly" />
+                </div>
+                <div class="col-md-2">
+                    Leave To Date
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtToDate" class="form-control datecheck" readonly="readonly" />
+                </div>
+            </div>
+            <div class="row" id="ddlgoingonPermission">
+                <div class="col-md-2">
+                    From Time
+                </div>
+                <div class="col-md-4">
+                    <select id="ddlFromTime" class="form-control">
+                        <option value="">Select</option>
+                        <option value="06:00 AM">06:00 AM</option>
+                        <option value="06:30 AM">06:30 AM</option>
+                        <option value="07:00 AM">07:00 AM</option>
+                        <option value="07:30 AM">07:30 AM</option>
+                        <option value="08:00 AM">08:00 AM</option>
+                        <option value="08:30 AM">08:30 AM</option>
+                        <option value="09:00 AM">09:00 AM</option>
+                        <option value="09:30 AM">09:30 AM</option>
+                        <option value="10:00 AM">10:00 AM</option>
+                        <option value="10:30 AM">10:30 AM</option>
+                        <option value="11:00 AM">11:00 AM</option>
+                        <option value="11:30 AM">11:30 AM</option>
+                        <option value="12:00 PM">12:00 PM</option>
+                        <option value="12:30 PM">12:30 PM</option>
+                        <option value="01:00 PM">01:00 PM</option>
+                        <option value="01:30 PM">01:30 PM</option>
+                        <option value="02:00 PM">02:00 PM</option>
+                        <option value="02:30 PM">02:30 PM</option>
+                        <option value="03:00 PM">03:00 PM</option>
+                        <option value="03:30 PM">03:30 PM</option>
+                        <option value="04:00 PM">04:00 PM</option>
+                        <option value="04:30 PM">04:30 PM</option>
+                        <option value="05:00 PM">05:00 PM</option>
+                        <option value="05:30 PM">05:30 PM</option>
+                        <option value="06:00 PM">06:00 PM</option>
+                        <option value="06:30 PM">06:30 PM</option>
+                        <option value="07:00 PM">07:00 PM</option>
+                        <option value="07:30 PM">07:30 PM</option>
+                        <option value="08:00 PM">08:00 PM</option>
+                        <option value="08:30 PM">08:30 PM</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    To Time
+                </div>
+                <div class="col-md-4">
+                    <select id="ddlToTime" class="form-control">
+                        <option value="">Select</option>
+                        <option value="06:00 AM">06:00 AM</option>
+                        <option value="06:30 AM">06:30 AM</option>
+                        <option value="07:00 AM">07:00 AM</option>
+                        <option value="07:30 AM">07:30 AM</option>
+                        <option value="08:00 AM">08:00 AM</option>
+                        <option value="08:30 AM">08:30 AM</option>
+                        <option value="09:00 AM">09:00 AM</option>
+                        <option value="09:30 AM">09:30 AM</option>
+                        <option value="10:00 AM">10:00 AM</option>
+                        <option value="10:30 AM">10:30 AM</option>
+                        <option value="11:00 AM">11:00 AM</option>
+                        <option value="11:30 AM">11:30 AM</option>
+                        <option value="12:00 PM">12:00 PM</option>
+                        <option value="12:30 PM">12:30 PM</option>
+                        <option value="01:00 PM">01:00 PM</option>
+                        <option value="01:30 PM">01:30 PM</option>
+                        <option value="02:00 PM">02:00 PM</option>
+                        <option value="02:30 PM">02:30 PM</option>
+                        <option value="03:00 PM">03:00 PM</option>
+                        <option value="03:30 PM">03:30 PM</option>
+                        <option value="04:00 PM">04:00 PM</option>
+                        <option value="04:30 PM">04:30 PM</option>
+                        <option value="05:00 PM">05:00 PM</option>
+                        <option value="05:30 PM">05:30 PM</option>
+                        <option value="06:00 PM">06:00 PM</option>
+                        <option value="06:30 PM">06:30 PM</option>
+                        <option value="07:00 PM">07:00 PM</option>
+                        <option value="07:30 PM">07:30 PM</option>
+                        <option value="08:00 PM">08:00 PM</option>
+                        <option value="08:30 PM">08:30 PM</option>
+                        <option value="09:00 PM">09:00 PM</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row" id="ddlshiftname">
+                <div class="col-md-2">
+                    Shift Name
+                </div>
+                <div class="col-md-4">
+                    <select id="ddlShiftName" class="form-control">
+                        <option value="">Select</option>
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+                        <option value="C">C</option>
+                        <option value="G">G</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name"> Security Sign<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-8">
+                    <div id="captureSignatureIn">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name"> Employee Sign<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-8">
+                    <div id="captureSignatureInNurseInChargeSign">
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <div>
+            <input type="button" id="btnasigntask" value="Save" onclick="SaveRegister();" class="btn btn-primary" />
+            <button type="button" class="btn btn-default" onclick="clearAll();">Cancel</button>
+        </div>
+    </div>
+</div>
+
+

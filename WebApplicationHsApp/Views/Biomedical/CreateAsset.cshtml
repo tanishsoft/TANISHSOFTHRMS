@@ -1,0 +1,447 @@
+﻿
+@{
+    ViewBag.Title = "CreateAsset";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+</style>
+<script>
+    var eId =@ViewBag.id;
+
+    $(document).ready(function () {
+        LoadLocations();
+        LoadData(eId);
+        $(".date")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                Edit: true,
+                yearRange: "-130:+10",
+                //minDate: 0
+
+            });
+        $(".servicerequired").hide();
+        $(".ServiceType").hide();
+    });
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#LocationId").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadDepartment(val, subval) {
+        var options = [];
+        options.push('<option value="">- Select Department -</option>');
+        if ($("#LocationId").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Common/GetDepartmentByLocation",
+                data: "id=" + $("#LocationId").val(),
+                success: function (data) {
+
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                    }
+                    $("#DepartmentId").html(options.join(''));
+                    if (val != "") {
+                        $("#DepartmentId").val(val);
+                        if (subval != "")
+                            DepartmentChange(subval);
+                    }
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+
+
+        }
+        else {
+            $("#DepartmentId").html(options.join(''));
+        }
+
+    }
+    function Cancel() {
+        window.location.href = "/Biomedical/ManageAsset";
+    }
+    function DepartmentChange(val) {
+        var options = [];
+        options.push('<option value="">- Select Sub Department -</option>');
+        if ($("#DepartmentId").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Common/GetSubDepartmentByDepartment",
+                data: "id=" + $("#DepartmentId").val(),
+                success: function (data) {
+
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].SubDepartmentId + '">' + data[i].Name + '</option>');
+                    }
+                    $("#SubDepartmentId").html(options.join(''));
+                    $("#SubDepartmentId").val(val);
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#SubDepartmentId").html(options.join(''));
+        }
+
+    }
+    function LoadData(id) {
+        if (id != 0) {
+            $.get("/Biomedical/GetAsset", { id: id }, function (data) {
+                $("#LocationId").val(data.LocationId);
+                LoadDepartment(data.DepartmentId, data.SubDepartmentId);
+                $("#Equipment").val(data.Equipment);
+                $("#Manufacture").val(data.Manufacture);
+                $("#Model").val(data.Model);
+                $("#SerialNo").val(data.SerialNo);
+                $("#AssetNo").val(data.AssetNo);
+                $("#ddlServiceType").val(data.AssetService);
+                $("#txtPONumber").val(data.PONumber);
+                $("#txtEquipmentCost").val(data.EquipmentCost);
+                $("#txtVendorDetails").val(data.VendorDetails);
+                if (data.DateOfInstallation != null && data.DateOfInstallation != "") {
+                    var DOInstall = data.DateOfInstallation.split("-");
+                    $("#DateOfInstallation").datepicker().datepicker("setDate", new Date(parseInt(DOInstall[2]), parseInt(DOInstall[1]) - 1, parseInt(DOInstall[0])));
+                }
+                if (data.PMDone != null && data.PMDone != "") {
+                    var PMDone = data.PMDone.split("-");
+                    $("#PMDone").datepicker().datepicker("setDate", new Date(parseInt(PMDone[2]), parseInt(PMDone[1]) - 1, parseInt(PMDone[0])));
+                }
+                if (data.PMDue != null && data.PMDue != "") {
+                    $(".servicerequired").show();
+                    var PMDue = data.PMDue.split("-");
+                    $("#PMDue").datepicker().datepicker("setDate", new Date(parseInt(PMDue[2]), parseInt(PMDue[1]) - 1, parseInt(PMDue[0])));
+                }
+                if (data.CALLDone != null && data.CALLDone != "")
+                {
+
+                        var CALLDone = data.CALLDone.split("-");
+                        $("#CALLDone").datepicker().datepicker("setDate", new Date(parseInt(CALLDone[2]), parseInt(CALLDone[1]) - 1, parseInt(CALLDone[0])));
+                    }
+                if (data.CALLDue != null && data.CALLDue != "")
+                {
+                            var CALLDue = data.CALLDue.split("-");
+                            $("#CALLDue").datepicker().datepicker("setDate", new Date(parseInt(CALLDue[2]), parseInt(CALLDue[1]) - 1, parseInt(CALLDue[0])));
+                }
+                if (data.WarrantyStartDate != null && data.WarrantyStartDate  != "") {
+                    var WarrantyStartDate = data.WarrantyStartDate .split("-");
+                    $("#WarrantyStartDate ").datepicker().datepicker("setDate", new Date(parseInt(WarrantyStartDate[2]), parseInt(WarrantyStartDate[1]) - 1, parseInt(WarrantyStartDate [0])));
+                }
+                if (data.WarrantyEndDate != null && data.WarrantyEndDate  != "") {
+                    var WarrantyEndDate = data.WarrantyEndDate .split("-");
+                    $("#WarrantyEndDate ").datepicker().datepicker("setDate", new Date(parseInt(WarrantyEndDate[2]), parseInt(WarrantyEndDate[1]) - 1, parseInt(WarrantyEndDate [0])));
+                }
+                //if (data.EndDate != null && data.EndDate != "") {
+                //    var end = data.EndDate.split("-");
+                //    $("#EndDate").datepicker().datepicker("setDate", new Date(parseInt(end[2]), parseInt(end[1]) - 1, parseInt(end[0])));
+                //}
+
+                //$("#StartDate").val(data.StartDate);
+                $("#ServiceProviderContact").val(data.ServiceProviderContact);
+                $("#Comments").val(data.Comments);
+            });
+        }
+
+    }
+    function validateinput() {
+        var validate = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#LocationId").val() == "") {
+            $("#LocationId").after('<span class="error" style="color:Red;">Select Location</span>');
+            $("#LocationId").addClass('css-error');
+            validate = false;
+        }
+        else if ($("#DepartmentId").val() == "") {
+            $("#DepartmentId").after('<span class="error" style="color:Red;">Select Department</span>');
+            $("#DepartmentId").addClass('css-error');
+            validate = false;
+        }
+        //else  if ($("#SubDepartmentId").val() == "") {
+        //      $("#SubDepartmentId").after('<span class="error" style="color:Red;">Select Sub Department</span>');
+        //      $("#SubDepartmentId").addClass('css-error');
+        //      validate = false;
+        //  }
+        if ($("#Equipment").val() == "") {
+            $("#Equipment").after('<span class="error" style="color:Red;">Enter Equipment</span>');
+            $("#Equipment").addClass('css-error');
+            validate = false;
+        }
+        if ($("#Manufacture").val() == "") {
+            $("#Manufacture").after('<span class="error" style="color:Red;">Enter Manufacture</span>');
+            $("#Manufacture").addClass('css-error');
+            validate = false;
+        }
+        if ($("#Model").val() == "") {
+            $("#Model").after('<span class="error" style="color:Red;">Enter Model</span>');
+            $("#Model").addClass('css-error');
+            validate = false;
+        }
+        if ($("#SerialNo").val() == "") {
+            $("#SerialNo").after('<span class="error" style="color:Red;">Enter SerialNo</span>');
+            $("#SerialNo").addClass('css-error');
+            validate = false;
+        }
+        if ($("#AssetNo").val() == "") {
+            $("#AssetNo").after('<span class="error" style="color:Red;">Enter AssetNo</span>');
+            $("#AssetNo").addClass('css-error');
+            validate = false;
+        }
+        if ($("#DateOfInstallation").val() == "") {
+            $("#DateOfInstallation").after('<span class="error" style="color:Red;">Select DateOfInstallation</span>');
+            $("#DateOfInstallation").addClass('css-error');
+                validate = false;
+        }
+        if ($("#ddlservicerequired").val() == "Yes") {
+            if ($("#PMDone").val() == "") {
+                $("#PMDone").after('<span class="error" style="color:Red;">Seelct PMDone</span>');
+                $("#PMDone").addClass('css-error');
+                validate = false;
+            }
+            if ($("#PMDue").val() == "") {
+                $("#PMDue").after('<span class="error" style="color:Red;">Select PMDue</span>');
+                $("#PMDue").addClass('css-error');
+                validate = false;
+            }
+          
+            if ($("#CALLDone").val() == "") {
+                $("#CALLDone").after('<span class="error" style="color:Red;">Select CALLDone</span>');
+                $("#CALLDone").addClass('css-error');
+                validate = false;
+            }
+            if ($("#CALLDue").val() == "") {
+                $("#CALLDue").after('<span class="error" style="color:Red;">Select CALLDue</span>');
+                $("#CALLDue").addClass('css-error');
+                validate = false;
+            }
+
+        if ($("#ServiceProviderContact").val() == "") {
+            $("#ServiceProviderContact").after('<span class="error" style="color:Red;">Select ServiceProviderContact</span>');
+            $("#ServiceProviderContact").addClass('css-error');
+            validate = false;
+            }
+        }
+        if ($("#ddlServiceType").val() == "Warranty" || $("#ddlServiceType").val() == "AMC" || $("#ddlServiceType").val() == "CAMC") {
+            if ($("#WarrantyStartDate").val() == "") {
+                $("#WarrantyStartDate").after('<span class="error" style="color:Red;">Select Warranty Start Date</span>');
+                $("#WarrantyStartDate").addClass('css-error');
+                validate = false;
+            }
+            if ($("#WarrantyEndDate").val() == "") {
+                $("#WarrantyEndDate").after('<span class="error" style="color:Red;">Select Warranty End Date</span>');
+                $("#WarrantyEndDate").addClass('css-error');
+                validate = false;
+            }
+        }
+        return validate;
+    }
+    function SaveAssets() {
+        var validate = validateinput();
+        if (validate) {
+            var task = {
+                AssetId: eId.toString(),
+                LocationId: $("#LocationId").val(),
+                DepartmentId: $("#DepartmentId").val(),
+                SubDepartmentId: $("#SubDepartmentId").val(),
+                Equipment: $("#Equipment").val(),
+                Manufacture: $("#Manufacture").val(),
+                Model: $("#Model").val(),
+                SerialNo: $("#SerialNo").val(),
+                AssetNo: $("#AssetNo").val(),
+                DateOfInstallation: $("#DateOfInstallation").val(),
+                PMDone: $("#PMDone").val(),
+                PMDue: $("#PMDue").val(),
+                CALLDone: $("#CALLDone").val(),
+                CALLDue: $("#CALLDue").val(),
+                ServiceProviderContact: $("#ServiceProviderContact").val(),
+                Comments: $("#Comments").val(),
+                CalibrationDue: $("#CalibrationDue").val(),
+                WarrantyStartDate: $("#WarrantyStartDate").val(),
+                WarrantyEndDate: $("#WarrantyEndDate").val(),
+                AssetService: $("#ddlServiceType").val(),
+                PONumber: $("#txtPONumber").val(),
+                EquipmentCost: $("#txtEquipmentCost").val(),
+                VendorDetails: $("#txtVendorDetails").val()
+            };
+            console.log(task);
+            $.ajax({
+                type: "POST",
+                url: "/Biomedical/SaveUpdateAsset",
+                data: task,
+                success: function (data) {
+                    alert(data);
+                    Cancel();
+                }
+            });
+        }
+    }
+    function ServiceRequiredchng() {
+        if ($("#ddlservicerequired").val() == "Yes") {
+            $(".servicerequired").show();
+        } else {
+            $(".servicerequired").hide();
+        }
+    }
+    function onchgddlServiceType() {
+        if ($("#ddlServiceType").val() == "Warranty" || $("#ddlServiceType").val() == "AMC" || $("#ddlServiceType").val() == "CAMC") {
+            $(".ServiceType").show();
+        } else {
+            $(".ServiceType").hide();
+        }
+    }
+</script>
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">Create Asset</div>
+        <div class="panel-body">
+            <div class="row" style="padding:10px;">
+                <div class="col-md-4">
+                    <label>Assign Location<span style="color:red;">*</span></label>
+                    <select class="form-control maxwidth" id="LocationId" onchange="LoadDepartment('','');"></select>
+                </div>
+                <div class="col-md-4">
+                    <label>Assign Department<span style="color:red;">*</span></label>
+                    <select class="form-control maxwidth" id="DepartmentId" onchange="DepartmentChange();">
+                        <option value="">- Select Department -</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label>Assign Subdepartment<span style="color:red;">*</span></label>
+                    <select class="form-control maxwidth" id="SubDepartmentId">
+                        <option value="">- Select Sub Department -</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row" style="padding:10px;">
+                <div class="col-md-4">
+                    <label>Equipment<span style="color:red;">*</span></label>
+                    <input type="text" class="form-control maxwidth" id="Equipment" autocomplete="off" />
+                </div>
+
+                <div class="col-md-4">
+                    <label>Manufatur Name<span style="color:red;">*</span></label>
+                    <input type="text" class="form-control maxwidth" id="Manufacture" autocomplete="off" />
+                </div>
+                <div class="col-md-4">
+                    <label>Model<span style="color:red;">*</span></label>
+                    <input type="text" class="form-control maxwidth" id="Model" autocomplete="off" />
+                </div>
+                <div class="col-md-4">
+                    <label>Serial No<span style="color:red;">*</span></label>
+                    <input type="text" class="form-control maxwidth" id="SerialNo" autocomplete="off" />
+                </div>
+                <div class="col-md-4">
+                    <label>Asset No<span style="color:red;">*</span></label>
+                    <input type="text" class="form-control maxwidth" id="AssetNo" autocomplete="off" />
+                </div>
+                <div class="col-md-4">
+                    <label>Date Of Installation</label>
+                    <input type="text" class="form-control maxwidth date" id="DateOfInstallation" readonly="readonly" autocomplete="off" />
+                </div>
+
+                <div class="col-md-4">
+                    <label>PO Number</label>
+                    <input type="text" class="form-control maxwidth" id="txtPONumber" autocomplete="off" />
+                </div>
+                <div class="col-md-4">
+                    <label>Equipment Cost</label>
+                    <input type="text" class="form-control maxwidth" id="txtEquipmentCost" autocomplete="off" />
+                </div>
+                <div class="col-md-4">
+                    <label>Vendor Details</label>
+                    <input type="text" class="form-control maxwidth" id="txtVendorDetails" autocomplete="off" />
+                </div>
+
+            </div>
+            <div class="row" style="padding:10px;">
+                <div class="col-md-4">
+                    <label>Service Required</label>
+                    <select class="form-control maxwidth" id="ddlservicerequired" onchange="ServiceRequiredchng();">
+                        <option value="No" selected>No</option>
+                        <option value="Yes">Yes</option>
+                    </select>
+                </div>
+                <div class="col-md-4 servicerequired">
+                    <label>Pm Done<span style="color:red;">*</span></label>
+                    <input type="text" class="form-control maxwidth date" id="PMDone" readonly="readonly" autocomplete="off" />
+                </div>
+                <div class="col-md-4 servicerequired">
+                    <label>Pm Due<span style="color:red;">*</span></label>
+                    <input type="text" class="form-control maxwidth date" id="PMDue" readonly="readonly" autocomplete="off" />
+                </div>
+                <div class="col-md-4" style="display:none;">
+                    <label>Calibration Due<span style="color:red;">*</span></label>
+                    <input type="text" class="form-control maxwidth date" id="CalibrationDue" readonly="readonly" autocomplete="off" />
+                </div>
+                <div class="col-md-4 servicerequired">
+                    <label>Calibration Done<span style="color:red;">*</span></label>
+                    <input type="text" class="form-control maxwidth date" id="CALLDone" readonly="readonly" autocomplete="off" />
+                </div>
+                <div class="col-md-4 servicerequired">
+                    <label>Calibration Due<span style="color:red;">*</span></label>
+                    <input type="text" class="form-control maxwidth date" id="CALLDue" readonly="readonly" autocomplete="off" />
+                </div>
+
+                <div class="col-md-4 servicerequired">
+                    <label>Service Provider Contact<span style="color:red;">*</span></label>
+                    <input type="text" class="form-control maxwidth" id="ServiceProviderContact" autocomplete="off" />
+                </div>
+                <div class="col-md-4 servicerequired">
+                    <label>Service Type</label>
+                    <select class="form-control maxwidth" id="ddlServiceType" onchange="onchgddlServiceType()">
+                        <option value="">Select</option>
+                        <option value="Warranty">Warranty</option>
+                        <option value="AMC">AMC</option>
+                        <option value="CAMC">CAMC</option>
+                        <option value="Inhouse">Inhouse</option>
+                        <option value="NIL">NIL</option>
+                    </select>
+                </div>
+                <div class="col-md-4 servicerequired ServiceType">
+                    <label>Service Start Date<span style="color:red;">*</span></label>
+                    <input type="text" class="form-control maxwidth date" id="WarrantyStartDate" readonly="readonly" autocomplete="off" />
+                </div>
+                <div class="col-md-4 servicerequired ServiceType">
+                    <label>Service End Date<span style="color:red;">*</span></label>
+                    <input type="text" class="form-control maxwidth date" id="WarrantyEndDate" readonly="readonly" autocomplete="off" />
+                </div>
+
+            </div>
+            <div class="row" style="padding:10px;">
+                <div class="col-md-12">
+                    <label>Comments</label>
+                    <textarea rows="2" class="form-control maxwidth" id="Comments"></textarea>
+                </div>
+            </div>
+            <div class="row" style="padding:10px;">
+                <input type="button" class="btn btn-warning" value="Cancel" onclick="Cancel();" />
+                <input type="button" class="btn btn-primary" value="Save" onclick="SaveAssets();" />
+            </div>
+        </div>
+    </div>
+</div>
+<br />
+<br />
+<br />
+<br />

@@ -1,0 +1,231 @@
+﻿
+@{
+    ViewBag.Title = "NewPosting";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+
+    #captureSignatureTaking {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+</style>
+<script src="~/Scripts/jSignature.min.js"></script>
+<!--[if lt IE 9]>
+<script  type="text/javascript" src="~/Scripts/flashcanvas.js"></script>
+    <![endif]-->
+<script>
+    var validate;
+    var eId = 0;
+
+    var $sigdiv, $sigdiv2;
+    $(document).ready(function () {
+        $sigdiv = $("#captureSignatureTaking").jSignature({ 'UndoButton': true });
+        $sigdiv2 = $("#captureSignatureTakingAuthorize").jSignature({ 'UndoButton': true });
+        
+        LoadLocations();
+        $("#txtstaffIdNumber").change(function () {
+            $.get("/Custom/GetUserDetailsByEmpId?id=" + $("#txtstaffIdNumber").val(), function (data) {
+                if (data != "Enter Valid Request ID") {
+                    $("#txtstaffName").html(data.FirstName + " " + data.PhoneNumber + " " + data.DepartmentName);
+                  
+                }
+            });
+        });
+        $("#AuthorizeBy").change(function () {
+            $.get("/Custom/GetUserDetailsByEmpId?id=" + $("#AuthorizeBy").val(), function (data) {
+                if (data != "Enter Valid Request ID") {
+                    $("#Authorizebyname").html(data.FirstName + " " + data.PhoneNumber + " " + data.DepartmentName);             
+                }
+            });
+        });
+    });
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Locations -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#LocationId").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function SaveRegister() {
+        ValidateDetails();
+        var takingSign = $sigdiv.jSignature('getData', 'image').toString();
+        var takingSignAuthorize = $sigdiv2.jSignature('getData', 'image').toString();
+        if (takingSign == null || takingSign == "") {
+            validate = false;
+        }
+        if (takingSignAuthorize == null || takingSignAuthorize == "") {
+            validate = false;
+        }
+        if (validate) {
+            var task = {
+                PostingId: eId,
+                LocationId: $("#LocationId").val(),
+                EmployeeId: $("#txtstaffIdNumber").val(),
+                InAuthorizeEmp: $("#AuthorizeBy").val(),
+                Shift: $("#Shift").val(),
+                PostingRank: $("#Rank").val(),
+                PostingType: $("#ddlPostingType").val(),
+                
+                PostingLocation: $("#PostingLocation").val(),
+                IsActive: true,
+                Remarks: $("#txtRemarks").val(),
+                InTimeEmpSign: "data:" + takingSign,
+                InAuthorizeEmpSign: "data:" + takingSignAuthorize
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Register/SaveNewPosting",
+                data: task,
+                success: function (data) {
+                    alert(data);
+                    clearAll();
+                }
+            });
+        } else {
+            alert("Please enter all the required fields");
+        }
+    }
+    function ValidateDetails() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+
+        if ($("#LocationId").val() == "") {
+            $("#LocationId").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtstaffIdNumber").val() == "") {
+            $("#txtstaffIdNumber").addClass('css-error');
+            validate = false;
+        }
+        if ($("#AuthorizeBy").val() == "") {
+            $("#AuthorizeBy").addClass('css-error');
+            validate = false;
+        }
+    }
+    function clearAll() {
+        window.location.href = "/Register/Posting";
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading" style="height:35px;"><a href="~/Register/Posting">Go Back</a> &nbsp;&nbsp;New Posting </div>
+    <div class="panel-body">
+        <div class="modal-body">
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Location<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <select id="LocationId" class="form-control" onchange="OnLocationchng();">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-2">
+                    <label for="name">PostingType<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <select id="ddlPostingType" class="form-control">
+                        <option value="Driver">Driver</option>
+                        <option value="Security">Security</option>
+                    </select>
+                </div>
+                
+            </div>
+
+
+           
+           
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Rank<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="Rank" class="form-control" />
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Shift<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="Shift" class="form-control" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+
+
+                <div class="col-md-2">
+                    <label for="name">Emp Number<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtstaffIdNumber" class="form-control" />
+                    <span id="txtstaffName"></span>
+                </div>
+                <div class="col-md-2">
+                    <label for="name">Authorize By<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="AuthorizeBy" class="form-control" />
+                    <span id="Authorizebyname"></span>
+                </div>
+            </div>
+
+            <div class="row" style="padding:5px;">
+
+                <div class="col-md-2">
+                    <label for="name">Posting Location<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="PostingLocation" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <label for="name">Remarks</label>
+                </div>
+                <div class="col-md-4">
+                    <textarea id="txtRemarks" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+
+                <div class="col-md-1">
+                    <label for="name">In Time Emp Sign<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-5">
+                    <div id="captureSignatureTaking">
+                    </div>
+                </div>
+
+                <div class="col-md-1">
+                    <label for="name">In Authorize Emp Sign<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-5">
+                    <div id="captureSignatureTakingAuthorize">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div>
+            <input type="button" id="btnasigntask" value="Save" onclick="SaveRegister();" class="btn btn-primary" />
+            <button type="button" class="btn btn-default" onclick="clearAll();">Cancel</button>
+        </div>
+    </div>
+</div>
+
+

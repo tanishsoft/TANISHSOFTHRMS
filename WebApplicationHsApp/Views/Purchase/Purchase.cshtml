@@ -1,0 +1,840 @@
+﻿
+@{
+    ViewBag.Title = "Purchase";
+}
+
+<h2>Purchase</h2>
+
+<script>
+    var validate = true;
+    $(document).ready(function () {
+        $('input.decimal').blur(function () {
+            var num = parseFloat($(this).val());
+            var cleanNum = num.toFixed(2);
+            $(this).val(cleanNum);
+            if (num / cleanNum < 1) {
+                $('#error').text('Please enter only 2 decimal places, we have truncated extra points');
+            }
+        });
+        $(".Date")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                Edit: true,
+                minDate: 0
+
+            })
+        LoadVendor("");
+        LoadLocation();
+        LoadData();
+    });
+    function LoadLocation() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- select Locations -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $(".ddlLocation").html(options.join(''));
+
+
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadDepartment(Code) {
+        debugger;
+        if ($("#Location").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Common/GetDepartmentByLocation",
+                data: "id=" + $("#Location").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- Select Department -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                    }
+                    $("#Department").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#Department").html("");
+        }
+    }
+    function LoadVendor(Code) {
+        $.ajax({
+            type: "POST",
+            url: "/Task/GetVendors",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- select Vendors -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].VendorId + '">' + data[i].Name + '</option>');
+                }
+                $("#" + Code + "vendor").html(options.join(''));
+
+
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadEmployees() {
+        if ($("#Department") != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Common/GetEmployeesByDepartment",
+                data: "id=" + $("#Department").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- Select Employee -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].CustomUserId + '">' + data[i].FirstName + " " + data[i].LastName + '</option>');
+                    }
+                    $("#EmpId").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#EmpId").html("");
+        }
+    }
+    function LoadEmployeesEdit(EmpId) {
+        if ($("#EDepartment") != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Common/GetEmployeesByDepartment",
+                data: "id=" + $("#EDepartment").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- Select Employee -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].CustomUserId + '">' + data[i].FirstName + " " + data[i].LastName + '</option>');
+                    }
+                    $("#EEmpId").html(options.join(''));
+                    $("#EEmpId").val(EmpId);
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#" + Code + "EmpId").html("");
+        }
+    }
+    function LoadDepartmentEdit(Department, EmpId) {
+        debugger;
+        if ($("#ELocation").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Common/GetDepartmentByLocation",
+                data: "id=" + $("#ELocation").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- Select Department -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                    }
+                    $("#EDepartment").html(options.join(''));
+                    $("#EDepartment").val(Department);
+                    LoadEmployeesEdit(EmpId);
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#" + Code + "Department").html("");
+        }
+    }
+    function LoadData() {
+        $('#tblPurchase').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Purchase/AjaxGetPurchase",
+            "bSortable": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "PurchaseId" },
+                { "sName": "PurchaseNumber" },
+                { "sName": "LocationId" },
+                { "sName": "DepartmentId" },
+                { "sName": "Employee" },
+                { "sName": "VendorId" },
+                { "sName": "Title" },
+                { "sName": "Description " },
+                { "sName": "Duration" },
+                { "sName": "PurchaseDate" },
+                { "sName": "StartDate" },
+                { "sName": "TotalQty" },
+                { "sName": "QuotationNumber" },
+                { "sName": "QuotationAmount" },
+                { "sName": "PurchaseAmout" },
+                { "sName": "TotalTaxAmount" },
+                { "sName": "Discount" },
+                { "sName": "TotalAmount" }, 
+                { "sName": "Status" },
+                { "sName": "IsActive" },
+                {
+                    "sName": "PurchaseId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<a href="javascript:void(0);" id="' + data + '" class="btn btn-success" onclick="Edit(this.id);"><span class="glyphicon glyphicon-edit"></span></a>&nbsp;' +
+                            '<a href="javascript:void(0);" id="' + data + '" class="btn btn-danger" onclick="Delete(this.id);"><span class="glyphicon glyphicon-trash"></span></a>&nbsp;'+
+                            '<a href="javascript:void(0);" id="' + data + '" class="btn btn-primary" onclick="ManageStatus(this.id);"><span class="glyphicon glyphicon-file"></span></a>';
+                        //return '<div class="btn-group">' +
+                        //    '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                        //    '<ul class="dropdown-menu dropdown-menu-right">' +
+                        //    '<li><a href="javascript:void(0);" id="' + data + '" onclick="Edit(this.id);">Edit</a></li>' +
+                        //    '<li><a href="javascript:void(0);" id="' + data + '" onclick="Delete(this.id);">Delete</a></li>' +
+                        //    '<li><a href="javascript:void(0);" id="' + data + '" onclick="ManageDocuments(this.id);">ManageDocuments</a></li>' +
+                        //    '</ul></div>';
+                    }
+                }
+            ]
+        });
+        $("#tblPurchase_length").addClass("col-md-6");
+        $("#tblPurchase_length").addClass("col-md-6");
+    }
+    function ManageStatus(id) {
+        $("#EcId").val(id);
+
+        var Url = "/Task/Gettbl_Purchasebyid?PurchaseId=" + id;
+        $.ajax({
+            type: "GET",
+            url: Url,
+            success: function (data) {
+
+                $("#statusModel").modal('show');
+                var obj = data;
+                $('#ChangeStatus').val(obj.query.Status)
+
+            }
+        })
+    }
+    function ManageStatus(id) {
+        $("#EcId").val(id);
+
+    }
+    function Edit(id) {
+        $("#EcId").val(id);
+        var Url = "/Purchase/Gettbl_Purchasebyid?PurchaseId=" + id;
+        $.ajax({
+            type: "GET",
+            url: Url,
+            success: function (data) {
+                //to do madhav
+                $("#EditModel").modal('show');
+                var obj = data;
+                $("#PurchaseNumber").val(obj.query.PurchaseNumber);
+                $("#PurchaseDate").val(obj.query.PurchaseDate);
+                $("#Description").val(obj.query.Description);
+                $("#Title").val(obj.query.Title);
+                $("#Duration").val(obj.query.Duration);
+                $("#StartDate").val(obj.query.StartDaten);
+                $("#Location").val(obj.query.Location);  
+                LoadDepartmentEdit(obj.query.Department, obj.EmpId)
+                $("#TotalQty").val(obj.query.TotalQty);
+                $("#QuotationNumber").val(obj.query.QuotationNumber);
+                $("#QuotationAmount").val(obj.query.QuotationAmount);
+                $("#PurchaseAmout").val(obj.query.PurchaseAmout);
+                $("#TotalTaxAmount").val(obj.query.TotalTaxAmount);
+                $("#Discount").val(obj.query.Discount);
+                $("#TotalAmount").val(obj.query.TotalAmount);
+                $("#Status").val(obj.query.Status);
+                $("#vendor").val(obj.query.vendor);
+                $("#Remarks").val(obj.query.Remarks);
+            }
+        })
+    }
+
+    function OnclickSavePurchase(Action) {
+        var code = ""; var posturl = "/Purchase/SavePurchase";
+        if (Action == "Update") {
+            code = "E";
+            posturl = "/Purchase/UpdatePurchase"
+        }
+        validatePurchase(code);
+        if (validate) {
+            var task = {
+                PurchaseNumber: $("#" + code + "PurchaseNumber").val(),//
+                PurchaseDate: $("#" + code + "PurchaseDate").val(),//
+                Title: $("#" + code + "Title").val(),//
+                Description: $("#" + code + "Description").val(),//
+                Duration: $("#" + code + "Duration").val(),//
+                StartDate: $("#" + code + "StartDate").val(),//
+                LocationId: $("#" + code + "Location").val(),//
+                DepartmentId: $("#" + code + "Department").val(),//
+                Employee: $("#" + code + "EmpId").val(),//
+                TotalQty: $("#" + code + "TotalQty").val(),
+                QuotationNumber: $("#" + code + "QuotationNumber").val(),
+                QuotationAmount: $("#" + code + "QuotationAmount").val(),
+                PurchaseAmout: $("#" + code + "PurchaseAmout").val(),
+                TotalTaxAmount: $("#" + code + "TotalTaxAmount").val(),
+                Discount: $("#" + code + "Discount").val(),
+                TotalAmount: $("#" + code + "TotalAmount").val(),//
+                Status: $("#" + code + "Status").val(),//
+                VendorId: $("#" + code + "vendor").val(),//
+                Remarks: $("#"+code+"Remarks").val(),//
+                IsActive:true
+            };
+            $.ajax({
+                type: "POST",
+                url: posturl,
+                data: task,
+                success: function (data) {
+                  
+                }
+            });
+        }
+    }
+    function validatePurchase(Action) {//to do madhav
+        validate = true; var code = "";
+        if (Action == "Update") {
+            code = "E";
+        }
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#" + code + "PurchaseNumber").val() == "") {
+            $("#" + code + "PurchaseNumber").after('<span class="error" style="color:Red;">Enter PurchaseNumber</span>');
+            $("#" + code + "PurchaseNumber").addClass('css-error');
+            validate = false;
+        }
+        if ($("#" + code + "PurchaseDate").val() == "") {
+            $("#" + code + "PurchaseDate").after('<span class="error" style="color:Red;">Enter PurchaseDate</span>');
+            $("#" + code + "PurchaseDate").addClass('css-error');
+            validate = false;
+        }
+        if ($("#" + code + "Department").val() == "") {
+            $("#" + code + "Department").after('<span class="error" style="color:Red;">Enter Department</span>');
+            $("#" + code + "Department").addClass('css-error');
+            validate = false;
+        }
+        if ($("#" + code + "EmpId").val() == "") {
+            $("#" + code + "EmpId").after('<span class="error" style="color:Red;">Enter EmpId</span>');
+            $("#" + code + "EmpId").addClass('css-error');
+            validate = false;
+        }
+        if ($("#" + code + "Title").val() == "") {
+            $("#" + code + "Title").after('<span class="error" style="color:Red;">Enter Title</span>');
+            $("#" + code + "Title").addClass('css-error');
+            validate = false;
+        }
+        if ($("#" + code + "StartDate").val() == "") {
+            $("#" + code + "StartDate").after('<span class="error" style="color:Red;">Enter StartDate</span>');
+            $("#" + code + "StartDate").addClass('css-error');
+            validate = false;
+        }
+        if ($("#" + code + "Description").val() == "") {
+            $("#" + code + "Description").after('<span class="error" style="color:Red;">Enter Description</span>');
+            $("#" + code + "Description").addClass('css-error');
+            validate = false;
+        }
+        if ($("#" + code + "Location").val() == "") {
+            $("#" + code + "Location").after('<span class="error" style="color:Red;">select Location</span>');
+            $("#" + code + "Location").addClass('css-error');
+            validate = false;
+        }
+        else if ($("#" + code + "Department").val() == "") {
+            $("#" + code + "Department").after('<span class="error" style="color:Red;">select Department</span>');
+            $("#" + code + "Department").addClass('css-error');
+            validate = false;
+        }
+        else if ($("#" + code + "EmpId").val() == "") {
+            $("#" + code + "EmpId").after('<span class="error" style="color:Red;">select Employee</span>');
+            $("#" + code + "EmpId").addClass('css-error');
+            validate = false;
+        }
+        
+      
+    }
+    function isNumber(evt) {
+
+        var iKeyCode = (evt.which) ? evt.which : evt.keyCode
+        if (iKeyCode != 46 && iKeyCode > 31 && (iKeyCode < 48 || iKeyCode > 57)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+    function ClearAll() {//to deo madhav
+        $("#PurchaseNumber").val("");
+        $("#Title").val("");
+        $("#Duration").val("");
+        $("#PurchaseDate").val("");
+        $("#Description").val("");
+        $("#StartDate").val("");
+        $("#Location").val("");
+        $("#Department").val("");
+        $("#EmpId").val("");
+        $("#TotalQty").val("");
+        $("#QuotationNumber").val("");
+        $("#QuotationAmount").val("");
+        $("#PurchaseAmout").val("");
+        $("#TotalTaxAmount").val("");
+        $("#Discount").val("");
+        $("#TotalAmount").val("");
+        $("#Status").val("");
+        $("#vendor").val("");
+        $("#Remarks").val("");
+        $("#type").val("");
+
+    }
+    function Delete(Subid) {
+        if (confirm("Are you sure you want to delete?")) {
+            $.get("/Masters/DeletePurchase?id=" + id, function (data) {
+                alert("Success");
+                LoadData();
+            });
+        }
+    }
+    function OnclickChangeStatus() {
+        debugger;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($('#ChangeStatus').val() != "") {
+            var task = {
+                PurchaseId: $("#EcId").val(),
+                Status: $('#ChangeStatus').val()
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Purchase/purchasechangestatus",
+                data: task,
+                success: function (data) {
+                    LoadData();
+                    $("#statusModel").modal('hide');
+                }
+            });
+        }
+        else {
+            $("#ChangeStatus").after('<span class="error" style="color:Red;">select status</span>');
+            $("#ChangeStatus").addClass('css-error');
+            return false;
+        }
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading">Manage purchase<a href="#" data-toggle="modal" class="pull-right" data-target="#AddModel">New purchase</a></div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblPurchase">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>Id</th>
+                    <th>PurchaseNumber</th>
+                    <th>LocationId</th>
+                    <th>DepartmentId</th>
+                    <th>Employee</th>
+                    <th>VendorId</th>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th class="none">Duration</th>
+                    <th class="none">PurchaseDate</th>
+                    <th class="none">StartDate</th>
+                    <th class="none">TotalQty </th>
+                    <th class="none">QuotationNumber</th>
+                    <th class="none">QuotationAmount</th>
+                    <th class="none">PurchaseAmout</th>
+                    <th class="none">TotalTaxAmount</th>
+                    <th class="none">Discount</th>
+                    <th class="none" >TotalAmount</th>
+                    <th>Status</th>
+                    <th>Is Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div id="AddModel" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="clearAll();">×</button>
+                <h4 class="modal-title">Add New</h4>
+            </div>
+            <div class="modal-body">
+                <form id="Add">
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-2">
+                            <label for="name">Location<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-control ddlLocation" id="Location" onchange="LoadDepartment();"></select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="name">Department</label>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-control" id="Department" onchange=" LoadEmployees();"></select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-2">
+                            <label for="name">Employee<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-control" id="EmpId"></select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="name">Vendor</label>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-control" id="vendor"></select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-2">
+                            <label for="name">Title<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="Title" class="form-control" placeholder="Enter Title" />
+                        </div>
+                        <div class="col-md-2">
+                            <label for="name">Purchase Number<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="PurchaseNumber" class="form-control" placeholder="Enter Purchase Number" onkeypress="javascript:return isNumber(event)"  />
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-2">
+                            <label for="name">Duration<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="Duration" class="form-control" placeholder="Enter Duration"onkeypress="javascript:return isNumber(event)" />
+                        </div>
+                        <div class="col-md-2">
+                            <label for="name">PurchaseDate<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="PurchaseDate" class="form-control Date" placeholder="Enter PurchaseDate" />
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-2">
+                            <label for="name">StartDate<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="StartDate" class="form-control Date" placeholder="Enter StartDate" />
+                        </div>
+                        <div class="col-md-2">
+                            <label for="name">Total Quatity<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="TotalQty" class="form-control" placeholder="Enter TotalQty" onkeypress="javascript:return isNumber(event)" />
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-2">
+                            <label for="name">QuotationNumber<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="QuotationNumber" class="form-control" placeholder="Enter QuotationNumber" onkeypress="javascript:return isNumber(event)" />
+                        </div>
+                        <div class="col-md-2">
+                            <label for="name">QuotationAmount<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="QuotationAmount" class="form-control decimal" placeholder="Enter QuotationAmount" onkeypress="javascript:return isNumber(event)" />
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-2">
+                            <label for="name">PurchaseAmout<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="PurchaseAmout" class="form-control decimal" placeholder="Enter PurchaseAmout" onkeypress="javascript:return isNumber(event)" />
+                        </div>
+                        <div class="col-md-2">
+                            <label for="name">TotalTaxAmount<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="TotalTaxAmount" class="form-control decimal" placeholder="Enter TotalTaxAmount" onkeypress="javascript:return isNumber(event)" />
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-2">
+                            <label for="name">Discount<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="Discount" class="form-control decimal" placeholder="Enter Discount" onkeypress="javascript:return isNumber(event)" />
+                        </div>
+                        <div class="col-md-2">
+                            <label for="name">TotalAmount<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="TotalAmount" class="form-control decimal" placeholder="Enter TotalAmount" onkeypress="javascript:return isNumber(event)" />
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-2">
+                            <label for="name">Status<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-control" id="Status">
+                                <option value="Active">Active</option>
+                                <option value="Approved">Approved</option>
+                                <option value="Cancelled">Cancelled</option>
+                                <option value="Inactive">Inactive</option>
+                                <option value="Ordered">Ordered</option>
+                                <option value="Requested">Requested</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="name">Description<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <textarea id="Description" class="form-control"></textarea>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="name">Remarks<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <textarea id="Remarks" class="form-control"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <input type="submit" value="Save" onclick="OnclickSavePurchase('save');" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearAll();">Close</button>
+            </div>
+
+              
+            </div>
+
+        </div>
+
+    </div>
+
+<div id="EditModel" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Update</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="EcId" />
+                <form id="Edit">
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-2">
+                            <label for="name">Location<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-control ddlLocation" id="ELocation" onchange="LoadDepartment();"></select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="name">Department</label>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-control" id="EDepartment" onchange=" LoadEmployees();"></select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-2">
+                            <label for="name">Employee<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-control" id="EEmpId"></select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="name">Vendor</label>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-control" id="Evendor"></select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-2">
+                            <label for="name">Title<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="ETitle" class="form-control" placeholder="Enter Title" />
+                        </div>
+                        <div class="col-md-2">
+                            <label for="name">Purchase Number<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="EPurchaseNumber" class="form-control" placeholder="Enter Purchase Number" />
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-2">
+                            <label for="name">Duration<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="EDuration" class="form-control" placeholder="Enter Duration" />
+                        </div>
+                        <div class="col-md-2">
+                            <label for="name">PurchaseDate<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="EPurchaseDate" class="form-control Date" placeholder="Enter Purchase Date" />
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-2">
+                            <label for="name">StartDate<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="EStartDate" class="form-control Date" placeholder="Enter Start Date" />
+                        </div>
+                        <div class="col-md-2">
+                            <label for="name">Total Quatity<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="ETotalQty" class="form-control" placeholder="Enter Total Qty" />
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-2">
+                            <label for="name">Quotation Number<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="EQuotationNumber" class="form-control" placeholder="Enter QuotationNumber" />
+                        </div>
+                        <div class="col-md-2">
+                            <label for="name">Quotation Amount<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="EQuotationAmount" class="form-control" placeholder="Enter Quotation Amount" />
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-2">
+                            <label for="name">PurchaseAmount<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="EPurchaseAmout" class="form-control" placeholder="Enter Purchase Amout" />
+                        </div>
+                        <div class="col-md-2">
+                            <label for="name">TotalTaxAmount<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="ETotalTaxAmount" class="form-control" placeholder="Enter Total Tax Amount" />
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-2">
+                            <label for="name">Discount<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="EDiscount" class="form-control" placeholder="Enter Discount" />
+                        </div>
+                        <div class="col-md-2">
+                            <label for="name">Total Amount<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="ETotalAmount" class="form-control" placeholder="Enter Total Amount" />
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-2">
+                            <label for="name">Status<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <select class="form-control" id="EStatus"></select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="name">Description<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <textarea id="EDescription" class="form-control" placeholder="Enter Description"></textarea>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="name">Remarks<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <textarea id="ERemarks" class="form-control" placeholder="Enter Remarks"></textarea>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <input type="submit" value="Save" onclick="OnclickUpdatePurchase('Update');" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+<div class="modal fade" id="DeleteConfirmation">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4>Delete  Record</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" class="form-control" id="Cid">
+                <h4>Are You Sure? You Want To Delete This Record.</h4>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-primary" data-dismiss="modal" id="r">Cancel</a>
+                <a href="#" class="btn btn-danger" onclick="ConfirmDelete()">Confirm</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="statusModel" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="clearNotes();">×</button>
+                <h4 class="modal-title">change status</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">status<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <select id="ChangeStatus" class="form-control">
+                            <option value="">-select status-</option>
+                            <option value="New">New</option>
+                            <option value="Valid">Valid</option>
+                            <option value="Not using">Not using</option>
+                            <option value="Expired">Expired</option>
+                            <option value=" Renew In Progress"> Renew In Progress</option>
+                            <option value="Others">Others</option>
+                        </select>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="button" value="Save" onclick="OnclickChangeStatus();" class="btn btn-primary">
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>

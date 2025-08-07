@@ -1,0 +1,166 @@
+﻿@model IEnumerable<WebApplicationHsApp.DataModel.tbl_Img_GalleryImages>
+@{
+    ViewBag.Title = "Gratitudes";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    var editid;
+    function SubmitCommentOnDrEvita() {
+        if (confirm("Are you sure you want to submit?")) {
+            var key = "GratitudesMessage_" + $("#GalleryId").val();
+            $.ajax({
+                type: "GET",
+                url: "/Home/SaveComment",
+                data: "key=" + key + "&Message=" + $("#txtcommentondrevita").val(),
+                success: function (data) {
+                    $("#txtcommentondrevita").val("");
+                    alert("Comment updated Successfully");
+                    LoadComments();
+
+                },
+                error: function () {
+                    // alert("error")
+                }
+            });
+        }
+    }
+    var editid = 0;
+    $(document).ready(function () {
+        LoadComments();
+    });
+
+    var comments;
+    function LoadComments() {
+        var key = "GratitudesMessage_" + $("#GalleryId").val();
+        $.ajax({
+            type: "GET",
+            url: "/Home/GetCommentsbyPostId",
+            data: "key=" + key,
+            success: function (data) {
+                $("#TotalComments").html(data.length);
+                comments = data;
+                var htmlupdate = "";
+                for (var j = 0; j < data.length; j++) {
+                    htmlupdate += "<div class='col-md-6'><div class='list-group'>";
+                    htmlupdate += "<div  class='list-group-item list-group-item-action flex-column align-items-start'>";
+                    htmlupdate += "<div class='d-flex w-100 justify-content-between'>";
+                    htmlupdate += "<h5 class='mb-1' style='color:crimson;font-weight:bold;'>  " + data[j].CommentedBy + "&nbsp;";
+                    var username = $("#hiddenuseridentyname").val();
+                    var role = $("#hidhiddenrole").val();
+                    if (username != null && username != "") {
+                        htmlupdate += "<span style='color:green;cursor:pointer;'  id='" + data[j].CommentId + "'  onclick='funreplaymessage(this.id);' >&nbsp;&nbsp; <span class='glyphicon glyphicon-share'></span> Click here to Reply </span> ";
+                    }
+                    //htmlupdate += "</h5>";
+                    if (role == "Admin") {
+                        htmlupdate += "<span style='float:right;color:red;cursor:pointer;' id='" + data[j].CommentId + "' onclick='deletecomment(this.id);'> <i class='glyphicon glyphicon-remove-circle'></i> &nbsp;</span>&nbsp;";
+                        htmlupdate += "<span style='float:right;color:green;cursor:pointer;' id='" + data[j].CommentId + "' onclick='EditComment(this.id);'> <i class='glyphicon glyphicon-edit'></i> &nbsp;</span>&nbsp;";
+                    }
+                    htmlupdate += "<span style='float:right;color:green;'> " + data[j].CommentedOn + "&nbsp;</span></h5>";
+                    //htmlupdate += "<small class='text-muted'>" + data[i].Comments[j].CreatedOn + "</small>";
+                    htmlupdate += "</div>";
+                    htmlupdate += "<p class='mb-1'><span class='glyphicon glyphicon-comment'></span> " + data[j].Message + "</p>";
+
+                    var subcomment = data[j].SubComment;
+                    if (subcomment.length > 0) {
+                        for (var k = 0; k < subcomment.length; k++) {
+                            htmlupdate += "<p class='mb-1' style='color:crimson;text-align:right;'><span class='glyphicon glyphicon-info-sign'></span> " + subcomment[k].CommentedBy + " Says - " + subcomment[k].Message + "</p>";
+                        }
+                    }
+                    //$("#tbldatashow").append("<small class='text-muted'>Donec id elit non mi porta.</small>");
+                    htmlupdate += "</div>";
+                    htmlupdate += "</div>";
+                    htmlupdate += "</div>";
+                }
+                $("#TotalCommentsData").html(htmlupdate);
+            },
+            error: function () {
+                // alert("error")
+            }
+        });
+    }
+    function funreplaymessage(id) {
+        editid = id;
+        //alert(id);
+        $("#exampleModalCenter4").modal('show');
+    }
+    function SubmitCommentByDrEvita() {
+        $.ajax({
+            type: "GET",
+            url: "/Home/SaveMDReplayOnMessage",
+            data: "id=" + editid + "&Message=" + $("#txtcommentbydrevita4").val(),
+            success: function (data) {
+                $("#txtcommentbydrevita4").val("");
+                $("#exampleModalCenter4").modal("hide");
+                alert("Comment updated Successfully");
+                LoadComments();
+            },
+            error: function () {
+                // alert("error")
+            }
+        });
+    }
+</script>
+
+@if (Model.Any())
+{
+    <input type="hidden" id="GalleryId" value="@Model.FirstOrDefault().GalleryId" />
+}
+else
+{
+    <input type="hidden" id="GalleryId" value="0" />
+}
+
+<div style="width:80%;margin:auto; text-align:justify;">
+    @foreach (var m in Model)
+    {
+        if (m.ImageName != "Thumbnail")
+        {
+            <img src="/Documents/Images/@m.ImageLocation" class="img-responsive" style="width:100%;" />
+        }
+    }
+    <div class="row">
+        <div class="col-md-12">
+            <h4>Please post your message below:<br/></h4>
+            @if (Request.IsAuthenticated)
+            {
+<textarea id="txtcommentondrevita" class="form-control" placeholder="Please enter here" rows="4" style="width:100%;min-width:100%;">
+</textarea>
+            }
+            else
+            {
+                <p> Please login to comment <a href="/Account/Login">Click Here.</a></p>
+            }
+            <br />
+            @if (Request.IsAuthenticated)
+            {
+                <input type="button" id="btnsubmit" class="btn btn-primary" onclick="SubmitCommentOnDrEvita();" value="Send Comment" />
+            }
+        </div>
+    </div>
+    <div class="row" id="TotalCommentsData" style="margin-top:20px;">
+
+    </div>
+</div>
+<div class="modal fade" id="exampleModalCenter4">
+    <div class="modal-dialog" style="padding-top:10%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4>Reply On Comment</h4>
+
+            </div>
+            <div class="modal-body">
+
+                <textarea id="txtcommentbydrevita4" class="form-control" placeholder="Please enter here" rows="4" style="width:100%;min-width:100%;"></textarea>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+
+                <button type="button" class="btn btn-primary" onclick="SubmitCommentByDrEvita();">Submit</button>
+
+            </div>
+        </div>
+    </div>
+</div>

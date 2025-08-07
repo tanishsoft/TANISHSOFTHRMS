@@ -1,0 +1,141 @@
+﻿@{
+    ViewBag.Title = "FeedBack";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+        LoadLocations1();
+    });
+    function LoadLocations1() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#ddlLocation1").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadDepartment1() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetDepartmentByLocation",
+            data: "id=" + $("#ddlLocation1").val(),
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Department -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                }
+                $("#ddlDepartment1").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+
+
+    function SaveNewNotification() {
+        if (ValidateRequiredFieldsByClassName_GlobalJS("FeedBackRequiredData")) {
+            var tdata = {
+                LocationId: $("#ddlLocation1").val(),
+                LocationName: $("#ddlLocation1 option:selected").text(),
+                DepartmentId: $("#ddlDepartment1").val(),
+                DepartmentName: $("#ddlDepartment1 option:selected").text(),
+                PatientName: $("#PatientName").val(),
+                PatientId: $("#PatientId").val(),
+                FeedBack: $("#FeedBack").val(),
+                Rating: $("#Rating").val()
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Home/SaveNewFeedBack",
+                data: tdata,
+                success: function (data) {
+                    $("#myModal").modal("hide");
+                    datatablebind();
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+    }
+</script>
+<div class="row">
+    <div class="col-md-3">
+        &nbsp;
+    </div>
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">Feed Back</div>
+            <div class="panel-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Location<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select id="ddlLocation1" class="form-control FeedBackRequiredData" onchange="LoadDepartment1();">
+                            <option value="">Select</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Department</label></div>
+                    <div class="col-md-8">
+                        <select id="ddlDepartment1" class="form-control FeedBackRequiredData">
+                            <option value="">Select</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Patient Name<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <input type="text" id="PatientName" class="form-control FeedBackRequiredData" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Patient Id<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <input type="text" id="PatientId" class="form-control FeedBackRequiredData" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">FeedBack<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <textarea class="form-control FeedBackRequiredData" id="FeedBack"></textarea>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Rating<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <select id="Rating" class="form-control">
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;text-align:center;">
+                    <input type="button" id="btnasigntask" value="Save" class="btn btn-primary" onclick="SaveNewNotification();" />
+                    <button type="button" class="btn btn-default" onclick="ResetFieldsByClassName_GlobalJS('FeedBackRequiredData');">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        &nbsp;
+    </div>
+</div>

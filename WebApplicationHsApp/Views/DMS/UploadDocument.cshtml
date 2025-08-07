@@ -1,0 +1,339 @@
+﻿
+@{
+    ViewBag.Title = "UploadDocument";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+        $("#selUser").select2({
+            ajax: {
+                url: "/Home/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 4
+        });
+    });
+    function Onchangeloadprofile() {
+        $.get("/Home/GetEmployeeById?Userid=" + $("#selUser").val(), function (data) {
+            $("#profp_empname").html(data.FirstName + " " + data.LastName + "   " + data.EmpId);
+            $("#hidempid").val(data.EmpId);
+            //LoadDocuments(data.EmpId);
+            //checkImage("/Images/Employees/" + data.EmpId + ".jpg", function () {
+            //    $("#profp_img").attr("src", "/Images/Employees/" + data.EmpId + ".jpg");
+            //}, function () {
+            //    $("#profp_img").attr("src", "/Images/Employees/" + data.EmpId + ".png");
+            //});
+            $("#profp_designation").html(data.Designation);
+            $("#profp_location").html(data.LocationName);
+            $("#profp_dept").html(data.DepartmentName);
+            $("#profp_Email").html(data.EmailId);
+            $("#profp_Extenstion").html(data.Extenstion);
+            $("#profp_phone").html(data.CugNumber);
+            $("#moreabout").html("About");
+            $("#profp_DOJ").html(moment(data.DateOfJoining).format("DD/MM/YYYY"));
+        });
+    }
+    function SaveDocuments() {
+        var validate = true;
+        if ($("#selUser").val() == null || $("#selUser").val() == "") {
+            validate = false;
+        }
+        if (validate) {
+            var fileData = new FormData();
+            var files = new Array();
+            var fileUpload = $("#AnnualHealthCheck").get(0);
+            files = fileUpload.files;
+            for (var i = 0; i < files.length; i++) {
+                if (files[i] != null) {
+                    fileData.append("AnnualHealthCheck", files[i]);
+                }
+            }
+            var fileUpload1 = $("#PreEmploymentHealthCheck").get(0);
+            files = fileUpload1.files;
+            for (var i = 0; i < files.length; i++) {
+                if (files[i] != null) {
+                    fileData.append("PreEmploymentHealthCheck", files[i]);
+                }
+            }
+            var fileUpload2 = $("#BackgroundVerification").get(0);
+            files = fileUpload2.files;
+            for (var i = 0; i < files.length; i++) {
+                if (files[i] != null) {
+                    fileData.append("BackgroundVerification", files[i]);
+                }
+            }
+            var fileUpload3 = $("#TrainingRecords").get(0);
+            files = fileUpload3.files;
+            for (var i = 0; i < files.length; i++) {
+                if (files[i] != null) {
+                    fileData.append("TrainingRecords", files[i]);
+                }
+            }
+            var fileUpload4 = $("#Miscellaneous").get(0);
+            files = fileUpload4.files;
+            for (var i = 0; i < files.length; i++) {
+                if (files[i] != null) {
+                    fileData.append("Miscellaneous", files[i]);
+                }
+            }
+            var fileUpload5 = $("#ProbationandConfirmation").get(0);
+            files = fileUpload5.files;
+            for (var i = 0; i < files.length; i++) {
+                if (files[i] != null) {
+                    fileData.append("ProbationandConfirmation", files[i]);
+                }
+            }
+            var fileUpload6 = $("#Privileges").get(0);
+            files = fileUpload6.files;
+            for (var i = 0; i < files.length; i++) {
+                if (files[i] != null) {
+                    fileData.append("Privileges", files[i]);
+                }
+            }
+            var fileUpload7 = $("#PerformanceAppraisals").get(0);
+            files = fileUpload7.files;
+            for (var i = 0; i < files.length; i++) {
+                if (files[i] != null) {
+                    fileData.append("PerformanceAppraisals", files[i]);
+                }
+            }
+            var fileUpload8 = $("#AppointmentLetter").get(0);
+            files = fileUpload8.files;
+            for (var i = 0; i < files.length; i++) {
+                if (files[i] != null) {
+                    fileData.append("AppointmentLetter", files[i]);
+                }
+            }
+            var fileUpload9 = $("#JobDescription").get(0);
+            files = fileUpload9.files;
+            for (var i = 0; i < files.length; i++) {
+                if (files[i] != null) {
+                    fileData.append("JobDescription", files[i]);
+                }
+            }
+            var fileUpload10 = $("#JoiningReport").get(0);
+            files = fileUpload10.files;
+            for (var i = 0; i < files.length; i++) {
+                if (files[i] != null) {
+                    fileData.append("JoiningReport", files[i]);
+                }
+            }
+            var fileUpload11 = $("#Resume").get(0);
+            files = fileUpload11.files;
+            for (var i = 0; i < files.length; i++) {
+                if (files[i] != null) {
+                    fileData.append("Resume", files[i]);
+                }
+            }
+            var fileUpload12 = $("#Registrations").get(0);
+            files = fileUpload12.files;
+            for (var i = 0; i < files.length; i++) {
+                if (files[i] != null) {
+                    fileData.append("Registrations", files[i]);
+                }
+            }
+            var fileUpload13 = $("#QualificationCertificates").get(0);
+            files = fileUpload13.files;
+            for (var i = 0; i < files.length; i++) {
+                if (files[i] != null) {
+                    fileData.append("QualificationCertificates", files[i]);
+                }
+            }
+            var fileUpload14 = $("#ExperienceLetter").get(0);
+            files = fileUpload14.files;
+            for (var i = 0; i < files.length; i++) {
+                if (files[i] != null) {
+                    fileData.append("ExperienceLetter", files[i]);
+                }
+            }
+            var fileUpload15 = $("#AddressProof").get(0);
+            files = fileUpload15.files;
+            for (var i = 0; i < files.length; i++) {
+                if (files[i] != null) {
+                    fileData.append("AddressProof", files[i]);
+                }
+            }
+            var fileUpload16 = $("#PhotoGraph").get(0);
+            files = fileUpload16.files;
+            for (var i = 0; i < files.length; i++) {
+                if (files[i] != null) {
+                    fileData.append("PhotoGraph", files[i]);
+                }
+            }
+            fileData.append('Remarks', $("#Remarks").val());
+            fileData.append('EmpId', $("#hidempid").val());
+            fileData.append('IsActive', true);
+            $.ajax({
+                type: "POST",
+                url: "/DMS/SaveNewDocument",
+                contentType: false, // Not to set any content header
+                processData: false, // Not to process data
+                data: fileData,
+                success: function (result) {
+                    alert("Saved Successfully.");
+                    window.location.reload();
+                },
+                error: function (err) {
+                    alert(err.statusText);
+                    //clearData();
+                }
+            });
+        } else {
+            alert("Please enter all the required fields");
+        }
+    }
+    function clearData() {
+        $("#Name").val("");
+        $("#CategoryName").val("");
+        $("#Remarks").val("");
+        $("#UserDocuments").val("");
+    }
+</script>
+<input type="hidden" id="hidempid" />
+<div class="block" style="height:100%; border:solid 1px #eee;">
+    <h2 style="text-transform:none;">Upload Documents</h2>
+    <div class="top">
+        <h2 style="text-transform:none; text-align:center; background:white;color:steelblue;">Search <i class="fa fa-user" style="color:#2bbbad;" aria-hidden="true"></i> <select id="selUser" onchange="Onchangeloadprofile();" class="form-control typeahead border-primary" name="query" data-provide="typeahead" autocomplete="off"></select><a href="/HrAdmin/AddEmployee"><i class="fa fa-plus" style="cursor:pointer; color:#1A5089;font-size:20px;"></i></a></h2>
+    </div>
+    <div class="block-middle contact2" style="height:100%;">
+        <div class="user">
+            <table class="table table-bordered table-striped" style="width:100%;">
+                <tr>
+                    <td>
+                        <span id="profp_empname" style="color:#1A5089; text-align:center;float:inherit;"></span> <br>
+                        <strong style="color: #c4122f;" id="profp_designation"></strong>
+                    </td>
+                    <td>
+                        Location <br>
+                        <strong style="color: #c4122f;" id="profp_location"></strong>
+                    </td>
+                    <td>
+                        Department <br>
+                        <strong style="color: #c4122f;" id="profp_dept"></strong>
+                    </td>
+                    <td>
+                        CUG number <br>
+                        <strong style="color: #c4122f;" id="profp_phone"></strong>
+                    </td>
+
+                    <td>
+                        Extenstion <br>
+                        <strong style="color: #c4122f;" id="profp_Extenstion"></strong>
+                    </td>
+                    <td>
+                        Email <br>
+                        <strong style="color: #c4122f;" id="profp_Email"></strong>
+                    </td>
+                    <td>
+                        DOJ<br />
+                        <strong style="color: #c4122f;" id="profp_DOJ"></strong>
+                    </td>
+                </tr>
+            </table>
+            <div class="clearfix"></div>
+            <br />
+        </div>
+        <form>
+            <div class="modal-body">
+                <div class="row">
+                    @*<div class="col-md-12" style="padding:5px;">
+                        <span style="font-size:13px;color:darkviolet;"> Credentials</span>
+                    </div>*@
+                    <div class="col-md-4" style="padding:5px;">
+                        <span style="font-size:13px;color:#2BBBAD;">Annual Health Check</span>
+                        <input type="file" id="AnnualHealthCheck" name="AnnualHealthCheck" multiple />
+                    </div>
+                    <div class="col-md-4" style="padding:5px;">
+                        <span style="font-size:13px;color:#0099CC;">Pre-Employment Health Check</span>
+                        <input type="file" id="PreEmploymentHealthCheck" name="PreEmploymentHealthCheck" multiple />
+                    </div>
+                    <div class="col-md-4" style="padding:5px;">
+                        <span style="font-size:13px;color:#aa66cc;"> Background Verification</span>
+                        <input type="file" id="BackgroundVerification" name="BackgroundVerification" multiple />
+                    </div>
+                    <div class="col-md-4" style="padding:5px;">
+                        <span style="font-size:13px;color:#00695c;">Training Records</span>
+                        <input type="file" id="TrainingRecords" name="TrainingRecords" multiple />
+                    </div>
+                    <div class="col-md-4" style="padding:5px;">
+                        <span style="font-size:13px;color:#0d47a1;">Miscellaneous</span>
+                        <input type="file" id="Miscellaneous" name="Miscellaneous" multiple />
+                    </div>
+                    <div class="col-md-4" style="padding:5px;">
+                        <span style="font-size:13px;color:#bf360c;">Probation & Confirmation</span>
+                        <input type="file" id="ProbationandConfirmation" name="ProbationandConfirmation" multiple />
+                    </div>
+                    <div class="col-md-4" style="padding:5px;">
+                        <span style="font-size:13px;color:#c51162;">Privileges</span>
+                        <input type="file" id="Privileges" name="Privileges" multiple />
+                    </div>
+                    <div class="col-md-4" style="padding:5px;">
+                        <span style="font-size:13px;color:#64dd17;">Performance Appraisals</span>
+                        <input type="file" id="PerformanceAppraisals" name="PerformanceAppraisals" multiple />
+                    </div>
+                    <div class="col-md-4" style="padding:5px;">
+                        <span style="font-size:13px;color:#ff6f00;">Appointment Letter</span>
+                        <input type="file" id="AppointmentLetter" name="AppointmentLetter" multiple />
+                    </div>
+                    <div class="col-md-4" style="padding:5px;">
+                        <span style="font-size:13px;color:#00c853;">Job Description</span>
+                        <input type="file" id="JobDescription" name="JobDescription" multiple />
+                    </div>
+                    <div class="col-md-4" style="padding:5px;">
+                        <span style="font-size:13px;color:#1b5e20;">Joining Report</span>
+                        <input type="file" id="JoiningReport" name="JoiningReport" multiple />
+                    </div>
+                    <div class="col-md-4" style="padding:5px;">
+                        <span style="font-size:13px;color:#00b8d4;">Resume</span>
+                        <input type="file" id="Resume" name="Resume" multiple />
+                    </div>
+                    <div class="col-md-4" style="padding:5px;">
+                        <span style="font-size:13px;color:#827717;">Registrations</span>
+                        <input type="file" id="Registrations" name="Registrations" multiple />
+                    </div>
+
+                    <div class="col-md-4" style="padding:5px;">
+                        <span style="font-size:13px;color:#aa00ff;">Qualification Certificates</span>
+                        <input type="file" id="QualificationCertificates" name="QualificationCertificates" multiple />
+                    </div>
+
+                    <div class="col-md-4" style="padding:5px;">
+                        <span style="font-size:13px;color:#01579b;">Experience Letter</span>
+                        <input type="file" id="ExperienceLetter" name="ExperienceLetter" multiple />
+                    </div>
+                    <div class="col-md-4" style="padding:5px;">
+                        <span style="font-size:13px;color:#64ffda;">Address Proof</span>
+                        <input type="file" id="AddressProof" name="AddressProof" multiple />
+                    </div>
+                    <div class="col-md-4" style="padding:5px;">
+                        <span style="font-size:13px;color:crimson;"> Photo Graph</span>
+                        <input type="file" id="PhotoGraph" name="PhotoGraph" multiple />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name"> Remarks</label></div>
+                    <div class="col-md-8">
+                        <textarea type="text" class="form-control" id="Remarks" name="Remarks"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" onclick="SaveDocuments();" class="btn btn-primary" />
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </form>
+    </div>
+</div>

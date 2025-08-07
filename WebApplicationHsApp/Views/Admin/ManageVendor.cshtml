@@ -1,0 +1,469 @@
+﻿
+@{
+    ViewBag.Title = "ManageVendor";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    var validate = true;
+    $(document).ready(function () {
+        LoadData();
+    });
+    function LoadData() {
+        $('#tblvendor').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Admin/AjaxGetVendor",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "VendorId" },
+                { "sName": "Name" },
+                { "sName": "VendorType" },
+                { "sName": "Description" },
+                { "sName": "Address" },
+                { "sName": "PersonalMobile" },
+                { "sName": "OfficeNumber" },
+                { "sName": "Email" },
+                { "sName": "GSTNumber" },
+
+                { "sName": "IsActive" },
+                {
+                    "sName": "VendorId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        //return '<a href="javascript:void(0);" id="' + data + '" class="btn btn-success" onclick="Edit(this.id);"><span class="glyphicon glyphicon-edit"></span></a>&nbsp;' +
+                        //    '<a href="javascript:void(0);" id="' + data + '" class="btn btn-danger" onclick="Delete(this.id);"><span class="glyphicon glyphicon-trash"></span></a>';
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><a href="javascript:void(0);"  onclick="Edit(' + data + ')">Edit</a></li>' +
+                            '<li><a href="javascript:void(0);"  onclick="ActiveInActive(' + data + ')">Active/InActive</a></li>' +
+                            '<li><a href="javascript:void(0);"  onclick="Delete(' + data + ')">Delete</a></li>' +
+                            '<li><a href="javascript:void(0);"  onclick="ResetPassword(' + data + ')">Reset Password</a></li>' +
+                            '</ul></div>';
+                    }
+                }
+            ]
+        });
+        $("#tblvendor_length").addClass("col-md-6");
+        $("#tblvendor_length").addClass("col-md-6");
+    }
+    function ActiveInActive(id) {
+        if (confirm("Are you sure you want to change the status?")) {
+            $.get("/Admin/DeactiveVendor?id=" + id, function (data) {
+                alert(data);
+                LoadData();
+            });
+        }
+    }
+    function Edit(id) {
+        $("#EcId").val(id);
+        var Url = "/Admin/GetVendorbyid?VendorId=" + id;
+        $.ajax({
+            type: "GET",
+            url: Url,
+            success: function (data) {
+                $("#EditModel").modal('show');
+                var obj = data[0];
+                $("#EEmail").val(obj.Email);
+                $("#EPersonalMobile").val(obj.PersonalMobile);
+                $("#EOfficeNumber").val(obj.OfficeNumber);
+                $("#EAddress").val(obj.Address);
+                $("#EName").val(obj.Name);
+                $("#EDescription").val(obj.Description);
+                $("#EVendorType").val(obj.VendorType);
+            }
+        })
+    }
+    function OnclickCategory(Action) {
+        var Posturl; var task;
+        validateCategory(Action);
+        if (validate) {
+            if (Action == "save") {
+                Posturl = "/Admin/SaveVendor";
+                task = {
+                    Email: $("#Email").val(),
+                    Name: $("#Name").val(),
+                    Description: $("#Description").val(),
+                    VendorType: $("#VendorType").val(),
+                    Address: $("#Address").val(),
+                    OfficeNumber: $("#OfficeNumber").val(),
+                    PersonalMobile: $("#PersonalMobile").val(),
+                    GSTNumber: $("#GSTNumber").val(),
+                    CreatedBy: $("#PasswordToLogin").val(),
+                    IsActive: true
+                };
+            }
+            else if (Action == "Update") {
+                Posturl = "/Admin/UpdateVendor";
+                task = {
+                    VendorId: $("#EcId").val(),
+                    Email: $("#EEmail").val(),
+                    Name: $("#EName").val(),
+                    Description: $("#EDescription").val(),
+                    VendorType: $("#EVendorType").val(),
+                    Address: $("#EAddress").val(),
+                    OfficeNumber: $("#EOfficeNumber").val(),
+                    PersonalMobile: $("#EPersonalMobile").val(),
+                    GSTNumber: $("#EGSTNumber").val(),
+                    IsActive: true
+                };
+            }
+
+            $.ajax({
+                type: "POST",
+                url: Posturl,
+                data: task,
+                success: function (data) {
+                    if (Action == "save") {
+                        clearAll();
+                        $("#AddModel").modal('hide');
+                        console.log("Vendor added successfully")
+                    }
+                    else if (Action == "Update") {
+                        $("#EditModel").modal('hide');
+                        console.log("Vendor Updated successfully")
+                    }
+                    LoadData();
+
+                }
+            });
+        }
+    }
+    function validateCategory(Action) {
+        validate = true; var code = "";
+        if (Action == "Update") {
+            code = "E";
+        }
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#" + code + "Name").val() == "") {
+            $("#" + code + "Name").after('<span class="error" style="color:Red;">Enter Name</span>');
+            $("#" + code + "Name").addClass('css-error');
+            validate = false;
+        }
+        if ($("#" + code + "Description").val() == "") {
+            $("#" + code + "Description").after('<span class="error" style="color:Red;">Enter Description</span>');
+            $("#" + code + "Description").addClass('css-error');
+            validate = false;
+        }
+        if ($("#" + code + "Email").val() == "") {
+            $("#" + code + "Email").after('<span class="error" style="color:Red;">select Email</span>');
+            $("#" + code + "Email").addClass('css-error');
+            validate = false;
+        }
+        if ($("#" + code + "PersonalMobile").val() == "") {
+            $("#" + code + "PersonalMobile").after('<span class="error" style="color:Red;">enter mobile number</span>');
+            $("#" + code + "PersonalMobile").addClass('css-error');
+            validate = false;
+        }
+        //if ($("#" + code + "VendorType").val() == "") {
+        //    $("#" + code + "VendorType").after('<span class="error" style="color:Red;">select Vendor Type</span>');
+        //    $("#" + code + "VendorType").addClass('css-error');
+        //    validate = false;
+        //}
+    }
+    function clearAll() {
+        $("#Name").val("");
+        $("#Description").val("");
+        $("#Email").val("");
+        // $("#VendorType").val("");
+        $("#PersonalMobile").val("");
+        $("#Address").val("");
+        $('#OfficeNumber').val("");
+    }
+    var Delete = function (Id) {
+        debugger;
+
+        $("#Cid").val(Id);
+        $("#DeleteConfirmation").modal("show");
+    }
+    var ConfirmDelete = function () {
+        debugger;
+        var CId = $("#Cid").val();
+        $.ajax({
+            type: "POST",
+            url: "/Admin/DeleteVendor?id=" + CId,
+            success: function (result) {
+                $("#DeleteConfirmation").modal("hide");
+            }
+        })
+        LoadData();
+    }
+    function isNumber(evt) {
+
+        var iKeyCode = (evt.which) ? evt.which : evt.keyCode
+        if (iKeyCode != 46 && iKeyCode > 31 && (iKeyCode < 48 || iKeyCode > 57)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+    function ResetPassword(id) {
+        $("#Cid").val(id);
+        $("#ResetPasswordEmployeeModal").modal('show');
+    }
+
+    function UpdatePasswordToEmployee() {
+        if ($("#Password").val() == $("#ConfirmPassword").val()) {
+
+            var dataparam = {
+                id: $("#Cid").val(),
+                Password: $("#Password").val()
+            }
+            $.ajax({
+                type: "GET",
+                url: "/Account/UpdatePasswordFromAdminForVendor",
+                data: dataparam,
+                success: function (data) {
+
+                    $("#Password").val('');
+                    $("ConfirmPassword").val('');
+                    alert(data);
+                    $("#ResetPasswordEmployeeModal").modal('hide');
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        } else {
+            alert("Please Check Password and Confirm Password should be same");
+        }
+    }
+</script>
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">Manage Vendor<a href="#" data-toggle="modal" class="pull-right" data-target="#AddModel">New Vendor</a></div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblvendor">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Vendor Type</th>
+                    <th>Description</th>
+                    <th>Address</th>
+                    <th>Personal Mobile</th>
+                    <th>Office Number</th>
+                    <th>Email</th>
+                    <th>GST Number</th>
+                    <th>Is Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div id="AddModel" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="clearAll();">×</button>
+                <h4 class="modal-title">Add New</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Name<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="Name" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Email<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="Email" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Description<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <textarea class="form-control" id="Description"></textarea>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Address<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <textarea class="form-control" id="Address"></textarea>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Personal Mobile<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="PersonalMobile" autocomplete="off" onkeypress="javascript:return isNumber(event)">
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Office Number<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="OfficeNumber" autocomplete="off" onkeypress="javascript:return isNumber(event)">
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">GST Number</label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="GSTNumber" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Password To Login</label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="password" class="form-control" id="PasswordToLogin" autocomplete="off" />
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" onclick="OnclickCategory('save');" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearAll();">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="EditModel" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Update</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="EcId" />
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Name<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="EName">
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Email<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="EEmail">
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Description<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <textarea class="form-control" id="EDescription"></textarea>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Address</label></div>
+                    <div class="col-md-8">
+                        <textarea class="form-control" id="EAddress"></textarea>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">PersonalMobile<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="EPersonalMobile">
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">OfficeNumber</label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="EOfficeNumber">
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">GST Number</label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="EGSTNumber" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Update" onclick="OnclickCategory('Update');" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="modal fade" id="DeleteConfirmation">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4>Delete  Record</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" class="form-control" id="Cid">
+                <h4>Are You Sure? You Want To Delete This Record.</h4>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-primary" data-dismiss="modal" id="r">Cancel</a>
+                <a href="#" class="btn btn-danger" onclick="ConfirmDelete()">Confirm</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="ResetPasswordEmployeeModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Update Password</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-10">
+                        <table class="table" style="width:100%;">
+                            <tr>
+                                <td>New Password<span style="color:red;">*</span></td>
+                                <td>
+                                    <input type="password" class="form-control" id="Password" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Confirm Password<span style="color:red;">*</span></td>
+                                <td>
+                                    <input type="password" class="form-control" id="ConfirmPassword" />
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input class="btn btn-primary" type="button" value="Update Password" onclick="UpdatePasswordToEmployee();" />
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>

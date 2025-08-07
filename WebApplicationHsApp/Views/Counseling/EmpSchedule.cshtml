@@ -1,0 +1,507 @@
+﻿
+@{
+    ViewBag.Title = "EmpSchedule";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .weekDays-selector input {
+        display: none !important;
+    }
+
+        .weekDays-selector input[type=checkbox] + label {
+            display: inline-block;
+            border-radius: 6px;
+            background: #dddddd;
+            height: 40px;
+            width: 70px;
+            margin-right: 3px;
+            line-height: 40px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .weekDays-selector input[type=checkbox]:checked + label {
+            background: #c4122f;
+            color: #ffffff;
+        }
+</style>
+<script>
+    var Breakrow = "";
+    $(document).ready(function () {
+        $(".jquerydate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            Edit: false
+        });
+        LoadDoctors();
+        $('#divEmpSchedule').hide();
+        $('#tblEmpBreak').hide();
+
+    });
+    function LoadDoctors() {
+        //$.get("/Counseling/GetDoctors", function (data) {
+        //    var html = "<option value=''>Select Doctor</option>";
+        //    for (var i = 0; i < data.length; i++) {
+        //        html += "<option value='" + data[i].EmpId + "'>" + data[i].FirstName + "</option>";
+        //    }
+
+        //    $("#ddlemployee").html(html);
+        //});
+        var html = "<option value=''>Select Doctor</option>";
+        html += "<option value='98489'>Dr Kausar Shaik</option>";
+        html += "<option value='99491'>Ms. Saher Ali</option>";
+        html += "<option value='99857'>Dr Anita Rego</option>";
+        $("#ddlemployee").html(html);
+    }
+    function Convertstringtodate(selector) {
+        var from = $(selector).val().split("/")
+        return new Date(from[2], from[1] - 1, from[0])
+    }
+    function GetWeekdays(Date) {
+        var weekday = new Array(7);
+        weekday[0] = "Sunday";
+        weekday[1] = "Monday";
+        weekday[2] = "Tuesday";
+        weekday[3] = "Wednesday";
+        weekday[4] = "Thursday";
+        weekday[5] = "Friday";
+        weekday[6] = "Saturday";
+
+        var d = Date;
+        return weekday[d.getDay()];
+    }
+    function calcBusinessDays(frmdate, todate, WeekDays) {
+        if (frmdate > todate) return false;
+        var date = frmdate;
+        var dates = [];
+
+        while (date < todate) {
+            for (var i = 0; i < WeekDays.length; i++) {
+
+                if (date.getDay() == WeekDays[i])
+                    dates.push(new Date(date));
+            }
+            date.setDate(date.getDate() + 1);
+        }
+        return dates;
+    }
+    function loaddata() {
+        $(".css-error").removeClass('css-error');
+        var validate = validateEmpsch();
+
+        if (validate) {
+            var WeekDays = [];
+            $.each($("input[name='Weeks']:checked"), function () {
+                WeekDays.push($(this).val());
+            });
+            var dates = calcBusinessDays(Convertstringtodate('#txtfromdate'), Convertstringtodate('#txttodate'), WeekDays);
+            BindEmpSchedule(dates);
+        }
+
+    }
+    function validateEmpsch() {
+        var validate = true;
+        if ($('#ddlemployee').val() == "") {
+            $('#ddlemployee').addClass('css-error');
+            validate = false;
+        }
+        if ($('#txtfromdate').val() == "") {
+            $('#txtfromdate').addClass('css-error');
+            validate = false;
+        }
+        if ($('#txttodate').val() == "") {
+            $('#txttodate').addClass('css-error');
+            validate = false;
+        }
+        if ($('input[type=checkbox]:checked').length == 0) {
+            debugger;
+            $('.weekDays-selector').addClass('css-error');
+
+            validate = false;
+        }
+        return validate;
+    }
+
+    function BindEmpSchedule(Dates) {
+        debugger;
+
+
+        var row;
+        $.each(Dates, function (i, v) {
+            debugger;
+            var date = new Date(v);
+
+            var day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+            var month = date.getMonth() + 1 < 10 ? "0" + (date.getMonth() + 1) : (date.getMonth() + 1);
+            var year = date.getFullYear();
+            var date = day + "/" + month + "/" + year;
+            var timings = $("#ddlselectfromtimehour").val() + ":" + $("#ddlselectfromtimeMin").val() + ":00 to " + $("#ddlselecttotimehour").val() + ":" + $("#ddlselecttotimeMin").val() + ":00";
+            row += "<tr><td class='schdate'>" + date + "</td><td>" + timings + "</td><td>" + GetWeekdays(v) + "</td></tr>";
+        });
+        $("#tblEmpSchedule tbody").html(row);
+        $('#divEmpSchedule').show();
+    }
+
+    function BindEmpbreak() {
+        var table = document.getElementById("tblEmpBreak");
+        debugger;
+        var table_len = (table.rows.length);
+        var row = table.insertRow(table_len).outerHTML = "<tr class='datarow' id='row" + table_len + "'><td class='fromtime'>" + $("#brkfromtimehour").val() + ":" + $("#brkfromtimeMin").val() + "</td><td class='totime'>" + $("#brktotimehour").val() + ":" + $("#brktotimeMin").val() + "</td><td class='remarks'>" + $('#brkremarks').val() + "</td><td> <span class='glyphicon glyphicon-trash' style='color:red;cursor:pointer;' onclick='delete_row(" + table_len + ")'></span></td></tr>";
+
+        //var row;
+        //row += "<tr><td class='fromtime'>" + $("#brkfromtimehour").val() + ":" + $("#brkfromtimeMin").val() + "</td><td class='totime'>" + $("#brktotimehour").val() + ":" + $("#brktotimeMin").val() + "</td><td class='remarks'>" + $('#brkremarks').val() + "</td><td> <span class='glyphicon glyphicon-trash' style='color:red;cursor:pointer;' onclick='delete_row(" + table_len + ")'></span></td></tr>";
+        //$("#tblEmpBreak tbody").append(row);
+        $('#tblEmpBreak').show();
+    }
+    $(document).on('click', 'button.removebutton', function () {
+        $(this).closest('tr').remove();
+        return false;
+    });
+    function delete_row(no) {
+        document.getElementById("row" + no + "").outerHTML = "";
+        var table = document.getElementById("tblEmpBreak");
+
+        var table_len = (table.rows.length - 1);
+        if (table_len == 0) {
+            $('#tblEmpBreak').hide();
+        }
+    }
+    function SaveDeatils() {
+        debugger;
+        SaveEmpSchedule();
+    }
+    function SaveEmpSchedule() {
+        var data = [];
+        var empbreak = [];
+        $("#tblEmpSchedule tbody tr").each(function (index) {
+            data.push({
+                EmpId: $('#ddlemployee').val(),
+                DateOfSchedule: $(this).find('.schdate').text(),
+                FromTime: $("#ddlselectfromtimehour").val() + ":" + $("#ddlselectfromtimeMin").val(),
+                ToTime: $("#ddlselecttotimehour").val() + ":" + $("#ddlselecttotimeMin").val(),
+                SlotDuration: $('#txtslotduration').val(),
+                IsActive: true
+            });
+        });
+        $("#tblEmpBreak tbody tr").each(function (index) {
+            // remarks = $(this).find('.remarks').text();
+            if (index != 0) {
+                empbreak.push({
+                    ScheduleId: 0,
+                    EmpId: $('#ddlemployee').val(),
+                    FromTime: $(this).find('.fromtime').text(),
+                    ToTime: $(this).find('.totime').text(),
+                    IsActive: true
+                    //  remarks: remarks
+                });
+            }
+        });
+        debugger;
+        $.post("/Counseling/saveEmpSchedule", { Emp: data, Empbreak: empbreak }, function (res) {
+            debugger;
+        });
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading" style="font-weight:normal;">
+        <span class="glyphicon glyphicon-arrow-right"></span>&nbsp;Schedule
+    </div>
+    <div class="panel-body CpxNewRequest" style="min-height:500px;">
+        <div>
+            <div class="row">
+                <div class="col-md-3">
+                    Select Doctor:<br />
+                    <select class="form-control" id="ddlemployee">
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <div class="row">
+                        <div class="col-md-6">
+                            From Date:<br />
+                            <input type="text" autocomplete="off" class="form-control jquerydate" id="txtfromdate" />
+                        </div>
+                        <div class="col-md-3">
+                            Time:<br />
+                            <select class="form-control" id="ddlselectfromtimehour">
+                                <option value="01">1</option>
+                                <option value="02">2</option>
+                                <option value="03">3</option>
+                                <option value="04">4</option>
+                                <option value="05">5</option>
+                                <option value="06">6</option>
+                                <option value="07">7</option>
+                                <option value="08">8</option>
+                                <option value="09">9</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                                <option value="13">13</option>
+                                <option value="14">14</option>
+                                <option value="15">15</option>
+                                <option value="16">16</option>
+                                <option value="17">17</option>
+                                <option value="18">18</option>
+                                <option value="19">19</option>
+                                <option value="20">20</option>
+                                <option value="21">21</option>
+                                <option value="22">22</option>
+                                <option value="23">23</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <br />
+                            <select class="form-control" id="ddlselectfromtimeMin">
+                                <option value="00">00</option>
+                                <option value="05">05</option>
+                                <option value="10">10</option>
+                                <option value="15">15</option>
+                                <option value="20">20</option>
+                                <option value="25">25</option>
+                                <option value="30">30</option>
+                                <option value="35">35</option>
+                                <option value="40">40</option>
+                                <option value="45">45</option>
+                                <option value="50">50</option>
+                                <option value="55">55</option>
+                                <option value="60">60</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="row">
+                        <div class="col-md-6">
+                            To Date:<br />
+                            <input type="text" autocomplete="off" class="form-control jquerydate" id="txttodate" />
+                        </div>
+                        <div class="col-md-3">
+                            Time:<br />
+                            <select class="form-control" id="ddlselecttotimehour">
+                                <option value="01">1</option>
+                                <option value="02">2</option>
+                                <option value="03">3</option>
+                                <option value="04">4</option>
+                                <option value="05">5</option>
+                                <option value="06">6</option>
+                                <option value="07">7</option>
+                                <option value="08">8</option>
+                                <option value="09">9</option>
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12">12</option>
+                                <option value="13">13</option>
+                                <option value="14">14</option>
+                                <option value="15">15</option>
+                                <option value="16">16</option>
+                                <option value="17">17</option>
+                                <option value="18">18</option>
+                                <option value="19">19</option>
+                                <option value="20">20</option>
+                                <option value="21">21</option>
+                                <option value="22">22</option>
+                                <option value="23">23</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <br />
+                            <select class="form-control" id="ddlselecttotimeMin">
+                                <option value="00">00</option>
+                                <option value="05">05</option>
+                                <option value="10">10</option>
+                                <option value="15">15</option>
+                                <option value="20">20</option>
+                                <option value="25">25</option>
+                                <option value="30">30</option>
+                                <option value="35">35</option>
+                                <option value="40">40</option>
+                                <option value="45">45</option>
+                                <option value="50">50</option>
+                                <option value="55">55</option>
+                                <option value="60">60</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-1">
+                    Select Slot:<br />
+                    <select class="form-control" id="txtslotduration">
+                        <option value="05">05</option>
+                        <option value="10">10</option>
+                        <option value="15">15</option>
+                        <option value="20">20</option>
+                        <option value="25">25</option>
+                        <option value="30">30</option>
+                        <option value="35">35</option>
+                        <option value="40">40</option>
+                        <option value="45">45</option>
+                        <option value="50">50</option>
+                        <option value="55">55</option>
+                        <option value="60">60</option>
+                    </select>
+                </div>
+
+            </div>
+            <div class="row" style="padding:5px">
+                <div class="col-md-6">
+
+                    <div class="weekDays-selector " style="margin-left: 25px;">
+                        <label id="lblChoosedays"> Choose Days :</label>
+                        <input type="checkbox" id="weekday-sun" class="weekday" name="Weeks" value="0" />
+                        <label for="weekday-sun">Sunday</label>
+                        <input type="checkbox" id="weekday-mon" class="weekday" name="Weeks" value="1" />
+                        <label for="weekday-mon">Monday</label>
+                        <input type="checkbox" id="weekday-tue" class="weekday" name="Weeks" value="2" />
+                        <label for="weekday-tue">Tuesday</label>
+                        <input type="checkbox" id="weekday-wed" class="weekday" name="Weeks" value="3" />
+                        <label for="weekday-wed">Wednesday</label>
+                        <input type="checkbox" id="weekday-thu" class="weekday" name="Weeks" value="4" />
+                        <label for="weekday-thu">Thursday</label>
+                        <input type="checkbox" id="weekday-fri" class="weekday" name="Weeks" value="5" />
+                        <label for="weekday-fri">Friday</label>
+                        <input type="checkbox" id="weekday-sat" class="weekday" name="Weeks" value="6" />
+                        <label for="weekday-sat">Saturday</label>
+
+                    </div>
+                </div>
+                <div class="col-md-4" style="text-align:left; padding:5px">
+                    <input type="button" class="btn btn-primary" onclick="loaddata();" value="Go" />
+                </div>
+            </div>
+        </div>
+        <br />
+        <div style="padding:5px;" id="divEmpSchedule">
+            <table id="tblEmpSchedule" class="table table-striped text-center">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Timeings</th>
+                        <th>Day</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <br />
+        <div>
+            <div class="row">
+                <div class="col-md-1"><label style="color:crimson">Empoyee Break</label></div>
+                <div class="col-md-1" style="margin-left: 420px;">
+                    From Time:<br />
+                    <select class="form-control" id="brkfromtimehour">
+                        <option value="01">1</option>
+                        <option value="02">2</option>
+                        <option value="03">3</option>
+                        <option value="04">4</option>
+                        <option value="05">5</option>
+                        <option value="06">6</option>
+                        <option value="07">7</option>
+                        <option value="08">8</option>
+                        <option value="09">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                        <option value="16">16</option>
+                        <option value="17">17</option>
+                        <option value="18">18</option>
+                        <option value="19">19</option>
+                        <option value="20">20</option>
+                        <option value="21">21</option>
+                        <option value="22">22</option>
+                        <option value="23">23</option>
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <br />
+                    <select class="form-control" id="brkfromtimeMin">
+                        <option value="00">00</option>
+                        <option value="05">05</option>
+                        <option value="10">10</option>
+                        <option value="15">15</option>
+                        <option value="20">20</option>
+                        <option value="25">25</option>
+                        <option value="30">30</option>
+                        <option value="35">35</option>
+                        <option value="40">40</option>
+                        <option value="45">45</option>
+                        <option value="50">50</option>
+                        <option value="55">55</option>
+                        <option value="60">60</option>
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    To Time:<br />
+                    <select class="form-control" id="brktotimehour">
+                        <option value="01">1</option>
+                        <option value="02">2</option>
+                        <option value="03">3</option>
+                        <option value="04">4</option>
+                        <option value="05">5</option>
+                        <option value="06">6</option>
+                        <option value="07">7</option>
+                        <option value="08">8</option>
+                        <option value="09">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                        <option value="16">16</option>
+                        <option value="17">17</option>
+                        <option value="18">18</option>
+                        <option value="19">19</option>
+                        <option value="20">20</option>
+                        <option value="21">21</option>
+                        <option value="22">22</option>
+                        <option value="23">23</option>
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <br />
+                    <select class="form-control" id="brktotimeMin">
+                        <option value="00">00</option>
+                        <option value="05">05</option>
+                        <option value="10">10</option>
+                        <option value="15">15</option>
+                        <option value="20">20</option>
+                        <option value="25">25</option>
+                        <option value="30">30</option>
+                        <option value="35">35</option>
+                        <option value="40">40</option>
+                        <option value="45">45</option>
+                        <option value="50">50</option>
+                        <option value="55">55</option>
+                        <option value="60">60</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    Remarks
+                    <input type="text" id="brkremarks" class="form-control" />
+                </div>
+                <div class="col-md-1" style="text-align:left; padding:5px">
+                    <br />
+                    <input type="button" class="btn btn-primary" onclick="BindEmpbreak();" value="Go" />
+                </div>
+            </div>
+            <div>
+                <table id="tblEmpBreak" class="table table-striped text-center">
+                    <tr style="background-color:brown;color:white;">
+                        <th>From Time</th>
+                        <th>To Time</th>
+                        <th>Remarks</th>
+                        <th>Actions</th>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div>
+            <input type="button" value="Save" id="btnSave" class="btn btn-success float-right" onclick="SaveDeatils();" />
+        </div>
+    </div>
+
+</div>

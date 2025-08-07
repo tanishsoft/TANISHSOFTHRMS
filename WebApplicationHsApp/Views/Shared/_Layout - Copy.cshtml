@@ -1,0 +1,693 @@
+﻿@using WebApplicationHsApp.Models
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @*
+        <meta http-equiv="refresh" content="60" />*@
+    <title>@ViewBag.Title - Tanishsoft Hrms</title>
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/bootstrap")
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    @Scripts.Render("~/bundles/DataTables")
+    @Styles.Render("~/Content/DataTables")
+    @Scripts.Render("~/bundles/fullcalendar")
+    @Scripts.Render("~/bundles/highcharts")
+    @Scripts.Render("~/bundles/highchartsmodules")
+    @Scripts.Render("~/bundles/Customjs")
+    @Scripts.Render("~/Scripts/GlobalFunctionJS")
+    @Scripts.Render("~/Scripts/GlobalValidation_JS")
+    @Styles.Render("~/Content/BSFontAwesome")
+    @Styles.Render("~/Content/BSConfirmPopup_CSS")
+    @Styles.Render("~/Content/CustomCSS")
+    @Scripts.Render("~/Scripts/BSConfirmPopup_JS")
+    @Scripts.Render("~/Scripts/CustomConfirmBoxMethods_JS")
+    @Scripts.Render("~/Scripts/CustomDataTable_JS")
+    @Scripts.Render("~/Scripts/HOAnimation_JS")
+    @Styles.Render("~/Content/HOAnimation_CSS")
+    @Scripts.Render("~/Scripts/CustomAppadmin")
+    @*@Styles.Render("~/Content/CustomAdmincss")*@
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        .css-error {
+            border: 1px solid red;
+        }
+
+        .tnav .navbar .container {
+            height: 28px;
+        }
+
+        /* Dropdown Button */
+        .dropbtn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 4px;
+            font-size: 15px;
+            border: none;
+            border-radius: 5px;
+        }
+
+        /* The container <div> - needed to position the dropdown content */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+            /*float:right;*/
+        }
+
+        /* Dropdown Content (Hidden by Default) */
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f1f1f1;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+            /* Links inside the dropdown */
+            .dropdown-content a {
+                color: black;
+                padding: 8px 16px;
+                text-decoration: none;
+                display: block;
+            }
+
+                /* Change color of dropdown links on hover */
+                .dropdown-content a:hover {
+                    background-color: #ddd;
+                }
+
+        /* Show the dropdown menu on hover */
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        /* Change the background color of the dropdown button when the dropdown content is shown */
+        .dropdown:hover .dropbtn {
+            background-color: #3e8e41;
+        }
+
+        .dropdown-submenu {
+            position: relative;
+        }
+
+            .dropdown-submenu a::after {
+                transform: rotate(-90deg);
+                position: absolute;
+                right: 6px;
+                top: .8em;
+            }
+
+            .dropdown-submenu .dropdown-menu {
+                top: 0;
+                left: 100%;
+                margin-left: .1rem;
+                margin-right: .1rem;
+            }
+    </style>
+
+</head>
+<body>
+    @if (Request.IsAuthenticated)
+    {
+        <script>
+            $(document).ready(function () {
+                $.get("/Home/GetuserFname", function (data) {
+                    $("#Usernametoshow").html("Hello  &nbsp;" + data);
+                });
+            });
+        </script>
+    }
+    <div class="row">
+        <div class="col-md-3 hidden-xs logo" style="padding: 7px 4px !important;">
+            <a href="/Home/Index"><img src="/images/Fernandez_Foundation_Primary_Logo_2019.png" alt="" style="height: 85px;" /></a>
+        </div>
+        <div class="col-md-6 hidden-xs">
+            <marquee scrolldelay="100" scrollamount="4" onmouseover="this.stop()" onmouseout="this.start()"><h4 style="color: #c4122f">&nbsp;WELCOME TO THE NEW FERNANDEZ FOUNDATION INFONET. <a href="/Academics/NewsFromImages?path=Annual_Day">CLICK HERE</a> TO VIEW THE NEW YEAR PRAYER SERVICE VIDEO. WISHING EVERYONE A WONDERFUL NEW YEAR.</h4></marquee>
+        </div>
+        <div class="header-right">
+            <div class="social-icons">
+                @if (!Request.IsAuthenticated)
+                {
+                    <a href="/Account/Login" style="width:50px;color:white;">Login</a>
+                }
+                <a href="https://www.facebook.com/fernandez.hospital/timeline" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+                <a href="https://twitter.com/fernandezhospit" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+                <a href="http://blog.fernandezhospital.com/" target="_blank"><i class="fa fa-rss" aria-hidden="true"></i></a>
+                <a href="https://www.youtube.com/channel/UCNoFF657xw1TAwu46Xl8NBg" target="_blank"><i class="fa fa-youtube-play" aria-hidden="true"></i></a>
+                <div class="clearfix"></div>
+            </div>
+            <div class="search-container" style="width:300px;">
+                <form action="/action_page.php">
+                    <input type="text" style="max-width:100%;width:88%;" placeholder="Search.." name="search">
+                    <button type="submit"><i class="fa fa-search"></i></button>
+                </form>
+            </div>
+        </div>
+
+
+    </div>
+    @*<div class="row">
+            <div class="col-md-2 hidden-xs">
+                <a href="~/Home/Index"><img src="/Images/logo.png" alt="" style="width: 235px; height: 80px;" /></a>
+            </div>
+            @if (Request.IsAuthenticated)
+            {
+                <div class="col-md-8 hidden-xs" style="padding-left:30px;">
+                    <marquee scrolldelay="100" scrollamount="4" onmouseover="this.stop()" onmouseout="this.start()"><h4 style="color: red;font-family:Cambria;">&nbsp;WELCOME TO Tanishsoft Hrms</h4></marquee>
+                    <br />
+
+                    <a target="_blank" href="http://doctorsdis.fh.com/neosoft/" class="btn btn-success hidden-xs">DIS Login For Doctors</a>
+                    <a target="_blank" href="http://users.fh.com/neosoft/" class="btn btn-info hidden-xs">Shivam Login For User</a>
+                    <a target="_blank" href="http://opunits.fh.com/neosoft/" class="btn btn-warning hidden-xs">Shivam Login For OP-Units</a>
+                    <a target="_blank" href="https://files.fh.com" class="btn btn-primary">Own Cloud</a>
+                    <a target="_blank" href="http://172.16.0.66:8480/cdme/login/auth" class="btn btn-danger hidden-xs">Medical Records</a>
+                    <a href="/Hospital/NewJoiners" class="btn btn-info  hidden-xs">New Joinees</a>
+
+                    @if (Request.IsAuthenticated)
+                    {
+
+
+                        <div class="dropdown">
+                            <button class="dropbtn">Help</button>
+                            <div class="dropdown-content">
+                                @Html.ActionLink("User Login Help", "Index", "Help")
+                                @Html.ActionLink("HelpDesk User", "Helpdesk", "Help")
+                                @Html.ActionLink("Leave Management Manual", "UserLeave", "Help")
+                                @if (User.IsInRole("DepartmentManager") || User.IsInRole("HrAdmin") || User.IsInRole("Admin"))
+                                {
+                                    @Html.ActionLink("HOD Role Manual", "Hod", "Help")
+                                }
+                                @if (User.IsInRole("Admin") || User.IsInRole("HrAdmin"))
+                                {
+                                    @Html.ActionLink("HR Admin Role Manual", "HrAdmin", "Help")
+                                    @Html.ActionLink("Admin Role Manual", "Admin", "Help")
+
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="col-md-2">
+
+                    @Html.Partial("_LoginPartial")
+
+
+                </div>
+            }
+            else
+            {
+                <div class="col-md-10" style="padding-left:30px;">
+                    <marquee scrolldelay="100" class="hidden-xs" scrollamount="4" onmouseover="this.stop()" onmouseout="this.start()"><h4 style="color: red;font-family:Cambria;">&nbsp;WELCOME TO Tanishsoft Hrms</h4></marquee>
+                    <br />
+                    <a target="_blank" href="http://doctorsdis.fh.com/neosoft/" class="btn btn-success  hidden-xs">DIS Login For Doctors</a>
+                    <a target="_blank" href="http://users.fh.com/neosoft/" class="btn btn-info  hidden-xs">Shivam Login For User</a>
+                    <a target="_blank" href="http://opunits.fh.com/neosoft/" class="btn btn-warning  hidden-xs">Shivam Login For OP-Units</a>
+                    <a target="_blank" href="https://files.fh.com" class="btn btn-primary">Own Cloud</a>
+                    <a target="_blank" href="http://172.16.0.66:8480/cdme/login/auth" class="btn btn-default hidden-xs">Medical Records</a>
+                    <a href="/Hospital/NewJoiners" class="btn btn-info  hidden-xs">New Joinees</a>
+                    @Html.ActionLink("Intranet Login", "Login", "Account", routeValues: null, htmlAttributes: new { id = "loginLink", @class = "btn btn-danger" })
+
+                </div>
+
+            }
+
+        </div>*@
+
+    <div class="navbar navbar-default">
+
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav" id="ulmenumgr">
+                <li><a href="~/Home/Index"><span class='glyphicon glyphicon-home'></span></a></li>
+                @*<li>@Html.ActionLink("About Us", "About", "Home")</li>
+                    <li><a href="~/Hospital/OurBrand"> Our Brand</a></li>*@
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">HR Info<span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu" id="menuFacilities">
+                        <li>@Html.ActionLink("Training Calendar", "HRTrainingCalendar", "Hospital")</li>
+                        <li>@Html.ActionLink("Holidays", "Holidays", "Hospital")</li>
+                        <li>@Html.ActionLink("HR Notification", "HRNotification", "Hr")</li>
+                        <li><a class="dropdown-item" href="#">Job Opportunities</a></li>
+                        <li class="dropdown-submenu">
+                            <a class="dropdown-item dropdown-toggle" href="#">Policies <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li>@Html.ActionLink("Leave Policy", "LeavePolicy", "Hospital")</li>
+                                <li>@Html.ActionLink("Grievance Policy", "GrievancePolicy", "Hospital")</li>
+                                <li>@Html.ActionLink("Recruitment Policy", "RecruitmentPolicy", "Hospital")</li>
+                                <li>@Html.ActionLink("Sexual Harassment Redressal Policy", "SexualHarassmentPolicy", "Hospital")</li>
+                                <li>@Html.ActionLink("Employee Hand Book", "EmployeeHandBook", "Hospital")</li>
+                                <li>@Html.ActionLink("Training Policy", "TrainingPolicy", "Hospital")</li>
+                                <li>@Html.ActionLink("Induction Policy", "InductionPolicy", "Hospital")</li>
+                                <li>@Html.ActionLink("Disciplinary Policy", "DisciplinaryPolicy", "Hospital")</li>
+                                <li>@Html.ActionLink("Annual Health Checkup", "AnnualHealthCheckup", "Hospital")</li>
+                                <li>@Html.ActionLink("Performance Appraisal", "PerformanceAppraisal", "Hospital")</li>
+                                <li>@Html.ActionLink("Referral Bonus Policy", "ReferralBonusPolicy", "Hospital")</li>
+                                <li>@Html.ActionLink("Recognition and Reward Policy", "RecognitionAndReward", "Hospital")</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                @*<li>@Html.ActionLink("Events", "NewsLetters", "Hospital")</li>*@
+                <li><a href="~/Academics/Videos">Academics</a></li>
+
+                @*<li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="http://example.com" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            Dropdown link
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <li><a class="dropdown-item" href="#">Action</a></li>
+                            <li><a class="dropdown-item" href="#">Another action</a></li>
+                            <li class="dropdown-submenu">
+                                <a class="dropdown-item dropdown-toggle" href="#">Submenu</a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#">Submenu action</a></li>
+                                    <li><a class="dropdown-item" href="#">Another submenu action</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>*@
+                @if (Request.IsAuthenticated)
+                {
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Help Desk <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu" id="menuHospital">
+                            <li>@Html.ActionLink("Help Desk", "MyTask", "Home")</li>
+                            <li>@Html.ActionLink("Conference Booking", "BookRoom", "Calender")</li>
+                            <li>@Html.ActionLink("Book Vehicle", "NewVehicleRequest", "Vehicle")</li>
+                            <li>@Html.ActionLink("My Booking Requests", "myvechiclerequests", "Vehicle")</li>
+                            @if (User.IsInRole("SecurityTeam"))
+                            {
+                                <li>@Html.ActionLink("View Vehicle Bookings", "ViewVehicleRequest", "Vehicle")</li>
+                            }
+                            @if (User.Identity.Name.ToLower() == "fh_900305")
+                            {
+                                <li>@Html.ActionLink("Approve Bookings", "AdminApproval", "Vehicle")</li>
+                            }
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li>@Html.ActionLink("Vehicle Admin Settings", "AdminSetting", "Vehicle")</li>
+                                <li>@Html.ActionLink("View Vehicle Bookings", "ViewVehicleRequest", "Vehicle")</li>
+                                <li>@Html.ActionLink("Approve Bookings", "AdminApproval", "Vehicle")</li>
+                            }
+                        </ul>
+                    </li>
+                }
+                @*@if (User.IsInRole("Admin") || User.IsInRole("Employee") || User.IsInRole("Doctor") || User.IsInRole("HrAdmin"))
+                    {
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Leaves <span class="caret"></span></a>
+                            <ul class="dropdown-menu" role="menu" id="menuHR">
+                                <li>@Html.ActionLink("Leave Management", "LeaveManagement", "Hr")</li>
+                                    <li>@Html.ActionLink("Leave Policy", "LeavePolicy", "Hospital")</li>
+
+                                <li>@Html.ActionLink("View Duty Roster", "ViewDutyRoster", "Hr")</li>
+                                @if (User.IsInRole("Admin") || User.IsInRole("DepartmentManager") || User.IsInRole("SubDepartmentManager"))
+                                {
+                                    <li>@Html.ActionLink("Edit Duty Roster", "EditDutyRoster", "Hr")</li>
+                                }
+                                <li>@Html.ActionLink("My Attendance", "Index", "Attendance")</li>
+
+                                    <li>@Html.ActionLink("My Leaves", "MyLeaves", "Hr")</li>
+                                    <li>@Html.ActionLink("My TimeTrack", "MyTimeTrack", "Hr")</li>
+                                @if (User.IsInRole("Admin") || User.IsInRole("DepartmentManager"))
+                                {
+                                    <li>@Html.ActionLink("Dashboard", "Index", "Manager")</li>
+                                    <li>@Html.ActionLink("Employees", "MyEmployees", "Manager")</li>
+                                    <li>@Html.ActionLink("Available Leave Count", "ViewLeaveBalances", "Manager")</li>
+                                    <li>@Html.ActionLink("Employee Leaves", "MyEmployeeLeaves", "Manager")</li>
+                                    <li>@Html.ActionLink("Employee Permissions", "MyEmployeePermissions", "Manager")</li>
+                                    <li>@Html.ActionLink("Employee CompOffRequests", "EmployeeCompOffRequests", "Manager")</li>
+                                    <li>@Html.ActionLink("Employees Attendance", "Manager", "Attendance")</li>
+                                }
+
+                            </ul>
+                        </li>
+                    }*@
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Case Sheet <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu" id="menuFacilitiesNABH1">
+                        <li>@Html.ActionLink("Data / Case Sheet Retrieval", "CaseSheetRetrival", "Hospital")</li>
+                        @if (User.Identity.Name.ToLower() == "fh_900074" || User.Identity.Name.ToLower() == "fh_3743" || User.Identity.Name.ToLower() == "fh_1539" || User.IsInRole("Admin"))
+                        {
+                            if (User.Identity.Name.ToLower() == "fh_3743" || User.Identity.Name.ToLower() == "fh_1539" || User.Identity.Name.ToLower() == "fh_1015" || User.IsInRole("Admin"))
+                            {
+                                <li><a href="~/Hospital/ViewCaseSheetRetrival">View Case Sheets</a></li>
+                            }
+                            if (User.Identity.Name.ToLower() == "fh_900074" || User.IsInRole("Admin"))
+                            {
+                                <li><a href="~/Hospital/ManageSheetRetrival">Manage Case Sheets</a></li>
+                            }
+                            if (User.IsInRole("Admin"))
+                            {
+                                <li><a href="~/Hospital/CaseSheetAdminSettings">Case Sheet Admin Settings</a></li>
+                            }
+                        }
+                    </ul>
+                </li>
+                <li><a href="~/Hospital/ProtocolView?name=IRB&PageName=IRB">IRB</a></li>
+                @if (Request.IsAuthenticated)
+                {
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Other Modules <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            @if (User.IsInRole("Admin") || User.Identity.Name.ToLower() == "fh_1")
+                            {
+                                <li>@Html.ActionLink("Track Videos", "MDTrackonVideos", "Academics")</li>
+                            }
+                            @if (User.IsInRole("Admin") || User.IsInRole("VideoTraining"))
+                            {
+                                <li>@Html.ActionLink("Midwife Training", "MidwifeTraining", "Academics")</li>
+                            }
+                            @if (User.IsInRole("Admin") || User.Identity.Name.ToLower() == "fh_3443" || User.Identity.Name.ToLower() == "fh_3397" || User.Identity.Name.ToLower() == "fh_2870" || User.Identity.Name.ToLower() == "fh_1344")
+                            {
+                                <li>@Html.ActionLink("Manage Videos", "ManageVideos", "Academics")</li>
+                            }
+                            @if (User.Identity.Name.ToLower() == "fh_1")
+                            {
+                                <li>@Html.ActionLink("MD Message Replay", "MDMessageReplay", "ContentManage")</li>
+                            }
+                            else
+                            {
+                                <li>@Html.ActionLink("MD Messages", "MDMessages", "ContentManage")</li>
+                            }
+                            @if (User.IsInRole("NicuDrug"))
+                            {
+                                <li>@Html.ActionLink("Manage Nicu Drug", "ManageNicuDrug", "Hospital")</li>
+                            }
+
+                            <li><a href="~/Task/Index">Dashboard</a></li>
+                            <li><a href="~/Task/AdminTrackerMaster">Manage Tracker</a></li>
+                            <li><a href="~/Masters/Category">Manage Category</a></li>
+
+                            @*<li><a href="~/EventMaster/ManageDelegate">Manage Delegate</a></li>*@
+                            <li><a href="~/Hospital/EmrEntry"> Emr Entry</a></li>
+                            <li><a href="~/Hospital/ApproveEmrEntry"> Approve EmrEntry</a></li>
+
+
+                            <li class="dropdown-submenu">
+                                <a class="dropdown-item dropdown-toggle" href="#">New User Request <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="~/NewUserRequest/Index">New User Request Access</a></li>
+                                    <li><a class="dropdown-item" href="~/NewUserRequest/MyApproval"> Approve New User Request</a></li>
+                                    <li><a class="dropdown-item" href="~/NewUserRequest/RequestSupport">Request Support</a></li>
+                                    <li><a class="dropdown-item" href="~/NewUserRequest/MyRequests">My Requests</a></li>
+                                </ul>
+                            </li>
+                            <li class="dropdown-submenu">
+                                <a class="dropdown-item dropdown-toggle" href="#">Event <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="~/Event/AddEvent">Create Event</a></li>
+                                    <li><a class="dropdown-item" href="~/Event/EventDetails">Event Details</a></li>
+                                    <li><a class="dropdown-item" href="~/Event/Index">Register Delegate</a></li>
+                                    <li><a class="dropdown-item" href="~/EventMaster/ManageMealType">Manage MealType</a></li>
+                                    <li><a class="dropdown-item" href="~/EventMaster/ManagePaymentType">Manage PaymentType</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                }
+
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">NABH <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu" id="menuFacilitiesNABH">
+                        <li><a href="~/Hospital/ProtocolView?name=FH - Bogulkunta&PageName=NABH">FH - Bogulkunta Manuals</a></li>
+                        <li><a href="~/Hospital/ProtocolView?name=FH - Hyderguda&PageName=NABH">FH - Hyderguda Manuals</a></li>
+                        <li><a href="~/Hospital/ProtocolView?name=FH - Common Manuals&PageName=NABH">FH - Common Manuals</a></li>
+                        <li><a href="~/Hospital/ProtocolView?name=FH - Stork Home Manuals&PageName=NABH">FH - Stork Home Manuals</a></li>
+                        <li><a href="~/Hospital/ProtocolView?name=Training Topics&PageName=NABH">Training Topics</a></li>
+                        <li><a href="~/Hospital/ProtocolView?name=Important Forms&PageName=NABH">Important Forms</a></li>
+                        <li><a href="~/Hospital/ProtocolView?name=Important_Information&PageName=NABH">Important Information</a></li>
+                        <li><a href="~/Hospital/ProtocolView?name=Bi-LingualConsents-Telugu&PageName=NABH">Telugu</a></li>
+                        <li><a href="~/Hospital/ProtocolView?name=Bi-LingualConsents-Urdu&PageName=NABH">Urdu</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Protocol <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu" id="menuFacilitiesProtocol">
+                        <li><a href="~/Hospital/ProtocolView?name=Obstetrics&PageName=Protocol">Obstetrics</a></li>
+                        <li><a href="~/Hospital/ProtocolView?name=Gynaecology&PageName=Protocol">Gynaecology</a></li>
+                        <li><a href="~/Hospital/ProtocolView?name=FMU&PageName=Protocol">FMU</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown navbar-right">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Contact Info <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu" id="menuHospital">
+                        <li>@Html.ActionLink("Extension Numbers", "ExtensionNumbers", "Home")</li>
+                        <li>@Html.ActionLink("CUG Numbers", "CUGNumbers", "Home")</li>
+                        <li>@Html.ActionLink("Employee Search", "EmployeeSearch", "Home")</li>
+
+                    </ul>
+                </li>
+
+                <li class="dropdown navbar-right">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Applications <span class="caret"></span></a>
+                    <ul class="dropdown-menu" role="menu" id="menuHospital">
+                        @*<li>@Html.ActionLink("Extension Numbers", "ExtensionNumbers", "Home")</li>
+                            <li>@Html.ActionLink("CUG Numbers", "CUGNumbers", "Home")</li>*@
+                        <li> <a target="_blank" href="http://doctorsdis.fh.com/neosoft/">Shivam Login For Doctors</a></li>
+                        <li>
+                            <a target="_blank" href="http://users.fh.com/neosoft/">Shivam Login For User</a>
+                        </li>
+
+                        <li> <a target="_blank" href="http://opunits.fh.com/neosoft/">Shivam Login For OP-Units</a></li>
+                        <li> <a target="_blank" href="http://test.fh.com/neosoft/">Shivam Login For Testing</a></li>
+                        <li> <a target="_blank" href="https://files.fh.com/index.php/login">Login for Own Cloud</a></li>
+                        <li> <a target="_blank" href="http://172.16.0.66:8480/cdme/login/auth">Login for Medical Records</a></li>
+                    </ul>
+                </li>
+
+                @if (User.IsInRole("Admin") || User.IsInRole("HrAdmin"))
+                {
+                    <li class="dropdown navbar-right">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Hr Admin <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li>@Html.ActionLink("Dashboard", "Index", "HrAdmin")</li>
+                            <li>@Html.ActionLink("All Insurance renewal Nominations", "ViewEmployeeDetails", "Hr")</li>
+                            <li>@Html.ActionLink("Employee Leaves", "EmployeeLeaves", "HrAdmin")</li>
+                            <li>@Html.ActionLink("Leave Applications", "LeaveApplications", "HrAdmin")</li>
+                            <li>@Html.ActionLink("View Permissions", "ViewPermissions", "HrAdmin")</li>
+                            <li>@Html.ActionLink("View All CompOffs", "HrViewCompOff", "HrAdmin")</li>
+                            <li>@Html.ActionLink("View DutyRoster", "ViewDutyRoster", "HrAdmin")</li>
+                            <li>@Html.ActionLink("Add Employee", "AddEmployee", "HrAdmin")</li>
+                            <li>@Html.ActionLink("Manage Employees", "ManageEmployees", "HrAdmin")</li>
+                            <li>@Html.ActionLink("Leaves Count Report", "EmployeeLeaves", "Report")</li>
+                            @*<li>@Html.ActionLink("Inactive Employees", "InactiveEmployees", "Hr")</li>*@
+                            <li>@Html.ActionLink("Employees Attendance", "HR", "Attendance")</li>
+                            <li>@Html.ActionLink("Manage ShiftTypes", "ManageShiftTypes", "HrAdmin")</li>
+                            @*
+                                <li>@Html.ActionLink("TimeTrack", "TimeTrack", "HrAdmin")</li>*@
+
+                            <li>@Html.ActionLink("Manage ReportingManagers", "ManageReportingManagers", "HrAdmin")</li>
+                            <li>@Html.ActionLink("Department Vs ShiftType", "ManageDepartmentVsShiftType", "Admin")</li>
+                            <li>@Html.ActionLink("Manage Department", "ManageDepartment", "Admin")</li>
+                            <li>@Html.ActionLink("Sub Department", "ManageSubDepartment", "Admin")</li>
+                            <li>@Html.ActionLink("Manage Designation", "ManageDesignation", "Admin")</li>
+                            <li>@Html.ActionLink("Leave Types", "LeaveTypes", "HrAdmin")</li>
+                            <li>@Html.ActionLink("Leave Types Vs Roles", "LeaveTypeVsRole", "HrAdmin")</li>
+                            <li>@Html.ActionLink("CompOff Encash", "HrViewCompOffEncash", "HrAdmin")</li>
+                            <li>@Html.ActionLink("View Reporting Employees", "ViewReportingEmployees", "HrAdmin")</li>
+                        </ul>
+                    </li>
+
+                }
+                @if (User.IsInRole("Admin"))
+                {
+                    <li class="dropdown navbar-right">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false"> Admin <span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu">
+                            <li>@Html.ActionLink("Manage Location", "ManageLocation", "Admin")</li>
+                            <li>@Html.ActionLink("Manage Department", "ManageDepartment", "Admin")</li>
+                            <li>@Html.ActionLink("Manage Group", "ManageGroup", "Admin")</li>
+                            @*<li>@Html.ActionLink("Manage Building", "ManageBuilding", "Admin")</li>*@
+                            @*<li>@Html.ActionLink("Manage Floor", "ManageFloor", "Admin")</li>
+                                <li>@Html.ActionLink("Manage Room", "ManageRoom", "Admin")</li>
+                                <li>@Html.ActionLink("Manage Place", "ManagePlace", "Admin")</li>*@
+                            <li>@Html.ActionLink("Manage Page", "ManagePage", "Admin")</li>
+                            <li>@Html.ActionLink("Manage Settings", "ManageSettings", "Admin")</li>
+                            <li>@Html.ActionLink("Sub Department", "ManageSubDepartment", "Admin")</li>
+                            <li>@Html.ActionLink("Manage Designation", "ManageDesignation", "Admin")</li>
+                            <li>@Html.ActionLink("Manage CUG List", "Index", "tbl_CugList")</li>
+                            <li>@Html.ActionLink("Extension No List", "Index", "tbl_LocationList")</li>
+                            <li>@Html.ActionLink("Add OutSource", "AddOutSource", "Admin")</li>
+                            <li>@Html.ActionLink("Manage OutSource", "ManageOutSource", "Admin")</li>
+                            @*<li>@Html.ActionLink("Manage Drug", "ManageDrug", "Admin")</li>*@
+                            <li>@Html.ActionLink("Manage Category", "ManageCategory", "Admin")</li>
+                            <li>@Html.ActionLink("Category Vs Department", "ManageCategoryDepartment", "Admin")</li>
+                            @*<li>@Html.ActionLink("Manage Nicu Drug", "ManageNicuDrug", "Hospital")</li>*@
+
+                            <li>@Html.ActionLink("Manage Vendor", "ManageVendor", "Admin")</li>
+                            <li>@Html.ActionLink("Manage Purchase", "Purchase", "Purchase")</li>
+                            <li>@Html.ActionLink("Manage Asset Type", "AssetTypeMaster", "Asset")</li>
+                            <li>@Html.ActionLink("Manage Asset", "NewAssetMaster", "Asset")</li>
+                            <li>@Html.ActionLink("User vs Asset", "UserAssetMaster", "Asset")</li>
+
+                        </ul>
+                    </li>
+                }
+
+                @Html.Partial("_LoginPartial")
+
+                @*<li class="navbar-right"></li>*@
+
+
+                @if (Request.IsAuthenticated && User.IsInRole("OutSource"))
+                {
+                    <li>@Html.ActionLink("Help Desk", "MyTask", "Home")</li>
+                    <li class="navbar-right">@Html.ActionLink("My Profile", "MyProfile", "Home")</li>
+                }
+                @if (User.IsInRole("Admin") || User.IsInRole("VideoTraining"))
+                {
+                    <li>@Html.ActionLink("Midwife Training", "MidwifeTraining", "Academics")</li>
+                }
+                @if (User.IsInRole("Admin") || User.Identity.Name.ToLower() == "fh_1")
+                {
+                    <li>@Html.ActionLink("Track Videos", "MDTrackonVideos", "Academics")</li>
+                }
+                @if (User.IsInRole("Admin") || User.Identity.Name.ToLower() == "fh_3443" || User.Identity.Name.ToLower() == "fh_3397" || User.Identity.Name.ToLower() == "fh_2870" || User.Identity.Name.ToLower() == "fh_1344" || User.Identity.Name.ToLower() == "fh_1539")
+                {
+                    <li>@Html.ActionLink("Manage Videos", "ManageVideos", "Academics")</li>
+                }
+
+            </ul>
+            @if (Request.IsAuthenticated)
+            {
+                if (User.IsInRole("Admin"))
+                {
+                    <input type="hidden" id="LoginEmployeeType" value="Admin" />
+                }
+                else if (User.IsInRole("DepartmentManager"))
+                {
+                    <input type="hidden" id="LoginEmployeeType" value="Manager" />
+                }
+                else if (User.IsInRole("Employee"))
+                {
+                    <input type="hidden" id="LoginEmployeeType" value="Employee" />
+                }
+                else if (User.IsInRole("OutSource"))
+                {
+                    <input type="hidden" id="LoginEmployeeType" value="OutSource" />
+                }
+
+
+
+            }
+
+
+
+        </div>
+        @*
+            </div>*@
+    </div>
+    <div class="body-content">
+        @*@if(Request.IsAuthenticated)
+            {
+            <h4> Location Id : @AppUserDetails.Get(User.Identity.Name+AppCookieKey.LocationId) </h4>
+            }*@
+        @RenderBody()
+
+        <footer class="footer">
+            <p>© @DateTime.Now.Year - Fernandez Foundation</p>
+            @*<a href="#">View more opportunities</a>*@
+            <div class="clearfix"></div>
+        </footer>
+    </div>
+    @*@if (Request.IsAuthenticated && Session["LogDuration"] != null)
+        {
+        <input type="hidden" id="hdnduration" value="@Session[" LogDuration"].ToString()" />
+        <script>
+                        $(document).ready(function () {
+                            var a = $("#hdnduration").val();
+                            var b = a.split(":");
+                            $("#duration").text(b[0] + ":" + b[1]);
+                            UpdateLogduration();
+                        });
+                        function UpdateLogduration() {
+                            $.ajax({
+                                type: "POST",
+                                url: "/Home/RefreshTimeLog",
+                                //data: "id=" + $("#ddlDepartment1").val(),
+                                success: function (data) {
+                                    console.log(data);
+                                }
+                            });
+                        }
+
+        </script>
+        }*@
+
+    <script>
+        $(document).ready(function () {
+            GetMenuPages();
+        });
+        function GetMenuPages() {
+            $.ajax({
+                type: "GET",
+                url: "/Common/GetMenuPages",
+                //data: "id=" + id,
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        var menuid = "#" + data[i].MenuId;
+                        if (data[i].MenuId == "menuOthers") {
+                            var actionlink = "<li><a href='/Home/Page/" + data[i].PageId + "'> " + data[i].PageName + "</a></li>";
+                            $("#ulmenumgr").append(actionlink);
+                        } else {
+                            var actionlink = "<li><a href='/Home/Page/" + data[i].PageId + "'> " + data[i].PageName + "</a></li>";
+                            $(menuid).append(actionlink);
+                        }
+                    }
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+
+    </script>
+
+    @Scripts.Render("~/Scripts/GlobalValidation_JS")
+    @Scripts.Render("~/Scripts/GlobalFunctionJS")
+    @Scripts.Render("~/Scripts/GlobalValidation_JS")
+    @Scripts.Render("~/Scripts/BSConfirmPopup_JS")
+    @Scripts.Render("~/Scripts/CustomConfirmBoxMethods_JS")
+    @Scripts.Render("~/Scripts/CustomDataTable_JS")
+    @RenderSection("scripts", required: false)
+
+    @{
+        TimeZoneInfo timeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById("India Standard Time");
+        DateTime ToDayDate_DateTimeFormat_1 = TimeZoneInfo.ConvertTime(DateTime.Now, timeZoneInfo);
+        string ToDayDate_StringFormat_1 = ToDayDate_DateTimeFormat_1.ToString("dd/MM/yyyy");
+        string ToDayDate_StringFormat_2 = ToDayDate_DateTimeFormat_1.ToString("MM,dd,yyyy");
+        <input type="hidden" value="@ToDayDate_StringFormat_1" id="_LayOutHiddenDateFormat_1" />
+        <input type="hidden" value="@ToDayDate_StringFormat_2" id="_LayOutHiddenDateFormat_2" />
+    }
+    @*<label>@ToDayDate_DateTimeFormat_1</label>*@
+    <script>
+        $('.hero-btn').mousemove(function () {
+            if (!$('.hero-btn').parent().hasClass('active')) {
+                $(this).parent().stop().addClass('active');
+                setTimeout(function () {
+                    $('.hero-btn').parent().removeClass('active');
+                }, 2000);
+            }
+        });
+        $('.dropdown-menu a.dropdown-toggle').on('click', function (e) {
+            if (!$(this).next().hasClass('show')) {
+                $(this).parents('.dropdown-menu').first().find('.show').removeClass("show");
+            }
+            var $subMenu = $(this).next(".dropdown-menu");
+            $subMenu.toggleClass('show');
+
+
+            $(this).parents('li.nav-item.dropdown.show').on('hidden.bs.dropdown', function (e) {
+                $('.dropdown-submenu .show').removeClass("show");
+            });
+
+
+            return false;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,97 @@
+﻿
+@{
+    ViewBag.Title = "BrandTemplates";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<style>
+
+
+    .image {
+        /*opacity: 1;
+        display: block;
+        width: 100%;
+        height: auto;*/
+        transition: .5s ease;
+        backface-visibility: hidden;
+    }
+
+    .middle {
+        transition: .5s ease;
+        opacity: 0;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+        text-align: center;
+    }
+
+    .divcontainer:hover .image {
+        opacity: 0.3;
+    }
+
+    .divcontainer:hover .middle {
+        opacity: 1;
+    }
+
+    .text {
+        background-color: #4CAF50;
+        color: white;
+        font-size: 16px;
+        padding: 16px 32px;
+        cursor: pointer;
+    }
+</style>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title"><a href="/Hospital/OurBrand" style="color:gray;">Go Back</a> Brand Templates</h3>
+    </div>
+    <div class="panel-body" style="text-align:center;min-height:450px;">
+        <div class="block-middle brand">
+            <div class="row">
+                <div class="col-md-3 divcontainer" style="text-align:center; height:225px;">
+                    <img src="~/Images/Fernandez.png" class="image" style="width:200px; height:200px; border-radius:60px;" />
+                    <a href="~/Documents/PPT_Template_FH.pptx" target="_blank">
+                        <span>PPT Template for Tanishsoft Hrms</span>
+                    </a>
+                    <div class="middle">
+                        <a href="~/Documents/PPT_Template_FH.pptx" target="_blank" class="text">Download</a>
+                    </div>
+                </div>
+                <div class="col-md-3 divcontainer" style="text-align:center; height:225px;">
+                    <img src="~/Images/BranchLogos/Fernandez_Hospital.jpg" class="image" style="width:200px; height:200px; border-radius:60px;" />
+                    <a href="~/Documents/PPT_Template_FF.pptx" target="_blank">
+                        <span>PPT Template for Fernandez Foundation</span>
+                    </a>
+                    <div class="middle">
+                        <a href="~/Documents/PPT_Template_FF.pptx" target="_blank" class="text">Download</a>
+                    </div>
+                </div>
+
+                <div class="col-md-3 divcontainer" style="text-align:center; height:225px;">
+                    <img src="~/Images/BranchLogos/FH_Outpatient.jpg" class="image" style="width:200px; height:200px; border-radius:60px;" />
+                    <a href="~/Documents/PPT_Template_FC.pptx" target="_blank">
+                        <span>PPT Template for Fernandez Clinics</span>
+                    </a>
+                    <div class="middle">
+                        <a href="~/Documents/PPT_Template_FC.pptx" target="_blank" class="text">Download</a>
+                    </div>
+                </div>
+
+                <div class="col-md-3 divcontainer" style="text-align:center; height:225px;">
+                    <img src="~/Images/BranchLogos/FCDC.jpg" class="image" style="width:200px; height:200px; border-radius:60px;" />
+                    <a href="~/Documents/PPT_Template_FCDC.pptx" target="_blank">
+                        <span>PPT Template for Fernandez Child Development Center</span>
+                    </a>
+                    <div class="middle">
+                        <a href="~/Documents/PPT_Template_FCDC.pptx" target="_blank" class="text">Download</a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

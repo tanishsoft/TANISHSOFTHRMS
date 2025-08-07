@@ -1,0 +1,613 @@
+﻿@model WebApplicationHsApp.DataModel.tbl_EmrEntry
+
+@{
+    /**/
+
+    ViewBag.Title = "EmrEntry";
+}
+<style>
+    .modal .modal-dialog {
+        width: 850px;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        $(".date")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                Edit: true
+            })
+        LoadData();
+        //LoadAllApprovers();
+        LoadLocations1();
+    });
+    function LoadLocations1() {
+        $.ajax({
+            type: "GET",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#ddlLocationApprover").html(options.join(''));
+                $("#ddlLocation").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadData() {
+        $('#tblMaster').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Hospital/AjaxGetEmrEntry",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "EmrEntryId" },
+                { "sName": "LocationName" },
+                { "sName": "FirstName" },
+                { "sName": "MrNo" },
+                { "sName": "PatientName" },
+                { "sName": "DoctorName" },
+                { "sName": "Mobile" },
+                { "sName": "DateofError" },
+                { "sName": "DateOfChange" },
+                { "sName": "ReasonForChange" },
+                { "sName": "RequestedCorrectionDetails" },
+                { "sName": "FormName" },
+                { "sName": "Suggestions" },
+                { "sName": "IsActive" },
+                {
+                    "sName": "EmrEntryId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<a href="javascript:void(0);" id="' + data + '" onclick="Edit(this.id);"><span style="color:green;font-size:15px;" class="glyphicon glyphicon-edit"></span></a> &nbsp; <a href="javascript:void(0);" id="' + data + '" onclick="Delete(this.id);"><span style="color:red;font-size:15px;" class="glyphicon glyphicon-remove-circle"></span></a>';
+                    }
+                }
+            ]
+        });
+        $("#tblMaster_length").addClass("col-md-6");
+        $("#tblMaster_length").addClass("col-md-6");
+    }
+    function Edit(id) {
+        $("#EmrEntryId").val(id);
+        var Url = "/Hospital/GetEmrEntrybyId?EmrEntryId=" + id;
+        $.ajax({
+            type: "GET",
+            url: Url,
+            success: function (data) {
+
+                $("#myModalEdit").modal('show');
+                var obj = data;
+
+
+                $("#EMobile").val(obj.Mobile);
+                $("#EMrNo_PatientName").val(obj.MrNo_PatientName);
+                $("#EDateofError").val(obj.DateofError);
+                $("#EDateOfChange").val(obj.DateOfChange);
+                if (obj.ReasonForChange == "Human Error" || obj.ReasonForChange == "EMR very difficult to enter" || obj.ReasonForChange == "Error in typing") {
+                    $("#EReasonForChange").val(obj.ReasonForChange); $("#EReasonForChangeOthers").css("display", "none");
+                } else {
+                    $("#EReasonForChange").val("Others");
+                    $("#EReasonForChangeOthers").val(obj.ReasonForChange);
+                    $("#EReasonForChangeOthers").css("display", "block");
+                }
+
+                $("#EFormName").val(obj.FormName);
+                $("#ERequestedCorrectionDetails").html(obj.RequestedCorrectionDetails);
+                $("#ESuggestions").html(obj.Suggestions);
+            }
+        });
+    }
+    function SaveEmrEmtry(Action) {
+        var code = "";
+        validateEntry(Action);
+        if (validate) {
+            if (Action == "Update") {
+                code = "E";
+            }
+            var ReasonForChange = $("#" + code + "ReasonForChange").val();
+            if (ReasonForChange == "Others") {
+                ReasonForChange = $("#" + code + "ReasonForChangeOthers").val();
+            }
+            var task = {
+                EmrEntryId: $("#EmrEntryId").val(),
+                UserId: $("#" + code + "UserName").val(),
+                LocationId: $("#" + code + "ddlLocation").val(),
+                Mobile: $("#" + code + "Mobile").val(),
+                MrNo: $("#" + code + "MrNo_PatientName").val(),
+                DateofError: $("#" + code + "DateofError").val(),
+                DateOfChange: $("#" + code + "DateOfChange").val(),
+                ReasonForChange: ReasonForChange,
+                RequestedCorrectionDetails: $("#" + code + "RequestedCorrectionDetails").val(),
+                FormName: $("#" + code + "FormName").val(),
+                Suggestions: $("#" + code + "Suggestions").val(),
+                PatientName: $("#" + code + "PatientName").val(),
+                DoctorName: $("#" + code + "DoctorName").val()
+            }
+            $.ajax({
+                type: "POST",
+                url: "/Hospital/SaveEmrEntry",
+                data: task,
+                success: function (data) {
+                    if (Action == "Update") {
+                        $("#myModalEdit").modal('hide');
+                    } else {
+                        $("#myModalNew").modal('hide');
+                    }
+                    LoadData(); clearall();
+                }
+            });
+        }
+    }
+    function clearall() {
+        $("#EmrEntryId").val("");
+        $("#UserName").html("");
+        $("#ddlDepartment").html("");
+        //$("#ddlLocation").val("");
+        $("#Mobile").val("");
+        $("#MrNo_PatientName").val("");
+        $("#DateofError").val("");
+        $("#DateOfChange").val("");
+        $("#ReasonForChange").val("");
+        $("#RequestedCorrectionDetails").val("");
+        $("#FormName").val("");
+        $("#Suggestions").val("");
+    }
+    function validateEntry(Action) {
+        validate = true; var code = "";
+        if (Action == "Update") {
+            code = "E";
+        }
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#" + code + "Mobile").val() == "") {
+            $("#" + code + "Mobile").after('<span class="error" style="color:Red;">Enter Mobile</span>');
+            $("#" + code + "Mobile").addClass('css-error');
+            validate = false;
+        }
+        if ($("#" + code + "DateofError").val() == "") {
+            $("#" + code + "DateofError").after('<span class="error" style="color:Red;">Enter Date of Error</span>');
+            $("#" + code + "DateofError").addClass('css-error');
+            validate = false;
+        }
+        if ($("#" + code + "DateOfChange").val() == "") {
+            $("#" + code + "DateOfChange").after('<span class="error" style="color:Red;">Enter Date Of Change</span>');
+            $("#" + code + "DateOfChange").addClass('css-error');
+            validate = false;
+        }
+        if ($("#" + code + "ReasonForChange").val() == "") {
+            $("#" + code + "ReasonForChange").after('<span class="error" style="color:Red;">Select Reason For Change</span>');
+            $("#" + code + "ReasonForChange").addClass('css-error');
+            validate = false;
+        }
+
+        if ($("#" + code + "MrNo_PatientName").val() == "") {
+            $("#" + code + "MrNo_PatientName").after('<span class="error" style="color:Red;">Enter Patient Name</span>');
+            $("#" + code + "MrNo_PatientName").addClass('css-error');
+            validate = false;
+        }
+        if ($("#" + code + "ddlLocation").val() == "") {
+            $("#" + code + "ddlLocation").after('<span class="error" style="color:Red;">select Location</span>');
+            $("#" + code + "ddlLocation").addClass('css-error');
+            validate = false;
+        }
+        else if ($("#" + code + "ddlDepartment").val() == "") {
+            $("#" + code + "ddlDepartment").after('<span class="error" style="color:Red;">select Department</span>');
+            $("#" + code + "ddlDepartment").addClass('css-error');
+            validate = false;
+        } else
+            if ($("#" + code + "UserName").val() == "") {
+                $("#" + code + "UserName").after('<span class="error" style="color:Red;">select User Name</span>');
+                $("#" + code + "UserName").addClass('css-error');
+                validate = false;
+            }
+    }
+
+    function SaveApprovers() {
+        var locid = $("#ddlLocationApprover").val();
+        if (locid != "") {
+            if (confirm('Are you sure you want to Update Approvers?')) {
+                $.ajax({
+                    traditional: true,
+                    type: "POST",
+                    contentType: "application/json; charset=utf-8",
+                    url: "/Hospital/UpdateAdminsettings",
+                    data: JSON.stringify([
+                        { SettingKey: locid + 'EmrEntryApprover1', SettingValue: $("#txtApprover1").val() },
+                        { SettingKey: locid + 'EmrEntryApprover2', SettingValue: $("#txtApprover2").val() },
+                        { SettingKey: locid + 'EmrEntryApprover3', SettingValue: $("#txtApprover3").val() },
+                        { SettingKey: locid + 'EmrEntryApprover4', SettingValue: $("#txtApprover4").val() },
+                        { SettingKey: locid + 'EmrEntryApprover5', SettingValue: $("#txtApprover5").val() },
+                        { SettingKey: locid + 'EmrEntryApprover6', SettingValue: $("#txtApprover6").val() },
+                        { SettingKey: locid + 'EmrEntryApproverEmailtoSend1', SettingValue: $("#txtEmailtoSend1").val() },
+                        { SettingKey: locid + 'EmrEntryApproverEmailtoSend2', SettingValue: $("#txtEmailtoSend2").val() },
+                        { SettingKey: locid + 'EmrEntryApproverEmailtoSend3', SettingValue: $("#txtEmailtoSend3").val() },
+                        { SettingKey: locid + 'EmrEntryApproverEmailtoSend4', SettingValue: $("#txtEmailtoSend4").val() },
+
+                    ]),
+                    success: function (data) {
+                        alert(data);
+                    }
+                });
+            }
+        } else {
+            alert("Please select Location");
+        }
+    }
+    function LoadAllApprovers() {
+        var locid = $("#ddlLocationApprover").val();
+        if (locid != "") {
+            $("#txtApprover1").val("");
+            $("#txtApprover2").val("");
+            $("#txtApprover3").val("");
+            $("#txtApprover4").val("");
+            $("#txtApprover5").val("");
+            $("#txtApprover6").val("");
+            $("#txtEmailtoSend1").val(""); $("#txtEmailtoSend2").val(""); $("#txtEmailtoSend3").val("");
+            var Url = "/Hospital/GetSettings?Name=" + locid + "EmrEntryApprover";
+            $.ajax({
+                type: "GET",
+                url: Url,
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        switch (data[i].SettingKey) {
+                            case locid + "EmrEntryApprover1":
+                                $("#txtApprover1").val(data[i].SettingValue);
+                                break;
+                            case locid + "EmrEntryApprover2":
+                                $("#txtApprover2").val(data[i].SettingValue);
+                                break;
+                            case locid + "EmrEntryApprover3":
+                                $("#txtApprover3").val(data[i].SettingValue);
+                                break;
+                            case locid + "EmrEntryApprover4":
+                                $("#txtApprover4").val(data[i].SettingValue);
+                                break;
+                            case locid + "EmrEntryApprover5":
+                                $("#txtApprover5").val(data[i].SettingValue);
+                                break;
+                            case locid + "EmrEntryApprover6":
+                                $("#txtApprover6").val(data[i].SettingValue);
+                                break;
+                            case locid + "EmrEntryApproverEmailtoSend1":
+                                $("#txtEmailtoSend1").val(data[i].SettingValue);
+                                break;
+                            case locid + "EmrEntryApproverEmailtoSend2":
+                                $("#txtEmailtoSend2").val(data[i].SettingValue);
+                                break;
+                            case locid + "EmrEntryApproverEmailtoSend3":
+                                $("#txtEmailtoSend3").val(data[i].SettingValue);
+                                break;
+                            case locid + "EmrEntryApproverEmailtoSend4":
+                                $("#txtEmailtoSend4").val(data[i].SettingValue);
+                                break;
+                        }
+                    }
+                }
+            });
+        } else {
+            alert("Please select Location");
+        }
+    }
+    function ReasonForChangeselect() {
+        if ($("#ReasonForChange").val() == "Others") {
+            $("#ReasonForChangeOthers").css("display", "block");
+        } else {
+            $("#ReasonForChangeOthers").css("display", "none");
+        }
+    }
+    function EReasonForChangeselect() {
+        if ($("#EReasonForChange").val() == "Others") {
+            $("#EReasonForChangeOthers").css("display", "block");
+        } else {
+            $("#EReasonForChangeOthers").css("display", "none");
+        }
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading">Manage Emr Entries<a href="#" data-toggle="modal" class="pull-right" data-target="#myModalNew">New Emr Entry</a></div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblMaster">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>ID</th>
+                    <th>Location</th>
+                    <th>User</th>
+                    <th>Mr No</th>
+                    <th>Patient Name</th>
+                    <th>Doctor Name</th>
+                    <th>Mobile</th>
+                    <th>Date Of Error</th>
+                    <th>Date Of Change</th>
+                    <th class="none">Reason </th>
+                    <th class="none">Requested Correction Details</th>
+                    <th>Form Name</th>
+                    <th class="none">Suggestions</th>
+                    <th class="none">Is Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="myModalNew" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-lg modal-notify modal-primary">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #00c851;">
+                <button type="button" class="close" data-dismiss="modal" onclick="clearall();">×</button>
+                <h4 class="modal-title" style="color:white;"> New Entry By @ViewBag.User.FirstName (@ViewBag.User.CustomUserId) from @ViewBag.User.DepartmentName   </h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" class="form-control" id="EmrEntryId" value="0">
+                @*<input type="hidden" id="ddlLocation" value="@ViewBag.User.LocationId" />*@
+                <input type="hidden" id="ddlDepartment" value="@ViewBag.User.DepartmentId" />
+                <input type="hidden" id="UserName" value="@ViewBag.User.CustomUserId" />
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-6">
+                        <label for="name">Location Id<span style="color:red;">*</span></label>
+                        <br />
+                        <select id="ddlLocation" class="form-control">
+                            <option value="">Select Location</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-6">
+                        <label for="name">Mobile No<span style="color:red;">*</span></label>
+                        <br />
+                        <input type="number" id="Mobile" class="form-control" value="@ViewBag.User.PhoneNumber" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="name">Mr No <span style="color:red;">*</span></label><br /> <input type="text" id="MrNo_PatientName" class="form-control" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-6">
+                        <label for="name">Patient Name<span style="color:red;">*</span></label>
+                        <br />
+                        <input type="text" id="PatientName" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="name">Doctor Name<span style="color:red;">*</span></label><br /> <input type="text" id="DoctorName" class="form-control" />
+                    </div>
+                </div>
+                
+                <div class="row" style="padding:5px;">
+
+                    <div class="col-md-6">
+                        <label for="name">Date of Error <span style="color:red;">*</span></label><br />
+                        <input class="date form-control" autocomplete="off" type="text" placeholder="Date of Error" id="DateofError" />
+                    </div>
+
+                    <div class="col-md-6"><label for="name">Date Of Change<span style="color:red;">*</span></label><br /><input class="date form-control" autocomplete="off" type="text" placeholder="Date Of Change" id="DateOfChange" /></div>
+
+                </div>
+                <div class="row" style="padding:5px;">
+
+                    <div class="col-md-6">
+                        <label for="name">Reason For Change<span style="color:red;">*</span></label> <br />
+                        <select id="ReasonForChange" class="form-control" onchange="ReasonForChangeselect();">
+                            <option value="Human Error">Human Error</option>
+                            <option value="EMR very difficult to enter">EMR very difficult to enter</option>
+                            <option value="Error in typing">Error in typing</option>
+                            <option value="Others">Others</option>
+                        </select><br />
+                        <input type="text" id="ReasonForChangeOthers" placeholder="Enter text here" style="display:none;" class="form-control" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="name">Form Name<span style="color:red;">*</span></label><br />
+                        <input type="text" id="FormName" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+
+                    </div>
+                </div>
+
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-12">
+                        <label for="name">Requested Correction Details<span style="color:red;">*</span></label><br />
+                        <textarea class="form-control" rows="3" style="width:100%; max-width:100%;" type="text" placeholder="Enter currection details" id="RequestedCorrectionDetails"></textarea>
+                    </div>
+
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-12">
+                        <label for="name">Suggestion to avoid or Please help us if you have any suggestion </label><br />
+                        <textarea class="form-control" rows="3" style="width:100%; max-width:100%;" type="text" placeholder="Enter Suggestions" id="Suggestions"></textarea>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" onclick="SaveEmrEmtry('');" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearAll();">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="myModalEdit" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="clearAll();">×</button>
+                <h4 class="modal-title" style="color:white;">Edit Entry By @ViewBag.User.FirstName (@ViewBag.User.CustomUserId) from @ViewBag.User.LocationName - @ViewBag.User.DepartmentName   </h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="row" style="padding:5px;">
+
+                    <div class="col-md-2"><label for="name">Mobile No<span style="color:red;">*</span></label></div>
+                    <div class="col-md-4">
+                        <input type="number" id="EMobile" class="form-control" />
+                    </div>
+                    <div class="col-md-2"><label for="name">Mr No<span style="color:red;">*</span></label></div>
+                    <div class="col-md-4">
+                        <input type="text" id="EMrNo_PatientName" class="form-control" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-6">
+                        <label for="name">Patient Name<span style="color:red;">*</span></label>
+                        <br />
+                        <input type="text" id="EPatientName" class="form-control" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="name">Doctor Name<span style="color:red;">*</span></label><br /> <input type="text" id="EDoctorName" class="form-control" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+
+                    <div class="col-md-2"><label for="name">Date of Error<span style="color:red;">*</span></label></div>
+                    <div class="col-md-4">
+                        <input class="date form-control" autocomplete="off" type="text" placeholder="Date of Error" id="EDateofError" />
+                    </div>
+                    <div class="col-md-2"><label for="name">Date Of Change<span style="color:red;">*</span></label></div>
+                    <div class="col-md-4">
+                        <input class="date form-control" autocomplete="off" type="text" placeholder="Date Of Change" id="EDateOfChange" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+
+                    <div class="col-md-2">
+                        <label for="name">Reason For Change<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        @*<textarea class="form-control" type="text" placeholder="Enter reason" id="EReasonForChange"></textarea>*@
+                        <select id="EReasonForChange" class="form-control" onchange="EReasonForChangeselect();">
+                            <option value="Human Error">Human Error</option>
+                            <option value="EMR very difficult to enter">EMR very difficult to enter</option>
+                            <option value="Error in typing">Error in typing</option>
+                            <option value="Others">Others</option>
+                        </select><br />
+                        <input type="text" id="EReasonForChangeOthers" placeholder="Enter text here" style="display:none;" class="form-control" />
+                    </div>
+                    <div class="col-md-2"><label for="name">Form Name<span style="color:red;">*</span></label></div>
+                    <div class="col-md-4">
+                        <input type="text" id="EFormName" class="form-control" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+
+                    <div class="col-md-12">
+                        <label for="name">Requested Correction Details<span style="color:red;">*</span></label>
+                        <textarea class="form-control" type="text" rows="3" style="width:100%; max-width:100%;" placeholder="Enter currection details" id="ERequestedCorrectionDetails"></textarea>
+                    </div>
+
+                </div>
+                <div class="row" style="padding:5px;">
+
+                    <div class="col-md-12">
+                        <label for="name">Suggestion to avoid or Please help us if you have any suggestio<span style="color:red;">*</span></label><br />
+                        <textarea class="form-control" type="text" rows="3" style="width:100%; max-width:100%;" placeholder="Enter Suggestions" id="ESuggestions"></textarea>
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" onclick="SaveEmrEmtry('Update');" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearAll();">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+@if (User.IsInRole("Admin") || User.Identity.Name == "867")
+{
+
+    <h4 style="color:#33b5e5;border-bottom:solid 1px #33b5e5;">Enter Approvers Intranet Login Id</h4>
+    <br />
+    <div class="row">
+
+        <div class="col-md-3">
+            &nbsp;
+        </div>
+        <div class="col-md-3" style="text-align:right; color:teal;">
+            Select Location :
+        </div>
+        <div class="col-md-3">
+            <select id="ddlLocationApprover" class="form-control" onchange="LoadAllApprovers();">
+                <option value="">Select</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            &nbsp;
+        </div>
+
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-md-3">
+            <label> Email to Send 1</label><br />
+            <input type="text" id="txtEmailtoSend1" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label> Email to Send 2</label><br />
+            <input type="text" id="txtEmailtoSend2" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label> Email to Send 3</label><br />
+            <input type="text" id="txtEmailtoSend3" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label>Email to Send 4</label><br />
+            <input type="text" id="txtEmailtoSend4" class="form-control" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <label> Approver 1</label><br />
+            <input type="text" id="txtApprover1" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label> Approver 2</label><br />
+            <input type="text" id="txtApprover2" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label> Approver 3</label><br />
+            <input type="text" id="txtApprover3" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label> Approver 4</label><br />
+            <input type="text" id="txtApprover4" class="form-control" />
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <label> Approver 5</label><br />
+            <input type="text" id="txtApprover5" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label> Approver 6</label><br />
+            <input type="text" id="txtApprover6" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            &nbsp;
+        </div>
+        <div class="col-md-3">
+            <br />
+            <input type="button" id="btnsaveApprovers" value="Save Approvers" class="btn btn-primary" onclick="SaveApprovers();" />
+        </div>
+    </div>
+    <br />
+    <br />
+}
+

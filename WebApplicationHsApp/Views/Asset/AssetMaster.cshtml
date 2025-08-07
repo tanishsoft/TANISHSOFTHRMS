@@ -1,0 +1,353 @@
+﻿@*@model WebApplicationHsApp.DataModel.tbl_AssetMaster*@
+
+@{
+    ViewBag.Title = "AssetMaster";
+}
+<script>
+    var validate = true;
+    $(document).ready(function () {
+        GetAsset();
+        LoadData();
+    });
+    function LoadData() {
+        $('#tblAssetMaster').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Asset/AjaxGetAssetMasterDetails",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+               
+                { "sName": "Asset_id" },
+                { "sName": "ParentAsset_id" },
+                { "sName": "Asset_Name" },
+                { "sName": "Asset_Description" },
+                { "sName": "Asset_Code" },
+                { "sName": "Asset_Type" },
+                { "sName": "Asset_IsActive" },
+                {
+                    "sName": "Asset_id",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="Edit(this.id);">Edit</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="Delete(this.id);">Delete</a></li>' +
+                            '</ul></div>';
+                    }
+                }
+            ]
+        });
+        $("#tblAssetMaster_length").addClass("col-md-6");
+        $("#tblAssetMaster_length").addClass("col-md-6");
+    }
+    function OnclickSaveAsset() {
+        validateAsset();
+        if (validate) {
+            debugger;
+            $(".css-error").removeClass('css-error');
+            var task = {
+                ParentAsset_id: $("#ParentAsset").val(),
+                Asset_Name: $("#Name").val(),
+                Asset_Description: $("#Description").val(),
+                Asset_Type: $("#Type").val(),
+                Asset_Code: $("#Code").val(),
+                Asset_IsActive: true
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Asset/SaveNewAsset",
+                data: task,
+                success: function (data) {
+                    $("#myModalNewAsset").modal('hide');
+                    //alert(data);
+                    clearAll(); LoadData();
+                    console.log("category added successfully")
+                }
+            });
+        }
+        else {
+            alert("Fields Required");
+        }
+    }
+    function validateAsset() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#Name").val() == "") {
+            $("#Name").addClass('css-error');
+            validate = false;
+        }
+        if ($("#Description").val() == "") {
+            $("#Description").addClass('css-error');
+            validate = false;
+        }
+        //if ($("#Type").val() == "") {
+        //    $("#Type").addClass('css-error');
+        //    validate = false;
+        //}
+        if ($("#Code").val() == "") {
+            $("#Code").addClass('css-error');
+            validate = false;
+        }
+    }
+    function Edit(AssetId) {
+        debugger;
+        var Url = "/Asset/GetAssetDeatilsById?AssetId=" + AssetId;
+        $.ajax({
+            type: "GET",
+            url: Url,
+            success: function (data) {
+                $("#myModalEdit").modal();
+                var obj = data;
+                $("#EditParentAsset").val(obj.ParentAsset_id);
+                $("#EditID").val(obj.Asset_id);
+                $("#EditName").val(obj.Asset_Name);
+                $("#EditDescription").val(obj.Asset_Description);
+                $("#EditType").val(obj.Asset_Type);
+                $("#EditCode").val(obj.Asset_Code);
+            }
+        })
+
+    }
+    function GetAsset() {
+        $.get('/Asset/GetAssets', function (data) {
+            var options = [];
+            options.push('<option value="0">- Select Asset -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].Asset_id + '">' + data[i].Asset_Name + '</option>');
+            }
+            $("#ParentAsset").html(options.join(''));
+            $("#EditParentAsset").html(options.join(''));
+        });
+    }
+    function OnclickUpdateAsset() {
+        validateEdit();
+        if (validate) {
+            var task = {
+                ParentAsset_id: $("#EditParentAsset").val(),
+                Asset_id: $("#EditID").val(),
+                Asset_Name: $("#EditName").val(),
+                Asset_Description: $("#EditDescription").val(),
+                Asset_Type: $("#EditType").val(),
+                Asset_Code: $("#EditCode").val(),
+                IsActive: true
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Asset/UpdateAsset",
+                data: task,
+                success: function (data) {
+                    $("#myModalEdit").modal('hide');
+                    LoadData();
+                    console.log("Asset Updated successfully")
+                }
+            });
+
+        }
+        else {
+            alert("Fields Required");
+        }
+
+    }
+    function validateEdit() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#EditName").val() == "") {
+            $("#EditName").addClass('css-error');
+            validate = false;
+        }
+        if ($("#EditDescription").val() == "") {
+            $("#EditDescription").addClass('css-error');
+            validate = false;
+        }
+        if ($("#EditType").val() == "") {
+            $("#EditType").addClass('css-error');
+            validate = false;
+        }
+        if ($("#EditCode").val() == "") {
+            $("#EditCode").addClass('css-error');
+            validate = false;
+        }
+    }
+    function clearAll() {
+        debugger;
+        $(".css-error").removeClass('css-error');
+        $("#Name").val("");
+        $("#Description").val("");
+        $("#Type").val("");
+        $("#Code").val("");
+    }
+    var Delete = function (Id) {
+        debugger;
+
+        $("#Cid").val(Id);
+        $("#DeleteConfirmation").modal("show");
+    }
+    var ConfirmDelete = function () {
+        debugger;
+        var CId = $("#Cid").val();
+        $.ajax({
+            type: "POST",
+            url: "/Asset/DeleteAsset?AssetId=" + CId,
+            success: function (result) {
+                $("#DeleteConfirmation").modal("hide");
+            }
+        })
+        LoadData();
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading">Manage Asset Types<a href="#" data-toggle="modal" class="pull-right" data-target="#myModalNewAsset">New Asset</a></div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblAssetMaster">
+            <thead>
+                <tr>
+
+                    <th>Id</th>
+                    <th>Parent</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Code</th>
+                    <th>Type</th>
+                    <th>Is Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="myModalNewAsset" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="clearAll();">×</button>
+                <h4 class="modal-title">Add New</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" class="form-control" id="ID">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Parent Asset</label>
+                    </div>
+                    <div class="col-md-8">
+                        <select class="form-control" id="ParentAsset"></select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Asset Name<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="Name">
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Asset Description<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <textarea type="text" class="form-control" id="Description"></textarea>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px; display:none;">
+                    <div class="col-md-4"><label for="name">Asset Type<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="Type" value="" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Short code<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="Code" value="" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" onclick="OnclickSaveAsset();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearAll();">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="myModalEdit" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Update</h4>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <input type="hidden" class="form-control" id="EditID">
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Parent Asset<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <select class="form-control" id="EditParentAsset"></select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Asset Name<span style="color:red;">*</span></label>
+
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="EditName">
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name">Asset Description<span style="color:red;">*</span></label></div>
+                        <div class="col-md-8">
+                            <textarea type="text" class="form-control" id="EditDescription"></textarea>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name">Asset Type<span style="color:red;">*</span></label></div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="EditType">
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name">Asset Code<span style="color:red;">*</span></label></div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="EditCode">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Update" onclick="OnclickUpdateAsset();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade" id="DeleteConfirmation">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4>Delete  Record</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" class="form-control" id="Cid">
+                <h4>Are You Sure? You Want To Delete This Record.</h4>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-primary" data-dismiss="modal" id="r">Cancel</a>
+                <a href="#" class="btn btn-danger" onclick="ConfirmDelete()">Confirm</a>
+            </div>
+        </div>
+    </div>
+</div>
+

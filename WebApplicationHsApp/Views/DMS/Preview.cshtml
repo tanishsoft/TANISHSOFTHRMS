@@ -1,0 +1,18 @@
+﻿
+@{
+    ViewBag.Title = "Preview";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    iframe img {
+        width:100%;
+    }
+</style>
+<div class="block" style="height:100%; border:solid 1px #eee;">
+    <h2 style="text-transform:none;">Preview</h2>
+    <div class="top">
+    </div>
+    <div class="block-middle contact2" style="height:100%;">
+        <iframe id="frame" style="width:95%;height:600px; margin:auto;"  src="@Url.Action("Download/"+Model,"DMS")"></iframe>
+    </div>
+</div>

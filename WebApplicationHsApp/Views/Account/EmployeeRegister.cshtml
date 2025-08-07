@@ -1,0 +1,261 @@
+﻿@model WebApplicationHsApp.Models.RegisterEmployeeViewModel
+@{
+    ViewBag.Title = "EmployeeRegister";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+        LoadLocations();
+        $('.txtdate').datepicker({
+            changeMonth: true,
+            changeYear: true,
+            //dateFormat: "dd/mm/yy",
+            maxDate: "0",
+            yearRange: "-100:+0",
+        });
+    });
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#ddlLocation").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadDepartment() {
+        $("#LocationId").val($("#ddlLocation").val());
+        var skillsSelect = document.getElementById("ddlLocation");
+        var selectedText = skillsSelect.options[skillsSelect.selectedIndex].text;
+        $("#LocationName").val(selectedText);
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetDepartmentByLocation",
+            data: "id=" + $("#ddlLocation").val(),
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Department -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                }
+                $("#ddlDepartment").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function DepartmentChange() {
+        $("#DepartmentId").val($("#ddlDepartment").val());
+        var skillsSelect = document.getElementById("ddlDepartment");
+        var selectedText = skillsSelect.options[skillsSelect.selectedIndex].text;
+        $("#DepartmentName").val(selectedText);
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading">New Employee Register</div>
+    <div class="panel-body">
+        @using (Html.BeginForm("EmployeeRegister", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+        {
+            @Html.AntiForgeryToken()
+
+
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            @Html.HiddenFor(m => m.LocationId)
+            @Html.HiddenFor(m => m.LocationName)
+            @Html.HiddenFor(m => m.DepartmentId)
+            @Html.HiddenFor(m => m.DepartmentName)
+
+            <div class="col-md-6 form-group">
+
+                @Html.LabelFor(m => m.FirstName, new { @class = "col-md-6 control-label required" })
+
+                <div class="col-md-6">
+                    @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.FirstName, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="col-md-6 form-group">
+
+                @Html.LabelFor(m => m.LastName, new { @class = "col-md-6 control-label required" })
+
+                <div class="col-md-6">
+                    @Html.TextBoxFor(m => m.LastName, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.LastName, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="col-md-6 form-group">
+                @Html.LabelFor(m => m.MobileNumber, new { @class = "col-md-6 control-label" })
+                <div class="col-md-6">
+                    @Html.TextBoxFor(m => m.MobileNumber, new { @class = "form-control" })
+                </div>
+            </div>
+
+            <div class="col-md-6 form-group">
+                @Html.LabelFor(m => m.Email, new { @class = "col-md-6 control-label required" })
+                <div class="col-md-6">
+                    @Html.TextBoxFor(m => m.Email, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-6 form-group">
+                @Html.LabelFor(m => m.UserId, new { @class = "col-md-6 control-label required" })
+                <div class="col-md-6">
+                    @Html.TextBoxFor(m => m.UserId, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.UserId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="col-md-6 form-group">
+                @Html.LabelFor(m => m.Password, new { @class = "col-md-6 control-label required" })
+                <div class="col-md-6">
+                    @Html.PasswordFor(m => m.Password, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-6 form-group">
+                @Html.LabelFor(m => m.ConfirmPassword, new { @class = "col-md-6 control-label" })
+                <div class="col-md-6">
+                    @Html.PasswordFor(m => m.ConfirmPassword, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.ConfirmPassword, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-6 form-group">
+                @{
+            List<SelectListItem> list = new List<SelectListItem>();
+            list.Add(new SelectListItem
+            {
+                Text = "Male",
+                Value = "Male"
+
+            });
+            list.Add(new SelectListItem
+            {
+                Text = "Female",
+                Value = "Female"
+                //    Selected = true
+            });
+           
+            List<SelectListItem> list2 = new List<SelectListItem>();
+            list2.Add(new SelectListItem
+            {
+                Text = "Select",
+                Value = "",
+                //    Selected = true
+            });
+            List<SelectListItem> list3 = new List<SelectListItem>();
+            list3.Add(new SelectListItem
+            {
+                Text = "Select",
+                Value = "",
+                //    Selected = true
+            });
+            list3.Add(new SelectListItem
+            {
+                Text = "What is the your best friend name?",
+                Value = "1",
+                //    Selected = true
+            });
+            list3.Add(new SelectListItem
+            {
+                Text = "What is the your School name?",
+                Value = "2",
+                //    Selected = true
+            });
+            list3.Add(new SelectListItem
+            {
+                Text = "What is your favorite food?",
+                Value = "3",
+                //    Selected = true
+            });
+                }
+                @Html.LabelFor(m => m.Gender, new { @class = "col-md-6 control-label" })
+                <div class="col-md-6">
+                    @Html.DropDownListFor(m => m.Gender, list, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.Gender, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-6 form-group">
+                @Html.LabelFor(m => m.DateOfJoining, new { @class = "col-md-6 control-label required" })
+                <div class="col-md-6">
+                    @Html.TextBoxFor(m => m.DateOfJoining, new { @class = "form-control txtdate" })
+                    @Html.ValidationMessageFor(m => m.DateOfJoining, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-6 form-group">
+                @Html.LabelFor(m => m.DateOfBirth, new { @class = "col-md-6 control-label required" })
+                <div class="col-md-6">
+                    @Html.TextBoxFor(m => m.DateOfBirth, new { @class = "form-control txtdate" })
+                    @Html.ValidationMessageFor(m => m.DateOfBirth, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-6 form-group">
+                @Html.LabelFor(m => m.ddlLocation, new { @class = "col-md-6 control-label required" })
+                <div class="col-md-6">
+                    @Html.DropDownListFor(m => m.ddlLocation, list2, new { @class = "form-control", onchange = "LoadDepartment()" })
+                    @Html.ValidationMessageFor(m => m.ddlLocation, "", new { @class = "text-danger" })
+                </div>
+            </div><div class="col-md-6 form-group">
+                @Html.LabelFor(m => m.ddlDepartment, new { @class = "col-md-6 control-label required" })
+                <div class="col-md-6">
+                    @Html.DropDownListFor(m => m.ddlDepartment, list2, new { @class = "form-control", onchange = "DepartmentChange()" })
+                    @Html.ValidationMessageFor(m => m.ddlDepartment, "", new { @class = "text-danger" })
+                </div>
+            </div><div class="col-md-6 form-group">
+                @Html.LabelFor(m => m.Designation, new { @class = "col-md-6 control-label required" })
+                <div class="col-md-6">
+                    @Html.TextBoxFor(m => m.Designation, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.Designation, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-6 form-group">
+                @Html.LabelFor(m => m.PlaceAllocation, new { @class = "col-md-6 control-label required" })
+                <div class="col-md-6">
+                    @Html.TextBoxFor(m => m.PlaceAllocation, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.PlaceAllocation, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-6 form-group">
+                @Html.LabelFor(m => m.SecurityQuetion, new { @class = "col-md-6 control-label" })
+                <div class="col-md-6">
+                    @Html.DropDownListFor(m => m.SecurityQuetion, list3, new { @class = "form-control" })
+                    @*@Html.TextBoxFor(m => m.SecurityQuetion, new { @class = "form-control" })*@
+                    @Html.ValidationMessageFor(m => m.SecurityQuetion, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-6 form-group">
+                @Html.LabelFor(m => m.SecurityAnswer, new { @class = "col-md-6 control-label" })
+                <div class="col-md-6">
+                    @Html.TextBoxFor(m => m.SecurityAnswer, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(m => m.SecurityAnswer, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="col-md-12 form-group">
+                <div class="col-md-6">&nbsp;</div>
+                <div class="col-md-6">
+                    <input type="submit" class="btn btn-default" value="Register" />
+                </div>
+            </div>
+        }
+
+        @section Scripts {
+            @Scripts.Render("~/bundles/jqueryval")
+        }
+    </div>
+</div>
+
+
+@*<h2>@ViewBag.Title.</h2>*@

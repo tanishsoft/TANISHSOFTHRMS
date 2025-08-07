@@ -1,0 +1,246 @@
+﻿
+@{
+    ViewBag.Title = "ManageStaff";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    var eId = 0;
+    var validate = true;
+    $(document).ready(function () {
+        LoadData();
+        LoadLocations();
+        EmployeeSearch();
+    });
+    function GetEmployeeDetails() {
+        $.get("/Biomedical/GetEmployeeDetails?userid=" + $("#EmpId").val(), function (data) {
+            $("#EmployeeName").val(data.FirstName);
+            $("#EmployeeEmail").val(data.EmailId);
+            $("#EmployeeMobile").val(data.PhoneNumber);
+        });
+    }
+    function LoadLocations() {
+        $.ajax({
+            type: "GET",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#ddllocation").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadData() {
+        $('#tblCategory').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Biomedical/AjaxGetTeamSetup",
+            "bProcessing": true,
+            "scrollX": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "Id" },
+                { "sName": "LocationName" },
+                { "sName": "EmpType" },
+                { "sName": "CustomUserId" },
+                { "sName": "FirstName" },
+                { "sName": "CugNumber" },
+                { "sName": "EmailId" },
+                {
+                    "sName": "CategoryId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<a href="javascript:void(0);" id="' + data + '" onclick="Edit(this.id);">Edit</a>&nbsp;<a href="javascript:void(0);" id="' + data + '" onclick="Delete(this.id);">Delete</a>';
+                    }
+                }
+            ]
+        });
+        $("#tblCategory_length").addClass("col-md-6");
+        $("#tblCategory_length").addClass("col-md-6");
+    }
+    function OnclickSaveCategory() {
+        validateCategory();
+        var url = "/Biomedical/SaveTeamSetup";
+
+        if (validate) {
+            var task = {
+                Id:eId,
+                LocationId: $("#ddllocation").val(),
+                EmpType: $("#EmpType").val(),
+                EmpId: $("#EmpId").val(),
+                EmpName: $("#EmployeeName").val(),
+                EmpEmail: $("#EmployeeEmail").val(),
+                EmpMobile: $("#EmployeeMobile").val(),
+                Comments:"",
+                IsActive: true
+            };
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: task,
+                success: function (data) {
+                    $("#myModalCategoryType").modal('hide');
+                    //alert(data);
+                    clearAll(); LoadData();                 
+                }
+            });
+        }
+        else {
+            alert("Fields Required");
+        }
+    }
+    function validateCategory() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#ddllocation").val() == "") {
+            $("#ddllocation").addClass('css-error');
+            validate = false;
+        }
+        if ($("#EmpType").val() == "") {
+            $("#EmpType").addClass('css-error');
+            validate = false;
+        }
+        if ($("#EmpId").val() == "") {
+            $("#EmpId").addClass('css-error');
+            validate = false;
+        }
+    }
+    function Delete(id) {
+        if (confirm("Are you sure you want to delete?")) {
+            $.get("/Biomedical/DeleteTeamSetup?id=" + id, function (data) {
+                alert("Success");
+                LoadData();
+            });
+        }
+    }
+    function clearAll() {
+        $("#ddllocation").val("");
+        $("#EmpType").val("");
+        $("#EmpId").select2("trigger", "select", { data: {id: "", text: ""} });
+        $("#EmployeeName").val("");
+        $("#EmployeeMobile").val("");
+        $('#EmployeeEmail').val("");
+    }
+    function EmployeeSearch() {
+        $(".EmpId").select2({
+            ajax: {
+                url: "/Biomedical/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term,
+                        id: eId,
+                        table: "DailyRounds"// search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            width: 'element',
+            minimumInputLength: 2
+        });
+    }
+    function Edit(id) {
+        eId = id;
+        $.get("/Biomedical/Get_TeamSetup?id=" + id, function (res) {
+            $("#EmpId").select2("trigger", "select", { data: { id: res.model.EmpId, text: res.EmpId } });
+            $("#ddllocation").val(res.model.LocationId);
+            $("#EmpType").val(res.model.EmpType);
+            $("#myModalCategoryType").modal("show");
+        })
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading">Manage Team<a href="#" data-toggle="modal" class="pull-right" data-target="#myModalCategoryType">New </a></div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered nowrap" style="width:100%;" id="tblCategory">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Location</th>
+                    <th>EmpType</th>
+                    <th>Emp Id</th>
+                    <th>Name</th>
+                    <th>Cug Number</th>
+                    <th>Email</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="myModalCategoryType" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Add New</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Location<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select id="ddllocation" class="form-control">
+                            <option value="">Select Location</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">Emp Type</div>
+                    <div class="col-md-8">
+                        <select id="EmpType" class="form-control">
+                            <option value="">Select EmpType</option>
+                            <option value="Engineer">Engineer</option>
+                            <option value="Incharge">Incharge</option>
+                            <option value="Hod">Hod</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">Employee</div>
+                    <div class="col-md-8">
+                        <select id="EmpId" style="width:300px" class="form-control typeahead EmpId" name="query" data-provide="typeahead" onchange="GetEmployeeDetails();" autocomplete="off"></select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">Employee Name</div>
+                    <div class="col-md-8">
+                        <input type="text" name="EmployeeName" class="form-control" id="EmployeeName" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">Employee Email</div>
+                    <div class="col-md-8">
+                        <input type="text" name="EmployeeEmail" class="form-control" id="EmployeeEmail" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">Employee Mobile</div>
+                    <div class="col-md-8">
+                        <input type="text" name="EmployeeMobile" class="form-control" id="EmployeeMobile" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" onclick="OnclickSaveCategory();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="ClearAll();">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,166 @@
+﻿
+@{
+    ViewBag.Title = "MyRequests";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+        LoadData();
+        $("#txtFromDate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            Edit: true
+        });
+        $("#txtToDate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            Edit: true
+        });
+    });
+    function LoadData() {
+        $('#tblNewUserRequest').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/NewUserRequest/AjaxGetMyRequests",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "UserRequestId" },
+                { "sName": "EmpNo" },
+                { "sName": "Name" },
+                { "sName": "EmailId" },
+                { "sName": "Mobile" },
+                { "sName": "Designation" },
+                { "sName": "SubDepartment" },
+                { "sName": "Remarks" },
+                { "sName": "IsHodApproved" },
+                { "sName": "HodApproveComments" },
+                { "sName": "ApprovedLocation" },
+                { "sName": "IsSupportApproved" },
+                { "sName": "Username" },
+                { "sName": "Password" },
+                { "sName": "SupportComments" },
+                { "sName": "CreatedOn" },
+                {
+                    "sName": "UserRequestId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<a href="javascript:void(0);" id="' + data + '" title="Approve" class="btn btn-success" onclick="ApproveRequest(this.id);"><span class="glyphicon glyphicon-edit"></span></a>&nbsp;' +
+                            '<a href="javascript:void(0);" id="' + data + '" title="View Full Details" class="btn btn-warning" onclick="LoadFullUserRequestdetails(this.id);"><span class="glyphicon glyphicon-info-sign"></span></a>';
+                        //'<a href="javascript:void(0);" id="' + data + '" title="Cancel" class="btn btn-danger" onclick="CancelRequest(this.id);"><span class="glyphicon glyphicon-trash"></span></a>&nbsp;';
+
+                    }
+                }
+            ]
+            ,
+            "fnServerParams": function (aoData) {
+                aoData.push(                   
+                    { "name": "fromdate", "value": $("#txtFromDate").val() },
+                    { "name": "todate", "value": $("#txtToDate").val() },
+                );
+            }
+        });
+        $("#tblNewUserRequest_length").addClass("col-md-6");
+
+    }
+    function LoadFullUserRequestdetails(id) {
+        var html = "";
+        $.get("/NewUserRequest/GetFullRequest?id=" + id, function (data) {
+            html = "<table class='table table-bordered table-striped'>";
+            html += "<tr><td>Request For</td><td>" + data.RequestFor + "</td></tr>";
+            html += "<tr><td>Request Is</td><td>" + data.RequestIs + "</td></tr>";
+            html += "<tr><td>Emp No</td><td>" + data.EmpNo + "</td></tr>";
+            html += "<tr><td>Name</td><td>" + data.Name + "</td></tr>";
+            html += "<tr><td>Department </td><td>" + data.Department + "</td></tr>";
+            html += "<tr><td>Designation</td><td>" + data.Designation + "</td></tr>";
+            html += "<tr><td>Email Id</td><td>" + data.EmailId + "</td></tr>";
+            html += "<tr><td>Mobile</td><td>" + data.Mobile + "</td></tr>";
+            html += "<tr><td>Approve Location</td><td>" + data.ApprovedLocation + "</td></tr>";
+            html += "<tr><td>Sub Department</td><td>" + data.SubDepartment + "</td></tr>";
+            if (data.Remarks != null)
+                html += "<tr><td>Remarks</td><td>" + data.Remarks + "</td></tr>";
+            if (data.SameRightsLikeempId != null)
+                html += "<tr><td>Same Rights Like empId</td><td>" + data.SameRightsLikeempId + "</td></tr>";
+            else
+                html += "<tr><td>Same Rights Like empId</td><td>&nbsp;</td></tr>";
+            if (data.HodApprovalName != null)
+                html += "<tr><td>Hod Approval Name</td><td>" + data.HodApprovalName + "</td></tr>";
+            else
+                html += "<tr><td>Hod Approval Name</td><td>&nbsp;</td></tr>";
+            html += "<tr><td>Is Hod Approved</td><td>" + data.IsHodApproved + "</td></tr>";
+            html += "</table>";
+            $("#divfullrequestdetails").html(html);
+            $("#myModalFullrequest").modal("show");
+        });
+    }
+    function ExportToExcelRequests() {
+      
+        if ($("#txtFromDate").val() != null && $("#txtFromDate").val() != "" && $("#txtToDate").val() != null && $("#txtToDate").val() != "") {
+            window.location = '/NewUserRequest/ExportExcelNewuser?FromDate=' + $("#txtFromDate").val() + '&ToDate=' + $("#txtToDate").val();
+        } else {
+            alert("Please select from date and todae");
+        }
+    }
+</script>
+
+<div class="panel panel-default">
+    <div class="panel-heading">My Requests</div>
+    <div class="panel-body">
+        <div class="row" style="padding:5px;">
+           
+            <div class="col-md-2 col-xs-6">
+                <input type="text" class="form-control" placeholder="From Date" id="txtFromDate" readonly="readonly" autocomplete="off" />
+            </div>
+            <div class="col-md-2 col-xs-6">
+
+                <input type="text" class="form-control" placeholder="To Date" id="txtToDate" readonly="readonly" autocomplete="off" />
+            </div>
+            <div class="col-md-1 col-xs-6" style="text-align:left !important;">
+
+                <input type="button" class="btn btn-primary" id="btnsave" value="Go" style="float:left;" onclick="LoadData();" />
+            </div>
+            <div class="col-md-1 col-xs-6" style="text-align:left !important;">
+
+                <input type="button" class="btn btn-default" id="btnsave2" value="Export To Excel" style="float:left;" onclick="ExportToExcelRequests();" />
+            </div>
+        </div>
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblNewUserRequest">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>Id</th>
+                    <th>EmpNo</th>
+                    <th>Name</th>
+                    <th>EmailId</th>
+                    <th>Mobile</th>
+                    <th>Designation</th>
+                    <th>Sub Department</th>
+                    <th>Remarks</th>
+                    <th>IsHodApproved</th>
+                    <th>Comments</th>
+                    <th>Approve Location</th>
+                    <th>Is Support Approved</th>
+                    <th>User Name</th>
+                    <th>Password</th>
+                    <th>Support Comments</th>
+                    <th>Created On</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="myModalFullrequest" role="dialog">
+    <div class="form-block">
+        <h3>View Request<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <div id="divfullrequestdetails">
+
+        </div>
+    </div>
+</div>

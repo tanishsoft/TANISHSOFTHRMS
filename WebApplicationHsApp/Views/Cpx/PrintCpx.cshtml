@@ -1,0 +1,231 @@
+﻿@model WebApplicationHsApp.Models.CpxViewModel
+@{
+    ViewBag.Title = "PrintCpx";
+    Layout = "~/Views/Shared/_LayoutEmpty.cshtml";
+}
+@*<script>
+            window.onload = function () { window.print(); }
+    </script>*@
+<link href="~/Content/bootstrap.css" rel="stylesheet" />
+<style>
+    hr {
+        margin-top: 5px;
+        margin-bottom: 5px;
+    }
+</style>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table">
+                <tr>
+                    <td>
+                        <p style="padding:15px;">
+                            PURCHASE DEPARTMENT<br />
+                            @Model.ProjectTitle
+                        </p>
+                    </td>
+                    <td>&nbsp;</td>
+                    <td style="text-align:right"><img class="img-responsive" src="~/Images/fh_logo.jpg" alt="" style="height: 85px; float:right;" /></td>
+                </tr>
+
+            </table>
+        </div>
+
+        <div class="col-md-12">
+            <p class="text-center" style="background-color:black; font-size:20px;color:white;">CAPITAL /  SPECIAL EXPENDITURE (CAPEX) REQUISTION</p>
+            <p class="text-center" style="font-size:12px;"> (To be filled by User Department)</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+
+            <table class="table" style="width:99%;margin:auto;">
+                <tr>
+                    <td>1. Requisitioner’s Name :</td>
+                    <td style="color:teal;">
+                        @Model.CreatorName
+                    </td>
+                    <td>&nbsp;</td>
+                    <td> Requisition Date :</td>
+                    <td style="color:teal;">@Model.CreatedDate</td>
+                </tr>
+                <tr>
+                    <td>
+                        2. Department  :
+                    </td>
+                    <td style="color:teal;">
+                        @Model.RequestForDepartment
+                    </td>
+                    <td>&nbsp;</td>
+                    <td>No :</td>
+                    <td style="color:teal;">@Model.TaskCpxId</td>
+                </tr>
+                <tr>
+                    <td>
+                        3. Project Title  :
+                    </td>
+                    <td style="color:teal;">
+                        @Model.ProjectTitle
+                    </td>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td>
+                        4.  Item   :
+                    </td>
+                    <td style="color:teal;">
+                        @Model.Item
+                    </td>
+                    <td>&nbsp;</td>
+                    <td>
+                        Quantity Required :
+                    </td>
+                    <td style="color:teal;">@Model.Qty</td>
+                </tr>
+            </table>
+
+        </div>
+
+
+    </div>
+    <hr />
+    <div class="row">
+
+        @if (Model.IsNewItem == "Yes")
+        {
+            <div class="col-md-12">
+                <table class="table" style="width:99%;margin:auto;">
+                    <tr>
+                        <td>
+                            <p style="padding-left:5px;">
+                                5. <input type="checkbox" checked id="cbcheckboxnewitem" />New Item <span style="font-size:12px;"> Give requirement justification : </span>
+                            </p>
+                            <p style="color:teal;">@Model.ItemDetails</p>
+                        </td>
+                    </tr>
+                </table>
+
+            </div>
+        }
+        else
+        {
+            <div class="col-md-12">
+                <table class="table" style="width:99%;margin:auto;">
+                    <tr>
+                        <td>
+                            <p style="padding-left:5px;">
+                                5. <input type="checkbox" checked id="cbcheckboxnewitem" />Repeat Item <span style="font-size:12px;">  If repeat item give status of old item : </span>
+                            </p>
+
+                            <p style="color:teal;">@Model.ItemDetails</p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        }
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table" style="width:99%;margin:auto;">
+                <tr>
+                    <td>
+                        7. Preferred Make and Model&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;<span style="color:teal;">@Model.Model</span>
+                    </td>
+
+
+                    <td>
+                        8. Product’s Main Features&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;<span style="color:teal;">@Model.MainFeatures</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        9. Estimated Cost &nbsp;&nbsp;:&nbsp;&nbsp;&nbsp;<span style="color:teal;">@Model.EstimatedCost</span>
+                    </td>
+                    <td>
+                        10. Budgeted&nbsp;:&nbsp;<span style="color:teal;">@Model.Budgeted</span>&nbsp;&nbsp;&nbsp;&nbsp;11. Priority &nbsp;:&nbsp;<span style="color:teal;">@Model.Priority</span>
+                    </td>
+
+                </tr>
+
+
+            </table>
+        </div>
+    </div>
+    <hr />
+
+
+    <div class="row">
+        <div class="col-md-12">
+            <table class="table" style="width:99%;margin:auto;">
+                <thead>
+                    <tr>
+                        <th>Level</th>
+                        <th>Name</th>
+                        <th>Signature</th>
+                        <th>Remarks</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var approver in Model.ApprovalList)
+                    {
+                        string images = "/Images/signatures/";
+                        images = images + approver.ApproveEmpId;
+                        images = images + ".jpg";
+                        string name = "";
+                        switch (approver.ApprovalLevel)
+                        {
+                            case "0":
+                                name = "HOD";
+                                break;
+                            case "1":
+                                name = "Technical Admin";
+                                break;
+                            case "2":
+                                name = "Unit Admin";
+                                break;
+                            case "3":
+                                name = "Medial Director";
+                                break;
+                            case "4":
+                                name = "Final Approver 1";
+                                break;
+                            case "5":
+                                name = "Finance Approve";
+                                break;
+                            case "6":
+                                name = "Final Approver 2";
+                                break;
+                            case "7":
+                                name = "Final Approver 3";
+                                break;
+                            case "8":
+                                name = "Purchase Approver 1";
+                                break;
+                            case "9":
+                                name = "Purchase Approver 2";
+                                break;
+                        }
+                        <tr>
+                            <td>@name</td>
+                            <td>
+                                <span style="color:teal;">@approver.ApproveEmpName</span>
+                            </td>
+                            <td>
+                                <span style="color:teal;"><img style="width:150px;height:70px;" src="@images" /></span>
+                            </td>
+                            <td>@approver.ApproveComments</td>
+                            <td>
+                                <span style="color:teal;">@approver.ApprovedDate</span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <hr />
+
+</div>

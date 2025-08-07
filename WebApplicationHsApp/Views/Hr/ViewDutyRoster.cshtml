@@ -1,0 +1,65 @@
+﻿@{
+    ViewBag.Title = "ViewDutyRoster";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="~/Scripts/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/buttons.print.min.js"></script>
+@Scripts.Render("~/bundles/Roster")
+<div class="panel panel-default">
+    <div class="panel-heading">View DutyRoster</div>
+    <div class="panel-body">
+        <ul class="nav nav-tabs">
+            <li class="active"><a data-toggle="tab" href="#_page_1">View</a></li>
+            <li><a data-toggle="tab" href="#_page_3">Shift Types</a></li>
+        </ul>
+        <div class="tab-content">
+
+            <div class="tab-pane fade in active" id="_page_1">
+                <div id="divviewduty">
+
+                    <div class="row" style="padding-top:10px;">
+                        <div class="col-xs-2">
+                            Select Form Date
+                        </div>
+                        <div class="col-xs-2">
+                            <input type="text" id="txtfromdate1" autocomplete="off" />
+                        </div>
+                        <div class="col-xs-2">
+                            Todate
+                        </div>
+                        <div class="col-xs-2">
+                            <input type="text" id="txttodate1" autocomplete="off" />
+                        </div>
+                        <div class="col-xs-2">
+                            <button type="button" class="btn btn-primary" id="btncalender" value="Generate" onclick="btnviewclick();"><span class="glyphicon glyphicon-ok-circle"></span>&nbsp; Generate</button>
+                        </div>
+                        <div class="col-xs-2">
+                            <button type="button" class="btn btn-warning" id="btncalender" value="Export to Excel" onclick="ExportExcelData();"><span class="glyphicon glyphicon-download-alt"></span>&nbsp;Export to Excel </button>
+                        </div>                        
+                    </div>
+                    <div id="viewdivroster" style="padding-bottom: 50px; max-width:100%; overflow-x:scroll;">
+                    </div>
+                </div>
+            </div>        
+            <div class="tab-pane fade" id="_page_3">
+                <div id="ViewShifttypes" style="padding-bottom: 50px; width: 100%; padding-top:10px;">
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="alert" style="display: none;">
+    <div style="position: absolute; top: 50%; right: 50%; z-index: 10000; margin: -16px -16px; width: 100px; height: 100px; border: solid 2px #ff6a00; background-color: black; color: #fff;">
+        <span>Please Wait...</span>
+    </div>
+</div>
+@if (User.IsInRole("HrAdmin"))
+{
+    <input type="hidden" id="hidtypeofview" value="Edit" />
+}
+else
+{
+    <input type="hidden" id="hidtypeofview" value="View" />
+}
+

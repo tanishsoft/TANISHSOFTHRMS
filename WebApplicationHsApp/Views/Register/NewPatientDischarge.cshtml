@@ -1,0 +1,289 @@
+﻿
+@{
+    ViewBag.Title = "NewPatientDischarge";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+
+    #captureSignature {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+
+    #captureSignature2 {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+
+    #captureSignatureStaff {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+</style>
+<script src="~/Scripts/jSignature.min.js"></script>
+<!--[if lt IE 9]>
+<script  type="text/javascript" src="~/Scripts/flashcanvas.js"></script>
+    <![endif]-->
+<script>
+    var validate;
+    var eId = 0;
+
+    var $sigdiv, $sigdiv1, $sigdiv2;
+    $(document).ready(function () {
+        $sigdiv = $("#captureSignatureIn").jSignature({ 'UndoButton': true });
+        $sigdiv1 = $("#captureSignatureInNurseInChargeSign").jSignature({ 'UndoButton': true });
+        $sigdiv2 = $("#captureSignatureInSupervisorSign").jSignature({ 'UndoButton': true });
+        LoadLocations();
+        $("#txtPatientMrNumber").change(function () {
+            var id = $('#txtPatientMrNumber').val();
+            if (id != "") {
+                $.get("/CMS/GetCMS_PatitentNamebyMRno?id=" + id, function (res) {
+                    if (res != null) {
+                        $("#txtMobileNo").val(res.MobileNumber);
+                        $("#txtPatientName").val(res.Name);
+                        $("#txtPatientRoomNo").val(res.RoomNo + " " + res.BedNo);
+
+                    }
+                    else {
+                        $("#txtPatientName").val("");
+                    }
+                });
+            }
+        });
+
+        $("#txtIpExecutive").change(function () {
+            $.get("/Custom/GetUserDetailsByEmpId?id=" + $("#txtIpExecutive").val(), function (data) {
+                if (data != "Enter Valid Request ID") {
+                    $("#txtIpExecutivename").html(data.FirstName + " " + data.PhoneNumber);
+                    //$("#txtstaffContactNumber").val(data.PhoneNumber);
+                    //$("#dllstafdepartment").val(data.DepartmentName);
+                }
+            });
+        });
+
+        //LoadDropdownvalues();
+    });
+    function LoadDropdownvalues() {
+        $.get("/Common/GetCommonDropdownValues?dtype=Security", function (data) {
+            var options = [];
+            options.push('<option value="">- Select -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].Name + '">' + data[i].Name + '</option>');
+            }
+            $("#txtSecurity").html(options.join(''));
+        });
+    }
+    function OnLocationchng() {
+        $.get("/Register/GetSecurityDetails?locationId=" + $("#LocationId").val(), function (data) {
+            var options = [];
+            options.push('<option value="">- Select Security -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].FirstName + '">' + data[i].FirstName + '</option>');
+            }
+            $("#txtSecurity").html(options.join(''));
+        });
+    }
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Locations -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#LocationId").html(options.join(''));
+                //options.push('<option value="Other">Other</option>');
+                //$("#LocationId2").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+
+    function SaveRegister() {
+
+        ValidateDetails();
+        if (validate) {
+            var task = {
+                Id: eId,
+                LocationId: $("#LocationId").val(),             
+                PatientMRNo: $("#txtPatientMrNumber").val(),
+                NameOfPatient: $("#txtPatientName").val(),
+                RoomNo: $("#txtPatientRoomNo").val(),
+                Passes: $("#txtPasses").val(),
+                Remarks: $("#txtRemarks").val(),
+                IpExecutive: $("#txtIpExecutivename").html(),
+                IsActive: true,
+               
+                Security: $("#txtSecurity").val(),
+                //ContactNumber: $("#ParamedicContactNo").val(),
+                //Security: $("#txtSecurity").val(),
+                //InRemarks: $("#txtRemarks").val(),
+                SecuritySign: "data:" + $sigdiv.jSignature('getData', 'image').toString(),
+                IpExecutiveSign: "data:" + $sigdiv1.jSignature('getData', 'image').toString(),
+               /* SecuritySupervisorSign: "data:" + $sigdiv2.jSignature('getData', 'image').toString()*/
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Register/SaveNewPatientDischarge",
+                data: task,
+                success: function (data) {
+                    alert(data);
+                    clearAll();
+                }
+            });
+        }
+    }
+    function ValidateDetails() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+
+        if ($("#LocationId").val() == "") {
+            $("#LocationId").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtPatientMrNumber").val() == "") {
+            $("#txtPatientMrNumber").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtPatientName").val() == "") {
+            $("#txtPatientName").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtMobileNo").val() == "") {
+            $("#txtMobileNo").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtPasses").val() == "") {
+            $("#txtPasses").addClass('css-error');
+            validate = false;
+        }
+    }
+    function clearAll() {
+        window.location.href = "/Register/PatientDischarge";
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading" style="height:35px;"><a href="~/Register/PatientDischarge">Go Back</a> &nbsp;&nbsp;New Patient Discharge </div>
+    <div class="panel-body">
+        <div class="modal-body">
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Location<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <select id="LocationId" class="form-control" onchange="OnLocationchng();">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="name">Patient Mr No<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtPatientMrNumber" class="form-control" />
+                </div>
+            </div>
+
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Patient Name<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtPatientName" readonly="readonly" class="form-control" />
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Mobile No<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtMobileNo" class="form-control" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Room No<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtPatientRoomNo" readonly="readonly" class="form-control" />
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Pass No<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtPasses" class="form-control" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+
+
+                <div class="col-md-2">
+                    <label for="name">Ip Executive empid<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtIpExecutive" class="form-control" />
+                    <span id="txtIpExecutivename"></span>
+                </div>
+                <div class="col-md-2">
+                    <label for="name">Security<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+
+                    <select id="txtSecurity" class="form-control">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+              
+
+                <div class="col-md-2">
+                    <label for="name">Remarks<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <textarea rows="2" id="txtRemarks" class="form-control"></textarea>
+                </div>
+            </div>
+
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Security Sign<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-8">
+                    <div id="captureSignatureIn">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Ip Executive Sign<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-8">
+                    <div id="captureSignatureInNurseInChargeSign">
+                    </div>
+                </div>
+            </div>
+
+            
+        </div>
+        <div>
+            <input type="button" id="btnasigntask" value="Save" onclick="SaveRegister();" class="btn btn-primary" />
+            <button type="button" class="btn btn-default" onclick="clearAll();">Cancel</button>
+        </div>
+    </div>
+</div>
+

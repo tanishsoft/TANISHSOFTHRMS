@@ -1,0 +1,103 @@
+﻿
+@{
+    ViewBag.Title = "NewGallery";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>NewGallery</h2>
+<script>
+    $(document).ready(function () {
+        $('#DateOfGallery').datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            maxDate: "0",
+            yearRange: "-50:+50",
+        });
+    });
+</script>
+<div style="width:80%;margin:auto;">
+
+
+    @using (Html.BeginForm("UploadEventGallery", "Academics", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+
+        <div class="modal-body">
+            <div class="row" style="padding:5px;">
+                <div class="col-md-4">
+                    Gallery Name
+                </div>
+                <div class="col-md-8">
+                    <input type="text" id="GalleryName" autocomplete="off" name="GalleryName" class="form-control" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-4">
+                    Page Type
+                </div>
+                <div class="col-md-8">
+                    <select id="PageType" name="PageType" class="form-control">
+                        <option value="">Select</option>
+                        <option value="Happenings_at_Fernandez">Happenings_at_Fernandez</option>
+                        <option value="The_Week_That_Was">The_Week_That_Was</option>
+                        <option value="Straight_From_The_Heart">Straight_From_The_Heart</option>
+                        <option value="Straight_Talk">Straight_Talk</option>
+                        <option value="Gratitude_at_Fernandez">Gratitude_at_Fernandez</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row" style="padding:5px;">
+                <div class="col-md-4">
+                    Date Of Gallery
+                </div>
+                <div class="col-md-8">
+                    <input type="text" id="DateOfGallery" readonly="readonly" autocomplete="off" name="DateOfGallery" class="form-control" />
+                </div>
+            </div>
+
+            <div class="row" style="padding:5px;">
+                <div class="col-md-4" style="text-align:right;">
+                    <label for="name"> Thumbnail</label>
+                </div>
+                <div class="col-md-8">
+                    <input type="file" id="Thumbnail" name="Thumbnail" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-4" style="text-align:right;">
+                    <label for="name"> Main Banner</label>
+                </div>
+                <div class="col-md-8">
+                    <input type="file" id="MainBanner" name="MainBanner" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-4" style="text-align:right;">
+                    <label for="name">Upload</label>
+                </div>
+                <div class="col-md-8">
+                    <input type="file" id="Upload" name="Upload" multiple />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-5">
+                    <div style="text-align:center;">
+                        <input type="submit" id="btnasigntask" value="Save" class="btn btn-primary" />
+                        <button type="button" class="btn btn-default" onclick="Cancelethispage();">Cancel</button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+
+                </div>
+            </div>
+        </div>
+
+    }
+    <br /><br />
+</div>
+<script>
+    function Cancelethispage() {
+        window.location = "/Academics/ManageGallery";
+    }
+</script>

@@ -1,0 +1,126 @@
+﻿
+@{
+    ViewBag.Title = "NewEvent";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<script>
+    var validate;
+    var eId = 0;
+    $(document).ready(function () {
+        $("#txtStartDateTime").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            Edit: true
+        });
+    });
+
+    function SaveRegister() {
+        ValidateDetails();
+        if (validate) {
+            var task = {
+                Id: 0,
+                Description: $("#txtDescription").val(),
+                Duration: $("#txtDuration").val(),
+                EventTitle: $("#txtEventTitle").val(),
+                Location: $("#txtLocation").val(),
+                OtherDetails: $("#txtOtherDetails").val(),
+                IsActive: true,
+                StartDateTime: $("#txtStartDateTime").val()
+            };
+            $.ajax({
+                type: "POST",
+                url: "/MainEvent/SaveNewEvent",
+                data: task,
+                success: function (data) {
+                    alert(data);
+                    clearAll();
+                }
+            });
+        } else {
+            alert("Please enter all the required fields");
+        }
+    }
+    function ValidateDetails() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+
+        if ($("#txtEventTitle").val() == "") {
+            $("#txtEventTitle").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtStartDateTime").val() == "") {
+            $("#txtStartDateTime").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtDuration").val() == "") {
+            $("#txtDuration").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtLocation").val() == "") {
+            $("#txtLocation").addClass('css-error');
+            validate = false;
+        }
+    }
+    function clearAll() {
+        window.location.href = "/MainEvent/Index";
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading" style="height:35px;"><a href="~/MainEvent/Index">Go Back</a> &nbsp;&nbsp;New Event </div>
+    <div class="panel-body">
+        <div class="modal-body">
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Event Title<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtEventTitle" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <label for="name">Start Date</label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtStartDateTime" class="form-control" readonly="readonly" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Duration<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtDuration" class="form-control" />
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Location<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtLocation" class="form-control" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Description</label>
+                </div>
+                <div class="col-md-4">
+                    <textarea id="txtDescription" class="form-control"></textarea>
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Other Details<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <textarea id="txtOtherDetails" class="form-control"></textarea>
+                </div>
+            </div>
+        </div>
+        <div>
+            <input type="button" id="btnasigntask" value="Save" onclick="SaveRegister();" class="btn btn-primary" />
+            <button type="button" class="btn btn-default" onclick="clearAll();">Cancel</button>
+        </div>
+    </div>
+</div>

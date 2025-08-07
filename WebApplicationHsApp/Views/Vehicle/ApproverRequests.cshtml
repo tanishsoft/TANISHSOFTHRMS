@@ -1,0 +1,282 @@
+﻿
+@{
+    ViewBag.Title = "ApproverRequests";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+        LoadData();
+    });
+    function LoadData() {
+        $('#tblVehicleRequest').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Vehicle/AjaxGetVehicleRequestsForApproval",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "UserId" },
+                { "sName": "FirstName" },
+                { "sName": "DepartmentName" },
+                { "sName": "Designation" },
+                { "sName": "VehicleTypeRequested" },
+                { "sName": "FromAddress" },
+                { "sName": "ToAddress" },
+                { "sName": "Date" },
+                {
+                    "sName": "ArriveTime",
+                    "visible": false
+                },
+                { "sName": "Returnr" },
+                { "sName": "Returndate" },
+                { "sName": "Admin_Status" },
+                { "sName": "Status" },
+                { "sName": "VehicleDetails" },
+                {
+                    "sName": "VehicleRequestId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><a href="javascript:void(0);"  id="' + data + '" onclick="ViewHistory(this.id);">Comments</a></li>' +
+                            '<li><a href="javascript:void(0);"  id="' + data + '" onclick="ViewDetails(this.id);">View</a></li>' +
+                            '<li><a href="javascript:void(0);"  id="' + data + '" onclick="ApproveRequest(this.id);">Approve</a></li>' +
+                            '<li><a href="javascript:void(0);"  id="' + data + '" onclick="RejectRequest(this.id);">Reject</a></li>' +
+                            //'<li><button id="' + data + '" onclick="Cancel(this.id,this.value);" value="Cancel" class="btn btn-link">Cancel<br /></button></li>' +
+                            '</ul></div>';
+                    }
+                }
+            ]
+        });
+        $("#tblVehicleRequest_length").addClass("col-md-6");
+        //<a href="~/Views/Vehicle/myvechiclerequests.cshtml">~/Views/Vehicle/myvechiclerequests.cshtml</a>
+        $("#tblVehicleRequest_length").addClass("col-md-6");
+    }
+
+    var currentId = 0;
+    function ApproveRequest(id) {
+        currentId = id;
+        $("#myModalApproveRequest").modal('show');
+    }
+    function RejectRequest(id) {
+        currentId = id;
+        $("#myModalRejectRequest").modal('show');
+    }
+    function ApproveRequestSave() {
+        if (confirm("Are you sure you want to Approve the request?")) {
+            $.get("/Vehicle/ApproveVehicleRequest?id=" + currentId + "&remarks=" + $("#txtApprovecomments").val(), function (data) {               
+                $("#myModalApproveRequest").modal('hide');
+                alert(data);
+                LoadData();
+            });
+        }
+    }
+    function RejectRequestSave() {
+        if (confirm("Are you sure you want to Reject the request?")) {
+            $.get("/Vehicle/RejectVehicleRequest?id=" + currentId + "&remarks=" + $("#txtApprovecomments").val(), function (data) {
+                $("#myModalRejectRequest").modal('hide');
+                alert(data);
+                LoadData();
+            });
+        }
+    }
+    function ViewHistory(id) {
+        currentId = id;
+        $.get("/Vehicle/GetVehicleComments?id=" + id, function (data) {
+            var html = "<table class='table'><tr><td>Date</td><td>Comment Type</td><td>Comment</td><td>Comment By</td></tr>";
+            for (var i = 0; i < data.length; i++) {
+                html += "<tr><td>" + data[i].CommentOn + "</td><td>" + data[i].CommentType + "</td><td>" + data[i].Comment + "</td><td>" + data[i].CommentBy + "</td></tr>";
+            };
+            html += "</table>";
+            $("#ViewAssetHistory").html(html);
+            $("#myModalViewDetails").modal('show');
+        });
+    }
+    function ViewDetails(id) {
+        currentId = id;
+        $.get("/Vehicle/GetRequestVehicleById?RequestId=" + id, function (data) {
+            var html = "<table class='table table-bordered'>";
+            html += "<tr><td>Pick Up Location</td><td>" + data.FromAddress + "</td><td>Drop Location</td><td>" + data.ToAddress + "</td></tr>";
+            html += "<tr><td>Mobile</td><td>" + data.Mobile + "</td><td>Email</td><td>" + data.Email + "</td></tr>";
+            html += "<tr><td>Date</td><td>" + data.Date + "</td><td>Status</td><td>" + data.Status + "</td></tr>";
+            html += "<tr><td>Start Time</td><td>" + data.StartTime + "</td><td>No of Persons</td><td>" + data.NoofPersons + "</td></tr>";
+            html += "<tr><td>Vehicle</td><td>" + data.VehicleDetails + "</td><td>Driver Contact</td><td>" + data.DriverContactDetails + "</td></tr>";
+            html += "<tr><td>Remarks</td><td>" + data.Remarks + "</td><td>Vehicle Type</td><td>" + data.VehicleRegisterType + "</td></tr>";
+            html += "<tr><td>Vehicle Type Allocated</td><td>" + data.VehicleTypeAllocated + "</td><td>Return Required</td><td>" + data.returnRequired + "</td></tr>";
+            html += "<tr><td>Return date</td><td>" + data.Returndate + "</td><td>Return Time</td><td>" + data.Returntime + "</td></tr>";
+            html += "</table>";
+            $("#divFullViewvehicle").html(html);
+            $("#myModalFullViewDetails").modal('show');
+        });
+    }
+    function UpdateComments() {
+        $.get("/Vehicle/addComment?id=" + currentId + "&comment=" + $("#txtAssetComments").val(), function (data) {
+            alert(data);
+            $("#UpdateComments").val("");
+            ReloadViewHistory(currentId);
+        });
+    }
+    function ReloadViewHistory(id) {
+        $.get("/Vehicle/GetVehicleComments?id=" + id, function (data) {
+            var html = "<table class='table'><tr><td>Date</td><td>Comment Type</td><td>Comment</td><td>Comment By</td></tr>";
+            for (var i = 0; i < data.length; i++) {
+                html += "<tr><td>" + data[i].CommentOn + "</td><td>" + data[i].CommentType + "</td><td>" + data[i].Comment + "</td><td>" + data[i].CommentBy + "</td></tr>";
+            };
+            html += "</table>";
+            $("#ViewAssetHistory").html(html);
+        });
+    }
+    function Cancel(RequestId, val) {
+        $.ajax({
+            type: "POST",
+            url: '/Vehicle/CancelRequestByUser?Id=' + RequestId + '&Status=' + val,
+            success: function (data) {
+                if (data == true)
+                    LoadData();
+                else
+                    alert("Cancel is not allowed for this request because your request status is updated");
+            }
+        });
+
+    }
+</script>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Approver Requests
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-md-3">
+
+            </div>
+            <div class="col-md-6">
+                <table style="width:100%;">
+                    <tr>
+                        <td><label for="name" class="lbl">From Date</label> </td>
+                        <td><input class="date form-control" type="text" placeholder="Select Date" id="FromDateExcel" /></td>
+                        <td><label for="name" class="lbl">TO Date</label></td>
+                        <td><input class="date form-control" type="text" placeholder="Select Date" id="ToDateExcel" /></td>
+                        <td><input type="button" id="btnGO" value="GO" class="btn btn-primary" /></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-3">
+
+            </div>
+
+        </div>
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblVehicleRequest">
+            <thead>
+                <tr>
+                    <th>Request Id</th>
+                    <th>Requested By</th>
+                    <th>Department</th>
+                    <th>Designation</th>
+                    <th>Type of Vehicle</th>
+                    <th>Pickup location</th>
+                    <th>Drop location</th>
+                    <th>Report Date and Time</th>
+                    <th>Arrive Time</th>
+                    <th>Return Required</th>
+                    <th>Return date and time</th>
+                    <th>Admin Status</th>
+                    <th>Status</th>
+                    <th>Vehicle Details</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div id="myModalFullViewDetails" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">View</h4>
+            </div>
+            <div class="modal-body">
+                <div id="divFullViewvehicle">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalViewDetails" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">View</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        Enter Comments
+                    </div>
+                    <div class="col-md-4">
+                        <textarea id="txtAssetComments" class="form-control" autocomplete="off"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="button" id="btnpr" class="btn btn-primary" value="Save" onclick="UpdateComments();" />
+                    </div>
+                </div>
+                <div id="ViewAssetHistory">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModalApproveRequest" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Approve</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        Enter Comments
+                    </div>
+                    <div class="col-md-4">
+                        <textarea id="txtApprovecomments" class="form-control" autocomplete="off"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="button" id="btnpr" class="btn btn-primary" value="Save" onclick="ApproveRequestSave();" />
+                    </div>
+                </div>              
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalRejectRequest" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Reject</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        Enter Comments
+                    </div>
+                    <div class="col-md-4">
+                        <textarea id="txtRecjectcomments" class="form-control" autocomplete="off"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="button" id="btnpr" class="btn btn-primary" value="Save" onclick="RejectRequestSave();" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

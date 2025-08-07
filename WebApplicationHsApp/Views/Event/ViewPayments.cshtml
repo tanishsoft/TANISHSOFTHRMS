@@ -1,0 +1,83 @@
+﻿
+@{
+    ViewBag.Title = "ViewPayments";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+        var eventid = $("#hidEventId").val();
+        GetPayments(eventid);
+    });
+    function GetPayments(eventId) {
+        $('#tblEventPayments').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Event/GetDelegatePaymentDetails?eventId=" + eventId,
+            "bSortable": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "EventName" },
+                { "sName": "DelegateId" },
+                { "sName": "Name" },
+                { "sName": "PhoneNumber" },
+                { "sName": "EmailId" },
+                { "sName": "PaymentType" },
+                { "sName": "TotalAmount" },
+                { "sName": "Discount" },
+                { "sName": "FinalBlanceTopay" },
+                { "sName": "BankName" },
+                { "sName": "CCdetails" },
+                { "sName": "UTRTransaction" },
+                { "sName": "CreatedBy" }                
+            ],
+            "fnRowCallback": function (nRow, aData, iDisplayIndex) {
+                $("td:nth-child(1)", nRow).html(iDisplayIndex + 1);
+                return nRow;
+            }
+        });
+        $("#tblEventPayments_length").addClass("col-md-6");
+        $("#tblEventPayments_length").addClass("col-md-6");
+    }
+    function ExportExcelEventDelegate() {
+
+        var tab_text = "<h3>Delegate Payment Details</h3><table border='2px'><tr bgcolor='#87AFC6'>";
+        tab = document.getElementById('tblEventPayments'); // id of table
+
+        for (j = 0; j < tab.rows.length; j++) {
+            tab.rows[j] = tab.rows[j].lastChild.remove();
+            tab_text = tab_text + tab.rows[j].innerHTML + "</tr>";
+        }
+        tab_text = tab_text + "</table>";
+        window.open('data:application/vnd.ms-excel,' + encodeURIComponent(tab_text));
+
+    }
+</script>
+<input type="hidden" id="hidEventId" value="@ViewBag.EventId" />
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title" style="color:#c4122f;"><a href="/Event/Index" style="float:left;margin-right:10px;color:teal;cursor:pointer;" id="btnExport" value="Export Excel Delegate" >Go Back </a> Event  Payments <a href="javascript:void(0);" style="float:right;margin-right:10px;color:teal;cursor:pointer;" id="btnExport" value="Export Excel Delegate" onclick="ExportExcelEventDelegate()">Export To Excel</a></h3>
+       
+    </div>
+    <div class="panel-body" style="text-align:center;height:320px;">
+        <table class="table table-striped" id="tblEventPayments">
+            <thead>
+                <tr>
+                    <th>Event</th>
+                    <th>Delegate Id</th>
+                    <th>Payer Name</th>
+                    <th>Phone Number</th>
+                    <th>Email Id</th>
+                    <th>Payment Type</th>
+                    <th>Total Amount</th>
+                    <th>Discount</th>
+                    <th>Final Blance</th>
+                    <th>Bank Name</th>
+                    <th>CC details</th>
+                    <th>UTR Transaction</th>
+                    <th>Created By</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>

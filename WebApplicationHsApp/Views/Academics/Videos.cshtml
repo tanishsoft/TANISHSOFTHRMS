@@ -1,0 +1,55 @@
+﻿@model IEnumerable<WebApplicationHsApp.DataModel.tbl_AcademicsVideos>
+@{
+    ViewBag.Title = "Videos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="~/Scripts/Commonimgpreview.js"></script>
+<style type="text/css" media="print">
+    * {
+        display: none;
+    }
+</style>
+@*<script>
+
+    function myFunction(model) {
+
+        $.get("/Academics/UpdateViews?id=" + model.id, function () {
+            console.log("success");
+        });
+    }
+</script>*@
+<div class="panel panel-default">
+    <div class="panel-heading">Academics Videos</div>
+    <div class="panel-body">
+
+      
+
+            @foreach (var m in Model.OrderByDescending(l=>l.AcademicsVideoId))
+            {
+                <div class="row">
+
+
+                    <div class="col-md-4">
+
+                        <video controls controlsList="nodownload" id="@m.AcademicsVideoId" class="videoplay" style="width:100%;">
+                            <source src="/Videos/@m.VideoUrl" type="video/mp4">
+                        </video>
+
+                    </div>
+                    <div class="col-md-8">
+                        <p style="color:teal;font-style:italic; font-size:26px;"><span class="glyphicon glyphicon-thumbs-up"></span>@m.Name</p>
+                        @if (m.CategoryName != null && m.CategoryName != "")
+                        {
+                            <p style="font-size:22px;"><span class="glyphicon glyphicon-pushpin" style="color:green; "></span>  @m.CategoryName</p>
+                        }
+                        @*<p style=" font-size:22px;"><span class="glyphicon glyphicon-eye-open" style="color:crimson;"></span> @m.TotalNoOfViews views</p>*@
+                        @if (m.Description != null && m.Description != "")
+                        {
+                            <p style="font-size:18px;"> <span class="	glyphicon glyphicon-menu-hamburger" style="color:chocolate;font-size:22px; "></span> @m.Description</p>
+                        }
+                        <p style="font-size:12px;">  @m.CreatedOn.Value.ToString("dd/MM/yyyy")</p>
+                    </div>
+                </div>
+            }
+    </div>
+</div>

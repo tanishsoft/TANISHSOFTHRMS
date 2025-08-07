@@ -1,0 +1,766 @@
+﻿
+@{
+    ViewBag.Title = "ManageShiftingRequest";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+
+    .col-md-6 {
+        margin-bottom: 10px;
+    }
+</style>
+
+<script>
+    var eId = 0;
+    $(document).ready(function () {
+        LoadData();
+        EmployeeSearch();
+        LoadLocations();
+        $(".date").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            minDate: 0,
+            Edit: true
+        });
+        $('.time').timepicker({
+            minuteStep: 5
+        });
+        $("#Ftxtfromdate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            Edit: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            onSelect: function (dateText, inst) {
+                $("#Ftxttodate").datepicker("option", "minDate",
+                    $("#Ftxtfromdate").datepicker("getDate"));
+            }
+        });
+        $("#Ftxttodate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            Edit: true
+        });
+    });
+    function EmployeeSearch() {
+        $(".EmpId").select2({
+            ajax: {
+                url: "/Biomedical/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term,
+                        id: eId,
+                        table: "DailyRounds"// search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            width: 'element',
+            minimumInputLength: 2
+        });
+        $("#FAssignTo").select2({
+            ajax: {
+                url: "/Home/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            width: 'element',
+            minimumInputLength: 2
+        });
+    }
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#PickupLocation").html(options.join(''));
+                $("#LocationIdfilter").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }  
+
+    function LoadDepartment() {
+        var options = [];
+        options.push('<option value="">- Select Department -</option>');
+        if ($("#LocationIdfilter").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Biomedical/GetDepartmentByLocation",
+                data: "id=" + $("#LocationIdfilter").val(),
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                    }
+                    $("#DepartmentIdfilter").html(options.join(''));
+                },
+                error: function () {
+                    alert("error");
+                }
+            });
+        }
+        else {
+            $("#DepartmentIdfilter").html(options.join(''));
+        }
+    }   
+
+    function ExportExcel() {
+        validateDate();
+
+        if (validate) {
+            var id = 0;
+            debugger;
+            FromDate = $("#Ftxtfromdate").val();
+            ToDate = $("#Ftxttodate").val();
+            var url = '/Biomedical/ExportExcelShiftingRequest?FromDate=' + FromDate + '&ToDate=' + ToDate;
+           
+            if ($("#LocationIdfilter").val() != null && $("#LocationIdfilter").val() != "")
+                url += '&locationId=' + $("#LocationIdfilter").val();
+            if ($("#DepartmentIdfilter").val() != null && $("#DepartmentIdfilter").val() != "")
+                url += '&departmentId=' + $("#DepartmentIdfilter").val();
+          
+            if ($("#FAssignTo").val() != null && $("#FAssignTo").val() != "") {
+                url += '&id=' + $("#FAssignTo").val();
+            }
+
+            window.location = url;
+            $("#Ftxtfromdate").val("");
+            $("#Ftxttodate").val("");
+        }
+    }
+
+    function validateDate() {
+
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#Ftxtfromdate").val() == "") {
+            $("#Ftxtfromdate").addClass('css-error');
+            validate = false;
+        }
+        if ($("#Ftxttodate").val() == "") {
+            $("#Ftxttodate").addClass('css-error');
+            validate = false;
+        }
+    }
+    function LoadData() {
+        $('#tbl_Asset').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Biomedical/AjaxGetShiftingRequest",
+            "bProcessing": true,
+            "bDestroy": true,
+            //"scrollX": true,
+            //"scrollX": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "locationId" },
+                { "sName": "locationId" },
+                { "sName": "departmentId" },
+                { "sName": "RequestDoctor" },
+                { "sName": "RequestItem" },
+                { "sName": "wstart" },
+                { "sName": "wend" },
+                {
+                    "sName": "Id",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="PickUpUpdateByBiomedical(this.id);">Pick up update </a></li>' +
+                            //'<li><a href="javascript:void(0);" id="' + data + '" onclick="Deallocate(this.id);">Deallocate</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="UsageDetailsByUser(this.id);">usage details</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="ReturnUpdate(this.id);">return update</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="View(this.id);">Full View</a></li>' +
+                            '</ul></div>';
+                    }
+                }
+            ],
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "fromdate", "value": $("#Ftxtfromdate").val() },
+                    { "name": "todate", "value": $("#Ftxttodate").val() },
+                    { "name": "Emp", "value": $("#FAssignTo").val() },
+                    { "name": "locationid", "value": $("#LocationIdfilter").val() },
+                    { "name": "departmentid", "value": $("#DepartmentIdfilter").val() }
+                );
+            }
+        });
+        $("#tbl_Asset_length").addClass("col-md-6");
+        $("#tbl_Asset_length").addClass("col-md-6");
+    }
+
+    function New() {
+        window.location.href = "/Biomedical/CreateShiftingRequest";
+    }
+
+    function PickUpUpdateByBiomedical(id) {
+        eId = id;
+        $.get("/Biomedical/GetShifitingRequest", { id: id }, function (data) {
+            $("#PickupLocation").val(data.PickupLocation);
+            
+            $("#RecievedMakeModel").val(data.ReceivedMakeModelAssetno);
+            if (data.ReceivedDate != null && data.ReceivedDate != "") {
+                var start = data.ReceivedDate.split("-");
+                $("#RecievedDateTime").datepicker().datepicker("setDate", new Date(parseInt(start[2]), parseInt(start[1]) - 1, parseInt(start[0])));
+            }
+            $("#RecievedTime").val(data.ReceivedTime);
+            $("#ConditionEquipment").val(data.ConditionOfEquipment);
+            $("#HandedOver").val(data.HandOvercomments);
+            $("#PickUpUpdateByBiomedical").modal('show');
+
+        });
+       
+    }
+    function SavePickUpUpdate() {
+        var validate = validateinputPickUpUpdate();
+        if (validate) {
+            if (window.FormData !== undefined) {
+                var files = "";
+                var fileData = new FormData();
+                fileData.append('ShiftingRequestId', eId);
+                fileData.append('PickupLocation', $("#PickupLocation").val());
+                fileData.append('ReceivedMakeModelAssetno', $("#RecievedMakeModel").val());
+                fileData.append('ReceivedDate', $("#RecievedDateTime").val());
+                fileData.append('ReceivedTime', $("#RecievedTime").val());
+                fileData.append('ConditionOfEquipment', $("#ConditionEquipment").val());
+                fileData.append('HandOvercomments', $("#HandedOver").val());
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Biomedical/Save_Update_PickUpUpdate",
+                    contentType: false,
+                    processData: false,
+                    data: fileData,
+                    success: function (data) {
+                        alert("Success");
+                        $("#PickUpUpdateByBiomedical").modal('hide');
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+    }
+    function validateinputPickUpUpdate() {
+        var validate = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#PickupLocation").val() == "") {
+            $("#PickupLocation").after('<span class="error" style="color:Red;"Select Pickup Location</span>');
+            $("#PickupLocation").addClass('css-error');
+            validate = false;
+        }
+
+        if ($("#RecievedMakeModel").val() == "") {
+            $("#RecievedMakeModel").after('<span class="error" style="color:Red;">Enter Recieved Make Model</span>');
+            $("#RecievedMakeModel").addClass('css-error');
+            validate = false;
+        }
+        if ($("#RecievedDateTime").val() == "") {
+            $("#RecievedDateTime").after('<span class="error" style="color:Red;">Enter Recieved Date</span>');
+            $("#RecievedDateTime").addClass('css-error');
+            validate = false;
+        }
+        if ($("#RecievedTime").val() == "") {
+            $("#RecievedTime").after('<span class="error" style="color:Red;">Select Recieved Time</span>');
+            $("#RecievedTime").addClass('css-error');
+            validate = false;
+        }
+        if ($("#ConditionEquipment").val() == "") {
+            $("#ConditionEquipment").after('<span class="error" style="color:Red;">Enter Condition Equipment</span>');
+            $("#ConditionEquipment").addClass('css-error');
+            validate = false;
+        }
+        if ($("#HandedOver").val() == "") {
+            $("#HandedOver").after('<span class="error" style="color:Red;">Enter Handed Over</span>');
+            $("#HandedOver").addClass('css-error');
+            validate = false;
+        }
+        return validate;
+    }
+    function UsageDetailsByUser(id) {
+        eId = id;
+        $.get("/Biomedical/GetShifitingRequest", { id: id }, function (data) {
+            $("#UsedOnPatient").val(data.UsedOnPatient);
+            $("#PatientMrNo").val(data.PatientMrNo);
+            if (data.UsageStartDate != null && data.UsageStartDate != "") {
+                var start = data.UsageStartDate.split("-");
+                $("#UsageStartDate").datepicker().datepicker("setDate", new Date(parseInt(start[2]), parseInt(start[1]) - 1, parseInt(start[0])));
+            }
+            if (data.UsageEndDate != null && data.UsageEndDate != "") {
+                var start = data.UsageEndDate.split("-");
+                $("#UsageEndDate").datepicker().datepicker("setDate", new Date(parseInt(start[2]), parseInt(start[1]) - 1, parseInt(start[0])));
+            }
+            $("#UsageStartTime").val(data.UsageStartTime);
+            $("#UsageEndTime").val(data.UsageEndTime);
+            // $("#DepartmentId").val(data.DepartmentId);
+            $("#UsageDetailsByUser").modal('show');
+
+        });
+
+        
+    }
+    function SaveUsageDetailsByUser() {
+        var validate = validateinputUsageDetailsByUser();
+        if (validate) {
+            if (window.FormData !== undefined) {
+                var files = "";
+                var fileData = new FormData();
+                fileData.append('ShiftingRequestId', eId);
+                fileData.append('UsedOnPatient', $("#UsedOnPatient").val());
+                fileData.append('PatientMrNo', $("#PatientMrNo").val());
+                fileData.append('UsageStartDate', $("#UsageStartDate").val());
+                fileData.append('UsageEndDate', $("#UsageEndDate").val());
+                fileData.append('UsageStartTime', $("#UsageStartTime").val());
+                fileData.append('UsageEndTime', $("#UsageEndTime").val());
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Biomedical/Save_Update_UsageDetailsByUser",
+                    contentType: false,
+                    processData: false,
+                    data: fileData,
+                    success: function (data) {
+                        alert("Success");
+                        $("#UsageDetailsByUser").modal('hide');
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+    }
+    function validateinputUsageDetailsByUser() {
+        var validate = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#UsedOnPatient").val() == "") {
+            $("#UsedOnPatient").after('<span class="error" style="color:Red;">Enter Used On Patient</span>');
+            $("#UsedOnPatient").addClass('css-error');
+            validate = false;
+        }
+
+        if ($("#PatientMrNo").val() == "") {
+            $("#PatientMrNo").after('<span class="error" style="color:Red;">Enter Patient MR</span>');
+            $("#PatientMrNo").addClass('css-error');
+            validate = false;
+        }
+        if ($("#UsageStartDate").val() == "") {
+            $("#UsageStartDate").after('<span class="error" style="color:Red;">Enter Usage Start Date</span>');
+            $("#UsageStartDate").addClass('css-error');
+            validate = false;
+        }
+        if ($("#UsageEndDate").val() == "") {
+            $("#UsageEndDate").after('<span class="error" style="color:Red;">Enter Usage End Date</span>');
+            $("#UsageEndDate").addClass('css-error');
+            validate = false;
+        }
+        if ($("#UsageStartTime").val() == "") {
+            $("#UsageStartTime").after('<span class="error" style="color:Red;">Enter Usage Start Time</span>');
+            $("#UsageStartTime").addClass('css-error');
+            validate = false;
+        }
+        if ($("#UsageEndTime").val() == "") {
+            $("#UsageEndTime").after('<span class="error" style="color:Red;">Enter Usage End Time</span>');
+            $("#UsageEndTime").addClass('css-error');
+            validate = false;
+        }
+        return validate;
+    }
+    function ReturnUpdate(id) {
+        eId = id;
+        $.get("/Biomedical/GetShifitingRequest", { id: id }, function (data) {
+            $("#ConditionOfEquipment").val(data.ConditionOfEquipment);
+            $("#ReturnDate").val(data.ReturnDate);
+            $("#ReturnTime").val(data.ReturnTime);
+            $("#Status").val(data.Status);
+            $("#ReturnUpdate").modal('show');
+
+        });
+      
+    }
+    function SaveReturnUpdate() {
+        var validate = validateinputReturn();
+        if (validate) {
+            if (window.FormData !== undefined) {
+                var files = "";
+                var fileData = new FormData();
+                fileData.append('ShiftingRequestId', eId);
+                fileData.append('ConditionOfEquipment', $("#ConditionOfEquipment").val());
+                fileData.append('ReturnDate', $("#ReturnDate").val());
+                fileData.append('ReturnTime', $("#ReturnTime").val());
+                fileData.append('Status', $("#Status").val());
+              
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Biomedical/Save_Update_RetunUpdate",
+                    contentType: false,
+                    processData: false,
+                    data: fileData,
+                    success: function (data) {
+                        alert("Success");
+                        $("#ReturnUpdate").modal('hide');
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+    }
+    function validateinputReturn() {
+        var validate = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#ConditionOfEquipment").val() == "") {
+            $("#ConditionOfEquipment").after('<span class="error" style="color:Red;">Enter Condition Of Equipment</span>');
+            $("#ConditionOfEquipment").addClass('css-error');
+            validate = false;
+        }
+       
+        if ($("#ReturnDate").val() == "") {
+            $("#ReturnDate").after('<span class="error" style="color:Red;">Enter Return Date</span>');
+            $("#ReturnDate").addClass('css-error');
+            validate = false;
+        }
+        if ($("#ReturnTime").val() == "") {
+            $("#ReturnTime").after('<span class="error" style="color:Red;">Enter Return Time</span>');
+            $("#ReturnTime").addClass('css-error');
+            validate = false;
+        }
+        if ($("#Status").val() == "") {
+            $("#Status").after('<span class="error" style="color:Red;">Enter Shifting Status</span>');
+            $("#Status").addClass('css-error');
+            validate = false;
+        }
+        return validate;
+    }
+    function CancelReturnUpdate() {
+        $("#ReturnUpdate").modal('hide');
+    }
+    function CancelPickUpUpdate() {
+        $("#PickUpUpdateByBiomedical").modal('hide');
+    }
+    function CancelUsageDetailsByUser() {
+        $("#UsageDetailsByUser").modal('hide');
+    }
+    function Edit() {
+        $("#UsageDetailsByUser").modal('hide');
+    }
+    function Edit(id) {
+        window.location.href = "/Biomedical/CreateShiftingRequest?id="+id;
+    }
+    function View(id) {
+        $("#myModalFullrequest").modal('show');
+        $.get("/Biomedical/GetShifitingRequest", { id: id }, function (data) {
+            var html = "";
+            html = "<table class='table table-bordered'>";
+            html += "<tr><td style='color:darkgoldenrod;'>Id</td><td>" + data.ShiftingRequestId + "</td></tr><tr><td style='color:darkgoldenrod;'>Request For Location</td><td>" + data.RequestForLocation + "</td></tr>";
+            html += "<tr><td style='color:darkgoldenrod;'>Request For Department</td><td>" + data.RequestForDepartment + "</td></tr><tr><td style='color:darkgoldenrod;'>Request For Sub Department</td><td>" + data.RequestForSubDepartment + "</td></tr>";
+            html += "<tr><td style='color:darkgoldenrod;'>Request Employee</td><td>" + data.RequestEmpId + "</td></tr><tr><td style='color:darkgoldenrod;'>Request Doctor</td><td>" + data.RequestDoctor + "</td></tr>";
+            html += "<tr><td style='color:darkgoldenrod;'>Request Item</td><td>" + data.RequestItem + "</td></tr><tr><td style='color:darkgoldenrod;'>Request Comments</td><td>" + data.RequestComments + "</td></tr>";
+            html += "<tr><td style='color:darkgoldenrod;'>Request Date</td><td>" + data.RequestDate + "</td></tr>";
+
+            html += "</table>";
+            $("#divRequestDetails").html(html);
+            if (data.PickupLocation != null) {
+                html = "";
+                html = "<table class='table table-bordered'>";
+                html += "<tr><td style='color:darkgoldenrod;'>Pick up Location</td><td>" + data.PickupLocation + "</td></tr><tr><td style='color:darkgoldenrod;'>Pick up Comments</td><td>" + data.PickupComments + "</td></tr>";
+                html += "<tr><td style='color:darkgoldenrod;'>Received Make Model Assetno</td><td>" + data.ReceivedMakeModelAssetno + "</td></tr><tr><td style='color:darkgoldenrod;'>Receive dDate</td><td>" + data.ReceivedDate + "</td></tr>";
+                html += "<tr><td style='color:darkgoldenrod;'>Received Time</td><td>" + data.ReceivedTime + "</td></tr><tr><td style='color:darkgoldenrod;'>Condition Of Equipment</td><td>" + data.ConditionOfEquipment + "</td></tr>";
+                html += "<tr><td style='color:darkgoldenrod;'>Hand Over comments</td><td>" + data.HandOvercomments + "</td></tr>";
+
+                html += "</table>";
+                $("#divPickUpdetails").html(html);
+            }
+            else {
+                html="Pick Details not yet Updated."
+                $("#divPickUpdetails").html(html);
+            }
+
+            if (data.UsedOnPatient != null) {
+                html = "";
+                html = "<table class='table table-bordered'>";
+                html += "<tr><td style='color:darkgoldenrod;'>Used On Patient</td><td>" + data.UsedOnPatient + "</td></tr><tr><td style='color:darkgoldenrod;'>Patient Mr No</td><td>" + data.PatientMrNo + "</td></tr>";
+                html += "<tr><td style='color:darkgoldenrod;'>Usage Start Date</td><td>" + data.UsageStartDate + "</td></tr><tr><td style='color:darkgoldenrod;'>Usage Start Time</td><td>" + data.UsageStartTime + "</td></tr>";
+                html += "<tr><td style='color:darkgoldenrod;'>Usage End Date</td><td>" + data.UsageEndDate + "</td></tr><tr><td style='color:darkgoldenrod;'>Usage End Time</td><td>" + data.UsageEndTime + "</td></tr>";
+               
+
+                html += "</table>";
+                $("#divUsagedetails").html(html);
+            }
+            else {
+                html = "Usage Details not yet Updated."
+                $("#divUsagedetails").html(html);
+            }
+
+            if (data.ReturnConditionOfEquipment != null) {
+                html = "";
+                html = "<table class='table table-bordered'>";
+                html += "<tr><td style='color:darkgoldenrod;'>Return Condition Of Equipment</td><td>" + data.ReturnConditionOfEquipment + "</td></tr><tr><td style='color:darkgoldenrod;'>Return Date</td><td>" + data.ReturnDate + "</td></tr>";
+                html += "<tr><td style='color:darkgoldenrod;'>Return Time</td><td>" + data.ReturnTime + "</td></tr><tr><td style='color:darkgoldenrod;'>Status</td><td>" + data.Status + "</td></tr>";             
+
+                html += "</table>";
+                $("#divReturndetails").html(html);
+            }
+            else {
+                html = "Return Details not yet Updated."
+                $("#divReturndetails").html(html);
+            }
+        });
+      
+    }
+
+  
+   
+</script>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Manage Shifting &nbsp;&nbsp;<a href="#" data-toggle="modal" class="pull-right" onclick="New();">New </a>&nbsp;&nbsp;</div>
+    <div class="form-row">
+
+        <div class="col-md-2">
+            <select class="form-control maxwidth" id="LocationIdfilter" onchange="LoadDepartment();">
+                <option value="">- Select Location -</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select class="form-control maxwidth" id="DepartmentIdfilter" >
+                <option value="">- Select Department -</option>
+            </select>
+        </div>
+
+        <div class="form-group col-md-2">
+            <input type="text" class="form-control" name="FromDate" autocomplete="off" placeholder="From Date" id="Ftxtfromdate" style="max-width:200px;" />
+        </div>
+        <div class="form-group col-md-2">
+            <input type="text" class="form-control" name="ToDate" autocomplete="off" placeholder="To Date" id="Ftxttodate" style="max-width:200px;" />
+        </div>
+
+        <div class="form-group col-md-2">
+            <select id="FAssignTo" style="width: 100%" class="form-control typeahead" name="query" data-provide="typeahead" autocomplete="off">
+                <option value="">Select Engineer</option>
+            </select>
+        </div>
+        <div class="form-group col-md-2">
+            <button type="button" class="btn btn-sm btn-default" value="Export To Excel" onclick="ExportExcel();"><span class="glyphicon glyphicon-download" style="vertical-align:middle;"></span>&nbsp;Export To Excel</button>
+            <button type="button" class="btn btn-sm btn-success" value="Go" onclick="LoadData();"><span class="glyphicon glyphicon-search" style="vertical-align:middle;"></span>&nbsp;Go</button>
+        </div>
+    </div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered nowrap" style="width:100%;" id="tbl_Asset">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>Id</th>
+                    <th>Location</th>
+                    <th>Department</th>
+                    <th>Request Doctor</th>
+                    <th>Request Item</th>
+                    <th>Request Date</th>
+                    <th>Request Employee</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="PickUpUpdateByBiomedical" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:900px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">PickUp Update</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="row" style="padding:20px;">
+                    <div class="col-md-6">
+                        <label>Pick Up Location<span style="color:red;">*</span></label>
+                        <select class="form-control" id="PickupLocation">
+                            <option value="">- Select Location -</option>
+                        </select>
+
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Recieved Make Model<span style="color:red;">*</span></label>
+                        <input type="text" class="form-control" id="RecievedMakeModel" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Recieved Date<span style="color:red;">*</span></label>
+                        <input type="text" class="form-control date" id="RecievedDateTime" />
+                    </div>
+                    <div class="col-md-6 bootstrap-timepicker timepicker">
+                        <label>Recieved Time<span style="color:red;">*</span></label>
+                        <input type="text" name="RecievedTime" class="form-control time" id="RecievedTime" readonly="readonly" autocomplete="off" />
+                    </div>
+                    <div class="col-md-6">
+                        <label>Condition Of Equipment <span style="color:red;">*</span></label>
+                        <input type="text" class="form-control" id="ConditionEquipment" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Handed Over  <span style="color:red;">*</span></label>
+                        <input type="text" class="form-control" id="HandedOver" />
+                    </div>
+
+                </div>
+            </div>
+            <div class="row" style="padding:10px;">
+                <input type="button" class="btn cancel" value="Cancel" onclick="CancelPickUpUpdate();" />
+                <input type="button" class="btn save" value="Save" onclick="SavePickUpUpdate();" />
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="UsageDetailsByUser" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:900px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Usage Details</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="row" style="padding:20px;">
+                    <div class="col-md-6">
+                        <label>Used On Patient<span style="color:red;">*</span></label>
+                        <input type="text" class="form-control" id="UsedOnPatient" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Patient MR NO<span style="color:red;">*</span></label>
+                        <input type="text" class="form-control" id="PatientMrNo" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Usage Start DateTime<span style="color:red;">*</span></label>
+                        <input type="text" class="form-control date" id="UsageStartDate" />
+                    </div>
+                    <div class="col-md-6 bootstrap-timepicker timepicker">
+                        <label>Usage Start Time<span style="color:red;">*</span></label>
+                        <input type="text" name="UsageStartTime" class="form-control time" id="UsageStartTime" readonly="readonly" autocomplete="off" />
+                    </div>
+                    <div class="col-md-6">
+                        <label>Usage End DateTime <span style="color:red;">*</span></label>
+                        <input type="text" class="form-control date" id="UsageEndDate" />
+                    </div>
+                    <div class="col-md-6 bootstrap-timepicker timepicker">
+                        <label>Usage End Time<span style="color:red;">*</span></label>
+                        <input type="text" name="UsageEndTime" class="form-control time" id="UsageEndTime" readonly="readonly" autocomplete="off" />
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="padding:10px;">
+                <input type="button" class="btn cancel" value="Cancel" onclick="CancelUsageDetailsByUser();" />
+                <input type="button" class="btn save" value="Save" onclick="SaveUsageDetailsByUser();" />
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="ReturnUpdate" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:900px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Return Update</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="row" style="padding:20px;">
+                    <div class="col-md-6">
+                        <label>Condition Of Equipment<span style="color:red;">*</span></label>
+                        <input type="text" class="form-control" id="ConditionOfEquipment" />
+                    </div>
+
+                    <div class="col-md-6">
+                        <label>Return Date<span style="color:red;">*</span></label>
+                        <input type="text" class="form-control date" id="ReturnDate" />
+                    </div>
+                    <div class="col-md-6 bootstrap-timepicker timepicker">
+                        <label>Return Time<span style="color:red;">*</span></label>
+                        <input type="text" name="ReturnTime" class="form-control time" id="ReturnTime" readonly="readonly" autocomplete="off" />
+                    </div>
+                    <div class="col-md-6">
+                        <label>Shifting Status Completed<span style="color:red;">*</span></label>
+                        <input type="text" class="form-control" id="Status" />
+                    </div>
+
+                </div>
+            </div>
+            <div class="row" style="padding:10px;">
+                <input type="button" class="btn cancel" value="Cancel" onclick="CancelReturnUpdate();" />
+                <input type="button" class="btn save" value="Save" onclick="SaveReturnUpdate();" />
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="myModalFullrequest" role="dialog">
+    <div class="form-block">
+        <h3>View Shifting Request<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <label>Request Details</label>
+        <div id="divRequestDetails" style="max-height:500px;overflow-y:auto;">
+        </div>
+        <label>PickUp Details</label>
+        <div id="divPickUpdetails" style="max-height:500px;overflow-y:auto;">
+        </div>
+        <label>Usage Details</label>
+        <div id="divUsagedetails" style="max-height:500px;overflow-y:auto;">
+        </div>
+        <label>Return Details</label>
+        <div id="divReturndetails" style="max-height:500px;overflow-y:auto;">
+        </div>
+    </div>
+</div>
+
+

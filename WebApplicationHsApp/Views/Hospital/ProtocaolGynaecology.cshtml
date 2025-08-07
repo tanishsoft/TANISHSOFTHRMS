@@ -1,0 +1,25 @@
+﻿
+@{
+    ViewBag.Title = "Protocol Gynaecology";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">Protocol Gynaecology</div>
+    <div class="panel-body">
+
+        @if (ViewBag.ProtocaolGynaecology != null && ViewBag.ProtocaolGynaecology != "")
+        {
+            if (ViewBag.ProtocaolGynaecology.Contains("pdf"))
+            {
+                <iframe height="680" style="width:100%;" src="~/ExcelUplodes/@ViewBag.ProtocaolGynaecology#toolbar=0&amp;navpanes=0&amp;statusbar=0&amp;readonly=true; disableprint=true; "></iframe>
+            }
+            else
+            {
+                <img src="~/ExcelUplodes/@ViewBag.ProtocaolGynaecology" class="img-responsive" />
+            }
+        }
+
+    </div>
+</div>

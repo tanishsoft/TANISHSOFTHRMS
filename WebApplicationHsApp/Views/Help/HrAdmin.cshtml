@@ -1,0 +1,174 @@
+﻿
+@{
+    ViewBag.Title = "HrAdmin";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        HR ADMIN ROLES
+
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-lg-3 col-xlg-2 col-md-4">
+                <div class="stickyside">
+                    <div class="list-group" id="top-menu">
+                        <a href="#1" class="list-group-item">Login Page</a>
+                        <a href="#2" class="list-group-item">Main Page</a>
+                        <a href="#3" class="list-group-item">Dashboard</a>
+                        <a href="#4" class="list-group-item">Leave Types</a>
+                        <a href="#5" class="list-group-item">Employee Leaves</a>
+                        <a href="#6" class="list-group-item">Leave Application</a>
+                        <a href="#7" class="list-group-item">View Permission</a>
+                        <a href="#8" class="list-group-item">Manage ShiftType</a>
+                        <a href="#9" class="list-group-item">View DutyRoster</a>
+                        <a href="#10" class="list-group-item">Add Employee</a>
+                        <a href="#11" class="list-group-item">Manage Employees</a>
+                        <a href="#12" class="list-group-item">Inactive Employees</a>
+                        <a href="#13" class="list-group-item">Manage holidays</a>
+                        <a href="#14" class="list-group-item">Manage Reporting Managers</a>
+                        <a href="#15" class="list-group-item">Department Vs ShiftType</a>
+                        
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-9 col-xlg-10 col-md-8">
+                <div class="card">
+                    <div class="card-block">
+                        <h4 class="card-title" id="1">1. Login</h4>
+                        
+                        <img src="~/Images/Help/HrAdmin/Login.jpg" class="img-responsive" />
+
+                        <h4 class="card-title m-t-40" id="2">2. Main Page </h4>
+                        <p> Go to the HrAdmin menu click, will open menu-> select HrAdmin will see options</p>
+                        <ol>
+                            <li>Dashboard</li>
+                            <li>Leave Types</li>
+                            <li>Employee Leaves</li>
+                            <li>Leave Application</li>
+                            <li>View Permission</li>
+                            <li>Manage ShiftType</li>
+                            <li>View DutyRoster</li>
+                            <li>Add Employee</li>
+                            <li>Manage Employees</li> 
+                            <li>Inactive Employees</li>
+                            <li>Manage holidays</li>
+                            <li>Manage Reporting Managers</li>
+                            <li>Department Vs ShiftType</li>
+                            <li>Manage Designation</li>
+                            <li>Manage Location</li>
+                            <li>Employee Attendance</li>
+                            <li>Manage Department</li>
+                            <li>Sub Department</li>
+                        </ol>
+
+                      
+                        <img src="~/Images/Help/main.png" class="img-responsive" />
+
+
+
+                        <h4 class="card-title m-t-40" id="3">3.Dashboard</h4>
+                        <p>We can see the graph of the employee Status.</p>
+                      
+                        <img src="~/Images/Help/HrAdmin/Dashboard.jpg" class="img-responsive" />
+
+                        <h4 class="card-title m-t-40" id="4">4. Leave Types</h4>
+                        <p>HR Admin able to Add or Remove Leave Types. Go to the page Hr admin --> Manage LeaveTypes (in Menu).</p>
+                        @*<p> Hr Admin want to add leave types. Go to right corner click "New Leave Type"</p>
+                        <p>Hr Admin want to delete leave type, then go to Action column display red color box click it to delete </p>*@
+                        <img src="~/Images/Help/HrAdmin/Empleave.jpg" class="img-responsive" />
+
+
+                        <h4 class="card-title m-t-40" id="5">5. Employee Leaves</h4>
+                        <p>HR Admin able to manages Leaves Count by employee. Go to the page Hr admin --> Employee Leaves (in Menu).</p>
+                        @*<p>Hr Admin to add New Leave Set, Go to right side corner to click "New Leave Set".Enter the feild and Save it, then automaticaly updated </p>
+                       <p>Hr Admin also Import Excel Sheet. Go to right side corner to click "Import leave type"</p>
+                        <p>Hr Admin also download employee leave in Excel Sheet. Go to the right side corner to click "Export Excel"  </p>*@
+                        <img src="~/Images/Help/HrAdmin/empleavecount.jpg" class="img-responsive" />
+
+                        <h4 class="card-title m-t-40" id="6">6.Leave Application</h4>
+                        <p>HR Admin able to  manage Leave applications by employee. Go to the page Hr admin --> Leave Applications (in Menu)</p>
+                          <p>  HR Admin able to apply leave for any employee. Go to the page Hr admin --> Leave Applications (in Menu) – Under Right Side Corner Click on New Leave Action</p>
+                        @*<p>Hr Admin able download leaves applications by employee to click it "Export to Excel"</p>*@
+                        <img src="~/Images/Help/HrAdmin/empleaveApplication.jpg" class="img-responsive" />
+                        <p>HR Admin able applies leave for any employee. Go to the page Hr admin --> Leave Applications (in Menu) – Under Right Side Corner Click on New Leave Action</p>
+                        <p>Fill the Details and submit it</p>
+                        <img src="~/Images/Help/HrAdmin/newleaveAction.jpg" class="img-responsive" />
+
+
+                        <h4 class="card-title m-t-40" id="7">7.View Permission</h4>
+                        <p>HR Admin able to see the permissions applied by employee. Go to the page Hr admin --> View Permissions (in Menu) </p>
+                        @*<p>Hr Admin able download View Permission by employee to click it on right side corner "Export to Excel"</p>*@
+                        <img src="~/Images/Help/HrAdmin/viewpermission.jpg" class="img-responsive" />
+
+
+                        <h4 class="card-title m-t-40" id="8">8. Manage ShiftType</h4>
+                        <p>HR Admin able to manage different shift types with department wise. Go to the page Hr admin --> Department Vs.  Shift Types (in Menu)</p>
+                        <img src="~/Images/Help/HrAdmin/craeteshift.jpg" class="img-responsive" /> 
+                        <p> Hr Admin want to add Shift, then go the right side corner to click it "New Shift Type"</p>
+                        <p>Enter the Details and Submit it</p>
+                        <img src="~/Images/Help/HrAdmin/newshift.png" class="img-responsive"/>
+
+
+
+                        <h4 class="card-title m-t-40" id="9">9.View DutyRoster</h4>
+                        <p>HR Admin able to see duty roster submitted by employees. Go to the page HR admin --> View Duty Roster (in Menu).</p>
+                        <img src="~/Images/Help/HrAdmin/viewDutyRoster.jpg" class="img-responsive" />
+
+                        <h4 class="card-title m-t-40" id="10">Add Employee</h4>
+                        <p>HR Admin only able to add new Employee. Go to the page HR admin --> Add Employee (in Menu)</p>
+                        <img src="~/Images/Help/HrAdmin/Addemployee.png" class="img-responsive" />
+
+                        <h4 class="card-title m-t-40" id="11">Manage Employees</h4>
+                        <p>After adding employee. Hr Admin can see the employees list. Go to the page HR admin --> Manage Employees (in Menu)</p>
+                        <img src="~/Images/Help/HrAdmin/manageemployee.jpg" class="img-responsive" />
+                        @*<p>In this they are different options to click it "Action button" and show options</p>
+                        <p>Hr Admin assign the role to the employee</p>
+                        <p>HR Admin can edit or update employee details </p>
+                        <p>Hr Admin can Delete the Employee</p>
+                        <p>Hr Admin want to De activeEmployee, just click it perticular employee.</p>
+                        <p>Hr Admin want to Transfer Employee From one location to other location of deparment and click "Transfer" </p>
+                        <p>Hr Admin  access reset password to the Employee </p>
+                        <p>Hr Admin can create login to the Employee, click it "Create Login Option" automatically created</p>
+                        <p>Hr Admin can remove login option to employee, just click it "Remove Login Option" automatically remove</p>*@
+                        <p>In This they are different options.</p>
+                        <img src="~/Images/Help/HrAdmin/editemployee.png" class="img-responsive" />
+
+
+
+                        <h4 class="card-title m-t-40" id="12">Inactive Employees</h4>
+                        <p>Here we can see De Active Employee  List</p>
+                        <img src="~/Images/Help/HrAdmin/inactiveemployee.png" class="img-responsive"/>
+
+                        <h4 class="card-title m-t-40" id="13">Manage holidays</h4>
+                        <p>Here can see Holiday list and also create the new Holiday, just go to right side of the corner click it"New Holiday"</p>
+                        @*<p>Enter the Details And Submit it</p>*@
+                        <img src="~/Images/Help/HrAdmin/Holiday.png" class="img-responsive" />
+
+
+                        <h4 class="card-title m-t-40"id="14">Manage Reporting Managers</h4>
+                        @*<p>Here we can see the Reporting Manager</p>*@
+                        <p>Hr Admin can Create Reporting Manager, just go to the right side corner clik it "Create New" </p>
+                        @*<p>Enter the Details of Reporting Manager select option to the particular Department</p>*@
+                        <img src="~/Images/Help/HrAdmin/reportmanager.png" class="img-responsive"/>
+
+
+                        <h4 class="card-title m-t-40" id="15">Department Vs ShiftType</h4>
+                        <p>HR Admin able to manage different shift types with department wise. Go to the page Hr admin --> Department Vs.  Shift Types (in Menu)</p>
+                        @*<p>we can create department shift here, just go to right side corner click "Create New" and enter the details & Save it. </p>
+                        <p>It Automatically Create Shift to particular Department</p>*@
+                        <img src="~/Images/Help/HrAdmin/craeteshift.jpg" class="img-responsive" />
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    
+</div>
+
+
+

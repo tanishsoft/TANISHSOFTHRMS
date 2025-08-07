@@ -1,0 +1,14 @@
+﻿
+@{
+    ViewBag.Title = "Page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="panel panel-default">
+        <div class="panel-heading">@ViewBag.PageName</div>
+        <div class="panel-body">
+      @Html.Raw(ViewBag.HtmlStr)
+        </div>
+    </div>
+</div>

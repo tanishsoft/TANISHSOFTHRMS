@@ -1,0 +1,46 @@
+﻿
+@{
+    ViewBag.Title = "Generate Signature";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    function ValidateAddEmployee_ImportExcelFile() {
+        var Valid = false;
+        if ($("#ExcelFileData").val() != null && $("#ExcelFileData").val() != "") {
+            $("#ExcelFileData").removeClass("RedColorBorderCSS");
+            Valid = true;
+        } else {
+            $("#ExcelFileData").addClass("RedColorBorderCSS");
+        }
+        return Valid;
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading">Generate Signature</div>
+    <div class="panel-body">
+
+        @using (Html.BeginForm("UploadExcel_ForSignature", "Hospital", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            <div class="row" style="padding:5px;">
+                <div class="col-md-4">
+                    <label for="name" class="required">Select File</label>
+                </div>
+                <div class="col-md-8">
+                    <input type="file" id="ExcelFileData" name="ExcelFileData" accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4">
+                    &nbsp;
+                </div>
+                <div class="col-md-4">
+                    <input type="submit" id="btnuploadLeaveTypeExcel" value="Save" class="btn btn-primary" onclick="return ValidateAddEmployee_ImportExcelFile();" />
+                </div>
+                <div class="col-md-4">
+                    &nbsp;
+                </div>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,445 @@
+﻿
+@{
+    ViewBag.Title = "NewStaffMovementRegister";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+
+    #captureSignature {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+
+    #captureSignature2 {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+
+    #captureSignatureStaff {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+</style>
+<script src="~/Scripts/jSignature.min.js"></script>
+<!--[if lt IE 9]>
+<script  type="text/javascript" src="~/Scripts/flashcanvas.js"></script>
+    <![endif]-->
+<script>
+    var validate;
+    var eId = 0;
+    function isnewchange() {
+        var value = $("#ddlIsNew").val();
+        if (value == "Yes") {
+            $(".clmrno").hide();
+        } else {
+            $(".clmrno").show();
+        }
+    }
+    var $sigdiv, $sigdiv2, $sigdiv3;
+    $(document).ready(function () {
+        $sigdiv = $("#captureSignature").jSignature({ 'UndoButton': true });
+        $sigdiv2 = $("#captureSignature2").jSignature({ 'UndoButton': true });
+        $sigdiv3 = $("#captureSignatureStaff").jSignature({ 'UndoButton': true });
+
+        $("#txtFromDate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            Edit: true
+        });
+        $("#txtToDate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            Edit: true
+        });
+        $(".clmrno").hide();
+        $("#txtMrNo").change(function () {
+            var id = $('#txtMrNo').val();
+            if (id != "") {
+                $.get("/CMS/GetCMS_PatitentNamebyMRno?id=" + id, function (res) {
+                    if (res != null) {
+                        $("#MobileNo").val(res.MobileNumber);
+                        $("#PatientName").val(res.Name);
+                    }
+                    else {
+                        $("#PatientName").val("");
+                    }
+                });
+            }
+        });
+        $(".Patients").hide();
+        $(".Visitor").hide();
+        $(".Staff").show();
+        LoadLocations();
+        $("#txtstaffIdNumber").change(function () {
+            $.get("/Custom/GetUserDetailsByEmpId?id=" + $("#txtstaffIdNumber").val(), function (data) {
+                if (data != "Enter Valid Request ID") {
+                    $("#txtstaffName").val(data.FirstName);
+                    $("#txtstaffContactNumber").val(data.PhoneNumber);
+                    $("#dllstafdepartment").val(data.DepartmentName);
+                }
+            });
+        });
+
+    });
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Locations -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#LocationId").html(options.join(''));
+
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+
+    function visittypechange() {
+        $(".Patients").hide();
+        $(".Visitor").hide();
+        $(".Staff").hide();
+        var value = $("#ddlvisittype").val();
+        $("." + value).show();
+        if (value == "Staff") {
+            $("#lblsigntitle").html("Out Sign");
+        } else {
+            $("#lblsigntitle").html("In Sign");
+        }
+    }
+    function SavedailyVisiting() {
+        var visittype = $("#ddlvisittype").val();
+        validateCategory(visittype);
+        if (validate) {
+            var task = {};
+            if (visittype == "Patients") {
+                task = {
+                    VisitingType: visittype,
+                    DailyVisitingId: eId,
+                    LocationId: $("#LocationId").val(),
+                    DepartmentName: "",
+                    PatientType: $("#PatientType").val(),
+                    PatientName: $("#PatientName").val(),
+                    MobileNo: $("#MobileNo").val(),
+                    MrNo: $("#txtMrNo").val(),
+                    Remarks: $("#Remarks").val(),
+                    IsActive: true
+                };
+            }
+            else if (visittype == "Visitor") {
+                task = {
+                    VisitingType: visittype,
+                    DailyVisitingId: eId,
+                    LocationId: $("#LocationId").val(),
+                    DepartmentName: "",
+                    PatientName: $("#txtVstrName").val(),
+                    MobileNo: $("#txtVstrContactNumber").val(),
+                    IsActive: true,
+                    ComingFrom: $("#txtVstrComingFrom").val(),
+                    WhomToMeet: $("#txtVstrWhomToMeet").val(),
+                    Purpose: $("#txtVstrPurpose").val(),
+                    TokenNo: $("#txtVstrIdNo").val(),
+                    InSign: "data:" + $sigdiv.jSignature('getData', 'image').toString(),
+                    SecuritySignature: "data:" + $sigdiv2.jSignature('getData', 'image').toString(),
+                };
+            }
+            else if (visittype == "Staff") {
+                task = {
+                    VisitingType: visittype,
+                    DailyVisitingId: eId,
+                    LocationId: $("#LocationId").val(),
+                    DepartmentName: $("#dllstafdepartment").val(),
+                    PatientName: $("#txtstaffName").val(),
+                    MrNo: $("#txtstaffIdNumber").val(),
+                    MobileNo: $("#txtstaffContactNumber").val(),
+                    IsActive: true,
+                    //ComingFrom: $("#txtVstrComingFrom").val(),
+                    //WhomToMeet: $("#txtVstrWhomToMeet").val(),
+                    Purpose: $("#txtstaffPurpose").val(),
+                    InSign: "data:" + $sigdiv3.jSignature('getData', 'image').toString(),
+                };
+            }
+            $.ajax({
+                type: "POST",
+                url: "/Custom/SaveDailyVisiting",
+                data: task,
+                success: function (data) {
+                    alert(data);
+                    clearAll();
+                    //oTable.api().ajax.reload(null, false);
+
+                }
+            });
+        }
+    }
+    function validateCategory(visittype) {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if (visittype == "Patients") {
+            if ($("#PatientType").val() == "") {
+                $("#PatientType").addClass('css-error');
+                validate = false;
+            }
+            if ($("#PatientName").val() == "") {
+                $("#PatientName").addClass('css-error');
+                validate = false;
+            }
+            if ($("#MobileNo").val() == "") {
+                $("#MobileNo").addClass('css-error');
+                validate = false;
+            }
+        }
+        else if (visittype == "Visitor") {
+
+        }
+        else if (visittype == "Staff") {
+
+        }
+    }
+    function clearAll() {
+        window.location.href = "/Register/StaffMovementRegister";
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading" style="height:35px;"><a href="~/Register/StaffMovementRegister">Go Back</a> &nbsp;&nbsp;New Staff Movement </div>
+    <div class="panel-body">
+        <div class="modal-body">
+            <div class="row" style="padding:5px;">
+                <div class="col-md-4">
+                    <label for="name">Location<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-8">
+                    <select id="LocationId" class="form-control">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row" style="padding:5px; display:none;">
+                <div class="col-md-4">
+                    <label for="name">Visit Type<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-8">
+                    <select id="ddlvisittype" class="form-control dailyvisittype" onchange="visittypechange();">
+                        <option value="Patients">Patients Visiting</option>
+                        <option value="Visitor">Visitor Movement Register</option>
+                        <option value="Staff"  selected="selected">Staff Movement Register</option>
+                    </select>
+                </div>
+            </div>
+            <div class="Patients">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Is New</label>
+                    </div>
+                    <div class="col-md-8">
+                        <select id="ddlIsNew" class="form-control" onchange="isnewchange();">
+                            <option value="">Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No" selected>No</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row clmrno" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">MR NO<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="txtMrNo" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Patient Name<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="PatientName" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Mobile No<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="MobileNo" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Come for<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select id="PatientType" class="form-control">
+                            <option value="">Select</option>
+                            <option value="IP">IP</option>
+                            <option value="OP">OP</option>
+                            <option value="ER">ER</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Remarks<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="Remarks" autocomplete="off" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="Visitor">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Visitor Name<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" id="txtVstrName" class="form-control" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Coming From<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" id="txtVstrComingFrom" class="form-control" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Whom To Meet<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" id="txtVstrWhomToMeet" class="form-control" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Contact Number<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" id="txtVstrContactNumber" class="form-control" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Purpose<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" id="txtVstrPurpose" class="form-control" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Visitor ID No :<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" id="txtVstrIdNo" class="form-control" />
+                    </div>
+                </div>
+
+
+
+                <div class="row" style="padding:5px;">
+
+                    <div class="col-md-4">
+                        <label for="name">IN Sign<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <div id="captureSignature">
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Security Signature<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <div id="captureSignature2">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="Staff">
+
+
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Id Number<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" id="txtstaffIdNumber" class="form-control" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Employee Name<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" id="txtstaffName" class="form-control" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Department<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        @*<select id="dllstafdepartment" class="form-control">
+                                <option value="">Select</option>
+                            </select>*@
+                        <input type="text" id="dllstafdepartment" class="form-control" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Contact Number<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" id="txtstaffContactNumber" class="form-control" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Purpose<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" id="txtstaffPurpose" class="form-control" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+
+                    <div class="col-md-4">
+                        <label for="name" id="lblsigntitle">IN Sign<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <div id="captureSignatureStaff">
+                        </div>
+                    </div>
+                </div>
+
+
+
+            </div>
+        </div>
+        <div>
+            <input type="button" id="btnasigntask" value="Save" onclick="SavedailyVisiting();" class="btn btn-primary" />
+            <button type="button" class="btn btn-default" onclick="clearAll();">Cancel</button>
+        </div>
+    </div>
+</div>

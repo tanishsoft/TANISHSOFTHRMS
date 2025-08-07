@@ -1,0 +1,71 @@
+﻿@{
+    ViewBag.Title = "MyTimeTrack";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+        getLogtracks();
+    });
+    function getLogtracks() {
+        $.ajax({
+            type: "GET",
+            url: "/Home/GetTimeTracks",
+            success: function (data) {
+
+                var html = "<table class='table table-striped table-bordered dt-responsive nowrap' id='tbllogs' style='width:100%;'><thead><tr class='bg-darkTeal fg-white'><td>Log Id</td>";
+                //if ($("#txtEntityType").val() == "Admin") {
+                //    html += "<td>Name</td>";
+                //}
+                html += "<td>Login Type</td><td>Date</td><td>InTime</td><td>OutTime</td><td>Log Duration</td><td>Log Status</td></tr></thead><tbody>";
+                
+                if (data != null) {
+                    for (var i = 0; i < data.length; i++) {
+
+                        html += "<td>" + data[i].LogId + "</td>";
+                        //if ($("#txtEntityType").val() == "Admin") {
+                        //    html += "<td>" + GetEmployeenamebyid(data[i].LoginId) + "</td>";
+                        //}
+                        html += "<td>" + data[i].LoginType + "</td>";
+                        html += "<td>" + data[i].CreatedOn.split(" ")[0] + "</td>";
+                        html += "<td>" + data[i].InTime + "</td>";
+                        if (data[i].MLOStatus == "Active" && data[i].LogStatus == "InActive") {
+                            html += "<td><span style='color: #fff;background-color: #9a1616;padding: 2%;border-radius: 3px;'>" + data[i].OutTime + "</span></td>";
+                        } else {
+                            html += "<td>" + data[i].OutTime + "</td>";
+                        }
+                        var duration = (data[i].DayWiseLogDuration).split(':')[0];
+                        if (parseInt(duration) < 9) {
+                            html += "<td><span style='color: #fff;background-color:#fa6800;padding: 2%;border-radius: 3px;'>" + data[i].DayWiseLogDuration + "</span></td>";
+                        }
+                        else {
+                            html += "<td>" + data[i].DayWiseLogDuration + "</td>";
+                        }
+
+                        if (data[i].LogStatus == "Active") {
+                            html += "<td><i class='glyphicon glyphicon-ok' style='color:green;'></i></td>";
+                        } else {
+                            html += "<td><i class='glyphicon glyphicon-ban-circle' style='color:red;'></i></td>";
+                        }
+                      
+                        html += "</tr>";
+                    }
+                }
+                else {
+                    html += "<tr><td colspan='13'>No Data Available</td></tr>";
+                }
+                html += "</tbody></table>";
+                $("#timetrackdiv").html(html);
+                $('#tbllogs').dataTable({ sPaginationType: "full_numbers", bDestroy: true });
+            }, error: function () { alert('Error'); }
+        });
+    }
+</script>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">My Time Track</h3>
+    </div>
+    <div class="panel-body">
+        <div id="timetrackdiv"></div>
+    </div>
+</div>

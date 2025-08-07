@@ -1,0 +1,88 @@
+﻿
+@model WebApplicationHsApp.Models.tbl_cm_TransactionViewModel
+@{
+    ViewBag.Title = "bill";
+    Layout = "~/Views/Shared/_LayoutEmpty.cshtml";
+}
+@Scripts.Render("~/bundles/jquery")
+@Scripts.Render("~/bundles/jqueryui")
+<script>
+    $(document).ready(function () {
+        window.print();
+        return false;
+    });
+
+</script>
+<link href="~/Content/bootstrap.css" rel="stylesheet" />
+<form name='print-invoice' method='post' action='' id='print-invoice'>
+    <table style='width: 270px; font-size: 13px; font-family: Myraid-Pro,Arial,Verdana; border-collapse: collapse;'>
+        <thead>
+            <tr><th style='text-align: center;'><h2 style='margin: 5px 0px;'>Fernandez hospital</h2></th></tr>
+            <tr>
+                <th style='text-align: center;'>
+                    <p style='margin: 2px 0px;'>@Model.CanteenName</p>
+                    <p style='margin: 2px 0px;'>@Model.BillAddress</p><p style='margin: 2px 0px;'>Hyderabad 500001<p style='margin: 2px 0px;'> Ph : +91-40-40222300</p>
+                </th>
+            </tr>
+            <tr><th style='text-align: left;'><p style='margin: 2px 0px; font-size: 85%;'>GST : 36AAACF3069M1ZE</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <table style='width: 100%; height: 100%; font-size: 13px; font-family: Myraid-Pro,Arial,Verdana; border-collapse: collapse;'>
+                        <tbody><tr><td style='padding:3px 0px;'></td></tr> <tr><td style='text-align: left;'><strong>Receipt No: #@Model.TransactionId</strong></td> <td style='text-align: right;'>@Model.CreatedOn.Value.ToString("dd/MM/yyyy")</td></tr>  <tr><td>Name : @Model.EmpName</td></tr></tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr> <td colspan='5' style='padding:3px 0px;'></td></tr>
+            <tr>
+                <td style='border-top: 1px dashed rgb(32, 32, 32); border-bottom: 1px dashed rgb(32, 32, 32); padding: 5px 0px 5px 0px;'>
+                    <table style='width: 100%; height: 100%; font-size: 13px; font-family: Myraid-Pro,Arial,Verdana; border-collapse: collapse;'>
+                        <thead style='border-bottom: 1px dashed rgb(32, 32, 32);'><tr><th colspan='3' style='text-align: left; padding:10px 0;'>ITEM</th><th style='text-align: right;'>QTY</th> <th style='text-align: right;'>PRICE</th></tr></thead>
+                        <tbody>
+                            @foreach (var item in Model.tbl_Cm_TransactionItems)
+                            {
+                                <tr style=''>  <td colspan='3' style='text-align: left; padding: 8px 0 5px;'>@item.ItemName</td><td style='text-align: right;'>@item.Qty</td><td style='text-align: right; font-weight: bold;'>@item.FinalAmount</td> </tr>
+                            }
+
+                            <tr><td colspan='5' style='padding:5px 0px; border-top: 1px dashed rgb(32, 32, 32); text-align: left;'></td></tr>
+                            <tr><td colspan='4' style='font-size: 100%; font-weight: bold; padding: 4px 0px; text-align: left;'>Total</td> <td style='font-size: 100%; font-weight: bold; padding: 4px 0px; text-align: right;'>@Model.TotalPrice</td> </tr>
+                            <tr><td colspan='4' style='font-size: 100%; font-weight: bold; padding: 4px 0px; text-align: left;'>Total Discount</td> <td style='font-size: 100%; font-weight: bold; padding: 4px 0px; text-align: right;'>@Model.DiscountValue</td></tr>
+
+                            <tr><td colspan='4' style='font-size: 100%; font-weight: bold; padding: 4px 0px; text-align: left;'>Total Tax</td><td style='font-size: 100%; font-weight: bold; padding: 4px 0px; text-align: right;'>@Model.TaxAmount</td> </tr>
+                            <!--<tr> <td colspan='4' style='font-size: 100%; font-weight: bold; padding: 4px 0px; text-align: left;'>Rounding Adjustment</td><td style='font-size: 100%; font-weight: bold; padding: 4px 0px; text-align: right;'>0.062</td> </tr>-->
+                            <tr><td colspan='4' style='font-size: 110%; font-weight: bold; padding: 10px 0px; text-align: left; border-top: 1px dashed rgb(32, 32, 32); '>Final Price</td> <td style='font-size: 110%; font-weight: bold; padding: 10px 0px; text-align: right; border-top: 1px dashed rgb(32, 32, 32);'>@Model.FinalPrice</td></tr>
+                            <tr><td colspan='5' style='border-top: 1px dashed rgb(32, 32, 32); font-weight: bold; padding-top:10px;'>Payments</td> </tr>
+                            <tr><td colspan='5'><table style='width: 100%; height: 100%; font-size: 13px; font-family: Myraid-Pro,Arial,Verdana; border-collapse: collapse;'><thead style='border-bottom: 1px dashed rgb(32, 32, 32);'><tr><th style='text-align: left; padding:5px 0;'>Mode</th><th style='text-align: right;'>Paid On</th> <th style='text-align: right;'>Amount</th></tr></thead><tbody><tr><td colspan='5' style='padding:5px 0px; border-top: 1px dashed rgb(32, 32, 32) inset; text-align: left;'></td> </tr>   <tr style=''> <td style='text-align: left;'> <label width='200px'>@Model.ModeOfPayment  </label> </td> <td style='text-align: right;'>@Model.CreatedOn.Value.ToString("dd/MM/yyyy")</td>  <td style='text-align: right; font-weight: bold;'>@Model.FinalPrice</td></tr> 
+                                @*<tr style=''> <td style='text-align: left;'> <label width='200px'>card ( <i>maestro</i> )  </label> </td> <td style='text-align: right;'> @Model.CreatedOn.Value.ToString("dd/MM/yyyy")</td>  <td style='text-align: right; font-weight: bold;'>@Model.FinalPrice</td></tr>*@ 
+                                                           </tbody></table></td> </tr>
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            @*<tr><td style='text-align: center; padding:15px 0 10px;'>  <p style='font-weight: bold;'>THANK YOU. VISIT AGAIN. <br /></p> </td></tr>
+            <tr><td><br /><div style='border-top: 1px dashed rgb(32, 32, 32);display:block; padding: 0px 0; '>
+                <span style='right:0; display:block; margin-top:-30px; height:50px; '>&nbsp;</span></div>
+                <table style=' width: 100%; height: 100%; font-size: 13px; font-family: Myraid-Pro,Arial,Verdana; border-collapse: collapse;'>
+                <tbody><tr><td><strong>Receipt No: #@Model.TransactionId</strong></td> </tr><tr><td>Name : @Model.EmpName</td></tr>
+                </tbody></table><div style='text-align: center;'> <h3>Rate Us</h3><br />
+                <table style='width: 100%; height: 100%; font-weight:bold; font-family: Myraid-Pro,Arial,Verdana; border-collapse: collapse;'>
+                <tr><td align='center' valign='top'>
+                <label style='border-radius:50%; height:25px; padding:10px 15px; border:1px solid #000; line-height:0;color:green;'>1</label></td> 
+                <td align='center' valign='top'>
+                <label style='border-radius:50%; height:25px;  padding:10px 15px; border:1px solid #000; line-height:0;color:green;'>2</label></td> 
+                <td align='center' valign='top'>
+                <label style='border-radius:50%; height:25px;  padding:10px 15px; border:1px solid #000; line-height:0;color:green;'>3</label></td>
+                <td align='center' valign='top'>
+                <label style='border-radius:50%; height:25px;  padding:10px 15px; border:1px solid #000; line-height:0;color:green;'>4</label></td>  
+                <td align='center' valign='top'>
+                <label style='border-radius:50%;  height:25px; padding:10px 15px; border:1px solid #000; line-height:0;color:green;'>5</label>
+                </td></tr><tr><td colspan='2' align='left' valign='top'>
+                <span style='display:block;margin-left:13px;margin-top:20px;font-weight:normal;font-size:14px;'>low</span></td>
+                <td colspan='3' align='right' valign='top'>
+                <span style='display:block;margin-right:11px;margin-top:20px;font-weight:normal;font-size:14px;'>high</span></td> </tr></table>
+                </div><h5 style='margin-bottom:2px;'>Suggestions</h5>  
+                <div style='height:120px; width:100%; border:1px solid #000; border-radius:4px;'></div></td></tr>*@
+        </tbody>
+    </table>
+</form>

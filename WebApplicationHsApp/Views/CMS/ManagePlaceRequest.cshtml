@@ -1,0 +1,185 @@
+﻿
+
+<script>
+    var validate = true;
+    var eId = 0;
+    var MealType = [];
+    $(document).ready(function () {
+        LoadData();
+        LoadMealType();
+    });
+    function LoadMealType() {
+        $.ajax({
+            type: "POST",
+            url: "/CMS/GetMealType",
+            //data: "id=",
+            success: function (data) {
+                debugger;
+
+                MealType = data;
+            }
+        });
+    }
+
+    function LoadData() {
+        $('#tblCategory').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/CMS/AjaxGetVendorMealRequest",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "Id" },
+                { "sName": "Vendor" },
+                { "sName": "Location" },
+                { "sName": "RequestedOn" },
+                { "sName": "Comment" },
+
+                       { "sName": "IsActive" },
+                       {
+                           "sName": "CategoryId",
+                           "bSortable": false,
+                           "render": function (data, row, r) {
+                               //console.log(r);
+                               return '<div class="btn-group">' +
+                                   '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                                   '<ul class="dropdown-menu dropdown-menu-right">' +
+                                   '<li><a href="javascript:void(0);"  onclick="onEdit(' + data + ')">Edit</a></li>' +
+                                   '<li><a href="javascript:void(0);"  onclick="onDelete(' + data + ')">Delete</a></li>' +
+                                   '<li><a href="javascript:void(0);"  onclick="Received(' + data + ')">Received</a></li>' +
+                                   '</ul></div>';
+                           }
+                       }
+            ]
+        });
+        $("#tblCategory_length").addClass("col-md-6");
+        $("#tblCategory_length").addClass("col-md-6");
+    }
+
+    function onEdit(id) {
+        EditLoadPartialdivonclick("CreatePlaceRequest", "Update Place Request", id);
+    }
+
+    function EditLoadPartialdivonclick(link, title, id) {
+        $("#titleofpage").html(title);
+        $("#partialDiv").load("/CMS/" + link + "?id=" + id);
+    }
+
+    function Received(id) {
+        eId = id;
+        $.get("/CMS/GetCMS_VendorMealRequest_ById?id=" + id, function (res) {
+            $("#Vendor").text(res.VendorName);
+            $("#Location").text(res.LocationName);
+            $("#RequestedDate").text(res.RequestedOn);
+            LoadMealDetails(id);
+        });
+    }
+    function LoadMealDetails(id) {
+        $('#ItemTable').empty();
+        $('#ItemTable').html("<thead><tr><th>MealType</th><th>Qty Requested</th><th>Qty Received</th><th>Qty Damage</th><th>Qty Return</th><th>Notes</th></tr></thead>");
+        $.get("/CMS/GetCMS_VendorMealTypeMeal_ByResId?id=" + id, function (res) {
+            for (var i = 0; i < res.length; i++) {
+                var table = document.getElementById("ItemTable");
+                var table_len = (table.rows.length);
+                var row = "";
+                row += "<tr class='datarow' id='row" + table_len + "'><td class='Id" + table_len + "' style='display:none;'><label id='Id" + table_len + "'></label></td>";
+                row += "<td><label id='MealType" + table_len + "'></label></td>";
+                row += "<td><label id='QtyRequested" + table_len + "'></label></td>";
+                row += "<td><input type='number' class='form-control' value='0' id='QtyReceived" + table_len + "'></td>";
+                row += "<td><input type='number' class='form-control' value='0' id='QtyDamage" + table_len + "'></td>";
+                row += "<td><input type='number' class='form-control' value='0' id='QtyReturn" + table_len + "'></td>";
+                row += "<td><input type='text' class='form-control' id='Notes" + table_len + "'></td></tr>";
+                table.insertRow(table_len).outerHTML = row;
+                debugger;
+                var mealt = $.grep(MealType, function (v) { return v.MealTypeId === res[i].MealTypeId });
+                $("#MealType" + (table_len)).text(mealt[0].MealTypeName);
+                $("#QtyRequested" + (table_len)).text(res[i].QtyRequested);
+                $("#QtyReceived" + (table_len)).val(res[i].QtyReceived);
+                $("#QtyDamage" + (table_len)).val(res[i].QtyDamage);
+                $("#QtyReturn" + (table_len)).val(res[i].QtyReturn);
+                $("#Notes" + (table_len)).val(res[i].Notes);
+                $("#Id" + (table_len)).text(res[i].VendorStockRequestMealId);
+                $("#modelReceive").modal("show");
+            }
+        });
+    }
+
+    function onDelete(id) {
+        if (confirm('Are you sure you want to delete?')) {
+            $.getJSON("@Url.Action("DeleteCMStore", "CMS")", { id: id }, function (data) {
+                LoadData();
+            });
+        } return false;
+    }
+    function New()
+    {
+        window.location.href = '/CMS/CreatePlaceRequest';
+    }
+    function SaveReceive() {
+        var ItemList = [];
+        var table = document.getElementById("ItemTable");
+        debugger;
+        var table_len = (table.rows.length);
+        for (var i = 1; i < table_len; i++) {
+            ItemList.push({
+                VendorStockRequestMealId: parseInt($("#Id" + i).text()),
+                VendorStockRequestId: parseInt(eId),
+                QtyReceived: parseInt($("#QtyReceived" + i).val()),
+                QtyDamage: parseInt($("#QtyDamage" + i).val()),
+                QtyReturn: parseInt($("#QtyReturn" + i).val()),
+                Notes: $("#Notes" + i).val()
+            });
+        }
+        debugger;
+        $.post("/CMS/Save_UpdateMealReceivedList", { model: ItemList }, function (res) {
+            debugger;
+            $("#modelReceive").modal("hide");
+        });
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading"  style="height:35px;background: #FEC20E;"><a href="#" style="color:white;"  class="pull-right" onclick="LoadPartialdivonclick('CreatePlaceRequest','Create Place Request');">New Request</a></div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblCategory">
+            <thead><tr><th>Id</th><th>Vendor</th><th>Location</th><th>RequestedOn</th><th>Comment</th><th>Is Active</th><th>Actions</th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="modelReceive" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" id="header">Received</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label>Vendor : </label>   <span id="Vendor" class="Bold"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Location : </label>   <span id="Location"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Requested Date : </label>   <span id="RequestedDate"></span>
+                    </div>
+                </div>
+
+                <table id="ItemTable" class="table">
+                </table>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" onclick="SaveReceive();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+

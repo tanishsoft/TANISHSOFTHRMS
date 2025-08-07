@@ -1,0 +1,68 @@
+﻿@model WebApplicationHsApp.Models.LeaveViewModels
+
+
+<script>
+    $("#txtDate1").datepicker({});
+    $("#LeaveFromDate1").datepicker();
+    $("#LeaveTodate1").datepicker();
+    $("#DateofAvailableCompoff1").datepicker();
+
+
+</script>
+<style>
+    .trCompoff {
+        display: none;
+    }
+</style>
+<table class="table" style="width:80%;">
+    <tr>
+        <td>Leave Status </td>
+        <td>
+            @Html.DisplayFor(model => model.LeaveStatus)
+            @Html.HiddenFor(model => model.LeaveId, new { @id = "LeaveId1" })
+
+        </td>
+    </tr>
+    <tr>
+        <td>Leave Type </td>
+        <td>
+            @Html.DisplayFor(model => model.LeaveTypeName)
+
+        </td>
+    </tr>
+    <tr>
+        <td>Is Full day </td>
+        <td>@Html.DisplayFor(model => model.IsFullday)</td>
+    </tr>
+    <tr>
+        <td>Is Comp Off</td>
+        <td>@Html.DisplayFor(model => model.IsCompOff)</td>
+    </tr>
+    @if (Model.IsCompOff == "True")
+    {
+        <tr id="trCompoff">
+            <td>Date of Available Compoff<span style="color:red;">*</span></td>
+            <td>@Html.TextBoxFor(model => model.DateofAvailableCompoff, "{0:MM/dd/yyyy}", new { @id = "DateofAvailableCompoff1", @class = "form-control",@readonly="readonly" })</td>
+        </tr>
+    }
+    else
+    {
+        <tr id="trfromdate">
+            <td>Leave From Date<span style="color:red;">*</span></td>
+            <td>@Html.TextBoxFor(model => model.LeaveFromDate, "{0:MM/dd/yyyy}", new { @id = "LeaveFromDate1", @class = "form-control", @readonly = "readonly" })</td>
+        </tr>
+    }
+    <tr>
+        <td>Leave To date<span style="color:red;">*</span></td>
+        <td>@Html.TextBoxFor(model => model.LeaveTodate, "{0:MM/dd/yyyy}", new { @id = "LeaveTodate1", @class = "form-control", @readonly = "readonly" })</td>
+    </tr>
+    <tr>
+        <td>Reason For Leave</td>
+        <td>@Html.DisplayFor(model => model.ReasonForLeave)</td>
+    </tr>
+    <tr>
+        <td>Address On Leave</td>
+        <td>@Html.DisplayFor(model => model.AddressOnLeave)</td>
+    </tr>
+
+</table>

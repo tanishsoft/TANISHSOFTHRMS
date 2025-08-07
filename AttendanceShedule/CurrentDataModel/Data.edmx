@@ -1,0 +1,676 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="MyIntranetAppModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="tbl_att_master">
+          <Key>
+            <PropertyRef Name="slno" />
+          </Key>
+          <Property Name="slno" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="att_date" Type="datetime" />
+          <Property Name="empcod" Type="char" MaxLength="10" />
+          <Property Name="employeeid" Type="char" MaxLength="50" />
+          <Property Name="cmp_cod" Type="char" MaxLength="10" />
+          <Property Name="loc_cod" Type="char" MaxLength="10" />
+          <Property Name="site_cod" Type="char" MaxLength="10" />
+          <Property Name="shft_type" Type="char" MaxLength="10" />
+          <Property Name="shft_cod" Type="char" MaxLength="10" />
+          <Property Name="punchdate" Type="datetime" />
+          <Property Name="in_time" Type="char" MaxLength="10" />
+          <Property Name="out_time" Type="char" MaxLength="10" />
+          <Property Name="extrahours" Type="char" MaxLength="10" />
+          <Property Name="earlyin" Type="char" MaxLength="10" />
+          <Property Name="earlyout" Type="char" MaxLength="10" />
+          <Property Name="latein" Type="char" MaxLength="10" />
+          <Property Name="lateout" Type="char" MaxLength="10" />
+          <Property Name="holiday" Type="char" MaxLength="10" />
+          <Property Name="status" Type="char" MaxLength="10" />
+          <Property Name="auth_latein" Type="char" MaxLength="10" />
+          <Property Name="auth_earlyout" Type="char" MaxLength="10" />
+          <Property Name="auth_ot" Type="char" MaxLength="10" />
+          <Property Name="transact" Type="char" MaxLength="15" />
+          <Property Name="in_time1" Type="char" MaxLength="10" />
+          <Property Name="out_time1" Type="char" MaxLength="10" />
+          <Property Name="co_ot" Type="char" MaxLength="10" />
+          <Property Name="remarks" Type="varchar" MaxLength="250" />
+          <Property Name="lastupdatedon" Type="datetime" />
+          <Property Name="roasterlatein" Type="decimal" Precision="18" Scale="4" />
+        </EntityType>
+        <EntityType Name="tbl_att_master_doctor">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="employeeid" Type="int" />
+          <Property Name="att_date" Type="datetime" />
+          <Property Name="in_time" Type="varchar" MaxLength="50" />
+          <Property Name="out_time" Type="varchar" MaxLength="50" />
+          <Property Name="extrahours" Type="varchar" MaxLength="50" />
+          <Property Name="earlyin" Type="varchar" MaxLength="50" />
+          <Property Name="earlyout" Type="varchar" MaxLength="50" />
+          <Property Name="latein" Type="varchar" MaxLength="50" />
+          <Property Name="lateout" Type="varchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="tbl_Leave">
+          <Key>
+            <PropertyRef Name="LeaveId" />
+          </Key>
+          <Property Name="LeaveId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LeaveTypeId" Type="int" />
+          <Property Name="LeaveTypeName" Type="varchar" MaxLength="150" />
+          <Property Name="IsFullday" Type="bit" />
+          <Property Name="IsCompOff" Type="bit" />
+          <Property Name="DateofAvailableCompoff" Type="datetime" />
+          <Property Name="LeaveFromDate" Type="datetime" />
+          <Property Name="LeaveTodate" Type="datetime" />
+          <Property Name="ReasonForLeave" Type="varchar(max)" />
+          <Property Name="AddressOnLeave" Type="varchar(max)" />
+          <Property Name="UserId" Type="varchar" MaxLength="100" />
+          <Property Name="UserName" Type="varchar" MaxLength="250" />
+          <Property Name="LocationId" Type="int" />
+          <Property Name="LocationName" Type="varchar" MaxLength="250" />
+          <Property Name="DepartmentId" Type="int" />
+          <Property Name="DepartmentName" Type="varchar" MaxLength="250" />
+          <Property Name="Level1Approver" Type="varchar" MaxLength="100" />
+          <Property Name="Level1Approved" Type="bit" />
+          <Property Name="Level1ApproveComment" Type="varchar" MaxLength="350" />
+          <Property Name="Level2Approver" Type="varchar" MaxLength="100" />
+          <Property Name="Level2Approved" Type="bit" />
+          <Property Name="Level2ApproveComment" Type="varchar" MaxLength="350" />
+          <Property Name="Level3Approver" Type="varchar" MaxLength="100" />
+          <Property Name="Level3Approved" Type="bit" />
+          <Property Name="Level3ApproveComment" Type="varchar" MaxLength="350" />
+          <Property Name="LeaveStatus" Type="varchar" MaxLength="350" />
+          <Property Name="LeaveSessionDay" Type="varchar" MaxLength="50" />
+          <Property Name="Remarks" Type="varchar" MaxLength="500" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+          <Property Name="LeaveCount" Type="float" />
+          <Property Name="DateOfCompOffLeave" Type="datetime" />
+          <Property Name="WeeklyOffDay" Type="varchar" MaxLength="150" />
+        </EntityType>
+        <EntityType Name="tbl_LeaveType">
+          <Key>
+            <PropertyRef Name="LeaveTypeId" />
+          </Key>
+          <Property Name="LeaveTypeId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LeaveName" Type="varchar" MaxLength="150" />
+          <Property Name="MaxLeavePerMonth" Type="int" />
+          <Property Name="MinLeavePerMonth" Type="int" />
+          <Property Name="NoOfTimesPerYear" Type="int" />
+          <Property Name="IsActive" Type="bit" Nullable="false" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+        </EntityType>
+        <EntityType Name="tbl_Permission">
+          <Key>
+            <PropertyRef Name="PermissionId" />
+          </Key>
+          <Property Name="PermissionId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="PermissionDate" Type="datetime" />
+          <Property Name="StartDate" Type="datetime" />
+          <Property Name="EndDate" Type="datetime" />
+          <Property Name="Reason" Type="varchar" MaxLength="500" />
+          <Property Name="UserId" Type="varchar" MaxLength="100" />
+          <Property Name="UserName" Type="varchar" MaxLength="250" />
+          <Property Name="LocationId" Type="int" />
+          <Property Name="LocationName" Type="varchar" MaxLength="250" />
+          <Property Name="DepartmentId" Type="int" />
+          <Property Name="DepartmentName" Type="varchar" MaxLength="250" />
+          <Property Name="Level1Approved" Type="bit" />
+          <Property Name="Level1ApproveComment" Type="varchar" MaxLength="350" />
+          <Property Name="Level2Approved" Type="bit" />
+          <Property Name="Level2ApproveComment" Type="varchar" MaxLength="350" />
+          <Property Name="Remarks" Type="varchar" MaxLength="500" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="Level1Approver" Type="varchar" MaxLength="50" />
+          <Property Name="Level2Approver" Type="varchar" MaxLength="50" />
+          <Property Name="Status" Type="varchar" MaxLength="50" />
+        </EntityType>
+        <EntityType Name="tbl_Roaster">
+          <Key>
+            <PropertyRef Name="RoasterId" />
+          </Key>
+          <Property Name="RoasterId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ShiftTypeId" Type="int" />
+          <Property Name="ShiftTypeName" Type="varchar" MaxLength="250" />
+          <Property Name="ShiftStartTime" Type="varchar" MaxLength="50" />
+          <Property Name="ShiftEndTime" Type="varchar" MaxLength="250" />
+          <Property Name="ShiftDate" Type="datetime" />
+          <Property Name="UserId" Type="varchar" MaxLength="250" />
+          <Property Name="UserName" Type="varchar" MaxLength="250" />
+          <Property Name="LocationId" Type="int" />
+          <Property Name="DepartmentId" Type="int" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+        </EntityType>
+        <EntityType Name="tbl_ShiftType">
+          <Key>
+            <PropertyRef Name="ShiftTypeId" />
+          </Key>
+          <Property Name="ShiftTypeId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ShiftTypeName" Type="varchar" MaxLength="250" />
+          <Property Name="ShiftStartTime" Type="varchar" MaxLength="50" />
+          <Property Name="ShiftEndTime" Type="varchar" MaxLength="250" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+        </EntityType>
+        <EntityType Name="tbl_User">
+          <Key>
+            <PropertyRef Name="UserId" />
+          </Key>
+          <Property Name="UserId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="FirstName" Type="varchar" MaxLength="250" />
+          <Property Name="LastName" Type="varchar" MaxLength="250" />
+          <Property Name="CustomUserId" Type="varchar" MaxLength="100" />
+          <Property Name="DateOfBirth" Type="datetime" />
+          <Property Name="DateOfJoining" Type="datetime" />
+          <Property Name="EmailId" Type="varchar" MaxLength="150" />
+          <Property Name="PhoneNumber" Type="varchar" MaxLength="15" />
+          <Property Name="Gender" Type="varchar" MaxLength="50" />
+          <Property Name="Extenstion" Type="varchar" MaxLength="150" />
+          <Property Name="LocationId" Type="int" />
+          <Property Name="LocationName" Type="varchar" MaxLength="150" />
+          <Property Name="DepartmentId" Type="int" />
+          <Property Name="DepartmentName" Type="varchar" MaxLength="150" />
+          <Property Name="DepartmentId1" Type="int" />
+          <Property Name="DepartmentName1" Type="varchar" MaxLength="150" />
+          <Property Name="DepartmentId2" Type="int" />
+          <Property Name="DepartmentName2" Type="varchar" MaxLength="150" />
+          <Property Name="Designation" Type="varchar" MaxLength="150" />
+          <Property Name="PlaceAllocation" Type="varchar" MaxLength="150" />
+          <Property Name="UserType" Type="varchar" MaxLength="50" />
+          <Property Name="SecurityQuestion" Type="varchar" MaxLength="350" />
+          <Property Name="SecurityAnswner" Type="varchar" MaxLength="250" />
+          <Property Name="Comments" Type="varchar" MaxLength="500" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="SubDepartmentId" Type="int" />
+          <Property Name="SubDepartmentName" Type="varchar" MaxLength="50" />
+          <Property Name="DateOfLeaving" Type="datetime" />
+          <Property Name="DesignationID" Type="bigint" />
+          <Property Name="ChangePassword" Type="bit" />
+          <Property Name="IsEmployeesReporting" Type="bit" />
+          <Property Name="EmpId" Type="int" />
+          <Property Name="IsAppLogin" Type="bit" />
+          <Property Name="IsOffRollDoctor" Type="bit" />
+          <Property Name="IsOnRollDoctor" Type="bit" />
+          <Property Name="IsEmployee" Type="bit" />
+        </EntityType>
+        <EntityContainer Name="MyIntranetAppModelStoreContainer">
+          <EntitySet Name="tbl_att_master" EntityType="Self.tbl_att_master" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_att_master_doctor" EntityType="Self.tbl_att_master_doctor" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_Leave" EntityType="Self.tbl_Leave" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_LeaveType" EntityType="Self.tbl_LeaveType" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_Permission" EntityType="Self.tbl_Permission" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_Roaster" EntityType="Self.tbl_Roaster" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_ShiftType" EntityType="Self.tbl_ShiftType" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_User" EntityType="Self.tbl_User" Schema="dbo" store:Type="Tables" />
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="MyIntranetAppModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="tbl_att_master">
+          <Key>
+            <PropertyRef Name="slno" />
+          </Key>
+          <Property Name="slno" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="att_date" Type="DateTime" Precision="3" />
+          <Property Name="empcod" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="employeeid" Type="String" MaxLength="50" FixedLength="true" Unicode="false" />
+          <Property Name="cmp_cod" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="loc_cod" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="site_cod" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="shft_type" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="shft_cod" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="punchdate" Type="DateTime" Precision="3" />
+          <Property Name="in_time" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="out_time" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="extrahours" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="earlyin" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="earlyout" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="latein" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="lateout" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="holiday" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="status" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="auth_latein" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="auth_earlyout" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="auth_ot" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="transact" Type="String" MaxLength="15" FixedLength="true" Unicode="false" />
+          <Property Name="in_time1" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="out_time1" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="co_ot" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="remarks" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="lastupdatedon" Type="DateTime" Precision="3" />
+          <Property Name="roasterlatein" Type="Decimal" Precision="18" Scale="4" />
+        </EntityType>
+        <EntityType Name="tbl_att_master_doctor">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="employeeid" Type="Int32" />
+          <Property Name="att_date" Type="DateTime" Precision="3" />
+          <Property Name="in_time" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="out_time" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="extrahours" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="earlyin" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="earlyout" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="latein" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="lateout" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="tbl_Leave">
+          <Key>
+            <PropertyRef Name="LeaveId" />
+          </Key>
+          <Property Name="LeaveId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LeaveTypeId" Type="Int32" />
+          <Property Name="LeaveTypeName" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="IsFullday" Type="Boolean" />
+          <Property Name="IsCompOff" Type="Boolean" />
+          <Property Name="DateofAvailableCompoff" Type="DateTime" Precision="3" />
+          <Property Name="LeaveFromDate" Type="DateTime" Precision="3" />
+          <Property Name="LeaveTodate" Type="DateTime" Precision="3" />
+          <Property Name="ReasonForLeave" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="AddressOnLeave" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="UserId" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="UserName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="LocationId" Type="Int32" />
+          <Property Name="LocationName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="DepartmentId" Type="Int32" />
+          <Property Name="DepartmentName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Level1Approver" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Level1Approved" Type="Boolean" />
+          <Property Name="Level1ApproveComment" Type="String" MaxLength="350" FixedLength="false" Unicode="false" />
+          <Property Name="Level2Approver" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Level2Approved" Type="Boolean" />
+          <Property Name="Level2ApproveComment" Type="String" MaxLength="350" FixedLength="false" Unicode="false" />
+          <Property Name="Level3Approver" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Level3Approved" Type="Boolean" />
+          <Property Name="Level3ApproveComment" Type="String" MaxLength="350" FixedLength="false" Unicode="false" />
+          <Property Name="LeaveStatus" Type="String" MaxLength="350" FixedLength="false" Unicode="false" />
+          <Property Name="LeaveSessionDay" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Remarks" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+          <Property Name="LeaveCount" Type="Double" />
+          <Property Name="DateOfCompOffLeave" Type="DateTime" Precision="3" />
+          <Property Name="WeeklyOffDay" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="tbl_LeaveType">
+          <Key>
+            <PropertyRef Name="LeaveTypeId" />
+          </Key>
+          <Property Name="LeaveTypeId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LeaveName" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="MaxLeavePerMonth" Type="Int32" />
+          <Property Name="MinLeavePerMonth" Type="Int32" />
+          <Property Name="NoOfTimesPerYear" Type="Int32" />
+          <Property Name="IsActive" Type="Boolean" Nullable="false" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="tbl_Permission">
+          <Key>
+            <PropertyRef Name="PermissionId" />
+          </Key>
+          <Property Name="PermissionId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PermissionDate" Type="DateTime" Precision="3" />
+          <Property Name="StartDate" Type="DateTime" Precision="3" />
+          <Property Name="EndDate" Type="DateTime" Precision="3" />
+          <Property Name="Reason" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="UserId" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="UserName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="LocationId" Type="Int32" />
+          <Property Name="LocationName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="DepartmentId" Type="Int32" />
+          <Property Name="DepartmentName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Level1Approved" Type="Boolean" />
+          <Property Name="Level1ApproveComment" Type="String" MaxLength="350" FixedLength="false" Unicode="false" />
+          <Property Name="Level2Approved" Type="Boolean" />
+          <Property Name="Level2ApproveComment" Type="String" MaxLength="350" FixedLength="false" Unicode="false" />
+          <Property Name="Remarks" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="Level1Approver" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Level2Approver" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="tbl_Roaster">
+          <Key>
+            <PropertyRef Name="RoasterId" />
+          </Key>
+          <Property Name="RoasterId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ShiftTypeId" Type="Int32" />
+          <Property Name="ShiftTypeName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="ShiftStartTime" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ShiftEndTime" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="ShiftDate" Type="DateTime" Precision="3" />
+          <Property Name="UserId" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="UserName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="LocationId" Type="Int32" />
+          <Property Name="DepartmentId" Type="Int32" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="tbl_ShiftType">
+          <Key>
+            <PropertyRef Name="ShiftTypeId" />
+          </Key>
+          <Property Name="ShiftTypeId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ShiftTypeName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="ShiftStartTime" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ShiftEndTime" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="tbl_User">
+          <Key>
+            <PropertyRef Name="UserId" />
+          </Key>
+          <Property Name="UserId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="FirstName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="LastName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="CustomUserId" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="DateOfBirth" Type="DateTime" Precision="3" />
+          <Property Name="DateOfJoining" Type="DateTime" Precision="3" />
+          <Property Name="EmailId" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="PhoneNumber" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="Gender" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Extenstion" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="LocationId" Type="Int32" />
+          <Property Name="LocationName" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="DepartmentId" Type="Int32" />
+          <Property Name="DepartmentName" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="DepartmentId1" Type="Int32" />
+          <Property Name="DepartmentName1" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="DepartmentId2" Type="Int32" />
+          <Property Name="DepartmentName2" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="Designation" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="PlaceAllocation" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="UserType" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="SecurityQuestion" Type="String" MaxLength="350" FixedLength="false" Unicode="false" />
+          <Property Name="SecurityAnswner" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Comments" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="SubDepartmentId" Type="Int32" />
+          <Property Name="SubDepartmentName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="DateOfLeaving" Type="DateTime" Precision="3" />
+          <Property Name="DesignationID" Type="Int64" />
+          <Property Name="ChangePassword" Type="Boolean" />
+          <Property Name="IsEmployeesReporting" Type="Boolean" />
+          <Property Name="EmpId" Type="Int32" />
+          <Property Name="IsAppLogin" Type="Boolean" />
+          <Property Name="IsOffRollDoctor" Type="Boolean" />
+          <Property Name="IsOnRollDoctor" Type="Boolean" />
+          <Property Name="IsEmployee" Type="Boolean" />
+        </EntityType>
+        <EntityContainer Name="MyIntranetAppEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="tbl_att_master" EntityType="Self.tbl_att_master" />
+          <EntitySet Name="tbl_att_master_doctor" EntityType="Self.tbl_att_master_doctor" />
+          <EntitySet Name="tbl_Leave" EntityType="Self.tbl_Leave" />
+          <EntitySet Name="tbl_LeaveType" EntityType="Self.tbl_LeaveType" />
+          <EntitySet Name="tbl_Permission" EntityType="Self.tbl_Permission" />
+          <EntitySet Name="tbl_Roaster" EntityType="Self.tbl_Roaster" />
+          <EntitySet Name="tbl_ShiftType" EntityType="Self.tbl_ShiftType" />
+          <EntitySet Name="tbl_User" EntityType="Self.tbl_User" />
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="MyIntranetAppModelStoreContainer" CdmEntityContainer="MyIntranetAppEntities">
+          <EntitySetMapping Name="tbl_att_master">
+            <EntityTypeMapping TypeName="MyIntranetAppModel.tbl_att_master">
+              <MappingFragment StoreEntitySet="tbl_att_master">
+                <ScalarProperty Name="slno" ColumnName="slno" />
+                <ScalarProperty Name="att_date" ColumnName="att_date" />
+                <ScalarProperty Name="empcod" ColumnName="empcod" />
+                <ScalarProperty Name="employeeid" ColumnName="employeeid" />
+                <ScalarProperty Name="cmp_cod" ColumnName="cmp_cod" />
+                <ScalarProperty Name="loc_cod" ColumnName="loc_cod" />
+                <ScalarProperty Name="site_cod" ColumnName="site_cod" />
+                <ScalarProperty Name="shft_type" ColumnName="shft_type" />
+                <ScalarProperty Name="shft_cod" ColumnName="shft_cod" />
+                <ScalarProperty Name="punchdate" ColumnName="punchdate" />
+                <ScalarProperty Name="in_time" ColumnName="in_time" />
+                <ScalarProperty Name="out_time" ColumnName="out_time" />
+                <ScalarProperty Name="extrahours" ColumnName="extrahours" />
+                <ScalarProperty Name="earlyin" ColumnName="earlyin" />
+                <ScalarProperty Name="earlyout" ColumnName="earlyout" />
+                <ScalarProperty Name="latein" ColumnName="latein" />
+                <ScalarProperty Name="lateout" ColumnName="lateout" />
+                <ScalarProperty Name="holiday" ColumnName="holiday" />
+                <ScalarProperty Name="status" ColumnName="status" />
+                <ScalarProperty Name="auth_latein" ColumnName="auth_latein" />
+                <ScalarProperty Name="auth_earlyout" ColumnName="auth_earlyout" />
+                <ScalarProperty Name="auth_ot" ColumnName="auth_ot" />
+                <ScalarProperty Name="transact" ColumnName="transact" />
+                <ScalarProperty Name="in_time1" ColumnName="in_time1" />
+                <ScalarProperty Name="out_time1" ColumnName="out_time1" />
+                <ScalarProperty Name="co_ot" ColumnName="co_ot" />
+                <ScalarProperty Name="remarks" ColumnName="remarks" />
+                <ScalarProperty Name="lastupdatedon" ColumnName="lastupdatedon" />
+                <ScalarProperty Name="roasterlatein" ColumnName="roasterlatein" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_att_master_doctor">
+            <EntityTypeMapping TypeName="MyIntranetAppModel.tbl_att_master_doctor">
+              <MappingFragment StoreEntitySet="tbl_att_master_doctor">
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="employeeid" ColumnName="employeeid" />
+                <ScalarProperty Name="att_date" ColumnName="att_date" />
+                <ScalarProperty Name="in_time" ColumnName="in_time" />
+                <ScalarProperty Name="out_time" ColumnName="out_time" />
+                <ScalarProperty Name="extrahours" ColumnName="extrahours" />
+                <ScalarProperty Name="earlyin" ColumnName="earlyin" />
+                <ScalarProperty Name="earlyout" ColumnName="earlyout" />
+                <ScalarProperty Name="latein" ColumnName="latein" />
+                <ScalarProperty Name="lateout" ColumnName="lateout" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_Leave">
+            <EntityTypeMapping TypeName="MyIntranetAppModel.tbl_Leave">
+              <MappingFragment StoreEntitySet="tbl_Leave">
+                <ScalarProperty Name="LeaveId" ColumnName="LeaveId" />
+                <ScalarProperty Name="LeaveTypeId" ColumnName="LeaveTypeId" />
+                <ScalarProperty Name="LeaveTypeName" ColumnName="LeaveTypeName" />
+                <ScalarProperty Name="IsFullday" ColumnName="IsFullday" />
+                <ScalarProperty Name="IsCompOff" ColumnName="IsCompOff" />
+                <ScalarProperty Name="DateofAvailableCompoff" ColumnName="DateofAvailableCompoff" />
+                <ScalarProperty Name="LeaveFromDate" ColumnName="LeaveFromDate" />
+                <ScalarProperty Name="LeaveTodate" ColumnName="LeaveTodate" />
+                <ScalarProperty Name="ReasonForLeave" ColumnName="ReasonForLeave" />
+                <ScalarProperty Name="AddressOnLeave" ColumnName="AddressOnLeave" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="UserName" ColumnName="UserName" />
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="LocationName" ColumnName="LocationName" />
+                <ScalarProperty Name="DepartmentId" ColumnName="DepartmentId" />
+                <ScalarProperty Name="DepartmentName" ColumnName="DepartmentName" />
+                <ScalarProperty Name="Level1Approver" ColumnName="Level1Approver" />
+                <ScalarProperty Name="Level1Approved" ColumnName="Level1Approved" />
+                <ScalarProperty Name="Level1ApproveComment" ColumnName="Level1ApproveComment" />
+                <ScalarProperty Name="Level2Approver" ColumnName="Level2Approver" />
+                <ScalarProperty Name="Level2Approved" ColumnName="Level2Approved" />
+                <ScalarProperty Name="Level2ApproveComment" ColumnName="Level2ApproveComment" />
+                <ScalarProperty Name="Level3Approver" ColumnName="Level3Approver" />
+                <ScalarProperty Name="Level3Approved" ColumnName="Level3Approved" />
+                <ScalarProperty Name="Level3ApproveComment" ColumnName="Level3ApproveComment" />
+                <ScalarProperty Name="LeaveStatus" ColumnName="LeaveStatus" />
+                <ScalarProperty Name="LeaveSessionDay" ColumnName="LeaveSessionDay" />
+                <ScalarProperty Name="Remarks" ColumnName="Remarks" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+                <ScalarProperty Name="LeaveCount" ColumnName="LeaveCount" />
+                <ScalarProperty Name="DateOfCompOffLeave" ColumnName="DateOfCompOffLeave" />
+                <ScalarProperty Name="WeeklyOffDay" ColumnName="WeeklyOffDay" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_LeaveType">
+            <EntityTypeMapping TypeName="MyIntranetAppModel.tbl_LeaveType">
+              <MappingFragment StoreEntitySet="tbl_LeaveType">
+                <ScalarProperty Name="LeaveTypeId" ColumnName="LeaveTypeId" />
+                <ScalarProperty Name="LeaveName" ColumnName="LeaveName" />
+                <ScalarProperty Name="MaxLeavePerMonth" ColumnName="MaxLeavePerMonth" />
+                <ScalarProperty Name="MinLeavePerMonth" ColumnName="MinLeavePerMonth" />
+                <ScalarProperty Name="NoOfTimesPerYear" ColumnName="NoOfTimesPerYear" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_Permission">
+            <EntityTypeMapping TypeName="MyIntranetAppModel.tbl_Permission">
+              <MappingFragment StoreEntitySet="tbl_Permission">
+                <ScalarProperty Name="PermissionId" ColumnName="PermissionId" />
+                <ScalarProperty Name="PermissionDate" ColumnName="PermissionDate" />
+                <ScalarProperty Name="StartDate" ColumnName="StartDate" />
+                <ScalarProperty Name="EndDate" ColumnName="EndDate" />
+                <ScalarProperty Name="Reason" ColumnName="Reason" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="UserName" ColumnName="UserName" />
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="LocationName" ColumnName="LocationName" />
+                <ScalarProperty Name="DepartmentId" ColumnName="DepartmentId" />
+                <ScalarProperty Name="DepartmentName" ColumnName="DepartmentName" />
+                <ScalarProperty Name="Level1Approved" ColumnName="Level1Approved" />
+                <ScalarProperty Name="Level1ApproveComment" ColumnName="Level1ApproveComment" />
+                <ScalarProperty Name="Level2Approved" ColumnName="Level2Approved" />
+                <ScalarProperty Name="Level2ApproveComment" ColumnName="Level2ApproveComment" />
+                <ScalarProperty Name="Remarks" ColumnName="Remarks" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="Level1Approver" ColumnName="Level1Approver" />
+                <ScalarProperty Name="Level2Approver" ColumnName="Level2Approver" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_Roaster">
+            <EntityTypeMapping TypeName="MyIntranetAppModel.tbl_Roaster">
+              <MappingFragment StoreEntitySet="tbl_Roaster">
+                <ScalarProperty Name="RoasterId" ColumnName="RoasterId" />
+                <ScalarProperty Name="ShiftTypeId" ColumnName="ShiftTypeId" />
+                <ScalarProperty Name="ShiftTypeName" ColumnName="ShiftTypeName" />
+                <ScalarProperty Name="ShiftStartTime" ColumnName="ShiftStartTime" />
+                <ScalarProperty Name="ShiftEndTime" ColumnName="ShiftEndTime" />
+                <ScalarProperty Name="ShiftDate" ColumnName="ShiftDate" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="UserName" ColumnName="UserName" />
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="DepartmentId" ColumnName="DepartmentId" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_ShiftType">
+            <EntityTypeMapping TypeName="MyIntranetAppModel.tbl_ShiftType">
+              <MappingFragment StoreEntitySet="tbl_ShiftType">
+                <ScalarProperty Name="ShiftTypeId" ColumnName="ShiftTypeId" />
+                <ScalarProperty Name="ShiftTypeName" ColumnName="ShiftTypeName" />
+                <ScalarProperty Name="ShiftStartTime" ColumnName="ShiftStartTime" />
+                <ScalarProperty Name="ShiftEndTime" ColumnName="ShiftEndTime" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_User">
+            <EntityTypeMapping TypeName="MyIntranetAppModel.tbl_User">
+              <MappingFragment StoreEntitySet="tbl_User">
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="LastName" ColumnName="LastName" />
+                <ScalarProperty Name="CustomUserId" ColumnName="CustomUserId" />
+                <ScalarProperty Name="DateOfBirth" ColumnName="DateOfBirth" />
+                <ScalarProperty Name="DateOfJoining" ColumnName="DateOfJoining" />
+                <ScalarProperty Name="EmailId" ColumnName="EmailId" />
+                <ScalarProperty Name="PhoneNumber" ColumnName="PhoneNumber" />
+                <ScalarProperty Name="Gender" ColumnName="Gender" />
+                <ScalarProperty Name="Extenstion" ColumnName="Extenstion" />
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="LocationName" ColumnName="LocationName" />
+                <ScalarProperty Name="DepartmentId" ColumnName="DepartmentId" />
+                <ScalarProperty Name="DepartmentName" ColumnName="DepartmentName" />
+                <ScalarProperty Name="DepartmentId1" ColumnName="DepartmentId1" />
+                <ScalarProperty Name="DepartmentName1" ColumnName="DepartmentName1" />
+                <ScalarProperty Name="DepartmentId2" ColumnName="DepartmentId2" />
+                <ScalarProperty Name="DepartmentName2" ColumnName="DepartmentName2" />
+                <ScalarProperty Name="Designation" ColumnName="Designation" />
+                <ScalarProperty Name="PlaceAllocation" ColumnName="PlaceAllocation" />
+                <ScalarProperty Name="UserType" ColumnName="UserType" />
+                <ScalarProperty Name="SecurityQuestion" ColumnName="SecurityQuestion" />
+                <ScalarProperty Name="SecurityAnswner" ColumnName="SecurityAnswner" />
+                <ScalarProperty Name="Comments" ColumnName="Comments" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="SubDepartmentId" ColumnName="SubDepartmentId" />
+                <ScalarProperty Name="SubDepartmentName" ColumnName="SubDepartmentName" />
+                <ScalarProperty Name="DateOfLeaving" ColumnName="DateOfLeaving" />
+                <ScalarProperty Name="DesignationID" ColumnName="DesignationID" />
+                <ScalarProperty Name="ChangePassword" ColumnName="ChangePassword" />
+                <ScalarProperty Name="IsEmployeesReporting" ColumnName="IsEmployeesReporting" />
+                <ScalarProperty Name="EmpId" ColumnName="EmpId" />
+                <ScalarProperty Name="IsAppLogin" ColumnName="IsAppLogin" />
+                <ScalarProperty Name="IsOffRollDoctor" ColumnName="IsOffRollDoctor" />
+                <ScalarProperty Name="IsOnRollDoctor" ColumnName="IsOnRollDoctor" />
+                <ScalarProperty Name="IsEmployee" ColumnName="IsEmployee" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

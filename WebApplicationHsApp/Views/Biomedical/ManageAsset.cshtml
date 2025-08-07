@@ -1,0 +1,1121 @@
+﻿
+@{
+    ViewBag.Title = "ManageAsset";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+
+    .col-md-6 {
+        margin-bottom: 10px;
+    }
+</style>
+
+<script>
+    var currentid = 0;
+    var oTable;
+    $(document).ready(function () {
+        $('.error1').hide();
+        LoadData();
+        LoadLocations();
+        BindMonths();
+        $(".date")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                Edit: true,
+                //minDate: 0
+
+            });
+    });
+    function ViewFiles(id) {
+        currentid = id;
+        //alert(id);
+        BindListoffiles(id);
+        $("#divManageDocuments").modal("show");
+    }
+    function UploadExcel() {
+        $("#divUploadExcel").modal("show");
+    }
+
+    function Uploaddataclick() {
+
+        // Checking whether FormData is available in browser
+        if (window.FormData !== undefined) {
+
+            var fileUpload = $("#selectfiletoupload").get(0);
+            var files = fileUpload.files;
+
+            // Create FormData object
+            var fileData = new FormData();
+
+            // Looping over all files and add it to FormData object
+            for (var i = 0; i < files.length; i++) {
+                fileData.append(files[i].name, files[i]);
+            }
+
+            // Adding one more key to FormData object
+            fileData.append('id', currentid);
+            fileData.append('public', $("#documentisprivate").val());
+            $.ajax({
+                url: '/Biomedical/UploadFiles',
+                type: "POST",
+                contentType: false, // Not to set any content header
+                processData: false, // Not to process data
+                data: fileData,
+                success: function (result) {
+                    alert(result);
+                    BindListoffiles(currentid);
+                },
+                error: function (err) {
+                    alert(err.statusText);
+                }
+            });
+        } else {
+            alert("FormData is not supported.");
+        }
+    }
+    function BindListoffiles(id) {
+        $.get("/Biomedical/GetListOfFiles?id=" + id, function (data) {
+            var html = "<table class='table  table-bordered'><tr style='background-color:teal;color:white;'><td>Name</td><td> Action</td></tr>";
+            for (var i = 0; i < data.length; i++) {
+                html += "<tr><td>" + data[i].DocumentName + "</td><td><a  target='_blank' href='/ExcelUplodes/" + data[i].DocumentPath + "'>View</a> </td></tr>";
+            }
+            html + "</table>";
+            $("#Divdocumentshistory").html(html);
+        });
+    }
+    function LoadData() {
+        oTable =   $('#tbl_Asset').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Biomedical/AjaxGetAsset",
+            "bProcessing": true,
+            "bDestroy": true,
+            "scrollX": true,
+            //"scrollX": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "Id" },
+                { "sName": "locationId" },
+                { "sName": "departmentId" },
+                { "sName": "subDepartmentId" },
+                { "sName": "Equipment" },
+                { "sName": "Manufacture" },
+                { "sName": "Model" },
+                { "sName": "SerialNo" },
+                { "sName": "AssetNo" },
+                { "sName": "DateOfInstallation" },
+                { "sName": "PONumber" },
+                { "sName": "EquipmentCost" },
+                { "sName": "VendorDetails" },
+                { "sName": "PMDone" },
+                { "sName": "PMDue" },
+                { "sName": "CALLDone" },
+                { "sName": "CALLDue" },
+                { "sName": "Service" },
+                //{ "sName": "wstart" },
+                { "sName": "IsActive" },
+                {
+                    "sName": "Id",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="Edit(this.id);">Edit</a></li>' +
+                            //'<li><a href="javascript:void(0);" id="' + data + '" onclick="Deallocate(this.id);">Deallocate</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="ViewFiles(this.id);">Document</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="CreatePm(this.id);">Create PM</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="TransferAsset(this.id);">Transfer</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="DisposeAsset(this.id);">Dispose</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="ActiveOrInActive(this.id);">Active/InActive</a></li>' +
+                            '</ul></div>';
+                    }
+                }
+            ],
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "locationid", "value": $("#LocationIdfilter").val() },
+                    { "name": "departmentid", "value": $("#DepartmentIdfilter").val() },
+                    { "name": "subdepartmentid", "value": $("#SubDepartmentIdfliter").val() },
+                    { "name": "equipment", "value": $("#Equipmentfliter").val() },
+                    { "name": "PmDue", "value": $("#PMDuefilter").val() }
+                );
+            }
+        });
+        $("#tbl_Asset_length").addClass("col-md-6");
+        $("#tbl_Asset_length").addClass("col-md-6");
+    }
+    function ActiveOrInActive(id) {
+        if (confirm("Are you sure you want to active or inactive?")) {
+            $.get('/Biomedical/ActiveInactiveAsset?id=' + id, function (data) {
+                oTable.api().ajax.reload(null, false);
+            });
+         
+        }
+    }
+    function TransferAsset(id) {
+        currentid = id;
+        $("#divTransferAsset").modal("show");
+        //alert(id);
+    }
+    function DisposeAsset(id) {
+        currentid = id;
+
+        $("#divDisposeDocuments").modal("show");
+        // alert(id);
+        BindListoffiles(currentid)
+    }
+    function UploadDisposedata() {
+
+        // Checking whether FormData is available in browser
+        if (window.FormData !== undefined) {
+
+            var fileUpload = $("#DisposalDocument").get(0);
+            var files = fileUpload.files;
+
+            // Create FormData object
+            var fileData = new FormData();
+
+            // Looping over all files and add it to FormData object
+            for (var i = 0; i < files.length; i++) {
+                fileData.append(files[i].name, files[i]);
+            }
+
+            // Adding one more key to FormData object
+            fileData.append('id', currentid);
+            fileData.append('ReasonForRemoval', $("#ReasonForRemoval").val());
+            $.ajax({
+                url: '/Biomedical/DisposeAsset',
+                type: "POST",
+                contentType: false, // Not to set any content header
+                processData: false, // Not to process data
+                data: fileData,
+                success: function (result) {
+                    alert(result);
+                    oTable.api().ajax.reload(null, false);
+                    $("#divDisposeDocuments").modal("hide");
+                    $("#ReasonForRemoval").val("");
+                    $("#DisposalDocument").val("");
+                },
+                error: function (err) {
+                    alert(err.statusText);
+                }
+            });
+        } else {
+            alert("FormData is not supported.");
+        }
+    }
+    function LoadDepartmentPM(val, subval) {
+        var options = [];
+        options.push('<option value="">- Select Department -</option>');
+        if ($("#LocationIdPM").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Biomedical/GetDepartmentByLocation",
+                data: "id=" + $("#LocationIdPM").val(),
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                    }
+                    $("#DepartmentIdPM").html(options.join(''));
+                    if (val != "") {
+                        $("#DepartmentIdPM").val(val);
+                        if (subval != "")
+                            DepartmentChangePM(subval);
+                    }
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#DepartmentIdPM").html(options.join(''));
+        }
+    }
+    function LoadEquipment() {
+        var options = [];
+        options.push('<option value="">- Select Equipment -</option>');
+        /*   if ($("#SubDepartmentIdfliter").val() != "") {*/
+        $.ajax({
+            type: "POST",
+            url: "/Biomedical/GetEquipmentByDepartments",
+            data: "locationid=" + $("#LocationIdfilter").val() + "&departmentid=" + $("#DepartmentIdfilter").val() + "&subdepartmentId=" + $("#SubDepartmentIdfliter").val(),
+            success: function (data) {
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i] + '">' + data[i] + '</option>');
+                }
+                $("#Equipmentfliter").html(options.join(''));
+
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+        //}
+        //else {
+        //    $("#Equipmentfliter").html(options.join(''));
+        //}
+    }
+    function DepartmentChangePM(val) {
+        var options = [];
+        options.push('<option value="">- Select sub Department -</option>');
+        if ($("#DepartmentIdPM").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Biomedical/GetSubDepartmentByDepartment",
+                data: "id=" + $("#DepartmentIdPM").val(),
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].SubDepartmentId + '">' + data[i].Name + '</option>');
+                    }
+                    $("#SubDepartmentIdPM").html(options.join(''));
+                    if (val != "") {
+                        $("#SubDepartmentIdPM").val(val);
+                    }
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#SubDepartmentIdPM").html(options.join(''));
+        }
+    }
+    function CreatePm(id) {
+        $.get('/Biomedical/GetPMAssetDetails?id=' + id, function (data) {
+            if (data != "NA") {
+                $("#LocationIdPM").val(data.LocationId);
+                LoadDepartmentPM(data.DepartmentId, data.SubDepartmentId);
+                //$("#DepartmentId").val(data.DepartmentId);
+                $("#SubDepartmentIdPM").val(data.SubDepartmentId);
+                $("#EquipmentNamePM").val(data.Equipment);
+                $("#AssetNumberPM").val(data.AssetNo);
+                $("#myModal2").modal('show');
+                EmployeeSearch();
+            } else {
+                alert("We are unable to find the Event");
+            }
+        });
+    }
+    function EmployeeSearch() {
+        $(".EmpId").select2({
+            ajax: {
+                url: "/Home/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            width: 'element',
+            minimumInputLength: 4
+        });
+    }
+    function BindMonths() {
+        var date = new Date();
+        date.setMonth(date.getMonth());
+        var months = 12;
+        var monthNames = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+        var select = document.getElementById('MonthPM');
+        var selectFilter = document.getElementById('PMDuefilter');
+        var html = '';
+        var htmlfilter = '<option value="">Select PM DUE Month</option>';
+        for (var i = 0; i < months; i++) {
+            var m = date.getMonth();
+            html += '<option value="' + monthNames[m] + '">' + monthNames[m] + '</option>'
+
+            htmlfilter += '<option value="' + (i + 1) + '">' + monthNames[(i)] + '</option>'
+            date.setMonth(date.getMonth() + 1);
+        }
+        select.innerHTML = html;
+        selectFilter.innerHTML = htmlfilter;
+    }
+    function validateinput() {
+        setTimeout(function () { $('.error1').fadeOut('fast'); }, 5000);
+        var validate = true;
+        $(".error").hide();
+        $(".error1").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#LocationIdPM").val() == "") {
+            $("#LocationIdPM").after('<span class="error" style="color:Red;">Select Location</span>');
+            $("#LocationIdPM").addClass('css-error');
+            validate = false;
+        }
+        else if ($("#DepartmentIdPM").val() == "") {
+            $("#DepartmentIdPM").after('<span class="error" style="color:Red;">Select Department</span>');
+            $("#DepartmentIdPM").addClass('css-error');
+            validate = false;
+        }
+        if ($("#AssetNumberPM").val() == "") {
+            $("#AssetNumberPM").after('<span class="error" style="color:Red;">Enter Asset Number</span>');
+            $("#AssetNumberPM").addClass('css-error');
+            validate = false;
+        }
+        if ($("#EquipmentNamePM").val() == "") {
+            $("#EquipmentNamePM").after('<span class="error" style="color:Red;">Enter Equipment</span>');
+            $("#EquipmentNamePM").addClass('css-error');
+            validate = false;
+        }
+        if ($('#AssignToPM').val() == null) {
+            $('.error1').show();
+            $('.error1').text("Select Assign Engineer");
+
+            valid = false;
+        }
+
+        return validate;
+    }
+    function SaveDetails() {
+        var validate = validateinput();
+        if (validate) {
+            if (window.FormData !== undefined) {
+                var files = "";
+                // Create FormData object
+                var fileData = new FormData();
+                fileData.append('PreventiveMaintenanceId', 0);
+                fileData.append('LocationId', $("#LocationIdPM").val());
+                fileData.append('DepartmentId', $("#DepartmentIdPM").val());
+                fileData.append('SubDepartmentId', $("#SubDepartmentIdPM").val());
+                fileData.append('Month', $("#MonthPM").val());
+                fileData.append('AssetNumber', $("#AssetNumberPM").val());
+                fileData.append('Equipment', $("#EquipmentNamePM").val());
+                fileData.append('AssignTo', $("#AssignToPM").val());
+                fileData.append('type', "Calender");
+                $.ajax({
+                    type: "POST",
+                    url: "/Biomedical/Save_Update_PM",
+                    contentType: false,
+                    processData: false,
+                    data: fileData,
+                    success: function (data) {
+                        alert("Success");
+                        oTable.api().ajax.reload(null, false);
+                        $("#myModal2").modal('hide');
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+    }
+    function New() {
+        window.location.href = "/Biomedical/CreateAsset";
+    }
+    function Edit(id) {
+        window.location.replace("/Biomedical/CreateAsset?id=" + id);
+    }
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#LocationId").html(options.join(''));
+                $("#LocationIdfilter").html(options.join(''));
+                $("#LocationIdPM").html(options.join(''));
+                $("#ddltLocation").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function SaveExcel() {
+        if (window.FormData !== undefined) {
+            var fileUpload = $("#Uploadfile").get(0);
+            if ($("#Uploadfile").get(0).files.length == 0) {
+                alert("Please upload the file");
+                return;
+            }
+            if ($("#LocationId").val() == "") {
+                alert("Please Select Location");
+                return;
+            }
+            var files = fileUpload.files;
+            var fileData = new FormData();
+            for (var i = 0; i < files.length; i++) {
+                fileData.append(files[i].name, files[i]);
+            }
+            fileData.append("LocationId", $("#LocationId").val());
+            $.ajax({
+                url: '/Biomedical/SaveExcel',
+                type: "POST",
+                contentType: false,
+                processData: false,
+                data: fileData,
+                success: function (result) {
+                    $("#divUploadExcel").modal("hide");
+                    if (result != null)
+                        alert("Excel uploaded successfully");
+                    else
+                        alert("Something went wrong.Please contact administrator");
+                },
+                error: function (err) {
+                    alert("Something went wrong.Please contact administrator");
+                }
+            });
+        } else {
+            alert("FormData is not supported in the browser.");
+        }
+    }
+
+    //function LoadDepartment(val, subval) {
+    //    var options = [];
+    //    options.push('<option value="">- Select Department -</option>');
+    //    if ($("#LocationIdfilter").val() != "") {
+    //        $.ajax({
+    //            type: "POST",
+    //            url: "/Biomedical/GetDepartmentByLocation",
+    //            data: "id=" + $("#LocationIdfilter").val(),
+    //            success: function (data) {
+    //                for (var i = 0; i < data.length; i++) {
+    //                    options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+    //                }
+    //                $("#DepartmentIdfilter").html(options.join(''));
+    //                if (val != "") {
+    //                    $("#DepartmentIdfilter").val(val);
+    //                    if (subval != "")
+    //                        DepartmentChange(subval);
+    //                }
+    //            },
+    //            error: function () {
+    //                alert("error")
+    //            }
+    //        });
+    //    }
+    //    else {
+    //        $("#DepartmentIdfilter").html(options.join(''));
+    //    }
+    //}
+    function DepartmentChange(val) {
+        var options = [];
+        options.push('<option value="0">- Select Sub Department -</option>');
+        if ($("#DepartmentIdfilter").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Biomedical/GetSubDepartmentByDepartment",
+                data: "id=" + $("#DepartmentIdfilter").val(),
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].SubDepartmentId + '">' + data[i].Name + '</option>');
+                    }
+                    $("#SubDepartmentIdfliter").html(options.join(''));
+                    $("#SubDepartmentIdfliter").val(val);
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#SubDepartmentIdfliter").html(options.join(''));
+        }
+    }
+    function LoadDepartment(val, subval) {
+        var options = [];
+        options.push('<option value="0">- Select Department -</option>');
+        if ($("#LocationIdfilter").val() != "") {
+            LoadEquipment();
+            $.ajax({
+                type: "POST",
+                url: "/Biomedical/GetDepartmentByLocation",
+                data: "id=" + $("#LocationIdfilter").val(),
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                    }
+                    $("#DepartmentIdfilter").html(options.join(''));
+                    if (val != null && val != "") {
+                        $("#DepartmentIdfilter").val(val);
+                        if (subval != "")
+                            DepartmentChange(subval);
+                    }
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#DepartmentIdfilter").html(options.join(''));
+        }
+
+    }
+    function DepartmentChangeTransfer() {
+        var options = [];
+        options.push('<option value="0">- Select Sub Department -</option>');
+        if ($("#ddltDepartment").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Biomedical/GetSubDepartmentByDepartment",
+                data: "id=" + $("#ddltDepartment").val(),
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].SubDepartmentId + '">' + data[i].Name + '</option>');
+                    }
+                    $("#ddltSubDepartment").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#ddltSubDepartment").html(options.join(''));
+        }
+    }
+    function LoadDepartmentTransfer() {
+        var options = [];
+        options.push('<option value="0">- Select Department -</option>');
+        if ($("#ddltLocation").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Biomedical/GetDepartmentByLocation",
+                data: "id=" + $("#ddltLocation").val(),
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                    }
+                    $("#ddltDepartment").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#ddltDepartment").html(options.join(''));
+        }
+    }
+
+    function UploadTransferedata() {
+        if (window.FormData !== undefined) {
+
+            if ($("#ddltLocation").val() == "") {
+                alert("Please Select Location");
+                return;
+            }
+            else if ($("#ddltDepartment").val() == "") {
+                alert("Please Select Department");
+                return;
+            }
+            else if ($("#ddltSubDepartment").val() == "") {
+                alert("Please Select SubDepartment");
+                return;
+            }
+            else if ($("#ReasonForTranfer").val() == "") {
+                alert("Please Enter Reason For Tranfer");
+                return;
+            }
+            var fileUpload = $("#TransferDocument").get(0);
+            if ($("#TransferDocument").get(0).files.length == 0) {
+                alert("Please upload the file");
+                return;
+            }
+            var files = fileUpload.files;
+            var fileData = new FormData();
+            for (var i = 0; i < files.length; i++) {
+                fileData.append("document", files[i]);
+            }
+            fileData.append("AssetId", currentid);
+            fileData.append("ToLocationId", $("#ddltLocation").val());
+            fileData.append("ToDepartmentId", $("#ddltDepartment").val());
+            fileData.append("ToSubDepartmentId", $("#ddltSubDepartment").val());
+            fileData.append("ReasonForTranfer", $("#ReasonForTranfer").val());
+            $.ajax({
+                url: '/Biomedical/SaveAssetTransfer',
+                type: "POST",
+                contentType: false,
+                processData: false,
+                data: fileData,
+                success: function (result) {
+                    oTable.api().ajax.reload(null, false);
+                    alert("Asset Transfered Successfully");
+                    $("#divTransferAsset").modal("hide");
+                    ClearAllTransfer();
+                },
+                error: function (err) {
+                    alert("Something went wrong.Please contact administrator");
+                }
+            });
+        } else {
+            alert("FormData is not supported in the browser.");
+        }
+    }
+    function ClearAllTransfer() {
+        $("#ddltLocation").val("");
+        $("#ddltDepartment").val("");
+        $("#ddltSubDepartment").val("");
+        $("#ReasonForTranfer").val("");
+        $("#TransferDocument").val("");
+    }
+    var idschecked = "";
+    function BulkAssignToUser() {
+        var idchecked = '';
+        $('.assigncheck').each(function () {
+            if (this.checked) {
+                idchecked = idchecked + this.id + ",";
+            }
+        });
+        idschecked = idchecked;
+        $("#myModal21").modal("show");
+        EmployeeSearch();
+    }
+    function LoadCalculation() {
+        var validate = true;
+        if ($("#LocationIdfilter").val() == "") {
+            $("#LocationIdfilter").after('<span class="error" style="color:Red;">Select Location</span>');
+            $("#LocationIdfilter").addClass('css-error');
+            validate = false;
+        }
+        if ($("#DepartmentIdfilter").val() == "") {
+            $("#DepartmentIdfilter").after('<span class="error" style="color:Red;">Select Department</span>');
+            $("#DepartmentIdfilter").addClass('css-error');
+            validate = false;
+        }
+        if ($("#SubDepartmentIdfliter").val() == "") {
+            $("#SubDepartmentIdfliter").after('<span class="error" style="color:Red;">Select Sub Department</span>');
+            $("#SubDepartmentIdfliter").addClass('css-error');
+            validate = false;
+        }
+        if (validate) {
+
+            $("#myModalcal").modal("show");
+        }
+
+    }
+    function SaveDetails2() {
+        if (confirm("Are you sure you want to assign assets")) {
+            $.get("/Biomedical/Save_Update_PM_toassign?assetids=" + idschecked + "&empid=" + $("#AssignToPM2").val(), function (data) {
+                $("#myModal21").modal("hide");
+                alert(data);
+            });
+        }
+    }
+    function BulkUpdateCalculation() {
+        if ($("#CallDone").val() != "" && $("#CallDue").val() != "") {
+            if (confirm("Are you sure you want to Calculate for selected values ?")) {
+                var url = "/Biomedical/BulkSave_Update_PM_CallDue?locationId=" + $('#LocationIdfilter').val() + "&deptId=" + $("#DepartmentIdfilter").val() + "&subdeptId=" + $("#SubDepartmentIdfliter").val() + "&calldue=" + $("#CallDue").val() + "&calldone=" + $("#CallDone").val();
+                if ($("#Equipmentfliter").val() != "") {
+                    url += "&equipment=" + $("#Equipmentfliter").val()
+                }
+                $.get(url, function (data) {
+                    $("#myModalcal").modal("hide");
+                    alert(data);
+                    oTable.api().ajax.reload(null, false);
+                });
+            }
+        }
+        else {
+            alert("Select Required fields");
+        }
+    }
+    function ExportExcelAssets() {
+
+        if (confirm("Are you sure you want to Export?")) {
+            var url = '/Biomedical/ExportExcelAssets';
+
+            if ($("#LocationIdfilter").val() != null && $("#LocationIdfilter").val() != "") {
+                url += '?locationId=' + $("#LocationIdfilter").val();
+            } else {
+                url += '?locationId=0';
+            }
+            if ($("#DepartmentIdfilter").val() != null && $("#DepartmentIdfilter").val() != "")
+                url += '&departmentId=' + $("#DepartmentIdfilter").val();
+            if ($("#SubDepartmentIdfliter").val() != null && $("#SubDepartmentIdfliter").val() != "")
+                url += '&subdepartmentId=' + $("#SubDepartmentIdfliter").val();
+            if ($("#Equipmentfliter").val() != null && $("#Equipmentfliter").val() != "") {
+                url += '&Equipment=' + $("#Equipmentfliter").val();
+            }
+            if ($("#PMDuefilter").val() != null && $("#PMDuefilter").val() != "") {
+                url += '&month=' + $("#PMDuefilter").val();
+            }
+            window.location = url;
+        }
+    }
+</script>
+<div id="divTransferAsset" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Transfer Asset </h4>
+            </div>
+            <div class="modal-body">
+                <div id="" class="row" style="padding:20px;">
+                    <div class="col-md-12">
+                        <label> ToLocation<span style="color:red;">*</span></label>
+                        <select class="form-control maxwidth" id="ddltLocation" onchange="LoadDepartmentTransfer();">
+                            <option value="">- Select Location -</option>
+                        </select>
+                    </div>
+                    <div class="col-md-12">
+                        <label>To Department<span style="color:red;">*</span></label>
+                        <select class="form-control maxwidth" id="ddltDepartment" onchange="DepartmentChangeTransfer();">
+                            <option value="">- Select Department -</option>
+                        </select>
+                    </div>
+                    <div class="col-md-12">
+                        <label>To SubDepartment<span style="color:red;">*</span></label>
+                        <select class="form-control maxwidth" id="ddltSubDepartment">
+                            <option value="">- Select Sub Department -</option>
+                        </select>
+                    </div>
+                    <div class="col-md-12">
+                        <label>Reason For Tranfer <span style="color:red;">*</span></label>
+                        <textarea id="ReasonForTranfer" class="form-control maxwidth"></textarea>
+                    </div>
+                    <div class="col-md-12">
+                        <label>Document<span style="color:red;">*</span></label>
+                        <input type="file" id="TransferDocument" name="file" multiple class="form-control maxwidth" />
+                    </div>
+                    <input type="button" class="btn btn-primary" value="Save" onclick="UploadTransferedata();" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="divDisposeDocuments" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Disposal Document </h4>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <tr>
+                        <td>
+                            ReasonForRemoval :
+                        </td>
+                        <td>
+                            <textarea id="ReasonForRemoval" class="form-control"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Select File  :
+                        </td>
+                        <td>
+                            <input type="file" name="file" id="DisposalDocument" multiple />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <input type="button" id="btnUploadfile" class="btn btn-primary" value="Upload" onclick="UploadDisposedata();" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Manage Assets&nbsp;&nbsp;<a href="#" data-toggle="modal" class="pull-right" onclick="UploadExcel();">Upload </a>&nbsp;&nbsp;&nbsp;<a href="#" data-toggle="modal" class="pull-right" onclick="New();">New&nbsp;&nbsp;&nbsp; </a>&nbsp;&nbsp;</div>
+    <div class="panel-body">
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-md-2">
+                    <select class="form-control maxwidth" id="LocationIdfilter" onchange="LoadDepartment();"></select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-control maxwidth" id="DepartmentIdfilter" onchange="DepartmentChange(); ">
+                        <option value="0">- Select Department -</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+
+                    <select class="form-control maxwidth" id="SubDepartmentIdfliter" onchange="LoadEquipment();">
+                        <option value="0">- Select Sub Department -</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-control maxwidth" id="Equipmentfliter">
+                        <option value="">- Select Equipment -</option>
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <select class="form-control maxwidth" id="PMDuefilter">
+                        <option value="">- Select Month -</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <input type="button" class="btn btn-warning" value="Calibration" onclick="LoadCalculation();" />
+                    <input type="button" class="btn btn-danger" value="GO" onclick="LoadData();" />
+                    <input type="button" class="btn btn-info" value="Export" onclick="ExportExcelAssets();" />
+                    <input type="button" class="btn btn-primary" value="Assign To" onclick="BulkAssignToUser();" />
+                </div>
+            </div>
+        </div>
+        <table class="table table-striped table-bordered nowrap" style="width:100%;" id="tbl_Asset">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>Asset Id</th>
+                    <th>Location</th>
+                    <th>Department</th>
+                    <th>Sub Department</th>
+                    <th>Equipment</th>
+                    <th>Manufacture</th>
+                    <th>Model</th>
+                    <th>Serial No</th>
+                    <th>Asset No</th>
+                    <th>D.O.I</th>
+                    <th>PO No</th>
+                    <th>Equipment Cost</th>
+                    <th>Vendor</th>
+                    <th>PM Done</th>
+                    <th>PM Due</th>
+                    <th>Calibration Done</th>
+                    <th>Calibration Due</th>
+                    <th>Service</th>
+                    @*<th>Service Start</th>
+                    <th>Service End</th>*@
+                    <th>Is Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+
+
+<div id="divManageDocuments" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Manage Documents</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <tr>
+                        <td>
+                            Is It Private :
+                        </td>
+                        <td>
+                            <input type="checkbox" id="documentisprivate" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Select File  :
+                        </td>
+                        <td>
+                            <input type="file" name="file" id="selectfiletoupload" multiple />
+                        </td>
+                        <td>
+                            <input type="button" id="btnUploadfile" class="btn btn-primary" value="Upload" onclick="Uploaddataclick();" />
+                        </td>
+                    </tr>
+
+                </table>
+                <div class="row" style="padding:5px;" id="Divdocumentshistory">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div id="divUploadExcel" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Manage Documents</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <tr>
+                        <td>
+                            <label>Assign Location<span style="color:red;">*</span></label>
+                        </td>
+                        <td>
+
+                            <select class="form-control maxwidth" id="LocationId"></select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Select File  :
+                        </td>
+                        <td>
+                            <input type="file" name="file" id="Uploadfile" multiple />
+                        </td>
+                        <td>
+                            <input type="button" id="btnUpload" class="btn btn-primary" value="Upload" onclick="SaveExcel();" />
+                        </td>
+                    </tr>
+
+                </table>
+                <div class="row" style="padding:5px;" id="Divdocumentshistory">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="myModal2" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:900px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Assign PM task to employee</h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger error1" role="alert">
+
+                </div>
+                <div class="row" style="padding:20px;">
+                    <div class="col-md-6">
+                        <label>Assign Location<span style="color:red;">*</span></label>
+                        <select class="form-control maxwidth" id="LocationIdPM" onchange="LoadDepartmentPM('','');"></select>
+                    </div>
+                    @*<div class="col-md-4">
+                            <label>Category of Services<span style="color:red;">*</span></label>
+                            <select class="form-control maxwidth" id="Services" onchange="DepartmentChange();">
+                                <option value="">- Select Services -</option>
+                            </select>
+                        </div>*@
+                    <div class="col-md-6">
+                        <label>Assign Department<span style="color:red;">*</span></label>
+                        <select class="form-control maxwidth" id="DepartmentIdPM" onchange="DepartmentChangePM();">
+                            <option value="">- Select Department -</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Sub Department<span style="color:red;">*</span></label>
+                        <select class="form-control maxwidth" id="SubDepartmentIdPM">
+                            <option value="">- Select Sub Department -</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Choose Month<span style="color:red;">*</span></label>
+                        <select class="form-control maxwidth" id="MonthPM">
+                            <option value="">- Select Month -</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Equipment Name<span style="color:red;">*</span></label>
+                        <input type="text" class="form-control" id="EquipmentNamePM" />
+                        @*<select id="EquipmentName" class="form-control" style="width:100%;" name="query" data-provide="typeahead" autocomplete="off" onchange="LoadAssetId('');"></select>*@
+                    </div>
+                    <div class="col-md-6">
+                        <label>Asset Number<span style="color:red;">*</span></label>
+                        <input type="text" class="form-control" id="AssetNumberPM" />
+                        @*// <select id="AssetNumber" class="form-control maxwidth"><option value="">- Select Asset -</option></select>*@
+                    </div>
+                    <div class="col-md-6">
+                        <label>Assigned Engineer<span style="color:red;">*</span></label><br />
+                        <select id="AssignToPM" class="form-control EmpId" name="query" style="width:300px;"></select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" class="btn cancel" value="Cancel" data-dismiss="modal" />
+                <input type="button" class="btn save" value="Save" onclick="SaveDetails();" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModal21" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:900px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Assign PM tasks to employee</h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger error1" role="alert">
+
+                </div>
+                <div class="row" style="padding:20px;">
+                    <div class="col-md-12">
+                        <label>Assigned Engineer<span style="color:red;">*</span></label><br />
+                        <select id="AssignToPM2" class="form-control EmpId" name="query" style="width:300px;"></select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" class="btn cancel" value="Cancel" data-dismiss="modal" />
+                <input type="button" class="btn save" value="Save" onclick="SaveDetails2();" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModalcal" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:900px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Calibration</h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger error1" role="alert">
+
+                </div>
+                <div class="row" style="padding:20px;">
+                    <div class="col-md-6">
+                        <label>Calibration Due<span style="color:red;">*</span></label>
+                        <input type="text" class="form-control maxwidth date" id="CallDue" />
+                    </div>
+                    <div class="col-md-6">
+                        <label>Calibration Done<span style="color:red;">*</span></label>
+                        <input type="text" class="form-control maxwidth date" id="CallDone" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" class="btn cancel" value="Cancel" data-dismiss="modal" />
+                <input type="button" class="btn save" value="Update" onclick="BulkUpdateCalculation();" />
+            </div>
+        </div>
+    </div>
+</div>

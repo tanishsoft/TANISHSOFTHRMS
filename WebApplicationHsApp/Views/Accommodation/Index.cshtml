@@ -1,0 +1,299 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    /*.section {
+            position: relative;
+            height: 100vh
+        }
+
+            .section .section-center {*/
+    /*position: absolute;*/
+    /*top: 40%;*/
+    /*left: 0;
+                right: 0;
+                -webkit-transform: translateY(-50%);
+                transform: translateY(-50%)
+            }*/
+
+    #booking {
+      
+        background: #ffcc15;
+        background-size: cover;
+        background-position: center;
+        padding: 50px;
+        min-height: 90vh;
+    }
+
+        #booking input, select, textarea {
+            max-width: 100% !important;
+        }
+    /*   #booking::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                top: 0;
+                background: #ffcc15;
+            }
+    */
+    .booking-form {
+        background-color: #fff;
+        padding: 20px 20px;
+        -webkit-box-shadow: 0 5px 20px -5px rgba(0,0,0,.3);
+        box-shadow: 0 5px 20px -5px rgba(0,0,0,.3);
+        border-radius: 4px
+    }
+
+        .booking-form .form-group {
+            position: relative;
+            margin-bottom: 30px
+        }
+
+        .booking-form .form-control {
+            background-color: #ebecee;
+            border-radius: 4px;
+            border: none;
+            height: 40px;
+            -webkit-box-shadow: none;
+            box-shadow: none;
+            color: #3e485c;
+            font-size: 14px
+        }
+
+            .booking-form .form-control::-webkit-input-placeholder {
+                color: rgba(62,72,92,.3)
+            }
+
+            .booking-form .form-control:-ms-input-placeholder {
+                color: rgba(62,72,92,.3)
+            }
+
+            .booking-form .form-control::placeholder {
+                color: rgba(62,72,92,.3)
+            }
+
+        .booking-form input[type=date].form-control:invalid {
+            color: rgba(62,72,92,.3)
+        }
+
+        .booking-form select.form-control {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none
+        }
+
+            .booking-form select.form-control + .select-arrow {
+                position: absolute;
+                right: 0;
+                bottom: 4px;
+                width: 32px;
+                line-height: 32px;
+                height: 32px;
+                text-align: center;
+                pointer-events: none;
+                color: rgba(62,72,92,.3);
+                font-size: 14px
+            }
+
+                .booking-form select.form-control + .select-arrow:after {
+                    content: '\279C';
+                    display: block;
+                    -webkit-transform: rotate(90deg);
+                    transform: rotate(90deg)
+                }
+
+        .booking-form .form-label {
+            display: inline-block;
+            color: #3e485c;
+            font-weight: 700;
+            margin-bottom: 6px;
+            margin-left: 7px
+        }
+
+        .booking-form .submit-btn {
+            display: inline-block;
+            color: #fff;
+            background-color: #1e62d8;
+            font-weight: 700;
+            padding: 14px 30px;
+            border-radius: 4px;
+            border: none;
+            -webkit-transition: .2s all;
+            transition: .2s all
+        }
+
+            .booking-form .submit-btn:hover, .booking-form .submit-btn:focus {
+                opacity: .9
+            }
+
+    .booking-cta {
+        margin-top: 80px;
+        margin-bottom: 30px
+    }
+
+        .booking-cta h1 {
+            font-size: 52px;
+            text-transform: uppercase;
+            color: #fff;
+            font-weight: 700
+        }
+
+        .booking-cta p {
+            font-size: 16px;
+            color: rgba(255,255,255,.8)
+        }
+</style>
+
+
+
+
+<div class="row">
+    <div class="col-md-2" style="padding-left:0px;padding-right:0px;">
+        @Html.Partial("_SideNavAccommodation")
+    </div>
+    <div class="col-md-10"  style="padding-left:0px;padding-right:0px;">
+        <div id="booking">
+            
+
+
+                <div class="booking-form">
+                    <form>
+                        <h4 style="text-align:center;">New Booking Request</h4>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <span class="form-label">Name Of Guest</span>
+                                    <input class="form-control" type="text" required="">
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <span class="form-label">Guest arrival date</span>
+                                    <input class="form-control" type="date" required="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <span class="form-label">Guest Category</span>
+                                    <select class="form-control">
+                                        <option>Select</option>
+                                        <option>Doctor</option>
+                                        <option>Midwife/IME</option>
+                                        <option>Nurse</option>
+                                        <option>New Employee</option>
+                                        <option>Other</option>
+                                    </select>
+
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <span class="form-label">Accommodation Type</span>
+                                    <select class="form-control">
+                                        <option>Select</option>
+                                        <option>Single</option>
+                                        <option>Double</option>
+                                        <option>Group</option>
+                                    </select>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <span class="form-label">Accommodation Location</span>
+                                    <select class="form-control">
+                                        <option>Select</option>
+                                        <option>Majestic Apartments</option>
+                                        <option>Shubhodaya Apartment</option>
+                                        <option>RK Residency</option>
+                                        <option>Unique Residency</option>
+                                        <option>Other</option>
+                                    </select>
+
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <span class="form-label">Accommodation Flat <span style="font-size:10px;">(Only Available)</span></span>
+                                    <select class="form-control">
+                                        <option>Select</option>
+                                        <option>Flat no 401</option>
+                                        <option>Flat no 402</option>
+                                        <option>Flat no 403</option>
+                                    </select>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <p style="font-size:13px;">Accommodation Tenure</p>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <span class="form-label">From date</span>
+                                    <input class="form-control" type="date" required="">
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="form-group">
+                                    <span class="form-label">To date</span>
+                                    <input class="form-control" type="date" required="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <p style="font-size:13px;">To be informed Department</p>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <input type="checkbox" required=""> Housekeeping
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <input type="checkbox" required=""> Maintenance
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <input type="checkbox" required=""> IT
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <input type="checkbox" required=""> Admin
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <span class="form-label">Comments</span>
+                                    <textarea class="form-control" rows="2"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-btn" style="text-align:center;">
+                            <button class="submit-btn">Submit</button><br />
+                            <span style="font-size:10px;">On Submit it will go to approval, once approved then a ticket will generate to respective department.</span>
+                        </div>
+                    </form>
+                </div>
+           
+
+        </div>
+
+    </div>
+</div>

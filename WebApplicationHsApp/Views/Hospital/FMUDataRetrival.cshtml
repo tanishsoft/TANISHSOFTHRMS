@@ -1,0 +1,439 @@
+﻿@model WebApplicationHsApp.DataModel.tbl_FMUDataRetrieval
+
+@{
+    ViewBag.Title = "FMU Data Retrival";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .form-label {
+        color: teal;
+        font-size: 15px;
+        /*font-weight: 600;*/
+    }
+
+
+    input, select, textarea {
+        max-width: 100%;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        $(".date")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd-mm-yy",
+                Edit: true,
+
+            });
+        $("#fromDate")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd-mm-yy",
+                Edit: true,
+                //minDate:0,
+                yearRange: "-30:+30",
+                onSelect: function (dateText, inst) {
+                    $("#toDate").datepicker("option", "minDate",
+                        $("#fromDate").datepicker("getDate"));
+                }
+            });
+        $("#toDate")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "-30:+30",
+                dateFormat: "dd-mm-yy",
+                Edit: true,
+
+            });
+        $('#ddlRequirements').on('change', function () {
+            if ($('#ddlRequirements').val() == "") {
+                $("#divReqiure").hide();
+            }
+            else {
+                $("#divReqiure").show();
+                $("#spanReqiurment").text($('#ddlRequirements').val());
+            }
+
+        });
+
+        $('#ddlpurpose').on('change', function () {
+            if ($('#ddlpurpose').val() == "others") {
+                $('#txtPurpose').val("");
+                $("#divPurpose").show();
+            }
+            else {
+                $('#txtPurpose').val($('#ddlpurpose').val());
+                $("#divPurpose").hide();
+            }
+        });
+        LoadLocations();
+        $('#EmpLocation').on('change', function () {
+            LoadDepartment();
+        });
+
+    });
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#EmpLocation").html(options.join(''));
+                //  $("#ddlLocationForFilter").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadDepartment() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetDepartmentByLocation",
+            data: "id=" + $("#EmpLocation").val(),
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Department -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                }
+                $("#EmpDepart").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function OnclickSaveDetails() {
+        debugger;
+        validateDetails();
+        if (validate) {
+            var task = {
+                EmpNo: $('#EmpNo').val(),
+                EmpName: $('#EmpName').val(),
+                DepartmentId: $('#EmpDepart').val(),
+                Email: $('#txtEmail').val(),
+                Mobile: $('#txtMobile').val(),
+                DataRequestedBy: $('#txtDatarequestedBy').val(),
+                DataRequestedDate: $('#txtDatarequestedDate').val(),
+                PurposeOfTheData: $('#txtPurpose').val(),
+                SpecificData: $('#spanReqiurment').text(),
+                SpecificDataValue: $('#txtRequirements').val(),
+                Comments: $('#txtComments').val(),
+                Description: $('#txtDescription').val(),
+                FromDate: $('#fromDate').val(),
+                ToDate: $("#toDate").val(),
+                SheetType: $("input[name='Type']:checked").val(),
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Hospital/SaveFMUData",
+                data: task,
+                success: function (data) {
+                    $(".error").hide();
+                    $(".css-error").removeClass('css-error');
+                    alert(data);
+                    clearAll();
+                }
+            });
+        }
+    }
+    function validateDetails() {
+        validate = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#EmpNo").val() == "") {
+            $("#EmpNo").after('<span class="error" style="color:Red;">Enter Employee No</span>');
+            $("#EmpNo").addClass('css-error');
+            validate = false;
+        }
+        if ($("#EmpName").val() == "") {
+            $("#EmpName").after('<span class="error" style="color:Red;">Enter Employee Name</span>');
+            $("#EmpName").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtDatarequestedDate").val() == "") {
+            $("#txtDatarequestedDate").after('<span class="error" style="color:Red;">select Date</span>');
+            $("#txtDatarequestedDate").addClass('css-error');
+            validate = false;
+        }
+        if ($("#EmpLocation").val() == 0) {
+            $("#EmpLocation").after('<span class="error" style="color:Red;">select Department</span>');
+            $("#EmpLocation").addClass('css-error');
+            validate = false;
+        } else {
+            if ($("#EmpDepart").val() == 0) {
+                $("#EmpDepart").after('<span class="error" style="color:Red;">select Department</span>');
+                $("#EmpDepart").addClass('css-error');
+                validate = false;
+            }
+        }
+
+        if ($("#txtMobile").val() == "") {
+            $("#txtMobile").after('<span class="error" style="color:Red;">Enter Mobile</span>');
+            $("#txtMobile").addClass('css-error');
+            validate = false;
+        }
+        var emailReg = /^([\w-\.]+@@([\w-]+\.)+[\w-]{2,4})?$/;
+        var emailaddressVal = $("#txtEmail").val();
+        if ($("#txtEmail").val() == "") {
+            $("#txtEmail").addClass('css-error');
+            $("#txtEmail").after('<span class="error" style="color:Red;">Enter  email address.</span>');
+            validate = false;
+        }
+        //else if (!emailReg.test(emailaddressVal)) {
+        //    $("#txtEmail").addClass('css-error');
+        //    $("#txtEmail").after('<span class="error" style="color:Red;">Enter a valid email address.</span>');
+        //    validate = false;
+        //}
+
+        if ($("#txtDatarequestedBy").val() == "") {
+            $("#txtDatarequestedBy").after('<span class="error" style="color:Red;">Enter Requested by</span>');
+            $("#txtDatarequestedBy").addClass('css-error');
+            validate = false;
+        }
+        if ($("#ddlpurpose").val() == "") {
+            $("#ddlpurpose").after('<span class="error" style="color:Red;">select purposet</span>');
+            $("#ddlpurpose").addClass('css-error');
+            validate = false;
+        }
+        else if ($("#ddlpurpose").val() == "others") {
+            if ($("#txtPurpose").val() == "") {
+                $("#txtPurpose").after('<span class="error" style="color:Red;">select purposet</span>');
+                $("#txtPurpose").addClass('css-error');
+                validate = false;
+            }
+
+        }
+        if ($("#ddlRequirements").val() == "") {
+            $("#ddlRequirements").after('<span class="error" style="color:Red;">select Reqiurement</span>');
+            $("#ddlRequirements").addClass('css-error');
+            validate = false;
+        }
+        else {
+            if ($("#txtRequirements").val() == "") {
+                $("#txtRequirements").after('<span class="error" style="color:Red;">select purposet</span>');
+                $("#txtRequirements").addClass('css-error');
+                validate = false;
+            }
+
+        }
+    }
+    function clearAll() {
+        $('#EmpNo').val("");
+        $('#EmpName').val("");
+        $('#EmpLocation').val("0");
+        $('#EmpDepart').val("0");
+        $('#txtEmail').val("");
+        $('#txtMobile').val("");
+        $('#txtDatarequestedBy').val("");
+        $('#txtDatarequestedDate').val("");
+        $('#txtPurpose').val("");
+        $('#spanReqiurment').text("");
+        $('#txtRequirements').val("");
+        $('#txtComments').val("");
+        $("#divReqiure").hide();
+        $("#divPurpose").hide();
+        $('#txtDescription').val("");
+        $('#fromDate').val("");
+        $("#toDate").val("");
+    }
+</script>
+
+<div class="panel panel-danger">
+    <div class="panel-heading"><span class="glyphicon glyphicon-eye-open"></span>&nbsp; FMU Data Retrieval</div>
+    <div class="row" style="width:60%;margin:auto;">
+        <div style="border-bottom:solid 2px #a71f23;font-size:16px; color:teal;"><span class="glyphicon glyphicon-hand-right"></span>&nbsp;New Request</div><br />
+
+    </div>
+    <div style="width:50%;margin:auto;">
+        <div class="row">
+            <div class="col-md-1">
+                &nbsp;
+            </div>
+            <div class="col-md-3">
+                <input type="radio" name="Type" value="Data" id="rbndataonly" checked /><span class="form-label">Data</span>
+            </div>
+            <div class="col-md-3">
+                <input type="radio" name="Type" value="Image & Videos" id="rbncsonly" /><span class="form-label">Image & Vidoes</span>
+            </div>
+            <div class="col-md-3">
+                <input type="radio" name="Type" value="Both" id="rbnboth" /><span class="form-label">Both</span>
+            </div>
+            <div class="col-md-1">
+                &nbsp;
+            </div>
+        </div>
+        <div class="row" style="padding:5px;">
+            <input type="hidden" id="EmpId" />
+            <div class="col-sm-4">
+                <div class="row">
+                    <div class="form-group">
+                        <span class="form-label">Employee No<span style="color:red;">*</span></span>
+                        <input type="text" id="EmpNo" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="row">
+                    <div class="form-group">
+                        <span class="form-label">Employee Name<span style="color:red;">*</span></span>
+                        <input type="text" id="EmpName" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="row">
+                    <div class="form-group">
+                        <span class="form-label">Employee Location<span style="color:red;">*</span></span>
+                        <select class="form-control" id="EmpLocation"></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="row">
+                    <div class="form-group">
+                        <span class="form-label">Employee Department<span style="color:red;">*</span></span>
+                        <select class="form-control" id="EmpDepart"></select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-4">
+
+                <div class="row">
+                    <div class="form-group">
+                        <span class="form-label">Email<span style="color:red;">*</span></span>
+                        <input type="text" id="txtEmail" class="form-control" />
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="row">
+                    <div class="form-group">
+                        <span class="form-label">Mobile<span style="color:red;">*</span></span>
+                        <input type="text" id="txtMobile" class=" form-control integer-cls" />
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="row">
+                    <div class="form-group">
+                        <span class="form-label">Data Requested By<span style="color:red;">*</span></span>
+                        <input type="text" id="txtDatarequestedBy" class="form-control" />
+
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="row">
+                    <div class="form-group">
+                        <span class="form-label">Data requested date<span style="color:red;">*</span></span>
+                        <input type="text" id="txtDatarequestedDate" class="date form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="row">
+                    <div class="form-group">
+                        <span class="form-label">Purpose of the Data <span style="color:red;">*</span></span>
+                        <select class="form-control" id="ddlpurpose">
+                            <option value="">Select purpose</option>
+                            <option value="Conference">Conference</option>
+                            <option value="Publication">Publication</option>
+                            <option value="Audit">Audit</option>
+                            <option value="Class">Class</option>
+                            <option value="others">Others</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4" id="divPurpose" style="display:none;">
+                <div class="row">
+                    <div class="form-group">
+                        <span class="form-label">Enter Purpose of Data<span style="color:red;">*</span></span>
+                        <input type="text" id="txtPurpose" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="row">
+                    <div class="form-group">
+                        <span class="form-label">Specific Data Requirements</span>
+                        <select class="form-control" id="ddlRequirements">
+                            <option value="">Select Requirement</option>
+                            <option value="Mr No">Mr No</option>
+                            <option value="IP No">IP No</option>
+                            <option value="Patient name">Patient Name</option>
+                            <option value="Others">Others</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4" id="divReqiure" style="display:none;">
+                <div class="row">
+                    <div class="form-group">
+                        <span class="form-label" id="spanReqiurment"><span style="color:red;">*</span></span>
+                        <input type="text" id="txtRequirements" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="row">
+                    <div class="form-group">
+                        <span class="form-label">Description</span>
+                        <textarea class="form-control" id="txtDescription"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="row">
+                    <div class="form-group">
+                        <span class="form-label">Duration From Date</span>
+                        <input type="text" class="form-control" id="fromDate" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4">
+                <div class="row">
+                    <div class="form-group">
+                        <span class="form-label">Duration To Date</span>
+                        <input type="text" class="form-control" id="toDate" />
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+
+                <div class="row">
+                    <div class="form-group">
+                        <span class="form-label">Comments</span>
+                        <textarea class="form-control" id="txtComments"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" style="text-align:center">
+            <p></p><p></p>
+            <button type="button" class="btn  btn-warning" onclick="OnclickSaveDetails();"><span class="glyphicon glyphicon-ok-circle"></span>&nbsp;Submit</button>
+        </div><br />
+    </div>
+</div>
+

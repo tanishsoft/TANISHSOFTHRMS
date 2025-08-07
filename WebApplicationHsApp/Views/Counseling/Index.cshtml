@@ -1,0 +1,386 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    var selectedSlot = "";
+    $(document).ready(function () {
+        $(".displayforfamily").hide();
+        LoadDoctors();
+        $(".jquerydate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            Edit: false
+        });
+
+        $("#divsearchemp").hide();
+        $('input[type=radio][name=checkemployee]').change(function () {
+            if (this.value == 'me') {
+                $("#divsearchemp").hide();
+                GetEmployeeData1(1, "MySelf");
+            }
+            else if (this.value == 'others') {
+                GetEmployeeData($("#txtsearchemp").val(), "Others");
+                $("#divsearchemp").show();
+                $("#txtEmployeeId").val("");
+                $("#txtName").val("");
+                $("#txtDepartment").val("");
+                $("#txtDesignation").val("");
+                $("#txtlocation").val("");
+                $("#txtPhoneNumber").val("");
+            }
+        });
+    });
+    function addfamilydetails() {
+        var new_name = document.getElementById("txtname").value;
+        var new_country = document.getElementById("txtage").value;
+        var new_age = document.getElementById("ddlRelation").value;
+        if (new_name == "" || new_country == "") {
+            alert("please Enter Name ,age and realtion of your family member..");
+        }
+        else {
+            var table = document.getElementById("data_table");
+            var table_len = (table.rows.length) - 1;
+            var row = table.insertRow(table_len).outerHTML = "<tr class='datarow' id='row" + table_len + "'><td id='name_row" + table_len + "' class='name'>" + new_name + "</td><td id='country_row" + table_len + "' class='age'>" + new_country + "</td><td id='age_row" + table_len + "' class='relation'>" + new_age + "</td><td> <span class='glyphicon glyphicon-trash' style='color:red;cursor:pointer;' onclick='delete_row(" + table_len + ")'></span></td></tr>";
+
+            document.getElementById("txtname").value = "";
+            document.getElementById("txtage").value = "";
+        }
+    }
+
+    function delete_row(no) {
+        document.getElementById("row" + no + "").outerHTML = "";
+    }
+    function cbfamilyselfchange() {
+        var checkBox = document.getElementById("txtSelfFamily");
+        if (checkBox.checked) {
+            $(".displayforfamily").hide();
+        } else {
+            $(".displayforfamily").show();
+        }
+    }
+    function LoadDoctors() {
+        //$.get("/Counseling/GetDoctors", function (data) {
+        //var html = "<option value=''>Select Doctor</option>";
+        //for (var i = 0; i < data.length; i++) {
+        //html += "<option value='" + data[i].EmpId + "'>" + data[i].FirstName + "</option>";
+        //}
+        //$("#ddlemployee").html(html);
+        //});
+
+        var html = "<option value=''>Select Doctor</option>";
+        /*html += "<option value='98489'>Dr Kausar Shaik</option>";*/
+        html += "<option value='99491'>Ms. Saher Ali</option>";
+        html += "<option value='99857'>Dr Anita Rego</option>";
+        $("#ddlemployee").html(html);
+    }
+    function Datechange() {
+
+        $.get("/Counseling/GetDoctorSchedule?doctorid=" + $("#ddlemployee").val() + "&Date=" + $("#txtdate").val(), function (data) {
+
+            var html = "<option value=''>Select Slot</option>";
+            for (var i = 0; i < data.length; i++) {
+                html += "<option value='" + data[i].ScheduleId + "_" + data[i].StratTime + "'>" + data[i].StratTime + " - " + data[i].EndTime + "</option>";
+            }
+            $("#divslots").html(html);
+            //
+        });
+
+    }
+    function SubmitCounseling() {
+        $(".css-error").removeClass('css-error');
+        var validate = validateCounseling();
+        if (validate) {
+            var schid = $("#divslots").val().split('_')[0];
+            var data = {
+                EmpId: $('#txtEmployeeId').val(),
+                EmpComments: $("#txtnotes").val(),
+                CounselingType: "",
+                DoctorEmpId: $("#ddlemployee").val(),
+                DateOfSchedule: $('#txtdate').val(),
+                SlotTime: $("#divslots option:selected").text(),
+                EmpMobile: $("#txtPhoneNumber").val(),
+                ScheduleId: schid,
+                Observation: "",
+                CounselingFee: 0,
+                IsActive: true
+
+            }
+            var Counselingfamily = [];
+            $("#data_table tbody tr").each(function (index) {
+                if (index != 0) {
+                    Counselingfamily.push({
+                        ScheduleId: 0,
+                        EmpId: $('#txtEmployeeId').val(),
+                        Name: $(this).find('.name').text(),
+                        Comments: $(this).find('.totime').text(),
+                        Age: $(this).find('.age').text(),
+                        Relation: $(this).find('.relation').text(),
+                        Observation: "",
+                        IsActive: true
+                    });
+                }
+            });
+            Counselingfamily.pop();
+            $.post("/Counseling/saveCounseling", { Emp: data, Fam: Counselingfamily }, function (res) {
+                alert(res);
+                window.location.reload();
+            });
+        }
+    }
+    function validateCounseling() {
+        var validate = true;
+        if ($('#ddlemployee').val() == "") {
+            $('#ddlemployee').addClass('css-error');
+            validate = false;
+        }
+        if ($('#txtdate').val() == "") {
+            $('#txtdate').addClass('css-error');
+            validate = false;
+        }
+        if ($('#txtPhoneNumber').val() == "") {
+            $('#txtPhoneNumber').addClass('css-error');
+            validate = false;
+        }
+        if ($('#txtSelfFamily').is(':checked')) {
+            validate = true;
+        }
+        else {
+            $("#data_table tbody tr").each(function (index) {
+                if (index == 1) {
+                    debugger;
+                    if ($(this).find('.name').text() == "") {
+                        $(this).find('.name').addClass('css-error');
+                        validate = false;
+                    }
+                    if ($(this).find('.age').text() == "") {
+                        $(this).find('.age').addClass('css-error');
+                        validate = false;
+                    }
+                }
+            });
+        }
+
+        return validate;
+    }
+    function GetEmployeeData() {
+        GetEmployeeData1($("#txtsearchemp").val(), "Others");
+    }
+    function GetEmployeeData1(empid, reqtype) {
+        $.get("/NewUserRequest/GetEmployeeDetails", {
+            empid: empid,
+            reqtype: reqtype
+        }, function (data) {
+            if (data != null && data != "") {
+                $("#txtEmployeeId").val(data.EmpId);
+                $("#txtName").val(data.FirstName);
+                $("#txtDepartment").val(data.DepartmentName);
+                $("#txtDesignation").val(data.Designation);
+                $("#txtlocation").val(data.LocationName);
+                $("#txtPhoneNumber").val(data.PhoneNumber);
+            } else {
+                $("#txtEmployeeId").val("");
+                $("#txtName").val("");
+                $("#txtDepartment").val("");
+                $("#txtDesignation").val("");
+                $("#txtlocation").val("");
+                $("#txtPhoneNumber").val("");
+            }
+        });
+    }
+</script>
+<style>
+
+    label {
+        color: teal;
+        /*font-weight: bold;*/
+    }
+</style>
+<div class="panel panel-default">
+    <div class="panel-heading" style="font-weight:normal;">
+        <span class="glyphicon glyphicon-arrow-right"></span>&nbsp;New Counseling Request
+    </div>
+    <div class="panel-body CpxNewRequest" style="min-height:500px;">
+        <div class="row">
+            <div class="col-md-6">
+                <img src="~/Images/Counselling_Sessions.PNG" style="width:100%;" />
+            </div>
+            <div class="col-md-6">
+                <div class="row" style="padding:10px;">
+                    <div style="display:none;">
+                        <input type="text" name="name" id="cpxCreatorLocation" disabled class="form-control" value="@ViewBag.CurrentUser.LocationName" />
+                        <input type="hidden" id="cpxCreatorLocationId" disabled class="form-control" value="@ViewBag.CurrentUser.LocationId" />
+                        <input type="text" name="name" id="cpxCreatorDepartment" disabled class="form-control" value="@ViewBag.CurrentUser.DepartmentName" />
+                        <input type="hidden" id="cpxCreatorDepartmentId" disabled class="form-control" value="@ViewBag.CurrentUser.DepartmentId" />
+                        <input type="text" name="name" id="cpxCreatorName" disabled class="form-control" value="@ViewBag.CurrentUser.FirstName" />
+                        <input type="hidden" id="cpxCreatorId" disabled class="form-control" value="@ViewBag.CurrentUser.EmpId" />
+                    </div>
+                    <div class="col-md-12">
+                        <table class="table table-stribbed">
+                            <tr>
+                                <td style="color:teal; font-weight:bold; text-align:right; vertical-align:middle;">
+                                    <input type="radio" name="checkemployee" checked="checked" value="me" id="txtcheckemployeeme" />&nbsp;Me
+                                </td>
+                                <td style="color:teal; font-weight:bold;">
+                                    <input type="radio" value="others" name="checkemployee" id="txtcheckemployeeothers" />&nbsp;Others
+                                    <div class="input-group" style="display:inline-flex;margin-left:20px;" id="divsearchemp">
+                                        <input type="text" id="txtsearchemp" class="form-control" placeholder="Search">
+                                        <div class="input-group-btn" style="z-index:1200;">
+                                            <button class="btn save" onclick="GetEmployeeData();" type="button" style="padding:5px 17px;">
+                                                <i class="glyphicon glyphicon-search"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                </td>
+
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Name<span style="color:red">*</span></label>
+                                </td>
+                                <td>
+                                    <input type="text" name="name" disabled="disabled" id="txtName" class="form-control clsrequired" value="@ViewBag.CurrentUser.FirstName" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Employee Id<span style="color:red">*</span></label>
+                                </td>
+                                <td>
+                                    <input type="text" name="name" disabled="disabled" id="txtEmployeeId" class="form-control clsrequired" value="@ViewBag.CurrentUser.EmpId" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Department<span style="color:red">*</span></label>
+                                </td>
+                                <td>
+                                    <input type="text" name="name" disabled="disabled" id="txtDepartment" class="form-control clsrequired" value="@ViewBag.CurrentUser.DepartmentName" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Designation<span style="color:red">*</span></label>
+                                </td>
+                                <td>
+                                    <input type="text" disabled="disabled" autocomplete="off" name="Item" id="txtDesignation" class="form-control clsrequired" value="@ViewBag.CurrentUser.Designation" required />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Unit<span style="color:red">*</span></label>
+                                </td>
+                                <td>
+                                    <input type="text" disabled="disabled" name="name" id="txtlocation" class="form-control clsrequired" value="@ViewBag.CurrentUser.LocationName" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Mobile Number<span style="color:red">*</span></label>
+                                </td>
+                                <td>
+                                    <input type="text" autocomplete="off" name="Item" id="txtPhoneNumber" class="form-control clsrequired" value="@ViewBag.CurrentUser.PhoneNumber" required />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label id="lblinBudgeted">Self/Family <span style="color:red">*</span></label>
+                                </td>
+                                <td style="color:teal;">
+                                    <input type="radio" name="SelfFamily" checked="checked" onchange="cbfamilyselfchange();" value="true" id="txtSelfFamily" />&nbsp;Self &nbsp;&nbsp;<input type="radio" value="false" onchange="cbfamilyselfchange();" name="SelfFamily" id="txtSelfFamily" />&nbsp;Family
+                                </td>
+
+                            </tr>
+                            <tr class="displayforfamily">
+                                <td colspan="2">
+                                    <table class="table table-bordered" id="data_table">
+                                        <tr style="background-color:brown;color:white;">
+                                            <td>
+                                                Name
+                                            </td>
+                                            <td>
+                                                Age
+                                            </td>
+                                            <td>
+                                                Relation
+                                            </td>
+                                            <td class="text-center" style="cursor:pointer;">&nbsp;</td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <input type="text" id="txtname" class="form-control name" />
+                                            </td>
+                                            <td>
+                                                <input type="number" id="txtage" class="form-control age" />
+                                            </td>
+                                            <td>
+                                                <select class="form-control relation" id="ddlRelation">
+                                                    <option value="Father">Father</option>
+                                                    <option value="Mother">Mother</option>
+                                                    <option value="Wife">Wife</option>
+                                                    <option value="Son">Son</option>
+                                                    <option value="Daughter">Daughter</option>
+                                                </select>
+                                            </td>
+                                            <td><span onclick="addfamilydetails();" style="cursor:pointer;color:green;" class="glyphicon glyphicon-plus-sign"></span></td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>
+                                    <label>Select Doctor<span style="color:red">*</span></label>
+                                </td>
+                                <td>
+                                    <select id="ddlemployee" class="form-control">
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Select Date<span style="color:red">*</span></label>
+                                </td>
+                                <td>
+                                    <input type="text" autocomplete="off" name="Date" id="txtdate" class="form-control clsrequired jquerydate" onchange="Datechange();" required />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label> Select Slot<span style="color:red">*</span> : </label>
+
+                                </td>
+                                <td>
+                                    <select id="divslots" class="form-control">
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label> Notes : </label>
+
+                                </td>
+                                <td>
+                                    <textarea id="txtnotes" class="form-control"></textarea>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <br />
+                        <button type="button" class="btn save" onclick="SubmitCounseling();">Submit Counseling</button>
+                        <button type="button" data-dismiss="modal" class="btn cancel">Cancel</button>
+                    </div>
+                    <div class="clearfix"></div>
+
+                </div>
+
+            </div>
+        </div>
+        <br />
+    </div>
+</div>

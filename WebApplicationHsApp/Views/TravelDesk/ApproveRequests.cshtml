@@ -1,0 +1,485 @@
+﻿
+@{
+    ViewBag.Title = "ApproveRequests";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    var oTable;
+    var currentrequestid;
+    $(document).ready(function () {
+        LoadData();
+    });
+    function LoadData() {
+
+
+        $('#tblManageTaskReimbursementApprovers').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/TravelDesk/AjaxApproveReimbursementRequests",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "Id" },
+                { "sName": "EmpId" },
+                { "sName": "EmpName" },
+                { "sName": "ConferenceName" },
+                { "sName": "Venue" },
+                { "sName": "ConferenceDate" },
+                { "sName": "TotalAmount" },
+                { "sName": "PaidThrough" },
+                { "sName": "Status" },
+
+                {
+                    "sName": "Id",
+                    "bSortable": false,
+                    "render": function (data) {
+                        var htmlcontect = "";
+                        htmlcontect += '<div class="btn-group">';
+                        htmlcontect += '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>';
+                        htmlcontect += '<ul class="dropdown-menu dropdown-menu-right">';
+                        htmlcontect += '<li class="dontScoll"><a href="javascript:void(0);" id="' + data + '" onclick="ViewReimbursementDetails(this.id);">View Details</a></li>';
+
+                        htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="ApproveReimbursementRequest(this.id);">Approve Request</a></li>';
+                        htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="RejectReimbursementRequest(this.id);">Reject Request</a></li>';
+                        htmlcontect += '</ul></div>';
+                        return htmlcontect;
+
+                    }
+                }
+            ],
+
+        });
+
+        oTable = $('#tblManageTaskApprovers').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/TravelDesk/AjaxbyTravelDeskDetailsToApprove",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "TravelDeskId" },
+                { "sName": "EmpId" },
+                { "sName": "EmpName" },
+                { "sName": "NameOfConference" },
+                { "sName": "EmployeeCategory" },
+                { "sName": "TravelCategory" },
+                //{ "sName": "TravelSubCategory" },
+                { "sName": "DateOfJourney" },
+                { "sName": "DateOfReturnJourney" },
+                //{ "sName": "PlaceFrom" },
+                //{ "sName": "PlaceTo" },
+                //{ "sName": "ReturnPlaceFrom" },
+                { "sName": "Status" },
+                { "sName": "CurrentState" },
+                {
+                    "sName": "approverId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        var isapproved = false;
+                        var n = data.includes("Pending");
+                        if (n) {
+                            isapproved = true;
+                            data = data.replace("Pending-", "");
+                        }
+                        var htmlcontect = '';
+                        htmlcontect += '<div class="btn-group">';
+                        htmlcontect += '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>';
+                        htmlcontect += '<ul class="dropdown-menu dropdown-menu-right">';
+
+
+                        if (isapproved) {
+                            htmlcontect += '<li class="dontScoll"><a href="javascript:void(0);" id="' + data + '" title="yes" onclick="ViewTaskDetails(this.id,this.title);">View Task</a></li>';
+                            htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="ApproveTask(this.id);" style="color:green;"><span class="glyphicon glyphicon-thumbs-up"></span>&nbsp;Approve</a></li>';
+                            htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="CancelRequest(this.id);" style="color:red;"><span class="glyphicon glyphicon-thumbs-down"></span>&nbsp;Reject</a></li>';
+                            htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="HoldRequest(this.id);" style="color:red;"><span class="glyphicon glyphicon-thumbs-down"></span>&nbsp;Hold</a></li>';
+                        } else {
+                            htmlcontect += '<li class="dontScoll"><a href="javascript:void(0);"  title="no"  id="' + data + '" onclick="ViewTaskDetails(this.id,this.title);">View Task</a></li>';
+                        }
+                        htmlcontect += '</ul></div>';
+                        return htmlcontect;
+                        //'<a href="javascript:void(0);" id="' + data + '" title="Cancel" class="btn btn-danger" onclick="ViewTaskDetails(this.id);">View</a>';
+
+                    }
+                }
+            ],
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "status", "value": $("#ddlapproverstatus").val() }
+                );
+            },
+            "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                switch (aData[15]) {
+                    case 'No':
+                        $('td:eq(15)', nRow).css('color', '#E67D21');
+                        break;
+                    case 'New':
+                        $('td:eq(15)', nRow).css('color', '#3598dc');
+                        break;
+                    case 'Yes':
+                        $('td:eq(15)', nRow).css('color', '#8E44AD');
+                        break;
+                    case 'Reopen':
+                        $('td:eq(15)', nRow).css('color', '#5FC29D');
+                        break;
+                    case 'Rejected':
+                        $('td:eq(15)', nRow).css('color', '#a71f23');
+                        break;
+                    default:
+                        $('td:eq(15)', nRow).css('color', 'Green');
+                        break;
+                }
+                switch (aData[8]) {
+                    case 'Pending':
+                        $('td:eq(8)', nRow).css('color', '#E67D21');
+                        break;
+                    case 'New':
+                        $('td:eq(8)', nRow).css('color', '#3598dc');
+                        break;
+                    case 'In Progress':
+                        $('td:eq(8)', nRow).css('color', '#8E44AD');
+                        break;
+                    case 'Reopen':
+                        $('td:eq(8)', nRow).css('color', '#5FC29D');
+                        break;
+                    case 'Rejected':
+                        $('td:eq(8)', nRow).css('color', '#a71f23');
+                        break;
+                    default:
+                        $('td:eq(8)', nRow).css('color', 'Green');
+                        break;
+                }
+
+            }
+        });
+        $("#tblManageTaskApprovers_length").addClass("col-md-6");
+
+        $("#tblManageTaskApprovers_filter").prepend('<div style="float:left;margin-right: 100px;padding-bottom: 2px;"> Select Approval Status : <select id="ddlapproverstatus" onchange="onchangeapprovers()" class="form-control" title="Pending For approval"><option value="All" selected>All</option><option value="Approved">Approve</option><option value="Reject">Reject</option><option value="Hold">Hold</option></div></select>');
+    }
+    function ApproveReimbursementRequest(id) {
+        currentrequestid = id;
+        $.get("/TravelDesk/GetReimbursementRequestDetails?id=" + id, function (data) {
+            if ($("#IsTravelDeskAdmin").val() == "Yes" && data.CurrentLevel == 1) {
+                $(".clsshowSponsoredbyForPostTravel").show();
+            } else {
+                $(".clsshowSponsoredbyForPostTravel").hide();
+            }
+            $("#myModalApproverequestForPostTravel").modal("show");
+        });
+        //if (confirm("Are you sure you want to Approve?")) {
+        //    $.get("/TravelDesk/ApproverReimbursementRequest?id=" + id + "&comments=Ok&status=Approved", function (data) {
+        //        LoadData();
+        //    });
+        //}
+    }
+    function RejectReimbursementRequest(id) {
+        if (confirm("Are you sure you want to Approve?")) {
+            $.get("/TravelDesk/ApproverReimbursementRequest?id=" + id + "&comments=&status=Rejected", function (data) {
+                LoadData();
+            });
+        }
+    }
+    function ViewReimbursementDetails(id) {
+        var html = "";
+        $.get("/TravelDesk/GetReimbursementRequestDetails?id=" + id, function (data) {
+            console.log(data);
+            html = "<table class='table table-bordered table-striped'>";
+
+            html += "<tr><td style='color:teal;'>Name</td><td>" + data.Name + "</td><td style='color:teal;'>Designation</td><td>" + data.Designation + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Conference Name</td><td>" + data.ConferenceName + "</td><td style='color:teal;'>Venue</td><td>" + data.Venue + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Conference Date</td><td>" + data.ConferenceDate + "</td><td style='color:teal;'>Sponsoredby</td><td>" + data.PaidThrough + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Notes</td><td>" + data.Notes + "</td><td style='color:teal;'>Traveller </td><td>" + data.TravellerDetails + "</td></tr>";
+            html += "<tr><td style='color:teal;'>TotalAmount</td><td>" + data.TotalAmount + "</td><td style='color:teal;'>Hod Action</td><td>" + data.HodAction + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Travel Expense</td><td>" + (data.IsTravelExpense == 'true' ? data.TravelExpense : 0) + "</td><td style='color:teal;'>Accommodation</td><td>" + (data.IsAccommodation == 'true' ? data.Accommodation : 0) + "</td></tr>";
+
+            html += "<tr><td style='color:teal;'>Miscellaneous</td><td>" + (data.IsMiscellaneous == 'true' ? data.MiscellaneousAmount : 0) + "</td><td style='color:teal;'>Registration Fee</td><td>" + (data.IsRegistrationFee == 'true' ? data.RegistrationFeeAmount : 0) + "</td></tr>";
+            html += "</table>";
+            if (data.documents != null && data.documents.length > 0) {
+                for (var i = 0; i < data.documents.length; i++) {
+                    html += "<a target='_blank' href='/Documents/AdministrationDocuments/" + data.documents[i].DocumentUrl + "'> " + data.documents[i].ReimbursementType + "</a> &nbsp;&nbsp;";
+                }
+            }
+            $("#divfullrequestdetails").html(html);
+            $("#myModalFullrequest").modal("show");
+        });
+    }
+    function onchangeapprovers() {
+        oTable.api().ajax.reload(null, false);
+    }
+    function ViewTaskDetails(id, title) {
+        var html = "";
+        $.get("/TravelDesk/GetTravelDeskDetails?id=" + id + "&Approver=" + title, function (data) {
+
+            html = "<table class='table table-bordered table-striped'>";
+
+            html += "<tr><td style='color:teal;'>Id</td><td>" + data.TravelDeskId + "</td><td style='color:teal;'>Emp ID</td><td>" + data.EmpId + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Mail Id</td><td>" + data.MailId + "</td><td style='color:teal;'>Employee</td><td>" + data.EmpName + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Date Of Birth</td><td>" + data.DateOfBirth + "</td><td style='color:teal;'>Mobile</td><td>" + data.Mobile + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Mode Of Travel</td><td>" + data.ModeOfTravel + "</td><td style='color:teal;'>Name Of " + data.PurposeOfTrip + "</td><td>" + data.NameOfConference + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Purpose Of Trip</td><td>" + data.PurposeOfTrip + "</td><td style='color:teal;'>TSMCNO</td><td>" + checkNullValueString(data.TSMCNO) + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Accommodation</td><td>" + data.Accommodation + "</td><td style='color:teal;'>Event End Date</td><td>" + data.EventEndDate + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Event Start Date</td><td>" + data.EventStartDate + "</td><td style='color:teal;'>Date Of Birth</td><td>" + data.DateOfBirth + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Place From - To </td><td>" + data.PlaceFrom + " - " + data.PlaceTo + "</td><td style='color:teal;'>Date Of Journey</td><td>" + data.DateOfJourney + " " + data.OnwardTime + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Return From - To</td><td>" + data.ReturnPlaceFrom + " " + data.ReturnPlaceTo + "</td><td style='color:teal;'>Date Of Return</td><td>" + data.DateOfReturnJourney + " " + data.ReturnTime + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Registration Needed</td><td>" + data.RegistrationNeeded + "</td><td style='color:teal;'>If Yes: Link Details</td><td>" + checkNullValueString(data.IfRegistrationNeededDetails) + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Reimbursement By Conference</td><td>" + data.ReimbursementByConference + "</td><td style='color:teal;'>If Yes: </td><td>" + checkNullValueString(data.IfReimbursementByConference) + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Current State</td><td>" + data.CurrentState + "</td><td style='color:teal;'>Sponsored By</td><td>" + checkNullValueString(data.SponsoredBy) + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Status</td><td>" + data.Status + "</td><td style='color:teal;'>Invited As</td><td>" + data.InvitedAs + "</td></tr>";
+            html += "<tr><td style='color:teal;'>Accommodation Note</td><td>" + checkNullValueString(data.AccommodationNote) + "</td><td style='color:teal;'>VenueDetails</td><td>" + data.VenuDetails + "</td></tr>";
+            if (data.ApprovalList != null && data.ApprovalList.length > 0) {
+                for (var i = 0; i < data.ApprovalList.length; i++) {
+                    html += "<tr><td style='color:teal;'>Approver</td><td>" + data.ApprovalList[i].ApproverName + "(" + data.ApprovalList[i].ApproverEmpId + ")</td><td style='color:teal;'>Status</td><td>" + data.ApprovalList[i].ApproverStatus + " - " + data.ApprovalList[i].TypeOfApprover + "</td></tr>";
+                }
+            }
+            html += "</table>";
+            $("#divfullrequestdetails").html(html);
+            $("#myModalFullrequest").modal("show");
+        });
+    } function checkNullValueString(data) {
+        if (data == null)
+            return "";
+        else
+            return data;
+    }
+    function CancelRequest(id) {
+        currentrequestid = id;
+        $("#myModalRejectrequest").modal("show");
+    }
+    function HoldRequest(id) {
+        currentrequestid = id;
+        $("#myModalHoldrequest").modal("show");
+    }
+    function ApproveTask(id) {
+        currentrequestid = id;
+        $.get("/TravelDesk/GetTravelDeskDetails?id=" + id + "&Approver=yes", function (data) {
+            if (data.CurrentState == "TravelAdmin") {
+                $(".clsshowSponsoredby").show();
+            }
+            $("#myModalApproverequest").modal("show");
+        });
+
+    }
+    function TDRequestForPostTravel() {
+        $.get("/TravelDesk/ApproverReimbursementRequest?id=" + currentrequestid + "&comments=" + $("#txtcommentsapproveForPostTravel").val() + "&status=Approved" + "&Sponsoredby=" + $("#ddlSponsoredbyForPostTravel").val(), function (data) {
+            LoadData();
+            $("#myModalApproverequestForPostTravel").modal("hide");
+        });
+    }
+    function TDRequest(Status) {
+
+        var comments;
+        if (Status == 'Reject') {
+            comments = $("#txtcommentsreject").val();
+        }
+        else if (Status == 'Approved') {
+            comments = $("#txtcommentsapprove").val();
+        }
+        else if (Status == 'Hold') {
+            comments = $("#txtcommentshold").val();
+        }
+        $.get("/TravelDesk/ApproverStatusRequest?id=" + currentrequestid + "&comments=" + comments + "&status=" + Status + "&Sponsoredby=" + $("#ddlSponsoredby").val(), function (data) {
+            if (Status == 'Reject') {
+                $("#myModalRejectrequest").modal("hide");
+            }
+            else if (Status == 'Approved') {
+                $("#myModalApproverequest").modal("hide");
+            }
+            else if (Status == 'Hold') {
+                $("#myModalHoldrequest").modal("hide");
+            }
+
+            LoadData();
+        });
+    }
+
+</script>
+<input type="hidden" id="IsTravelDeskAdmin" value="@ViewBag.IsTravelDeskAdmin" />
+<div class="panel panel-default">
+    <div class="panel-heading" style=" font-weight:normal;">
+        <span class="glyphicon glyphicon-arrow-right"></span>&nbsp;Approve Travel Desk
+    </div>
+    <div class="panel-body">
+        <table class="table table-bordered" id="tblManageTaskApprovers" style="width:100%;">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>Id</th>
+                    <th>Emp ID</th>
+                    <th>User</th>
+                    <th>Nameof conference</th>
+                    <th>Emp category</th>
+                    <th>Travel category</th>
+                    <th>Date of jounary</th>
+                    <th>Date of Return</th>
+                    <th>Status</th>
+                    <th>Current State</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading" style=" font-weight:normal;">
+        <span class="glyphicon glyphicon-arrow-right"></span>&nbsp;Approve Reimbursement Requests
+    </div>
+    <div class="panel-body">
+        <table class="table table-bordered" id="tblManageTaskReimbursementApprovers" style="width:100%;">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>Id</th>
+                    <th>Emp Id</th>
+                    <th>Emp Name</th>
+                    <th>Conference Name</th>
+                    <th>Venue</th>
+                    <th>Conference Date</th>
+                    <th>Total Amount</th>
+                    <th>Sponsored by</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div class="modal fade" id="myModalFullrequest" role="dialog">
+    <div class="form-block">
+        <h3>View Request<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <div id="divfullrequestdetails">
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="myModalRejectrequest" role="dialog">
+    <div class="form-block">
+        <h3>Reject Request<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <div id="divapproverequesst">
+            <table class="table" style="width:100%;">
+                <tr>
+                    <td>
+                        Comments
+                    </td>
+                    <td>
+                        <textarea id="txtcommentsreject" class="form-control"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        &nbsp;
+                    </td>
+                    <td>
+                        <input type="button" id="btnapprove" class="btn btn-danger" onclick="TDRequest('Reject');" value="Reject" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="myModalApproverequest" role="dialog">
+    <div class="form-block">
+        <h3>Approve Request<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <div id="divapproverequest">
+            <div id="divfullapproversdetails">
+
+            </div>
+            <table class="table" style="width:100%;">
+                <tr class="clsshowSponsoredby">
+                    <td>Sponsored By: </td>
+                    <td>
+                        <select id="ddlSponsoredby" class="form-control">
+                            <option value="">Select</option>
+                            <option value="FF">FF</option>
+                            <option value="FHERF">FHERF</option>
+                            <option value="UNICEF">UNICEF</option>
+                            <option value="Others">Others</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Comments
+                    </td>
+                    <td>
+                        <textarea id="txtcommentsapprove" class="form-control"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        &nbsp;
+                    </td>
+                    <td>
+                        <input type="button" id="btnapprove" class="btn btn-warning" onclick="TDRequest('Approved');" value="Approve" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="myModalHoldrequest" role="dialog">
+    <div class="form-block">
+        <h3>Hold Request<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <div id="divapproverequesst">
+            <table class="table" style="width:100%;">
+                <tr>
+                    <td>
+                        Comments
+                    </td>
+                    <td>
+                        <textarea id="txtcommentshold" class="form-control"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        &nbsp;
+                    </td>
+                    <td>
+                        <input type="button" id="btnapprove" class="btn btn-danger" onclick="TDRequest('Hold');" value="Hold" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="myModalApproverequestForPostTravel" role="dialog">
+    <div class="form-block">
+        <h3>Approve Request<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <div id="divapproverequestForPostTravel">
+            <div id="divfullapproversdetailsForPostTravel">
+
+            </div>
+            <table class="table" style="width:100%;">
+                <tr class="clsshowSponsoredbyForPostTravel">
+                    <td>Sponsored By: </td>
+                    <td>
+                        <select id="ddlSponsoredbyForPostTravel" class="form-control">
+                            <option value="">Select</option>
+                            <option value="FF">FF</option>
+                            <option value="FHERF">FHERF</option>
+                            <option value="UNICEF">UNICEF</option>
+                            <option value="Others">Others</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Comments
+                    </td>
+                    <td>
+                        <textarea id="txtcommentsapproveForPostTravel" class="form-control"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        &nbsp;
+                    </td>
+                    <td>
+                        <input type="button" id="btnapproveForPostTravel" class="btn btn-warning" onclick="TDRequestForPostTravel();" value="Approve" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+

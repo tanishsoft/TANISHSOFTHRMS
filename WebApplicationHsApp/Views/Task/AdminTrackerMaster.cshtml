@@ -1,0 +1,1317 @@
+﻿
+@{
+    ViewBag.Title = "AdminTrackerMaster";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<script>
+    var Hide = "H";
+    $(document).ready(function () {
+        $(".txtDate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-80:+50"
+        });
+        $("#startdate")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                Edit: true,
+                //minDate: 0,
+                yearRange: "-80:+50",
+                onSelect: function (dateText, inst) {
+                    $("#enddate").datepicker("option", "minDate",
+                        $("#startdate").datepicker("getDate"));
+                }
+
+            })
+        $("#enddate")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                Edit: true,
+                //minDate: 0,
+                yearRange: "-80:+50",
+                onSelect: function (dateText, inst) {
+                    $("#renewaldate").datepicker("option", "minDate",
+                        $("#enddate").datepicker("getDate"));
+                }
+
+            })
+        $("#renewaldate")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                Edit: true,
+                //minDate: 0,
+                yearRange: "-80:+50"
+            });
+
+        $("#startdate1")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                Edit: true,
+                yearRange: "-80:+50",
+                //minDate: 0,
+                onSelect: function (dateText, inst) {
+                    $("#enddate1").datepicker("option", "minDate",
+                        $("#startdate1").datepicker("getDate"));
+                }
+
+            });
+        $("#enddate1")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                Edit: true,
+                //minDate: 0,
+                yearRange: "-80:+50",
+                onSelect: function (dateText, inst) {
+                    $("#renewaldate1").datepicker("option", "minDate",
+                        $("#enddate1").datepicker("getDate"));
+                }
+
+            })
+        $("#renewaldate1")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                Edit: true,
+                yearRange: "-80:+50",
+               // minDate: 0
+
+            })
+        $('#searchtable').hide();
+        LoadLocation();
+        LoadData();
+        LoadDepartment();
+    });
+    function LoadLocation() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- select Locations -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#Location").html(options.join(''));
+
+
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadCategory() {
+
+        if ($("#Department").val() != "" || $("#SFormType").val() != "") {
+            var tdata = {
+                LocId: $("#Department").val(),
+                formtype: $("#SFormType").val()
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Masters/GetAllAdminCategoriesbyDepartmentId",
+                data: tdata,
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- select category -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].CategoryId + '">' + data[i].Name + '</option>');
+                    }
+                    $("#Category").html(options.join(''));
+
+
+                },
+                error: function () {
+
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#Category").html("");
+        }
+    }
+    function LoadsubCategory() {
+        if ($("#Category").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Masters/GetAllAdminsubCategoriesbycategoryId",
+                data: "CategoryId=" + $("#Category").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- select subcategory -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].SubCategoryId + '">' + data[i].Name + '</option>');
+                    }
+                    $("#SubCategory").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#SubCategory").html("");
+        }
+    }
+    function LoadDepartment() {
+
+        //if ($("#Location").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Common/GetCommonDepartments",
+                data: "id=" + $("#Location").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- Select Department -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].CommonDepartmentId + '">' + data[i].Name + '</option>');
+                    }
+                    $("#Department").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        //}
+        //else {
+        //    $("#Department").html("");
+        //}
+    }
+    function LoadData() {
+        $('#tblAdminTracker').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Task/AjaxGetAdminTracker",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "TrackerId" },
+                { "sName": "LocationId" },
+                //{ "sName": "CategoryId" },
+                { "sName": "Title" },
+                { "sName": "FormType" },
+              //  { "sName": "Description" },
+                { "sName": "StartDate" },
+                { "sName": "EndDate" },
+                { "sName": "NextRenewalDate" },
+                { "sName": "Status" },
+                {
+                    "sName": "CategoryId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="Renewal(this.id);">Renewal</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="Edit(this.id);">Full Edit</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="changestatus(this.id);">change status</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="ManageNotes(this.id);">Manage Tracker Notes</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="ManageDocuments(this.id);">Manage Tracker Documents</a></li>' +
+                            '<li><a href="/Task/ManageTask/' + data + '" id="' + data + '">View More</a></li>' +
+                            //'<li><a href="javascript:void(0);" id="' + data + '" onclick="onDelete(this.id);">Delete</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="SendEmailToOwner(this.id);">Send Email</a></li>' +
+                            '</ul></div>';
+                    }
+                }
+            ],
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "locationid", "value": $("#Location").val() },
+                    { "name": "departmentid", "value": $("#Department").val() },
+                    //{ "name": "categoryid", "value": $("#Category").val() },
+                    { "name": "sfromdate", "value": $("#stxtFromDate").val() },
+                    { "name": "stodate", "value": $("#stxtToDate").val() },
+                     { "name": "efromdate", "value": $("#etxtFromDate").val() },
+                    { "name": "etodate", "value": $("#etxtToDate").val() },
+                     { "name": "rfromdate", "value": $("#rtxtFromDate").val() },
+                    { "name": "rtodate", "value": $("#rtxtToDate").val() },
+                   //{ "name": "SubCategoryid", "value": $("#SubCategory").val() },
+                      { "name": "status", "value": $("#Status").val() },
+                        { "name": "renewal", "value": $("#Renewal").val() },
+                    { "name": "FormType", "value": $("#SFormType").val()}
+                );
+            },
+            "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+
+                 $('td:eq(2)', nRow).html('<a href="javascript:void(0);" id="' + aData[0] + '" onclick="ViewDescriptionandDOc(this.id);">' + aData[2] + '</a>');
+                //<a href="javascript:void(0);" id="' + data + '" onclick="StartTask(this.id);">Pick Up</a>
+                switch (aData[7]) {
+                    case 'Valid':
+                        //$(nRow).css('class', 'myClassred');
+                        $('td:eq(7)', nRow).css('color', '#681622').css('font-weight', 'bold');
+                        break;
+                    case 'New':
+                        //$(nRow).css('background-color', 'green')
+                        $('td:eq(7)', nRow).css('color', '#0e8732').css('font-weight', 'bold');
+                        break;
+                    case 'Not using':
+                        $('td:eq(7)', nRow).css('color', '#fcd44c').css('font-weight', 'bold');
+                        break;
+                    case 'Others':
+                        $('td:eq(7)', nRow).css('color', '#915f6d').css('font-weight', 'bold');
+                        break;
+                    case 'Expired':
+                        $('td:eq(7)', nRow).css('color', '#f54242').css('font-weight', 'bold');
+                        break;
+                    case ' Renew In Progress':
+                        $('td:eq(7)', nRow).css('color', '#a71f23').css('font-weight', 'bold');
+                        break;
+                    default:
+                        $('td:eq(7)', nRow).css('color', 'Green').css('font-weight', 'bold');
+                        break;
+                }
+            }
+
+        });
+        $("#tblAdminTracker_length").addClass("col-md-6");
+        $("#tblAdminTracker_length").addClass("col-md-6");
+    }
+
+    function ViewDescriptionandDOc(id) {
+        //debugger;
+        $("#trackerid").val(id);
+        $("#ViewDesdocModel").modal('show');
+        var Url = "/Task/GetAdminTrackerbyid?TrackerId=" + id;
+        $.ajax({
+            type: "GET",
+            url: Url,
+            success: function (data) {
+                //debugger;
+                var obj = data;
+                $("#viewDescription").html(obj.query.Description);
+                var documents = "<a target='_blank' href='/Documents/" + obj.query.Remarks + "'>" + obj.query.Remarks + "</a> <br />";                
+                for (var i = 0; i < obj.listofdocuments.length; i++) {
+                    documents += "<a target='_blank' href='/Documents/" + obj.listofdocuments[i].DocumentUrl + "'>" + obj.listofdocuments[i].DocumentTitle + "</a> <br />";
+                }
+                $('#viewDocument').html(documents);
+            }
+        })
+    }
+    function ExporttoExcel() {
+        var locationid = 0;
+        var departmentid = 0;
+        var Categoryid = 0;
+        var SubCategoryid = 0;
+
+        if ($("#Location").val() != "" && $("#Location").val() != null) {
+            locationid = $("#Location").val();
+        }
+        if ($("#Department").val() != null && $("#Department").val() != "") {
+            departmentid = $("#Department").val();
+        }
+        if ($("#Category").val() != null && $("#Category").val() != "") {
+            Categoryid = $("#Category").val();
+        }
+        //if ($("#SubCategory").val() != null && $("#SubCategory").val() != "") {
+        //    SubCategoryid = $("#SubCategory").val();
+        //}
+        window.location = "/Task/ExportExcelAdminTracker?rfromdate=" + $("#rtxtFromDate").val() + " & rtodate=" + $("#rtxtToDate").val() + $("#etxtFromDate").val() + " & etodate=" + $("#etxtToDate").val() + $("#stxtFromDate").val() + "&stodate=" + $("#stxtToDate").val() + "&locationid=" + locationid + "&departmentid=" + departmentid + "&status=" + $('#Status').val() + "&renewal=" + $('#Renewal').val() + "&FormType=" + $('#SFormType').val();
+    }
+    function Edit(id) {
+        $("#trackerid").val(id);
+        $("#EditModel").modal('show');
+        var Url = "/Task/GetAdminTrackerbyid?TrackerId=" + id;
+        $.ajax({
+            type: "GET",
+            url: Url,
+            success: function (data) {
+
+                var obj = data;
+                $("#title").val(obj.query.Title);
+                $("#FormType").val(obj.query.FormType);
+                $("#Description").val(obj.query.Description);
+                $('#startdate').datepicker('setDate', obj.startDate);
+                $('#enddate').datepicker('setDate', obj.EndDate);
+                $('#renewaldate').datepicker('setDate', obj.Renewaldate);
+                $('#R1NDays').val(obj.query.Remainder1NoOfDays);
+                $('#R1NDaysnotes').val(obj.query.Remainder1NoOfDaysNotes);
+                $('#R2NDays').val(obj.query.Remainder2NoOfDays);
+                $('#R2NDaysnotes').val(obj.query.Remainder2NoOfDaysNotes);
+                $('#R3NDays').val(obj.query.Remainder3NoOfDays);
+                $('#R3NDaysnotes').val(obj.query.Remainder3NoOfDaysNotes);
+                $('#EditStatus').val(obj.query.Status);
+                $('#trackerRemarks').val(obj.query.Remarks);
+
+            }
+        })
+    }
+    function Newtracker() {
+        window.location.replace("/Task/AdminTracker");
+    }
+    function changestatus(id) {
+        $("#trackerid").val(id);
+
+        var Url = "/Task/GetAdminTrackerbyid?TrackerId=" + id;
+        $.ajax({
+            type: "GET",
+            url: Url,
+            success: function (data) {
+
+                $("#statusModel").modal('show');
+                var obj = data;
+                $('#ChangeStatus').val(obj.query.Status)
+
+            }
+        })
+    }
+    function isNumber(evt) {
+
+        var iKeyCode = (evt.which) ? evt.which : evt.keyCode
+        if (iKeyCode != 46 && iKeyCode > 31 && (iKeyCode < 48 || iKeyCode > 57)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+    function ManageDocuments(id) {
+
+        $("#trackerid").val(id);
+        $("#DocumentsModel").modal('show');
+        GetFiles(id);
+    }
+    function ManageNotes(id) {
+
+        $("#trackerid").val(id);
+        $("#NotesModel").modal('show');
+        GetNotes(id);
+    }
+        function GetNotes(Id) {
+            $('#tblNotes tbody').replaceWith("<tbody><tr><td></td><td></td></tr></tbody>");
+        $.ajax({
+            type: "POST",
+            url: '/Task/GetNotesbytrackid?trackId=' + Id,
+            data: '{}',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (files) {
+
+                $.each(files, function () {
+                    AppendNotesRow(this.id, this.Remarks);
+                });
+            },
+            failure: function (r) {
+                alert(r.d);
+            },
+            error: function (r) {
+                alert(r.d);
+            }
+        });
+    };
+    function AppendNotesRow(id, Remarks) {
+
+        var row = $("#tblNotes tbody tr:last-child");
+
+            //Remove if the row is dummy row.
+            if (row.find("td:empty").length > 0) {
+                row.remove();
+            }
+
+            row = row.clone();
+        $("td", row).eq(0).html(id);
+        $("td", row).eq(1).html(Remarks);
+            @*$("td", row).eq(2).html("");
+            var a = $("<a />");
+        a[0].href = '@Url.Content("/Administration/Masters/DeleteAdminDocument?id=")' + Did;
+            a.html("Download");
+            $("td", row).eq(2).append(a);*@
+        $("#tblNotes tbody").append(row);
+        };
+    function AjaxPostDocuments() {
+
+        var Posturl;
+        validateDocument();
+        if (validate) {
+
+            // Checking whether FormData is available in browser
+            if (window.FormData !== undefined) {
+                var fileData = new FormData();
+                Posturl = "/Task/AdminsavetrackerDocuments";
+                var fileUpload = $("#UploadDocument").get(0);
+                var files = fileUpload.files;
+
+                // Looping over all files and add it to FormData object
+                for (var i = 0; i < files.length; i++) {
+                    fileData.append("Upload", files[i]);
+                }
+
+                // Adding one more key to FormData object
+
+                fileData.append('TrackerId', $("#trackerid").val());
+                fileData.append('Remarks', $("#Remarks").val());
+                fileData.append('DocumentTitle', $("#Title").val());
+                $.ajax({
+                    type: "POST",
+                    url: Posturl,
+                    contentType: false, // Not to set any content header
+                    processData: false, // Not to process data
+                    data: fileData,
+                    success: function (result) {
+                        alert(result);
+                        //clearAll();
+                        $("#Remarks").val("");
+                        $("#Title").val("");
+                        GetFiles($("#trackerid").val());
+
+                    },
+                    error: function (err) {
+                        alert(err.statusText);
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+        else {
+            return false;
+        }
+    }
+    function validateDocument() {
+        validate = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#Remarks").val() == "") {
+            $("#Remarks").after('<span class="error" style="color:Red;">Enter Remarks</span>');
+            $("#Remarks").addClass('css-error');
+            validate = false;
+        }
+        if ($("#Title").val() == "") {
+            $("#Title").after('<span class="error" style="color:Red;">Enter Title</span>');
+            $("#Title").addClass('css-error');
+            validate = false;
+        }
+
+        if ($("#UploadDocument").val() == "" ) {
+            $("#UploadDocument").after('<span class="error" style="color:Red;">upload Document</span>');
+            $("#UploadDocument").addClass('css-error');
+            validate = false;
+        }
+    }
+    function OnclickNotes() {
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($('#NotesRemarks').val() != "") {
+            var Posturl = "/Task/AdminsavetrackerNotes";
+            task = {
+                TrackerId: $("#trackerid").val(),
+                Remarks: $("#NotesRemarks").val()
+            };
+
+            $.ajax({
+                type: "POST",
+                url: Posturl,
+                data: task,
+                success: function (data) {
+                    clearNotes();
+                    GetNotes($("#trackerid").val());
+                    //$("#NotesModel").modal('hide');
+                    LoadData();
+
+                }
+            });
+        }
+        else {
+            $("#NotesRemarks").after('<span class="error" style="color:Red;">Enter Remarks</span>');
+            $("#NotesRemarks").addClass('css-error');
+            return false;
+        }
+    }
+    function clearNotes() {
+        $('#NotesRemarks').val("");
+    }
+    function GetFiles(subId) {
+        $('#tblFiles tbody').replaceWith("<tbody><tr><td></td><td></td><td></td></tr></tbody>");
+        $.ajax({
+            type: "POST",
+            url: '/Task/GetDocbyTrackId?trackId=' + subId,
+            data: '{}',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (files) {
+                $.each(files, function () {
+                    AppendRow(this.Did, this.url, this.title);
+                });
+            },
+            failure: function (r) {
+                alert(r.d);
+            },
+            error: function (r) {
+                alert(r.d);
+            }
+        });
+    };
+    function AppendRow(Did, url,title) {
+
+            var row = $("#tblFiles tbody tr:last-child");
+
+            //Remove if the row is dummy row.
+            if (row.find("td:empty").length > 0) {
+                row.remove();
+            }
+
+            row = row.clone();
+        $("td", row).eq(0).html(Did);
+        $("td", row).eq(1).html(title);
+           // $("td", row).eq(2).html(url);
+        var urlhtml = "<a  target='_blank' href='/Documents/" + url + "'>View/Download</a>";
+        $("td", row).eq(2).html(urlhtml);
+            @*var a = $("<a />");
+        a[0].href = '@Url.Content("/Administration/Masters/DeleteAdminDocument?id=")' + Did;
+            a.html("Download");
+            $("td", row).eq(2).append(a);*@
+            $("#tblFiles tbody").append(row);
+    };
+    function validatetracker() {
+        validate = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+
+        if ($("#startdate").val() == "") {
+            $("#startdate").after('<span class="error" style="color:Red;">Start Date</span>');
+            $("#startdate").addClass('css-error');
+            validate = false;
+        }
+        if ($("#enddate").val() == "") {
+            $("#enddate").after('<span class="error" style="color:Red;">Start Date</span>');
+            $("#enddate").addClass('css-error');
+            validate = false;
+        }
+        if ($("#trackerRemarks").val() == "") {
+            $("#trackerRemarks").after('<span class="error" style="color:Red;">Enter Remarks</span>');
+            $("#trackerRemarks").addClass('css-error');
+            validate = false;
+        }
+        if ($("#title").val() == "") {
+            $("#title").after('<span class="error" style="color:Red;">Enter Titile</span>');
+            $("#title").addClass('css-error');
+            validate = false;
+        }
+        if ($("#FormType").val() == "") {
+            $("#FormType").after('<span class="error" style="color:Red;">Select From Type</span>');
+            $("#FormType").addClass('css-error');
+            validate = false;
+        }
+    }
+    function OnclickUpdateTracker() {
+        validatetracker();
+        if (validate) {
+            var task = {
+                TrackerId: $("#trackerid").val(),
+                Title: $("#title").val(),
+                FormType: $("#FormType").val(),
+                Description: $("#Description").val(),
+                StartDate: $('#startdate').val(),
+                EndDate: $('#enddate').val(),
+                NextRenewalDate: $('#renewaldate').val(),
+                Remainder1NoOfDays: $('#R1NDays').val(),
+                Remainder1NoOfDaysNotes: $('#R1NDaysnotes').val(),
+                //Remainder2NoOfDays: $('#R2NDays').val(),
+                //Remainder2NoOfDaysNotes: $('#R2NDaysnotes').val(),
+                //Remainder3NoOfDays: $('#R3NDays').val(),
+                //Remainder3NoOfDaysNotes: $('#R3NDaysnotes').val(),
+                //Remarks: $('#trackerRemarks').val(),
+                Status: $('#EditStatus').val()
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Task/UpdateAdminTracker",
+                data: task,
+                success: function (data) {
+                    LoadData();
+                    $("#EditModel").modal('hide');
+                }
+            });
+        }
+    }
+
+    function OnclickChangeStatus() {
+
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($('#ChangeStatus').val() != "") {
+            var task = {
+                TrackerId: $("#trackerid").val(),
+                Status: $('#ChangeStatus').val()
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Task/AdminTrackerhangestatus",
+                data: task,
+                success: function (data) {
+                    LoadData();
+                    $("#statusModel").modal('hide');
+                }
+            });
+        }
+        else {
+            $("#ChangeStatus").after('<span class="error" style="color:Red;">select status</span>');
+            $("#ChangeStatus").addClass('css-error');
+            return false;
+        }
+    }
+    function onDelete(id) {
+        if (confirm("Are you sure you want to delete?")) {
+            var tdata = {
+                Id: id
+            };
+            $.ajax({
+                type: "GET",
+                url: "/Task/DeleteAdminTask",
+                data: tdata,
+                success: function (data) {
+                    if (data == "Success") {
+                        LoadData();
+                    } else { alert(data); }
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+    }
+    function SendEmail() {
+        $.ajax({
+                type: "POST",
+                url: "/Task/SendRemaindersToUser",
+                success: function (data) {
+                    if (data == "Success") {
+                        LoadData();
+                    } else { alert(data); }
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+    }
+    function SearchShow() {
+        if (Hide == "H") {
+            $('#searchtable').show();
+            Hide = "S";
+        }
+        else {
+            $('#searchtable').hide();
+            Hide = "H";
+        }
+    }
+    var trackerId = 0;
+    function Renewal(id) {
+        trackerId = id;
+        $("#RenealModel").modal('show');
+    }
+
+    function SaveRenewalchanges() {
+        var tdata = {
+            requestId: trackerId,
+            startdate: $("#startdate1").val(),
+            todate: $("#enddate1").val(),
+            nextrenewaldate: $("#renewaldate1").val(),
+            status: $("#ChangeStatus12").val(),
+            comments: $("#Renewalcomments").val()
+        };
+        $.ajax({
+            type: "GET",
+            url: "/Task/UpdateTrackerRequest",
+            data: tdata,
+            success: function (data) {
+                $("#startdate1").val('');
+                $("#enddate1").val('');
+                $("#renewaldate1").val('');
+                $("#Renewalcomments").val('');
+                $("#RenealModel").modal('hide');
+                LoadData();
+                alert(data);
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function SendEmailToOwner(id) {
+        trackerId = id;
+        $.ajax({
+            type: "GET",
+            url: "/Task/GetUserEmailidsOfRequest?requestId="+id,
+            success: function (data) {
+                $("#MailidsOfRequestOwenr").val(data);
+                $("#SendEmailModel").modal('show');
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+
+    }
+    function SendEmailToOwnnerSave() {
+        var tdata = {
+            requestId: trackerId,
+            RequestOwner: $("#MailidsOfRequestOwenr").val(),
+            MailIds: $("#MailId1Tosend").val(),
+            comments: $("#SendEmailComments").val()
+        };
+        $.ajax({
+            type: "GET",
+            url: "/Task/SendEmailToOwner",
+            data: tdata,
+            success: function (data) {
+                $("#MailId1Tosend").val('');
+                $("#SendEmailComments").val('');
+                $("#SendEmailModel").modal('hide');
+                //LoadData();
+                alert(data);
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+</script>
+
+<div class="panel panel-default">
+    <div class="panel-heading">  <span class="glyphicon glyphicon-tasks" style="vertical-align:middle;color:darkcyan;"></span>&nbsp;Manage Admin Tracker <input type="button" id="Email" onclick="SendEmail();" value="Email" /> &nbsp;&nbsp;&nbsp;  <a href="/Task/AdminTracker" data-toggle="modal" class="pull-right">  <span class="glyphicon glyphicon-plus-sign" style="vertical-align:middle;color:darkcyan;"></span>&nbsp;New Request</a>&nbsp;&nbsp;&nbsp;<input type="button" id="Search" class="btn btn-sm btn-warning pull-right" onclick="SearchShow();" value="Open Filter" />&nbsp;&nbsp;&nbsp; </div>
+    <div class="panel-body">
+
+
+        <table class="table" id="searchtable">
+            <tr>
+
+                <td>
+                    <label>Location</label>
+                    <select class="form-control" id="Location">
+                        <option value="">Select</option>
+                    </select>
+                </td>
+
+                <td>
+                    <label>Department</label>
+                    <select class="form-control" id="Department">
+                        <option value="">Select</option>
+                    </select>
+                </td>
+
+                <td>
+                    <label>Form Type</label>
+                    <select class="form-control" id="SFormType">
+                        <option value="">-select FormType-</option>
+                        <option value="License">License</option>
+                        <option value="Agreement">Agreement</option>
+                        <option value="Lease Deed">Lease Deed</option>
+                        <option value="Legal Case">Legal Case</option>
+                    </select>
+                </td>
+
+
+
+                @*  <td>
+                        <label>Category</label>
+                        <select class="form-control" id="Category">
+                            <option value="">Select</option>
+                        </select>
+                    </td><td>
+                            onchange="LoadsubCategory();"
+                            <label>Sub Category</label>
+                            <select class="form-control" id="SubCategory">
+                                <option value="">Select</option>
+                            </select>
+                        </td>*@
+
+                <td>
+                    <label>Status</label>
+                    <select id="Status" class="form-control">
+                        <option value="">-select status-</option>
+                        <option value="New">New</option>
+                        <option value="Valid">Valid</option>
+                        <option value="Not using">Not using</option>
+                        <option value="Expired">Expired</option>
+                        <option value="Renew In Progress"> Renew In Progress</option>
+                        <option value="Others">Others</option>
+                    </select>
+                </td>
+
+                <td>
+                    <label>Renewal</label>
+                    <select id="Renewal" class="form-control">
+                        <option value="">-select Renewal-</option>
+                        <option value="Started">Date Started</option>
+                        <option value="7 Days">less than 7 Days to Renewal Date</option>
+                        <option value="15 Days">less than 15 Days to Renewal Date</option>
+                        <option value="30 Days">less than 30 Days to Renewal Date</option>
+                        <option value="60 Days"> less than 60 Days to Renewal Date</option>
+                        <option value="90 Days">less than 90 Days to Renewal Date</option>
+                    </select>
+                </td>
+
+            </tr>
+
+            <tr>
+                <td>
+                    Start - From Date<input type="text" id="stxtFromDate" class="form-control txtDate" />
+
+                </td>
+                <td> Start - To Date<input type="text" id="stxtToDate" class="form-control txtDate" /></td>
+                <td>
+                    End - From Date<input type="text" id="etxtFromDate" class="form-control txtDate" />
+
+                </td>
+                <td> End - To Date<input type="text" id="etxtToDate" class="form-control txtDate" /></td>
+                <td>
+                    Renewal - From Date<input type="text" id="rtxtFromDate" class="form-control txtDate" />
+
+                </td>
+                <td> Renewal -To Date<input type="text" id="rtxtToDate" class="form-control txtDate" /></td>
+                <td colspan="4">&nbsp;</td>
+
+                <td>
+                    <button type="button" id="btngo1" class="btn btn-primary" onclick="LoadData();">
+                        <span class="glyphicon glyphicon-search" style="vertical-align:middle;color:white;"></span>&nbsp;Go
+                    </button>
+
+
+                </td>
+                <td>
+                    <button type="button" id="btngo2" class="btn btn-default" onclick="ExporttoExcel();">
+                        <span class="glyphicon glyphicon-download" style="vertical-align:middle;color:white;"></span>&nbsp;Export To Excel
+                    </button>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblAdminTracker">
+        <thead>
+            <tr style="background-color: #786C67;color: white;">
+                <th>Id</th>
+                <th>Location- Dept</th>
+                @*<th>Category</th>*@
+                <th>Title</th>
+                <th>Form Type</th>
+                @*// <th>Description</th>*@
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Next Renewal Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<div id="DocumentsModel" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="clearAll();">×</button>
+                <h4 class="modal-title">Manage Documents</h4>
+            </div>
+            <div class="modal-body">
+                <form id="Add" method="post" enctype="multipart/form-data">
+                    <input type="hidden" id="trackerid" />
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name">Title<span style="color:red;">*</span></label></div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="Title">
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name"> Docuement<span style="color:red;">*</span></label></div>
+                        <div class="col-md-8">
+                            <input type="file" id="UploadDocument" name="UploadDocument" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name">Remarks<span style="color:red;">*</span></label></div>
+                        <div class="col-md-8">
+                            <textarea id="Remarks" class="form-control"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="button" value="Save" onclick="AjaxPostDocuments()" class="btn btn-primary" />
+                        <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearAll();">Close</button>
+                        <progress id="fileProgress" style="display:none"></progress>
+                        <hr />
+                        <table id="tblFiles" class="table table-bordered text-center">
+                            <thead>
+                                <tr>
+                                    <th style="width:50px">DocumentID</th>
+                                    <th style="width:50px">Title</th>
+                                    <th style="width:80px">url</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+<div id="NotesModel" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="clearNotes();">×</button>
+                <h4 class="modal-title">Manage Notes</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-3"><label for="name">Remarks<span style="color:red;">*</span></label></div>
+                    <div class="col-md-6">
+                        <textarea id="NotesRemarks" class="form-control"></textarea>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="button" value="Save" onclick="OnclickNotes();" class="btn btn-primary">
+                        <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearNotes();">Close</button>
+                    </div>
+                </div>
+                <table id="tblNotes" class="table table-bordered text-center">
+                    <thead>
+                        <tr>
+                            <th style="width:50px">ID</th>
+                            <th style="width:80px">Remarks</th>
+                            @*<th style="width:80px">Download</th>*@
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            @*<td></td>*@
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+<div id="EditModel" class="modal fade" role="dialog" aria-hidden="true" style="display: none; width:1300px;">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="clearAll();">×</button>
+                <h4 class="modal-title">Update</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-2">
+                        <label for="name">Title<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="title" placeholder="Enter Title" />
+                    </div>
+                    <div class="col-md-2">
+                        <label for="name">Form Type<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-control" id="FormType">
+                            <option value="">-select FormType-</option>
+                            <option value="License">License</option>
+                            <option value="Agreement">Agreement</option>
+                            <option value="Lease Deed">Lease Deed</option>
+                            <option value="Legal Case">Legal Case</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-2">
+                        <label for="name">Start Date<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control date" id="startdate" placeholder="startDate" />
+                    </div>
+                    <div class="col-md-2">
+                        <label for="name">End Date<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control date" id="enddate" placeholder="endDate" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-2">
+                        <label for="name">Renewal date<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control date" id="renewaldate" placeholder="renewaldate" />
+                    </div>
+                    <div class="col-md-2">
+                        <label for="name">Status<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <select id="EditStatus" class="form-control">
+                            <option value="">-select status-</option>
+                            <option value="New">New</option>
+                            <option value="Valid">Valid</option>
+                            <option value="Not using">Not using</option>
+                            <option value="Expired">Expired</option>
+                            <option value=" Renew In Progress"> Renew In Progress</option>
+                            <option value="Others">Others</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-2">
+                        <label for="name">Reminder 1 NoOf Days<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" id="R1NDays" class="form-control" onkeypress="javascript:return isNumber(event)" />
+                    </div>
+                    <div class="col-md-2">
+                        <label for="name">Reminder1  Notes<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" id="R1NDaysnotes" class="form-control" />
+                    </div>
+                    @*<div class="col-md-2">
+                            <label for="name">Remainder2 NoOf Days<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="R2NDays" class="form-control" onkeypress="javascript:return isNumber(event)" />
+                        </div>*@
+                </div>
+                @*<div class="row" style="padding:5px;">
+                        <div class="col-md-2">
+                            <label for="name">Remainder2  Notes<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="R2NDaysnotes" class="form-control" />
+                        </div>
+                        <div class="col-md-2">
+                            <label for="name">Remainder3 NoOf Days<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="R3NDays" class="form-control" onkeypress="javascript:return isNumber(event)" />
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-2">
+                            <label for="name">Remainder3  Notes<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="R3NDaysnotes" class="form-control" />
+                        </div>
+                    </div>*@
+
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-3">
+                        <label for="name">Description<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-9">
+                        <textarea class="form-control" placeholder="Enter Remarks" id="Description"></textarea>
+                    </div>
+                </div>
+                @*<div class="row" style="padding:5px;">
+                        <div class="col-md-3">
+                            <label for="name">Documents Required<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-9">
+                            <textarea class="form-control" placeholder="Enter Remarks" id="trackerRemarks"></textarea>
+                        </div>
+                    </div>*@
+            </div>
+            <div class="modal-footer">
+                <input type="button" value="Update" onclick="OnclickUpdateTracker();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearAll();">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="statusModel" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="clearNotes();">×</button>
+                <h4 class="modal-title">change status</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">status<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <select id="ChangeStatus" class="form-control">
+                            <option value="">-select status-</option>
+                            <option value="New">New</option>
+                            <option value="Valid">Valid</option>
+                            <option value="Not using">Not using</option>
+                            <option value="Expired">Expired</option>
+                            <option value=" Renew In Progress"> Renew In Progress</option>
+                            <option value="Others">Others</option>
+                        </select>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="button" value="Save" onclick="OnclickChangeStatus();" class="btn btn-primary">
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+<div id="ViewDesdocModel" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="clearNotes();">×</button>
+                <h4 class="modal-title">Details</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-12">
+                        <label for="name" style="color:orangered;">Description : </label><br />
+                        <div id="viewDescription"></div>
+                    </div>
+
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-12">
+                        <label for="name" style="color:orangered;">Documents : </label><br />
+                        <div id="viewDocument"></div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<div id="RenealModel" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Renewal The Request Update</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Renewal Effective Date<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <input type="text" id="startdate1" class="form-control" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Renewal End Date<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <input type="text" id="enddate1" class="form-control" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Next Renewal Date<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <input type="text" id="renewaldate1" class="form-control" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">status<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <select id="ChangeStatus12" class="form-control">
+                            <option value="">-select status-</option>
+                            <option value="New">New</option>
+                            <option value="Valid" selected>Renewaled</option>
+                            <option value="Not using">Not using</option>
+                            <option value="Expired">Expired</option>
+                            <option value="Renew In Progress"> Renew In Progress</option>
+                            <option value="Others">Others</option>
+                        </select>
+
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Renewal Comments</label></div>
+                    <div class="col-md-8">
+                        <textarea class="form-control" id="Renewalcomments"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="button" value="Save" onclick="SaveRenewalchanges();" class="btn btn-primary">
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<div id="SendEmailModel" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Send EMail To</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Request Owner</label></div>
+                    <div class="col-md-8">
+                        <input type="text" id="MailidsOfRequestOwenr" class="form-control" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Enter Email Id To go: </label></div>
+                    <div class="col-md-8">
+                        <input type="text" id="MailId1Tosend" class="form-control" />
+                    </div>
+                </div>
+
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Comments</label></div>
+                    <div class="col-md-8">
+                        <textarea rows="4" class="form-control" id="SendEmailComments"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="button" value="Send Email" onclick="SendEmailToOwnnerSave();" class="btn btn-primary">
+
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+

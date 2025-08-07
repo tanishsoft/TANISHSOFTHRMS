@@ -1,0 +1,125 @@
+﻿
+@{
+    ViewBag.Title = "ViewLeaveBalances";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<script>
+    var validate = true;
+
+    $(document).ready(function () {
+        Bind();
+     
+    });
+    function Bind() {
+        //$.ajax({
+        //    type: "POST",
+        //    url: "/HrAdmin/GetEmployeeLeaves",
+        //    //data: "id=" + $("#ddlDepartment1").val(),
+        //    success: function (data) {
+        //        var html = "";
+        //        for (var i = 0; i < data.length; i++) {
+        //            html += " <tr><td>" + data[i].UserLeaveId + "</td> <td>" + CheckNull(data[i].LocationName) + "</td> <td>" + CheckNull(data[i].DepartmentName) + "</td> <td>" + CheckNull(data[i].UserName) + "</td> <td>" + CheckNull(data[i].LeaveTypeName) + "</td><td>" + CheckNull(data[i].CountOfLeave) + "</td><td>" + CheckNull(data[i].AvailableLeave) + "</td><td>" + functionDate(data[i].ExpireDate) + "</td><td>" + data[i].IsActive + "</td>";
+        //            html += "<td><span id='" + data[i].UserLeaveId + "' onclick='Delete(this.id);' class='btn btn-danger btn-sm glyphicon glyphicon-remove-circle'> </span></td></tr>";
+        //        }
+        //        $("#tblbodyleavetyeps").html(html);
+        //        $('#listLeaveTypes').DataTable();
+        //    },
+        //    error: function () {
+        //        alert("error")
+        //    }
+        //});
+
+        $('#ApprovedDataTable').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Manager/GetAjaxsLeaveBalances",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aoColumns": [
+                  //{ "sName": "LeaveId" },
+                    { "sName": "UserLeaveId" },
+                      { "sName": "LocationName" },
+                     { "sName": "DepartmentName" },
+                            { "sName": "UserName" },
+                            { "sName": "LeaveTypeName" },
+                            { "sName": "CountOfLeave" },
+                            { "sName": "AvailableLeave" },
+                            { "sName": "CompoffBalance" },
+                            
+                            //{ "sName": "ExpireDate" },
+                            { "sName": "IsActive" },
+  //                          {
+  //                              "sName": "UserLeaveId",
+  //                              "bSortable": false,
+  //                              "render": function (data) {
+
+  //                                  return '<div class="btn-group">' +
+  //'<div class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+  //'<ul class="dropdown-menu dropdown-menu-right">' +
+  //  ' <li><a href="#" id="' + data + '" onclick="Delete(this.id);">Delete</a></li>' +
+  //'</ul></div>';
+  //                              }
+  //                          }
+
+            ],
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, 500, 1000], [10, 20, 30, 50, 100, 150, 200, 500, 1000]],
+            "sDom": 'T<"clear">lfrtip',
+            "oTableTools": {
+                "sSwfPath": "/swf/copy_csv_xls_pdf.swf",
+                "aButtons": [
+                    "copy", "xls", "pdf"
+                ]
+            },
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "LeaveTypeid", "value": $("#ddlLeaveType").val() },
+                    { "name": "fromdate", "value": $("#fromdate").val() },
+                    { "name": "todate", "value": $("#todate").val() },
+                     { "name": "Emp", "value": $("#ddlEmployees").val() }
+                );
+            }
+        });
+        $("#ApprovedDataTable_length").addClass("col-md-6");
+        $("#ApprovedDataTable_info").addClass("col-md-6");
+    }
+ 
+    
+
+
+    function ValidateEmployeeLeaveTypes_ImportExcelFile() {
+        var Valid = false;
+        if ($("#ExcelFileData").val() != null && $("#ExcelFileData").val() != "") {
+            $("#ExcelFileData").removeClass("RedColorBorderCSS");
+            Valid = true;
+        } else {
+            $("#ExcelFileData").addClass("RedColorBorderCSS");
+        }
+        return Valid;
+    }
+
+
+</script>
+
+<div class="panel panel-default">
+    <div class="panel-heading"> Leave Count &nbsp;&nbsp;&nbsp;&nbsp;<a href="/Manager/ExportToExcelEmployeesLeaveTypeData" class="pull-right">&nbsp;&nbsp;Export Excel</a></div>
+    <div class="panel-body">
+        <table id="ApprovedDataTable" class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;">
+            <thead>
+                <tr>
+                    <th>User Id</th>
+                    <th>Location Name</th>
+                    <th>Department Name</th>
+                    <th>User Name</th>
+                    <th>Casula Leaves</th>
+                    <th>Sick Leaves</th>
+                    <th>Earned Leaves</th>
+                    <th>Compoff Balance</th>
+                    <th>Is Active</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>

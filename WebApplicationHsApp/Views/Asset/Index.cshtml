@@ -1,0 +1,1027 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+
+    .card {
+        margin-bottom: 1.875rem;
+        border: none;
+        border-radius: 0;
+        -webkit-box-shadow: 0 10px 40px 0 rgba(62,57,107,.07),0 2px 9px 0 rgba(62,57,107,.06);
+        box-shadow: 0 10px 40px 0 rgba(62,57,107,.07),0 2px 9px 0 rgba(62,57,107,.06)
+    }
+
+        .card .card {
+            -webkit-box-shadow: none !important;
+            box-shadow: none !important
+        }
+
+        .card .card-title {
+            font-weight: 500;
+            letter-spacing: .05rem;
+            font-size: 1.12rem
+        }
+
+        .card .card-bordered {
+            border: 1px solid rgba(0,0,0,.06)
+        }
+
+        .card.card-fullscreen {
+            display: block;
+            z-index: 9999;
+            position: fixed;
+            width: 100% !important;
+            height: 100% !important;
+            top: 0;
+            right: 0;
+            left: 0;
+            bottom: 0;
+            overflow: auto
+        }
+
+        .card .card-body[class*=border-bottom-] {
+            border-bottom-width: 2px !important
+        }
+
+        .card .card-img-overlay.bg-overlay {
+            background: rgba(0,0,0,.45)
+        }
+
+        .card .card-img-overlay .text-muted {
+            color: #1B2942 !important
+        }
+
+        .card.card-minimal {
+            border: none;
+            -webkit-box-shadow: none;
+            box-shadow: none
+        }
+
+    .card-body {
+        -webkit-box-flex: 1;
+        -webkit-flex: 1 1 auto;
+        -moz-box-flex: 1;
+        -ms-flex: 1 1 auto;
+        flex: 1 1 auto;
+        padding: 1.5rem;
+    }
+
+    .table-responsive {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .card-moved .card, .card-moved .card-header {
+        background-color: #FFA87D;
+        color: #FFF
+    }
+
+    .handle, .titleArea {
+        cursor: move
+    }
+
+    .card-header {
+        border-bottom: none
+    }
+
+        .card-header .card-title {
+            margin-bottom: 0
+        }
+
+        .card-header .heading-elements, .card-header .heading-elements-toggle {
+            background-color: inherit;
+            position: absolute;
+            top: 20px;
+            right: 21px
+        }
+
+            .card-header .heading-elements-toggle.heading-top-elements .page-item, .card-header .heading-elements.heading-top-elements .page-item {
+                display: inline-block
+            }
+
+            .card-header .heading-elements a, .card-header .heading-elements-toggle a {
+                padding: 0 8px
+            }
+
+                .card-header .heading-elements a.btn, .card-header .heading-elements-toggle a.btn {
+                    padding-top: 6px;
+                    padding-bottom: 6px
+                }
+
+    .card-footer {
+        border-top: 1px solid #EEE
+    }
+
+    .media {
+        display: flex;
+        -webkit-box-align: start;
+        -webkit-align-items: flex-start;
+        -moz-box-align: start;
+        -ms-flex-align: start;
+        align-items: flex-start
+    }
+
+    .media-body {
+        -webkit-box-flex: 1;
+        -webkit-flex: 1;
+        -moz-box-flex: 1;
+        -ms-flex: 1;
+        flex: 1;
+    }
+
+    .align-items-stretch {
+        -webkit-box-align: stretch !important;
+        -webkit-align-items: stretch !important;
+        -moz-box-align: stretch !important;
+        -ms-flex-align: stretch !important;
+        align-items: stretch !important;
+    }
+
+    .white {
+        color: #FFF !important;
+    }
+
+    .bg-primary {
+        background-color: #00B5B8 !important;
+    }
+
+        .bg-primary.bg-darken-2, .btn-primary.btn-darken-2 {
+            background-color: #008385 !important;
+        }
+
+    .bg-danger.bg-darken-2, .btn-danger.btn-darken-2 {
+        background-color: #FF425C !important;
+    }
+
+    .bg-warning.bg-darken-2, .btn-warning.btn-darken-2 {
+        background-color: #FF864A !important;
+    }
+
+    .bg-success.bg-darken-2, .btn-success.btn-darken-2 {
+        background-color: #11A578 !important;
+    }
+
+    .text-center {
+        text-align: center !important;
+    }
+
+    .p-2 {
+        padding: 1.5rem !important;
+    }
+
+    .font-large-2 {
+        font-size: 5rem !important;
+    }
+
+    .bg-gradient-x-primary {
+        background-image: -webkit-gradient(linear,left top,right top,from(#008385),to(#00E7EB));
+        background-image: -webkit-linear-gradient(left,#008385 0,#00E7EB 100%);
+        background-image: -moz-linear-gradient(left,#008385 0,#00E7EB 100%);
+        background-image: -o-linear-gradient(left,#008385 0,#00E7EB 100%);
+        background-image: linear-gradient(to right,#008385 0,#00E7EB 100%);
+        background-repeat: repeat-x;
+    }
+
+    .h5, h5 {
+        font-size: 1.74rem;
+    }
+
+    .text-bold-400 {
+        font-weight: 400;
+    }
+
+    .mb-0, .my-0 {
+        margin-bottom: 0 !important;
+    }
+
+    .primary {
+        color: #00B5B8 !important
+    }
+
+    .danger {
+        color: #FF7588 !important;
+    }
+
+    .bg-danger {
+        background-color: #FF7588 !important;
+    }
+
+    .success {
+        color: #16D39A !important;
+    }
+
+    .bg-success {
+        background-color: #16D39A !important;
+    }
+
+    .warning {
+        color: #FFA87D !important;
+    }
+
+    .bg-warning {
+        background-color: #FFA87D !important;
+    }
+
+    #container {
+        height: 400px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    /* Link the series colors to axis colors */
+    .highcharts-color-0 {
+        fill: #7cb5ec;
+        stroke: #7cb5ec;
+    }
+
+    .highcharts-axis.highcharts-color-0 .highcharts-axis-line {
+        stroke: #7cb5ec;
+    }
+
+    .highcharts-axis.highcharts-color-0 text {
+        fill: #7cb5ec;
+    }
+
+    .highcharts-color-1 {
+        fill: #90ed7d;
+        stroke: #90ed7d;
+    }
+
+    .highcharts-axis.highcharts-color-1 .highcharts-axis-line {
+        stroke: #90ed7d;
+    }
+
+    .highcharts-axis.highcharts-color-1 text {
+        fill: #90ed7d;
+    }
+
+
+    .highcharts-yaxis .highcharts-axis-line {
+        stroke-width: 2px;
+    }
+
+    .nav-pills li a {
+        color: white;
+    }
+
+        .nav-pills li a:hover {
+            color: black !important;
+        }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+        background-color: rgba(0,0,0,.2) !important;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        //LoadData();
+        //LoadData2();
+        //LoadDataMobileMaster();
+        $("#selUser").select2({
+            ajax: {
+                url: "/Home/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 4
+        });
+        $("#selUser2").select2({
+            ajax: {
+                url: "/Home/GetCustomIdEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 4
+        });
+        LoadAssetType();
+        $("#Date").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "-30:+30",
+            dateFormat: "dd/mm/yy",
+            Edit: true,
+
+        });
+    });
+    function Loadassetsbyuser(id) {
+        $.get("/Asset/GetAssetListbyUser?userId=" + id, function (data) {
+            var html = "<table class='table table-bordered'><tr><td>Name</td><td>Asset Serial Number</td><td>Allocation Status</td><td>DateOfAssign</td></tr>";
+            for (var i = 0; i < data.length; i++) {
+                html += "<tr><td>" + data[i].AssetName + "</td><td>" + data[i].AssetSerialNumber + "</td><td>" + data[i].AllocationStatus + "</td><td>" + data[i].DateOfAssign +"</td></tr>";
+            }
+            html += "</table>";
+            $("#tbluserasset").html(html);
+        });
+    }
+    function Onchangeloadprofile() {
+        $.get("/Home/GetEmployeeById?Userid=" + $("#selUser").val(), function (data) {
+            Loadassetsbyuser($("#selUser").val());
+            $("#profp_empname").html(data.FirstName + " " + data.LastName);
+            checkImage("/Images/Employees/" + data.EmpId + ".jpg", function () {
+                $("#profp_img").attr("src", "/Images/Employees/" + data.EmpId + ".jpg");
+            }, function () {
+                $("#profp_img").attr("src", "/Images/Employees/" + data.EmpId + ".png");
+            });
+
+            $("#profp_designation").html(data.Designation);
+            $("#profp_location").html(data.LocationName);
+
+            $("#profp_dept").html(data.DepartmentName);
+            $("#profp_Email").html(data.EmailId);
+
+            $("#profp_Extenstion").html(data.Extenstion);
+            $("#profp_phone").html(data.CugNumber);
+            $("#moreabout").html("About");
+            $("#profp_DOJ").html(moment(data.DateOfJoining).format("DD/MM/YYYY"));
+        });
+    }
+    function checkImage(src, good, bad) {
+        var img = new Image();
+        img.onload = good;
+        img.onerror = bad;
+        img.src = src;
+    }
+    function LoadData() {
+        $('#tblRequest').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Custom/AjaxGetCellPhoneRequest",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "Id" },
+                { "sName": "EmpNo" },
+                { "sName": "Name" },
+                { "sName": "Designation" },
+                { "sName": "Department" },
+                { "sName": "Purpose" },
+                { "sName": "RequestType" },
+                { "sName": "NewOrRepair" },
+                { "sName": "CurrentApprover" },
+                { "sName": "Status" },
+                {
+                    "sName": "Id",
+                    "bSortable": false,
+                    "render": function (data) {
+                        var id = data.split("-")[0];
+                        var print = data.split("-")[1];
+                        var html = '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><a href="javascript:void(0);"  onclick="View(' + id + ')">View</a></li>' +
+                            '<li><a href="javascript:void(0);"  onclick="ReceivedConfirmation(' + id + ')">Confirm</a></li>';
+                        if (print == "yes") {
+                            html += '<li><a href="/Custom/PrintMobilePhonePolicy/' + id + '" id="' + id + '" target="_blank">Print</a></li>';
+                        } else {
+                            html += '<li><a href="javascript:void(0);"  onclick="Delete(' + id + ')">Cancel</a></li>' +
+                                '<li><a href="javascript:void(0);"  onclick="Approval(' + id + ')">Approval</a></li>' +
+                                '<li><a href="javascript:void(0);"  onclick="Reject(' + id + ')">Reject</a></li>' +
+                                '<li><a href="javascript:void(0);"  onclick="ChangeRequest(' + id + ')">IT Update</a></li>';
+                        }
+                        html += '</ul></div>';
+                        return html;
+                    }
+                }
+            ]
+            ,
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "locationid", "value": $("#ddllocation1").val() },
+                    { "name": "departmentid", "value": $("#ddldepartment12").val() },
+                    { "name": "typeofitem", "value": $("#ddlRequesttype").val() },
+                    { "name": "status", "value": $("#ddlStatus").val() },
+                    { "name": "Emp", "value": $("#ddlEmployee123").val() }
+                );
+            }
+        });
+        $("#tblRequest_length").addClass("col-md-6");
+        $("#tblRequest_length").addClass("col-md-6");
+    }
+
+    function LoadData2() {
+        $('#tblAssetMaster').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Asset/AjaxGetAssetDetails",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "AssetId" },
+                { "sName": "AssetTypeId" },
+                { "sName": "Name" },
+                //  { "sName": "Manufacturer" },
+                { "sName": "Description" },
+                //  { "sName": "ModeOfProcurement" },
+                { "sName": "VendorId" },
+                { "sName": "Price" },
+                { "sName": "Quantity" },
+                { "sName": "Warranty" },
+                //  { "sName": "LicenceTrackerId" },
+                { "sName": "PurchaseDate" },
+                //  { "sName": "Impact" },
+                { "sName": "SerialNumber" },
+                //{
+                //    "sName": "AssetTypeId",
+                //    "bSortable": false,
+                //    "render": function (data) {
+                //        return '<a href="javascript:void(0);" id="' + data + '" onclick="ViewComponents(this.id);">View Components</a>';;
+                //    }
+                //} ,
+                {
+                    "sName": "Status",
+                    //"bSortable": false,
+                    //"render": function (data, type, row) {
+                    //    return '<a href="javascript:void(0);" id="' + row[12] + '" onclick="ChangeStatus(this.id);">' + data + '</a>';
+                    //}
+                },
+
+                //{ "sName": "IsActive" },
+                {
+                    "sName": "AssetTypeId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return GetHtmlContent(data);
+                        //+
+                        //'<a href="javascript:void(0);" id="' + data + '" class="btn btn-primary" onclick="ManageDocuments(this.id);"><span class="glyphicon glyphicon-file"></span></a>';;
+                    }
+                }],
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "AssetTypeId", "value": $("#SddlAssetType").val() },
+                    { "name": "todate", "value": $("#SPurchaseDate").val() },
+                    { "name": "status", "value": $("#SddlStatus").val() }
+                );
+            }
+        });
+        $("#tblAssetMaster_length").addClass("col-md-6");
+        $("#tblAssetMaster_length").addClass("col-md-6");
+    }
+
+    function GetHtmlContent(data) {
+
+        var htmlcontect = "";
+        htmlcontect += '<div class="btn-group">';
+        htmlcontect += '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>';
+        htmlcontect += '<ul class="dropdown-menu dropdown-menu-right">';
+        htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="Edit(this.id);"><span class="glyphicon glyphicon-edit"></span>&nbsp;Edit&nbsp;</a></li>';
+        htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="View(this.id);"><span class="glyphicon glyphicon-folder-open"></span>&nbsp;View&nbsp;</a></li> ';
+        htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="Print(this.id);"><span class="glyphicon glyphicon-print"></span>&nbsp;Print&nbsp;</a></li> ';
+        htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="GenerateBarcode(this.id);"><span class="glyphicon glyphicon-barcode"></span>&nbsp;Barcode&nbsp;</a></li> ';
+        htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="Delete(this.id);"><span class="glyphicon glyphicon-trash"></span>&nbsp;Delete&nbsp;</a></li> ';
+        htmlcontect += '</ul></div>';
+        return htmlcontect;
+    }
+
+    function LoadDataMobileMaster() {
+
+        $('#tblMobileMasterRequest').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Asset/AjaxGetMobileAllotment",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "Id" },
+                { "sName": "AssetLabel" },
+                { "sName": "Brand" },
+                { "sName": "Model" },
+                { "sName": "SerialNumber" },
+                { "sName": "MobileNumber" },
+                { "sName": "AssigntoEmpId" },
+                { "sName": "AssignedDate" },
+                { "sName": "AssetStatus" },
+
+                {
+                    "sName": "Id",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><a href="javascript:void(0);"  onclick="View(' + data + ')">View</a></li>' +
+                            '<li><a href="javascript:void(0);"  onclick="Edit(' + data + ')">Edit</a></li>' +
+                            '<li><a href="javascript:void(0);"  onclick="Delete(' + data + ')">Delete</a></li>' +
+                            '<li><a href="javascript:void(0);"  onclick="Assign(' + data + ')">Assign</a></li>' +
+                            '<li><a href="javascript:void(0);"  onclick="Return(' + data + ')">Return</a></li>' +
+                            '</ul></div>';
+                    }
+                }
+            ],
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "Brand", "value": $("#AssetBrandId").val() },
+                    { "name": "Model", "value": $("#Model").val() },
+                    { "name": "status", "value": $("#FddlStatus").val() },
+                    { "name": "Emp", "value": $("#FAssignTo").val() },
+                    { "name": "todate", "value": $("#FddlAssignDate").val() }
+                );
+            }
+        });
+        $("#tblRequest_length").addClass("col-md-6");
+        $("#tblRequest_length").addClass("col-md-6");
+    }
+    function LoadAssetType() {
+        $.ajax({
+            type: "POST",
+            url: "/Asset/GetAssetType",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- select AssetType -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].AssetTypeId + '">' + data[i].Name + '</option>');
+                }
+                $("#AssetTypeId").html(options.join(''));
+                //$("#ddlAssetType").html(options.join(''));
+
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function GetAssetforuser() {
+        if ($("#AssetTypeId").val() != "") {
+            var id = $("#AssetTypeId").val();
+            $.get('/Asset/GetAssetListToAllocateUserbyassettype', { id: id }, function (data) {
+                var options = [];
+                options.push('<option value="0">- Select Asset -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].AssetId + '">' + data[i].Name + ' ' + data[i].SerialNumber + '</option>');
+                }
+                $("#ParentAssetName").html(options.join(''));
+                $("#ParentAssetName").select2();
+                //$("#ddlAsset").html(options.join(''));
+
+                //$("#EditParentAssetName").html(options.join(''));
+            });
+        }
+        else {
+            $("#ParentAssetName").html('<option value="0">- Select Asset -</option>');
+        }
+    }
+    function OnclickSaveUserAsset() {
+        validateAsset();
+        if (validate) {
+            $(".css-error").removeClass('css-error');
+            var task = {
+                AssetId: $("#ParentAssetName").val(),
+                UserId: $("#selUser2").val(),
+                Asset_id: $("#AssetName").val(),
+                Remarks: $("#Remarks").val(),
+                DateOfAssign: $("#Date").val(),
+                AllocationRequestId: $("#AllocationRequestId").val(),
+                AllocationStatus: $("input[name='AllocationStatus']:checked").val(),
+                LocationId: $("#ddlLocation").val(),
+                DepartmentId: $("#ddlDepartment").val()
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Asset/SaveNewUserAsset",
+                data: task,
+                success: function (data) {
+                    alert("Success");
+                    SendEmail(data);
+                    window.location.reload();
+                 
+                    console.log(" added successfully")
+                }
+            });
+        }
+        else {
+            alert("Fields Required");
+        }
+    }
+    function clearAll() {
+
+    }
+    function SendEmail(id) {
+        if (id != 0) {
+            $.get("/Asset/ViewUserAssetPartial", { id: id }, function (data) {
+                debugger;
+                SendingEmailUserAsset(data, id);
+
+            });
+        }
+    }
+    function SendingEmailUserAsset(data, id) {
+        $.get("/Asset/SendEmailUserAsset", { body: data, id: id }, function (data) {
+            debugger;
+
+
+        });
+    }
+    function validateAsset() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        //if ($("#UserName").val() == 0) {
+        //    $("#UserName").addClass('css-error');
+        //    validate = false;
+        //}
+        if ($("#ParentAssetName").val() == 0) {
+            $("#ParentAssetName").addClass('css-error');
+            validate = false;
+        }
+        if ($("#Remarks").val() == "") {
+            $("#Remarks").addClass('css-error');
+            validate = false;
+        }
+        if ($("#Date").val() == "") {
+            $("#Date").addClass('css-error');
+            validate = false;
+        }
+    }
+</script>
+<div class="row">
+    <div class="col-xl-3 col-lg-3 col-12">
+        <div class="card">
+            <div class="card-content">
+                <div class="media align-items-stretch">
+                    <div class="p-2 text-center bg-primary bg-darken-2">
+                        <i class="glyphicon glyphicon-th-list font-large-2 white"></i>
+                    </div>
+                    <div class="p-2 bg-gradient-x-primary white media-body">
+                        <h5>Total Assets</h5>
+                        <h5 class="text-bold-400 mb-0">&nbsp;100</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-3 col-12">
+        <div class="card">
+            <div class="card-content">
+                <div class="media align-items-stretch">
+                    <div class="p-2 text-center bg-danger bg-darken-2">
+                        <i class="glyphicon glyphicon-user font-large-2 white"></i>
+                    </div>
+                    <div class="p-2 bg-gradient-x-danger white media-body">
+                        <h5>In Use</h5>
+                        <h5 class="text-bold-400 mb-0">&nbsp;50</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-3 col-12">
+        <div class="card">
+            <div class="card-content">
+                <div class="media align-items-stretch">
+                    <div class="p-2 text-center bg-warning bg-darken-2">
+                        <i class="glyphicon glyphicon-shopping-cart font-large-2 white"></i>
+                    </div>
+                    <div class="p-2 bg-gradient-x-warning white media-body">
+                        <h5>Stock</h5>
+                        <h5 class="text-bold-400 mb-0">&nbsp;10</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-lg-3 col-12">
+        <div class="card">
+            <div class="card-content">
+                <div class="media align-items-stretch">
+                    <div class="p-2 text-center bg-success bg-darken-2">
+                        <i class="glyphicon glyphicon-th font-large-2 white"></i>
+                    </div>
+                    <div class="p-2 bg-gradient-x-success white media-body">
+                        <h5>Scap</h5>
+                        <h5 class="text-bold-400 mb-0">&nbsp;10</h5>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">  Assets By User  </div>
+            <div class="panel-body">
+                <div style="height:300px; overflow:auto;">
+                    Employee Search  <select id="selUser" onchange="Onchangeloadprofile();" class="form-control typeahead border-primary" name="query" data-provide="typeahead" autocomplete="off"></select>
+                    <div class="user">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <img id="profp_img" src="/Images/Fernandez.png" style="width:80px; height:80px;border-radius:50px;" alt="uesr-img">
+
+                                <table class="table table-bordered table-striped" style="width:100%;">
+                                    <tr>
+                                        <td>
+                                            Name : <strong style="color: #c4122f;" id="profp_empname"></strong>
+                                        </td>
+
+
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            Designation : <strong style="color: #c4122f;" id="profp_designation"></strong>
+                                        </td>
+
+
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            Location : <strong style="color: #c4122f;" id="profp_location"></strong>
+                                        </td>
+
+
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            Department : <strong style="color: #c4122f;" id="profp_dept"></strong>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            CUG number : <strong style="color: #c4122f;" id="profp_phone"></strong>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+
+                                        <td>
+                                            Email : <strong style="color: #c4122f;" id="profp_Email"></strong>
+                                        </td>
+
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-8" id="tbluserasset">
+
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">  Assign Asset to User  </div>
+            <div class="panel-body">
+                <div style="height:300px; overflow:auto;">
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name"> Select Employee<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <select id="selUser2" class="form-control typeahead border-primary" name="query" data-provide="typeahead" autocomplete="off"></select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name"> Asset Type<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <select class="form-control" id="AssetTypeId" onchange="GetAssetforuser();"></select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name"> Asset <span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <select class="form-control" id="ParentAssetName"></select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name">Date Assign<span style="color:red;">*</span></label></div>
+                        <div class="col-md-8">
+                            <input class="date form-control" type="text" placeholder="Select Date" id="Date" readonly="readonly" />
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name">Remarks<span style="color:red;">*</span></label></div>
+                        <div class="col-md-8">
+                            <textarea class="form-control" id="Remarks"></textarea>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-6" style="text-align:center;">
+                            <input type="button" id="btnasigntask" value="Save" onclick="OnclickSaveUserAsset();" class="btn btn-primary">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12" style="display:none;">
+        <div class="panel panel-default">
+            <div class="panel-heading"> Asset Transfer</div>
+            <div class="panel-body">
+                <div style="width:75%;margin:auto;">
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-6">
+                            <label for="name">From Location</label>
+                            <select id="ddlFromlocation1" class="form-control" onchange="LoadDepartmentNew('','');">
+                                <option value="">Select Location</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="name">From Department</label>
+                            <select id="ddlFromdepartment12" class="form-control" onchange="LoadDepartmentEmployeesNew('');">
+                                <option value="">Select Department</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-6">
+                            <label for="name">To Location</label>
+                            <select id="ddllocation1" class="form-control" onchange="LoadDepartment123('','');">
+                                <option value="">Select Location</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="name">To Department</label>
+                            <select id="ddldepartment12" class="form-control" onchange="LoadDepartmentEmployees('');">
+                                <option value="">Select Department</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-6">
+                            <label for="name">Request User</label>
+                            <select id="ddlfromEmployee123" class="form-control">
+                                <option value="">Select Employee</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="name">To User</label>
+                            <select id="ddlEmployee123" class="form-control">
+                                <option value="">Select Employee</option>
+                            </select>
+                        </div>
+                    </div>
+
+
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-6">
+                            <label for="name">Asset Name</label>
+                            <input type="text" id="AssetName" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="name">Reason To Tranfer</label>
+                            <input type="text" id="txtReasonToTranfer" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-6" style="text-align:center;">
+                            <input type="button" id="btnasigntask" value="Save" onclick="OnclickSaveUserAsset();" class="btn btn-primary">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12" style="display:none;">
+        <div class="panel panel-default">
+            <div class="panel-heading"> Mobile allocation</div>
+            <div class="panel-body">
+                <div>
+                    <table class="table table-striped table-bordered nowrap" style="width:100%;" id="tblRequest">
+                        <thead>
+                            <tr style="background-color: #786C67;color: white;">
+
+                                <th>Id</th>
+                                <th>EmpNo</th>
+                                <th>Name</th>
+                                <th>Designation</th>
+                                <th>Department</th>
+                                <th>Purpose</th>
+                                <th>Request Type</th>
+                                <th>NewOrRepair</th>
+                                <th>Current Approver</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+</div>
+<div class="row"  style="display:none;"> 
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">  Manage Asset Masters </div>
+            <div class="panel-body">
+                <div>
+                    <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblAssetMaster">
+                        <thead>
+                            <tr style="background-color: #786C67;color: white;">
+                                <th>Id</th>
+                                <th>AssetTypeId</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>VendorId</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Warranty</th>
+                                <th>PurchaseDate</th>
+                                <th>SerialNumber</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading"> Manage Mobile Masters </div>
+            <div class="panel-body">
+                <div>
+                    <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblMobileMasterRequest">
+                        <thead>
+                            <tr style="background-color: #786C67;color: white;">
+                                <th>Id</th>
+                                <th>Asset Label</th>
+                                <th>Brand</th>
+                                <th>Model</th>
+                                <th>Serial Number</th>
+                                <th>Mobile Number</th>
+                                <th>Assign To</th>
+                                <th>Assign Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-2">
+        <div class="card">
+            <div class="card-content" style="padding: 15px; text-align: center;">
+                <a href="/Asset/AssetTypeMaster">Asset Type</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card">
+            <div class="card-content" style="padding: 15px; text-align: center;">
+                <a href="/Asset/ManageBrand">Brand</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card">
+            <div class="card-content" style="padding: 15px; text-align: center;">
+                <a href="/Asset/ManageModel">Model</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <div class="card">
+            <div class="card-content" style="padding:15px; text-align:center;">
+                <a href="/Admin/ManageVendor">Vendor</a>
+            </div>
+        </div>
+    </div>
+</div>

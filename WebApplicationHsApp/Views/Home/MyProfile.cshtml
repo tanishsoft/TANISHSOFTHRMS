@@ -1,0 +1,466 @@
+﻿@model  WebApplicationHsApp.DataModel.tbl_User
+@{
+    ViewBag.Title = "MyProfile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@{
+    if (ViewBag.UpdatedMsg != null)
+    {
+        <script>
+            OpenSuccessAlertPopUpBox_ConfirmPopUpJS("@ViewBag.UpdatedMsg");
+            GetAllUserEmailListToAdmin_GlobalFunctionJS();
+        </script>
+    }
+}
+
+<script>
+    $(document).ready(function () {
+        covertdatetimetodate();
+
+    });
+
+    function covertdatetimetodate() {
+        var fullDate = new Date();
+        console.log(fullDate);
+        var twoDigitMonth = fullDate.getMonth() + "";
+        if (twoDigitMonth.length == 1)
+            twoDigitMonth = "0" + twoDigitMonth;
+        var twoDigitDate = fullDate.getDate() + "";
+        if (twoDigitDate.length == 1)
+            twoDigitDate = "0" + twoDigitDate;
+        var currentDate = twoDigitDate + "/" + twoDigitMonth + "/" + fullDate.getFullYear();
+        console.log(currentDate);
+    }
+    // var cdate = currentDate($("#DateOfJoining").val());
+    $(function () {
+        MultiValidationFun_GlobalValidationJS();
+        GetAllUserEmailListToAdmin_GlobalFunctionJS();
+    });
+    function ValidateBeforeProfileUpdate_PageLevel() {
+        var Validate = ValidateRequiredFieldsByClassName_GlobalJS("RequiredField");
+        if (!Validate) {
+            OpenSuccessAlertPopUpBox_ConfirmPopUpJS("Please Enter Mandatory Fields");
+        }
+        return Validate;
+    }
+
+    function ResetFields_PageLevel() {
+        window.location.pathname = "Home/MyProfile";
+    }
+
+
+    function ValidateEmailIDForEdit_PageLevel(ElementID) {
+        var EnteredEmailID = $("#" + ElementID).val();
+        if (ValidateEmailFormat_GlobalValidationJS(EnteredEmailID)) {
+            var EmailExistStatus = CheckUserEmailIDExistsOrNotForEdit_GlobalFunJS(EnteredEmailID, $("#UserId").val());
+            if (!EmailExistStatus) {
+                OpenSuccessAlertPopUpBox_ConfirmPopUpJS("Email ID Already Exist. Please Enter Another Email ID");
+                if (CheckTheValueIsNullOrEmpty_GlobalJS($("#HiddenUserEmailID").val())) {
+                    $("#" + ElementID).val($("#HiddenUserEmailID").val());
+                } else {
+                    $("#" + ElementID).val('');
+                }
+            }
+        } else {
+            OpenSuccessAlertPopUpBox_ConfirmPopUpJS("Please Enter Valid Email ID");
+            $("#" + ElementID).val('');
+        }
+    }
+
+</script>
+<input type="hidden" value="@Model.EmailId" id="HiddenUserEmailID" />
+<div class="panel panel-default">
+    <div class="panel-heading">My Profile  <a href="~/Manage/Index" style="float:right;">Change Password</a></div>
+    <div class="panel-body">
+        @using (Html.BeginForm("UpdateUserProfile", "Account", FormMethod.Post, new { @class = "form-horizontal", role = "Addform" }))
+        {
+            @* @Html.HiddenFor(m => m.UserId)  *@
+            <div class="col-md-6 form-group">
+                @*   @Html.LabelFor(m => m.UserId, new { @class = "col-md-6 control-label required" }) *@
+                <label class="col-md-6 control-label required">Employee Id</label>
+                <div class="col-md-6">
+                    @Html.TextBoxFor(m => m.CustomUserId, new { @class = "form-control ReadOnlyField_CSS", @readonly = "readonly" })
+                    @Html.ValidationMessageFor(m => m.CustomUserId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+
+            <div class="col-md-6 form-group">
+                <label class="col-md-6 control-label required">User Name</label>
+                <div class="col-md-6">
+                    @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control ReadOnlyField_CSS", @readonly = "readonly" })
+                    @Html.ValidationMessageFor(m => m.FirstName, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="col-md-6 form-group">
+                <label class="col-md-6 control-label required">Location</label>
+                <div class="col-md-6">
+                    @Html.TextBoxFor(m => m.LocationName, new { @class = "form-control ReadOnlyField_CSS", @readonly = "readonly" })
+                    @Html.ValidationMessageFor(m => m.LocationName, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            @*<div class="col-md-6 form-group">
+                    @Html.LabelFor(m => m.LastName, new { @class = "col-md-6 control-label required" })
+                    <div class="col-md-6">
+                        @Html.TextBoxFor(m => m.LastName, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.LastName, "", new { @class = "text-danger" })
+                    </div>
+                </div>*@
+
+            <div class="col-md-6 form-group">
+                <label class="col-md-6 control-label required">Department</label>
+                <div class="col-md-6">
+                    @Html.TextBoxFor(m => m.DepartmentName, new { @class = "form-control ReadOnlyField_CSS", @readonly = "readonly" })
+                    @Html.ValidationMessageFor(m => m.DepartmentName, "", new { @class = "text-danger" })
+                </div>
+            </div>
+
+            <div class="col-md-6 form-group">
+                <label class="col-md-6 control-label">Sub-Department</label>
+                <div class="col-md-6">
+                    @Html.TextBoxFor(m => m.SubDepartmentName, new { @class = "form-control ReadOnlyField_CSS", @readonly = "readonly" })
+                    @Html.ValidationMessageFor(m => m.SubDepartmentName, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-6 form-group">
+                <label class="col-md-6 control-label">Mobile Number</label>
+                <div class="col-md-6">
+                    @Html.TextBoxFor(m => m.PhoneNumber, new { @class = "form-control", @readonly = "readonly" })
+                </div>
+            </div>
+            <div class="col-md-6 form-group">
+                <label class="col-md-6 control-label">Email ID</label>
+                <div class="col-md-6">
+                    @Html.TextBoxFor(m => m.EmailId, new { @class = "form-control", @onchange = "ValidateEmailIDForEdit_PageLevel(this.id);", @readonly = "readonly" })
+                    @Html.ValidationMessageFor(m => m.EmailId, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-6 form-group">
+                @{
+                    List<SelectListItem> list = new List<SelectListItem>();
+                    list.Add(new SelectListItem
+                    {
+                        Text = "Male",
+                        Value = "Male"
+
+                    });
+                    list.Add(new SelectListItem
+                    {
+                        Text = "Female",
+                        Value = "Female"
+                        //    Selected = true
+                    });
+
+                    List<SelectListItem> list2 = new List<SelectListItem>();
+                    list2.Add(new SelectListItem
+                    {
+                        Text = "Select",
+                        Value = "",
+                        //    Selected = true
+                    });
+                }
+                @Html.LabelFor(m => m.Gender, new { @class = "col-md-6 control-label" })
+                <div class="col-md-6">
+                    <input class="form-control" value="@Model.Gender" disabled />
+                    @*@Html.DropDownListFor(m => m.Gender, list, new { @class = "form-control RequiredField", @readonly = "readonly" })*@
+                    @Html.ValidationMessageFor(m => m.Gender, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            <div class="col-md-6 form-group">
+                <label class="col-md-6 control-label">Date Of Joining</label>
+                <div class="col-md-6">
+                    <input value="@Model.DateOfJoining.Value.ToString("dd/MM/yyyy")" class="form-control" disabled />
+
+                    @*@Html.TextBoxFor(m => m.DateOfJoining, new { @class = "form-control ReadOnlyField_CSS", @readonly = "readonly" })*@
+
+                    @*@Html.ValidationMessageFor(m => m.DateOfJoining, "", new { @class = "text-danger" })*@
+                </div>
+            </div>
+            <div class="col-md-6 form-group">
+                <label class="col-md-6 control-label">Date Of Birth</label>
+                <div class="col-md-6">
+                    <input value="@Model.DateOfBirth.Value.ToString("dd/MM/yyyy")" class="form-control" disabled />
+                    @*@Html.TextBoxFor(m => m.DateOfBirth, new { @class = "form-control MaxDatePicker RequiredField", @readonly = "readonly" })*@
+                    @*@Html.ValidationMessageFor(m => m.DateOfBirth, "", new { @class = "text-danger" })*@
+
+                </div>
+            </div>
+            <div class="col-md-6 form-group">
+                @Html.LabelFor(m => m.Designation, new { @class = "col-md-6 control-label required" })
+                <div class="col-md-6">
+                    @Html.TextBoxFor(m => m.Designation, new { @class = "form-control ReadOnlyField_CSS", @readonly = "readonly" })
+                    @Html.ValidationMessageFor(m => m.Designation, "", new { @class = "text-danger" })
+                </div>
+            </div>
+            @*<div class="col-md-6 form-group">
+                    @Html.LabelFor(m => m.PlaceAllocation, new { @class = "col-md-6 control-label required" })
+                    <div class="col-md-6">
+                        @Html.TextBoxFor(m => m.PlaceAllocation, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(m => m.PlaceAllocation, "", new { @class = "text-danger" })
+                    </div>
+                </div>*@
+            @*<div class="col-md-6 form-group">
+                    <span class="col-md-6 control-label">&nbsp;</span>
+                    <div class="col-md-6">
+                        <button type="submit" value="Update" class="btn btn-sm btn-success" onclick="return ValidateBeforeProfileUpdate_PageLevel();"><i class="glyphicon glyphicon-ok"></i>&nbsp;Update</button>
+
+                    </div>
+                </div>*@
+        }
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        LoadDocuments($("#CustomUserId").val());
+        LoadCategories();
+    });
+    function SaveDocuments() {
+        var validate = true;
+        if ($("#CategoryName").val() == null || $("#CategoryName").val() == "") {
+            validate = false;
+        }
+        if ($("#Name").val() == null || $("#Name").val() == "") {
+            validate = false;
+        }
+        if ($("#Remarks").val() == null || $("#Remarks").val() == "") {
+            validate = false;
+        }
+        if ($("#CustomUserId").val() == null || $("#CustomUserId").val() == "") {
+            validate = false;
+        }
+
+        if (validate) {
+            var fileData = new FormData();
+            var files = new Array();
+            var fileUpload = $("#UserDocuments").get(0);
+            files = fileUpload.files;
+            for (var i = 0; i < files.length; i++) {
+                if (files[i] != null) {
+                    fileData.append("document", files[i]);
+                }
+            }
+            // Event Details
+            fileData.append('CategoryId', $("#CategoryName").val());
+            fileData.append('DocumentName', $("#Name").val());
+            fileData.append('Remarks', $("#Remarks").val());
+            fileData.append('EmpId', $("#CustomUserId").val());
+            fileData.append('IsActive', true);
+            $.ajax({
+                type: "POST",
+                url: "/DMS/SaveNewDocument",
+                contentType: false, // Not to set any content header
+                processData: false, // Not to process data
+                data: fileData,
+                success: function (result) {
+                    alert("Saved Successfully.");
+                    clearData();
+                    $("#myModalCategoryType").modal("hide");
+                    LoadDocuments($("#CustomUserId").val());
+                    //window.location = "EventDetails";
+                },
+                error: function (err) {
+                    alert(err.statusText);
+                    //clearData();
+                }
+            });
+        } else {
+            alert("Please enter all the required fields");
+        }
+    }
+    function clearData() {
+        $("#Name").val("");
+        $("#CategoryName").val("");
+        $("#Remarks").val("");
+        $("#UserDocuments").val("");
+    }
+    function LoadCategories() {
+        $.get("/Dms/GetAllCategorys", function (data) {
+            var html = "<option value=''>Select</option>";
+            for (var i = 0; i < data.length; i++) {
+                html += "<option value='" + data[i].Id + "'>" + data[i].Name + "</option>";
+            }
+            $("#CategoryName").html(html);
+        });
+    }
+    function LoadDocuments(id) {
+        $.get("/DMS/GetEmployeeDocuments?empid=" + id, function (data) {
+            $("#tblbodydocuments").html("");
+            $('#tbldatatabledocuments').DataTable().clear().destroy();
+            var html = '';
+            for (var i = 0; i < data.length; i++) {
+                //html += "<option value='" + data[i].Id + "'>" + data[i].Name + "</option>";
+                html += '<tr>';
+                html += '<td class="width45">';
+                if (data[i].DocumentUrl.includes(".xls")) {
+                    html += '<i class="fa fa-file-excel-o text-success"></i>';
+                } else if (data[i].DocumentUrl.includes(".doc")) {
+                    html += '<i class="fa fa-file-word-o text-warning"></i>';
+                } else if (data[i].DocumentUrl.includes(".pdf")) {
+                    html += '<i class="fa fa-file-pdf-o text-primary"></i>';
+                }
+                else if (data[i].DocumentUrl.includes(".png") || data[i].DocumentUrl.includes(".jpg") || data[i].DocumentUrl.includes(".jpeg")) {
+                    html += '<i class="fa fa-file-image-o text-info"></i>';
+                } else {
+                    html += '<i class="fa fa-file-o text-danger" aria-hidden="true"></i>'
+                }
+
+                html += '</td>';
+                html += '<td>';
+                html += '<span class="folder-name"><a style="margin:0px;float: inherit; color:' + data[i].CategoryColor + ' !important;" target="_blank" href="/Documents/HRDMS/' + data[i].DocumentUrl + '">' + data[i].DocumentName + '</a></span>';
+                html += '</td>';
+                html += '<td>';
+                html += '<span>' + data[i].Remarks + '</span>';
+                html += '</td>';
+                html += ' <td class="width100">';
+                html += '<span>Me</span>';
+                html += '</td>';
+                html += '<td class="width100">';
+                html += '<span>' + data[i].Createdon + '</span>';
+                html += '</td>';
+                //html += '<td class="width100 text-center">';
+                //html += '<span class="size"> 52KB </span>';
+                //html += '</td>';
+                html += '<td>';
+                html += '<span class="folder-name" style="color:' + data[i].CategoryColor + ' !important;">' + data[i].CategoryName + '</span>';
+                html += '</td>';
+                html += '<td><a style="margin:0px;float: inherit;" target="_blank" href="/Documents/HRDMS/' + data[i].DocumentUrl + '"><i class="fa fa-cloud-download" aria-hidden="true"></i></a></td>';
+                html += '</tr>';
+            }
+            $("#tblbodydocuments").html(html);
+
+            $("#tbldatatabledocuments").dataTable({
+                "bDestroy": true
+            });
+        });
+    }
+    function generatePin() {
+        $.get("/HrAdmin/GeneratePin?userId=" + @Model.UserId, function (Result) {
+            alert("Pin :" + Result);
+            window.location.reload();
+        });
+    }
+</script>
+<div class="card">
+    <div class="card-body pt-0" style="width:90%;margin:auto;">
+        <h4>My Documents</h4>
+        <hr />
+        <div class="table-responsive">
+            <table class="table table-hover table-vcenter table_custom text-nowrap spacing5 text-nowrap mb-0" id="tbldatatabledocuments">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th style="color:#1A5089;">Name</th>
+                        <th style="color:#1A5089;">Comments</th>
+                        <th style="color:#1A5089;">Owner</th>
+                        <th style="color:#1A5089;">Last Update</th>
+                        @*<th style="color:#1A5089;">File Size</th>*@
+                        <th style="color:#1A5089;">Category</th>
+                        <th><i class="fa fa-cloud-upload" style="cursor:pointer; color:#1A5089;font-size:20px;" data-toggle="modal" data-target="#myModalCategoryType" aria-hidden="true"></i></th>
+                    </tr>
+                </thead>
+                <tbody id="tblbodydocuments">
+                </tbody>
+            </table>
+            <br />
+            <div style="text-align:center;">Your Pin Is : @Model.SecurityAnswner   <a href="javascript:void(0);" style="color:darkgoldenrod;" onclick="generatePin();">Generate/change PIN</a></div>
+        </div>
+    </div>
+</div>
+<div id="myModalCategoryType" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Add New</h4>
+            </div>
+
+            @*@using (Html.BeginForm("SaveNewVideo", "Academics", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                {*@
+            <form>
+                <div class="modal-body">
+
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name"> Document Name<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <textarea type="text" class="form-control" id="Name" name="Name"></textarea>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Category <span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <select class="form-control" id="CategoryName" name="CategoryName">
+                                <option value="">Select</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Documents <span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="file" id="UserDocuments" name="UserDocuments" multiple />
+                        </div>
+                    </div>
+
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name"> Remarks<span style="color:red;">*</span></label></div>
+                        <div class="col-md-8">
+                            <textarea type="text" class="form-control" id="Remarks" name="Remarks"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="button" id="btnasigntask" value="Save" onclick="SaveDocuments();" class="btn btn-primary" />
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </form>
+            @*}*@
+        </div>
+    </div>
+</div>
+@if (Model.DepartmentName == "Academics" || User.IsInRole("Admin") || User.Identity.Name == "1344" || User.Identity.Name == "5937")
+{
+    <div style="text-align:center;">
+        <a href="~/Hospital/UploadWeekImage">Update Week Image</a>
+    </div>
+    <div style="text-align:center;">
+        <a href="~/Hospital/UploadModalpopup">Update Modal Popup</a>
+    </div>
+    <div style="text-align:center;">
+        <a href="~/Hospital/UploadMedicalEvents">Upload Medical Events</a>
+    </div>
+    <div style="text-align:center;">
+        <a href="~/Hospital/UploadGeneralEvents">Upload General Events</a>
+    </div>
+
+}
+
+@if (Model.DepartmentName == "Academics" || Model.DepartmentName == "Quality" || Model.DepartmentName == "HR" || User.IsInRole("Admin") || Model.DepartmentName == "Administration" || User.Identity.Name == "5937" || User.Identity.Name == "7288"|| User.Identity.Name == "3443" || User.Identity.Name == "7882")
+{
+    <div style="text-align:center;">
+        <a href="~/Hospital/ManageProtocaol">Manage Images/Protocaol</a>
+    </div>
+
+    <div style="text-align:center;">
+        <a href="~/Academics/UploadAcademicRota">Manage Academic Rota</a>
+    </div>
+    
+}
+@if (User.IsInRole("Admin") || User.Identity.Name == "6431" || User.Identity.Name == "1344")
+{
+    <div style="text-align:center;">
+        <a href="~/Academics/ManageHomePageVideos">Manage Home Page Videos</a>
+    </div>
+
+}
+<br />
+

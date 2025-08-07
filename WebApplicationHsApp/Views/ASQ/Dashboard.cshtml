@@ -1,0 +1,164 @@
+﻿
+@{
+    ViewBag.Title = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    function LoadPartial() {
+        LoadLocations();
+        LoadPartsdata();
+    }
+    function LoadPartsdata() {
+        $.ajax({
+            type: "GET",
+            url: "/ASQ/GetAllFormsScores?fillingmonth=" + $("#ddlselect").val(),
+            //data: "id=",
+            success: function (data) {
+                $("#divoverall").html("");
+                var divnumber = 100;
+                console.log(data);
+                for (var i = 0; i < data.length; i++) {
+                    var submodel = data[i].model;
+                    if (submodel.length > 0) {
+                        divnumber = divnumber + i;
+                        $("#divoverall").append("<div class='col-md-4' style='height: 400px; margin: 0 auto;' id='container_" + divnumber + "'></div>");
+                        var locdata = new Array();
+                        for (var j = 0; j < submodel.length; j++) {
+                            locdata.push({
+                                name: submodel[j].Name,
+                                y: parseInt(submodel[j].Count),
+                                drilldown: true
+                            });
+                        }
+                        BindChartData(locdata, data[i].FillingType, "container_" + divnumber);
+                    }
+                }
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadLocations() {
+        $.ajax({
+            type: "GET",
+            url: "/ASQ/GetAvgScoreforEntries?fillingmonth=" + $("#ddlselect").val(),
+            //data: "id=",
+            success: function (data) {
+                var locdata = new Array();
+                if ($("#ddlselect").val() == "PedsQL") {
+
+                    locdata.push({ name: "Communication", y: data.CommunicationScore, drilldown: true });
+                    locdata.push({ name: "Cognitive Functioning", y: data.FineMotorScore, drilldown: true });
+                    locdata.push({ name: "Emotional Functioning", y: data.GrossMotorScore, drilldown: true });
+                    locdata.push({ name: "Social Functioning", y: data.PersonalSocialScore, drilldown: true });
+                    locdata.push({ name: "Physical Functioning", y: data.ProblemSolvingScore, drilldown: true });
+                    locdata.push({ name: "Worry", y: data.OverallScore, drilldown: true });
+                    locdata.push({ name: "Daily Activities", y: parseInt(data.Column1), drilldown: true });
+                    locdata.push({ name: "Family Relationships", y: parseInt(data.Column2), drilldown: true });
+                } else {
+                    locdata.push({ name: "COMMUNICATION", y: data.CommunicationScore, drilldown: true });
+                    locdata.push({ name: "GROSS MOTOR", y: data.GrossMotorScore, drilldown: true });
+                    locdata.push({ name: "FINE MOTOR", y: data.FineMotorScore, drilldown: true });
+                    locdata.push({ name: "PROBLEM SOLVING", y: data.ProblemSolvingScore, drilldown: true });
+                    locdata.push({ name: "PERSONAL-SOCIAL", y: data.PersonalSocialScore, drilldown: true });
+                    locdata.push({ name: "OVERALL", y: data.OverallScore, drilldown: true });
+                }
+                BindChartData(locdata, "Avg Data", "container4");
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function BindChartData(locations, name = "", div = "") {
+        $('#' + div).highcharts({
+            chart: {
+                type: 'column',
+
+            },
+            title: {
+                text: name
+            },
+            xAxis: {
+                type: 'category'
+            },
+
+            legend: {
+                enabled: false
+            },
+
+            plotOptions: {
+                series: {
+                    borderWidth: 0,
+                    dataLabels: {
+                        enabled: true
+                    }
+                }
+            },
+
+            series: [{
+                name: name,
+                colorByPoint: true,
+                data: locations
+            }],
+
+            drilldown: {
+                series: []
+            }
+        });
+    }
+</script>
+<div style="width:90%;margin:auto;">
+    <div class="row">
+        <div class="col-lg-2">
+            <h5>Ages & Stages Questionnaires</h5>
+        </div>
+        <div class="col-lg-3">
+            <select id="ddlselect" class="form-control" onchange="LoadPartial();">
+                <option value="">Select</option>
+                <option value="PedsQL">PedsQL</option>
+                <option value="m-chat">m-chat</option>
+                <option value="6Month">6Month</option>
+                <option value="9Month">9Month</option>
+                <option value="12Month">12Month</option>
+                <option value="18Month">18Month</option>
+                <option value="24Month">24Month</option>
+                <option value="30Month">30Month</option>
+                <option value="36Month">36Month</option>
+                <option value="42Month">42Month</option>
+                <option value="48Month">48Month</option>
+                <option value="60Month">60Month</option>
+            </select>
+            <span id="titleofpage" style="display:none;"></span>
+        </div>
+
+
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"> Avergae</h3>
+            </div>
+            <div class="panel-body" style="height:400px;">
+                <div style="min-width: 310px; height: 400px; margin: 0 auto" id="container4">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Overall by section</h3>
+            </div>
+            <div class="panel-body">
+                <div class="row" id="divoverall">
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

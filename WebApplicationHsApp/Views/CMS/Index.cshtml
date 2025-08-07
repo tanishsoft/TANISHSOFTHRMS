@@ -1,0 +1,150 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    function LoadPartialdivonclick(link, title) {
+        $("#titleofpage").html(title);
+        $("#partialDiv").load("/CMS/" + link);
+    }
+    $(document).ready(function () {
+        LoadPartialdivonclick('Dashboard', 'My Dashboard');
+    });
+</script>
+<div class="row" style="min-height:450px;">
+    <div class="col-md-2">
+        <div class="list-group">
+            <a href="javascript:void(0);" class="list-group-item active" onclick="ClicklistItem('mydashboard');">
+                Employee
+            </a>
+            <a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('Dashboard','My Dashboard');">
+                <span class="glyphicon glyphicon-home" style="vertical-align:middle;color:green;font-weight:bold"></span> &nbsp;My Dashboard
+            </a>
+            <a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('CanteenDashboard','My Dashboard');">
+                <span class="glyphicon glyphicon-home" style="vertical-align:middle;color:green;font-weight:bold"></span> &nbsp;Canteen Dashboard
+            </a>
+            <a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('AdminDashboard','Admin Dashboard');">
+                <span class="glyphicon glyphicon-home" style="vertical-align:middle;color:green;font-weight:bold"></span> &nbsp;Admin Dashboard
+            </a>
+            <a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('EmpCreateFood','Free Meal');">
+            <span class="glyphicon glyphicon-hand-right" style="vertical-align:middle;color:green;font-weight:bold"></span> &nbsp;Free Meal
+        </a>
+        <a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('ManageFood','My Meal');">
+            <span class="glyphicon glyphicon-random" style="vertical-align:middle;color:darkviolet;font-weight:bold"></span> &nbsp;My Meals
+        </a>
+        @*<a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('GeneratePin','Generate PIN');">
+            <span class="glyphicon glyphicon-hand-right" style="vertical-align:middle;color:green;font-weight:bold"></span> &nbsp;Generate PIN
+        </a>*@
+            @if (User.IsInRole("Admin") || User.IsInRole("CanteenTeam"))
+            {
+                <a href="javascript:void(0);" class="list-group-item active" onclick="ClicklistItem('mydashboard');">
+                    Canteen Team
+                </a>
+                @*<a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('CreateSales','Capture Sales');">
+                <span class="glyphicon glyphicon-exclamation-sign" style="vertical-align:middle;color:darkcyan;font-weight:bold"></span> &nbsp;Capture Sales
+            </a>*@
+                <a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('ManageMySales','My Sales');">
+                    <span class="glyphicon glyphicon-edit" style="vertical-align:middle;color:darkorange;font-weight:bold"></span> &nbsp;My Sales
+                </a>
+                <a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('ManageMyPayments','My Payments');">
+                    <span class="glyphicon glyphicon-check" style="vertical-align:middle;color:darkgoldenrod;font-weight:bold"></span> &nbsp;My Payments
+                </a>
+
+                <a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('ManageCMSItemTransfer','Place Item Request');">
+                    <span class="glyphicon glyphicon-saved" style="vertical-align:middle;color:chocolate;font-weight:bold"></span>&nbsp;Place Item Request
+                </a>
+                <a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('CreateFoodManage','Employee Food Manage');">
+                <span class="glyphicon glyphicon-ok-circle" style="vertical-align:middle;color:crimson;font-weight:bold"></span>&nbsp;Employee Food Manage
+            </a>
+                <a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('CurrentStock','Current Stock');">
+                    <span class="glyphicon glyphicon-ok-circle" style="vertical-align:middle;color:crimson;font-weight:bold"></span>&nbsp;Current Stock
+                </a>
+                <a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('ManageMyCredit','Manage Credit');">
+                    <span class="glyphicon glyphicon-ok-circle" style="vertical-align:middle;color:crimson;font-weight:bold"></span>&nbsp;Manage Credit
+                </a>
+                @*<a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('CancelCaptureSalesByCanteen','Cancel Capture Sales ByCanteen');">
+                <span class="glyphicon glyphicon-ok-circle" style="vertical-align:middle;color:crimson;font-weight:bold"></span>&nbsp;Cancel Capture Sales
+            </a>*@
+            }
+            @if (User.IsInRole("Admin") || User.IsInRole("CanteenAdminTeam"))
+            {
+                <a href="javascript:void(0);" class="list-group-item active" onclick="ClicklistItem('mydashboard');">
+                    Admin Team
+                </a>
+                <a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('ManageSales','All Sales');">
+                    <span class="glyphicon glyphicon-edit" style="vertical-align:middle;color:darkorange;font-weight:bold"></span> &nbsp;Items Sales
+                </a>
+                <a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('ManagePayments','Payments');">
+                    <span class="glyphicon glyphicon-check" style="vertical-align:middle;color:darkgoldenrod;font-weight:bold"></span> &nbsp;Payments
+                </a>
+
+                <a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('ManageCMSItemTransfer','Manage Item Requests');">
+                    <span class="glyphicon glyphicon-saved" style="vertical-align:middle;color:chocolate;font-weight:bold"></span>&nbsp;View Item Requests
+                </a>
+                <a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('ManageDistributeItems','Manage Distribute Items');">
+                    <span class="glyphicon glyphicon-saved" style="vertical-align:middle;color:chocolate;font-weight:bold"></span>&nbsp;Distribute Items
+                </a>
+                <a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('CurrentStock','Current Stock');">
+                    <span class="glyphicon glyphicon-ok-circle" style="vertical-align:middle;color:crimson;font-weight:bold"></span>&nbsp;Current Stock
+                </a>
+
+                @*<a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('CreateCMItem','Create Item');">
+                <span class="glyphicon glyphicon-saved" style="vertical-align:middle;color:chocolate;font-weight:bold"></span>&nbsp;Create Item
+            </a>*@
+                <a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('ManageCMStock','Manage Stock');">
+                    <span class="glyphicon glyphicon-saved" style="vertical-align:middle;color:chocolate;font-weight:bold"></span>&nbsp;Manage Stock
+                </a>
+
+                @*<a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('CreatePlaceRequest','Create Place Request');">
+                <span class="glyphicon glyphicon-thumbs-up" style="vertical-align:middle;color:firebrick;font-weight:bold"></span>&nbsp;Place Vendor Meal Request
+            </a>
+            <a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('ManagePlaceRequest','Manage Place Request');">
+                <span class="glyphicon glyphicon-ok-circle" style="vertical-align:middle;color:crimson;font-weight:bold"></span>&nbsp;Manage Vendor Request
+            </a>*@
+                <a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('ManageCMItem','Manage Item');">
+                    <span class="glyphicon glyphicon-saved" style="vertical-align:middle;color:chocolate;font-weight:bold"></span>&nbsp;Manage Item
+                </a>
+                <a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('ManageCMCategory','Manage Category');">
+                    <span class="glyphicon glyphicon-saved" style="vertical-align:middle;color:chocolate;font-weight:bold"></span>&nbsp;Manage Category
+                </a>
+                <a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('ManageCMStore','Manage Store');">
+                    <span class="glyphicon glyphicon-saved" style="vertical-align:middle;color:chocolate;font-weight:bold"></span>&nbsp;Manage Store
+                </a>
+                @*<a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('ManageCMCateen','Manage Canteen');">
+                <span class="glyphicon glyphicon-saved" style="vertical-align:middle;color:chocolate;font-weight:bold"></span>&nbsp;Manage Canteen
+            </a>*@
+                <a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('ManageCMMealType','Manage MealType');">
+                    <span class="glyphicon glyphicon-saved" style="vertical-align:middle;color:chocolate;font-weight:bold"></span>&nbsp;Manage MealType
+                </a>
+                <a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('ManageCMUnitType','Manage Unit Type');">
+                    <span class="glyphicon glyphicon-saved" style="vertical-align:middle;color:chocolate;font-weight:bold"></span>&nbsp;Manage Unit Type
+                </a>
+                <a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('ManageCanteenEmployees','Manage Canteen Employee');">
+                    <span class="glyphicon glyphicon-saved" style="vertical-align:middle;color:chocolate;font-weight:bold"></span>&nbsp;Manage Canteen Employee
+                </a>
+                <a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('ManageCredit','Manage Credit');">
+                    <span class="glyphicon glyphicon-ok-circle" style="vertical-align:middle;color:crimson;font-weight:bold"></span>&nbsp;Manage Credit
+                </a>
+                <a href="javascript:void(0);" class="list-group-item" onclick="LoadPartialdivonclick('ItemsSalesReport','Item Sales Report');">
+                    <span class="glyphicon glyphicon-ok-circle" style="vertical-align:middle;color:crimson;font-weight:bold"></span>&nbsp;Item Sales Report
+                </a>
+            }
+        </div>
+    </div>
+    <div class="col-md-10">
+        <div class="panel panel-default" id="myleaestableshow">
+            <div class="panel-heading" id="titleofpage"></div>
+            <div class="panel-body">
+                <div id="partialDiv">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<br />
+<br />
+<br />

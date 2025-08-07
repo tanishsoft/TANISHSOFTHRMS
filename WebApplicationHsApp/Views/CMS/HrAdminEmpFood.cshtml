@@ -1,0 +1,625 @@
+﻿
+@{
+    ViewBag.Title = "HrAdminEmpFood";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+</style>
+<script>
+    var oTable;
+    var eId = 0;
+    $(document).ready(function () {
+        $(".date").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+           
+            Edit: true
+        });
+        LoadData();
+        ItemSearch();
+        EmployeeSearch();
+        LoadLocations();
+    });
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#LocationId").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadData() {
+        oTable = $('#tblCategory').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/CMS/AjaxGetHRAdminOrders",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "OrderId" },
+                { "sName": "CreatedOn" },
+                { "sName": "LocationName" },
+                { "sName": "DepartmentName" },
+                { "sName": "FirstName" },
+                { "sName": "ItemName" },
+                { "sName": "ItemQty1" },
+                { "sName": "Remarks" },
+                { "sName": "Status" },
+                {
+                    "sName": "OrderId",
+                    "bSortable": false,
+                    "render": function (data, row, r) {
+                        //console.log(r);
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            // '<li><a href="javascript:void(0);" onclick="onEdit(' + data + ')">Edit</a></li>' +
+                            '<li><a href="javascript:void(0);"  onclick="ViewItems(' + data + ')">View Items</a></li>' +
+                           // '<li><a href="javascript:void(0);"  onclick="Cancel(' + data + ')">Cancel</a></li>' +
+                            // '<li><a href="javascript:void(0);"  onclick="ChangeStatus(' + data + ')">Update Status</a></li>' +
+                           // '<li><a href="javascript:void(0);"  onclick="Approve(' + data + ')">Approve/Reject</a></li>' +
+                            '</ul></div>';
+                    }
+                }
+            ],
+            "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                debugger;
+                //$('td:eq(8)', nRow).html('<a href="javascript:void(0);" id="' + aData[8] + '" onclick="ChangeStatus(this.id);">' + aData[8] + '</a>');
+                //<a href="javascript:void(0);" id="' + data + '" onclick="StartTask(this.id);">Pick Up</a>
+                switch (aData[8]) {
+                    case 'Open':
+                        //$(nRow).css('class', 'myClassred');
+                        $('td:eq(8)', nRow).css('color', '#E67D21').css('font-weight', 'bold');
+                        break;
+                    case 'In Progress':
+                        //$(nRow).css('background-color', 'green')
+                        $('td:eq(8)', nRow).css('color', '#3598dc').css('font-weight', 'bold');
+                        break;
+                    case 'Cancelled':
+                        //$(nRow).css('background-color', 'blue')
+                        $('td:eq(8)', nRow).css('color', '#8E44AD').css('font-weight', 'bold');
+                        break;
+                    case 'Completed':
+                        $('td:eq(8)', nRow).css('color', '#5FC29D').css('font-weight', 'bold');
+                        break;
+
+                    default:
+                        $('td:eq(8)', nRow).css('color', 'Green').css('font-weight', 'bold');
+                        break;
+                }
+            },
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "FormType", "value": $("#SddltypeofSelect").val() },
+                    { "name": "ModeOfPayment", "value": $("#SddlModeOdPayment").val() },
+                    { "name": "todate", "value": $("#txttodate").val() },
+                    { "name": "fromdate", "value": $("#txtfromdate").val() },
+
+                );
+            }
+        });
+        $("#tblCategory_length").addClass("col-md-6");
+        $("#tblCategory_length").addClass("col-md-6");
+        //validateDate();
+
+        //if (validate) {
+        //    LoadDataforTotal();
+        //}
+        //else {
+        //    $('#total').hide();
+        //}
+    }
+    function ChangeStatus(id) {
+        eId = id;
+        $("#myModalStatusChange").modal("show");
+    }
+    function Approve(id) {
+        eId = id;
+        $("#myModalApproveReject").modal("show");
+    }
+    function EmployeeSearch() {
+        $("#User").select2({
+            ajax: {
+                url: "/Home/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 2
+        });
+    }
+    function subItemvalue(id) {
+
+        if ($("#" + id).val() > 1) {
+            var val = parseInt($("#" + id).val()) - 1;
+            $("#" + id).val(val);
+        }
+    }
+    function AddItemvalue(id) {
+
+        if ($("#" + id).val() < 30) {
+            var val = parseInt($("#" + id).val()) + 1;
+            $("#" + id).val(val);
+        }
+
+    }
+    function New() {
+        $("#myModalEmployeeOrder").modal("show");
+    }
+    function SaveNewOrder() {
+
+        var validate = validateInput();
+        if (validate) {
+
+            if (window.FormData !== undefined) {
+
+                var files = "";
+                // Create FormData object
+                var fileData = new FormData();
+                fileData.append('OrderId', eId);
+                fileData.append('LocationId', $("#LocationId").val());
+
+                fileData.append('EmpId', $("#User").val());
+                fileData.append('OrderDate', $("#OrderDate").val());
+                fileData.append('OrderBy', 1);
+                fileData.append('ItemId1', $("#ItemId1").val());
+                fileData.append('ItemQty1', $("#ItemQty1").val());
+                fileData.append('ItemId2', $("#ItemId2").val());
+                fileData.append('ItemQty2', $("#ItemQty2").val());
+                fileData.append('ItemId3', $("#ItemId3").val());
+                fileData.append('ItemQty3', $("#ItemQty3").val());
+                fileData.append('ItemId4', $("#ItemId4").val());
+                fileData.append('ItemQty4', $("#ItemQty4").val());
+                fileData.append('ItemId5', $("#ItemId5").val());
+                fileData.append('ItemQty5', $("#ItemQty5").val());
+                fileData.append('Remarks', $("#Remarks").val());
+                fileData.append('CugNumber', $("#CugNumber").val());
+                fileData.append('PaymentType', $("#PaymentType").val());
+                fileData.append('PaymentDetails', $("#PaymentDetails").val());
+
+                $.ajax({
+                    type: "POST",
+                    url: "/CMS/Save_Update_MyOrder",
+                    contentType: false,
+                    processData: false,
+                    data: fileData,
+                    success: function (data) {
+                        alert("Success");
+                        LoadData();
+                        $("#myModalEmployeeOrder").modal('hide');
+
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+
+    }
+    function Close() {
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        $("#myModalEmployeeOrder").modal('hide');
+    }
+    function validateInput() {
+        var valid = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#LocationId").val() == "") {
+            $("#LocationId").after('<span class="error" style="color:Red;">Select Location</span>');
+            $("#LocationId").addClass('css-error');
+            valid = false;
+        }
+        if ($("#ItemId1").val() == "") {
+            $("#ItemId1").after('<span class="error" style="color:Red;">Select First Item</span>');
+            $("#ItemId1").addClass('css-error');
+            valid = false;
+        }
+        if ($("#ItemQty1").val() == "") {
+            $("#ItemQty1").after('<span class="error" style="color:Red;">Enter First Item Qty</span>');
+            $("#ItemQty1").addClass('css-error');
+            valid = false;
+        }
+
+        //if ($("#User").val() == null) {
+        //    $("#User").after('<span class="error" style="color:Red;">Select User</span>');
+        //    $("#User").addClass('css-error');
+        //    valid = false;
+        //}
+        var count = 0;
+        for (var i = 1; i < 6; i++) {
+
+            if ($("#ItemId" + i).val() != null && $("#ItemQty" + i).val() != "0") {
+                count = 1;
+            }
+        }
+        if (count == 0) {
+            alert("Please select any one Item and Qty is not zero");
+            valid = false;
+        }
+
+        if ($("#OrderDate").val() == "") {
+            $("#OrderDate").after('<span class="error" style="color:Red;">Select Order Date</span>');
+            $("#OrderDate").addClass('css-error');
+            valid = false;
+        }
+        return valid;
+    }
+    function ItemSearch() {
+        $(".ItemId").select2({
+            ajax: {
+                url: "/CMS/GetItemSearch",
+                type: "get",
+                dataType: 'json',
+                data: function (params) {
+                    return {
+                        searchTerm: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            width: 'element',
+            minimumInputLength: 2
+        });
+    }
+
+    function onEdit(id) {
+        eId = id;
+        if (id != 0) {
+            $.get("/CMS/GetEmployeeOrders_ById?id=" + id, function (res) {
+
+                $("#LocationId").val(res.LocationId);
+                $("#User").select2("trigger", "select", { data: { id: res.EmpId, text: res.EmpName } });
+                $("#ItemId1").select2("trigger", "select", { data: { id: res.ItemId1, text: res.Item1Name } });
+                $("#ItemId2").select2("trigger", "select", { data: { id: res.ItemId2, text: res.Item2Name } });
+                $("#ItemId3").select2("trigger", "select", { data: { id: res.ItemId3, text: res.Item3Name } });
+                $("#ItemId4").select2("trigger", "select", { data: { id: res.ItemId4, text: res.Item4Name } });
+                $("#ItemId5").select2("trigger", "select", { data: { id: res.ItemId5, text: res.Item5Name } });
+                $("#ItemQty1").val(res.ItemQty1);
+                $("#ItemQty2").val(res.ItemQty2);
+                $("#ItemQty3").val(res.ItemQty3);
+                $("#ItemQty4").val(res.ItemQty4);
+                $("#ItemQty5").val(res.ItemQty5);
+                if (res.OrderDate != null && res.OrderDate != "") {
+                    var start = res.OrderDate.split("-");
+                    $("#OrderDate").datepicker().datepicker("setDate", new Date(parseInt(start[2]), parseInt(start[1]) - 1, parseInt(start[0])));
+                }
+                //$("#OrderBy").select2("trigger", "select", { data: { id: res.OrderBy, text: res.OrderEmpName } });
+                $("#Remarks").val(res.Remarks);
+                $("#CugNumber").val(res.CugNumber);
+                $("#PaymentType").val(res.PaymentType);
+                $("#PaymentDetails").val(res.PaymentDetails);
+            });
+            $("#myModalEmployeeOrder").modal('show');
+        }
+    }
+    function ViewItems(id) {
+
+        if (id != 0) {
+            $.get("/CMS/GetEmployeeOrders_ById?id=" + id, function (res) {
+
+                var html = '<table class="table table-bordered"> <thead><tr><th>Items</th><th>Qty</th></tr></thead>';
+                if (res.ItemId1 != null) {
+                    html += '<tr><td>' + res.Item1Name + '</td><td>' + res.ItemQty1 + '</td></tr>';
+                }
+                if (res.ItemId2 != null) {
+                    html += '<tr><td>' + res.Item2Name + '</td><td>' + res.ItemQty2 + '</td></tr>';
+                }
+                if (res.ItemId3 != null) {
+                    html += '<tr><td>' + res.Item3Name + '</td><td>' + res.ItemQty3 + '</td></tr>';
+                }
+                if (res.ItemId4 != null) {
+                    html += '<tr><td>' + res.Item4Name + '</td><td>' + res.ItemQty4 + '</td></tr>';
+                }
+                if (res.ItemId5 != null) {
+                    html += '<tr><td>' + res.Item5Name + '</td><td>' + res.ItemQty5 + '</td></tr>';
+                }
+                html += '</table>';
+                $("#ViewItemtbl").html(html);
+                $("#myModalViewItems").modal('show');
+            });
+        }
+    }
+    function Itemchangesetqty(id) {
+        switch (id) {
+            case "ItemId1":
+                $("#ItemQty1").val(1);
+                break;
+            case "ItemId2":
+                $("#ItemQty2").val(1);
+                break;
+            case "ItemId3":
+                $("#ItemQty3").val(1);
+                break;
+            case "ItemId4":
+                $("#ItemQty4").val(1);
+                break;
+            case "ItemId5":
+                $("#ItemQty5").val(1);
+                break;
+            default:
+                break;
+        }
+    }
+
+    function Cancel(id) {
+        if (confirm('Are you sure you want to Cancel the order?')) {
+            $.get("/CMS/Cancel_ById?id=" + id, function (res) {
+                alert("Order cancelled successfully");
+                oTable.api().ajax.reload(null, false);
+            });
+        }
+    }
+    function UpdateStatus() {
+        if ($("#ChangeStatus").val() != "") {
+            $.get("/CMS/UpdateOrderStatus_ById?id=" + eId + "&status=" + $("#ChangeStatus").val(), function (res) {
+                //alert("Order Status Updated successfully");
+                oTable.api().ajax.reload(null, false);
+                $("#myModalStatusChange").modal('hide');
+            });
+        }
+
+    }
+    function SaveApprover() {
+        if ($("#ApproveReject").val() != "") {
+            $.get("/CMS/ApproveOrder_ById?id=" + eId + "&status=" + $("#ApproveReject").val() + "&comments=" + $("#ApproverComments").val(), function (res) {
+                alert("Order has " + $("#ApproveReject").val());
+                oTable.api().ajax.reload(null, false);
+                $("#myModalApproveReject").modal('hide');
+            });
+        }
+
+    }
+</script>
+
+<div class="panel panel-default" style="min-height:500px;">
+    <div class="panel-heading">Manage Staff Orders</div>
+    <div class="panel-body">
+        <div class="form-row">
+                <div class="col-md-1">
+                    &nbsp;
+                </div>
+                <div class="form-group col-md-2">
+                    <label>From Date</label>
+                    <input type="text" class="form-control date" autocomplete="off" placeholder="From Date" id="txtfromdate" style="max-width:200px;" />
+                </div>
+                <div class="form-group col-md-2">
+                    <label>To Date</label>
+                    <input type="text" class="form-control date" autocomplete="off" placeholder="To Date" id="txttodate" style="max-width:200px;" />
+                </div>
+                <div class="form-group col-md-2">
+                    <label>Status</label>
+                    <select id="ddlCategoryTypeForFilter" class="form-control">
+                        <option value="">Select Status</option>
+                        <option value="Pending">Pending</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-2">
+                    <label>Employee To</label><br />
+                    <select id="AssignTo" style="width: 100%" class="form-control typeahead EmpId" name="query" data-provide="typeahead" autocomplete="off"></select>
+                </div>
+                <div class="form-group col-md-1">
+                    <br />
+                    <button type="button" class="btn btn-sm btn-success" value="Go" onclick="LoadData();"><span class="glyphicon glyphicon-search" style="vertical-align:middle;"></span>&nbsp;Go</button>
+                </div>
+                <div class="form-group col-md-2">
+                    <br />
+                    <button type="button" class="btn btn-sm btn-default" value="Export To Excel" onclick="ExportToExcel();"><span class="glyphicon glyphicon-download" style="vertical-align:middle;"></span>&nbsp;Export To Excel</button>
+                </div>
+            </div>
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblCategory">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Date</th>
+                            <th>Location</th>
+                            <th>Department</th>
+                            <th>Employee</th>
+                            <th>Item</th>
+                            <th>Qty</th>
+                            <th>Remarks</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModalEmployeeOrder" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog" style="width:750px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" id="header">New Order</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-6">
+                        <label>Assign Location<span style="color:red;">*</span></label>
+                        <select class="form-control" id="LocationId"></select>
+                    </div>
+                    <div class="col-md-6" style="display:none;">
+                        <label>User<span style="color:red;">*</span></label>
+                        <select id="User" class="form-control EmpId" name="query" data-provide="typeahead" autocomplete="off" style="width:100%"></select>
+                    </div>
+                    <div class="col-md-6">
+                        <span class="form-label">Order Date<span style="color:red;">*</span></span>
+                        <input class="form-control date" type="text" readonly="readonly" id="OrderDate" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <table class="table table-bordered" style="width:100%;">
+                        <thead>
+                            <tr>
+                                <td>Item</td>
+                                <td>Qty</td>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><select id="ItemId1" style="width: 300px;" class="form-control typeahead ItemId" onchange="Itemchangesetqty(this.id);" name="query" data-provide="typeahead" autocomplete="off"></select></td>
+                                <td><div><span class="glyphicon glyphicon-minus" style="color:red;cursor:pointer;  border: 1px solid green;" onclick="subItemvalue('ItemQty1')"></span>&nbsp;<input type="number" disabled="" id="ItemQty1" value="0" min="0" max="30">&nbsp;<span class="glyphicon glyphicon-plus" style="color:red;cursor:pointer; border: 1px solid green;" onclick="AddItemvalue('ItemQty1')"></span></div></td>
+                            </tr>
+                            <tr>
+                                <td><select id="ItemId2" style="width: 300px;" class="form-control typeahead ItemId" onchange="Itemchangesetqty(this.id);" name="query" data-provide="typeahead" autocomplete="off"></select></td>
+                                <td><div><span class="glyphicon glyphicon-minus" style="color:red;cursor:pointer;  border: 1px solid green;" onclick="subItemvalue('ItemQty2')"></span>&nbsp;<input type="number" disabled="" id="ItemQty2" value="0" min="0" max="30">&nbsp;<span class="glyphicon glyphicon-plus" style="color:red;cursor:pointer; border: 1px solid green;" onclick="AddItemvalue('ItemQty2')"></span></div></td>
+                            </tr>
+                            <tr>
+                                <td><select id="ItemId3" style="width: 300px;" class="form-control typeahead ItemId" onchange="Itemchangesetqty(this.id);" name="query" data-provide="typeahead" autocomplete="off"></select></td>
+                                <td><div><span class="glyphicon glyphicon-minus" style="color:red;cursor:pointer;  border: 1px solid green;" onclick="subItemvalue('ItemQty3')"></span>&nbsp;<input type="number" disabled="" id="ItemQty3" value="0" min="0" max="30">&nbsp;<span class="glyphicon glyphicon-plus" style="color:red;cursor:pointer; border: 1px solid green;" onclick="AddItemvalue('ItemQty3')"></span></div></td>
+                            </tr>
+                            <tr>
+                                <td><select id="ItemId4" style="width: 300px;" class="form-control typeahead ItemId" onchange="Itemchangesetqty(this.id);" name="query" data-provide="typeahead" autocomplete="off"></select></td>
+                                <td><div><span class="glyphicon glyphicon-minus" style="color:red;cursor:pointer;  border: 1px solid green;" onclick="subItemvalue('ItemQty4')"></span>&nbsp;<input type="number" disabled="" id="ItemQty3" value="0" min="0" max="30">&nbsp;<span class="glyphicon glyphicon-plus" style="color:red;cursor:pointer; border: 1px solid green;" onclick="AddItemvalue('ItemQty4')"></span></div></td>
+                            </tr>
+                            <tr>
+                                <td><select id="ItemId5" style="width: 300px;" class="form-control typeahead ItemId" onchange="Itemchangesetqty(this.id);" name="query" data-provide="typeahead" autocomplete="off"></select></td>
+                                <td><div><span class="glyphicon glyphicon-minus" style="color:red;cursor:pointer;  border: 1px solid green;" onclick="subItemvalue('ItemQty5')"></span>&nbsp;<input type="number" disabled="" id="ItemQty5" value="0" min="0" max="30">&nbsp;<span class="glyphicon glyphicon-plus" style="color:red;cursor:pointer; border: 1px solid green;" onclick="AddItemvalue('ItemQty5')"></span></div></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <span class="form-label">Cug Number<span style="color:red;">*</span></span>
+                        <input class="form-control" type="text" id="CugNumber" />
+                    </div>
+                    <div class="col-md-6">
+                        <span class="form-label">Payment Type<span style="color:red;">*</span></span>
+                        <select id="PaymentType" class="form-control">
+                            <option value="">Select</option>
+                            @*<option value="Cash">Cash</option>
+                                <option value="UPI">UPI</option>*@
+                            <option value="Deduct_On_Salary">Deduct_On_Salary</option>
+                            <option value="HOD_Approval">HOD_Approval</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6" style="display:none;">
+                        <span class="form-label">Payment Details</span>
+                        <input class="form-control" type="text" id="PaymentDetails" value="" />
+                    </div>
+                    <div class="col-md-6">
+                        <span class="form-label">Remarks</span>
+                        <textarea class="form-control maxwidth" rows="1" id="Remarks"></textarea>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" onclick="SaveNewOrder();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="Close();">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalViewItems" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog" style="width:750px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" id="header">New Order</h4>
+            </div>
+            <div class="modal-body">
+                <div id="ViewItemtbl"></div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="Close();">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalStatusChange" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog" style="width:750px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" id="header">Status Change</h4>
+            </div>
+            <div class="modal-body">
+                <select id="ChangeStatus" class="form-control">
+                    <option value="">Select Status</option>
+                    <option value="Open">Open</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                </select>
+                <div></div>
+
+            </div>
+            <div class="modal-footer"> <input type="button" onclick="UpdateStatus();" class="btn btn-primary" value=" Update" /></div>
+        </div>
+    </div>
+</div>
+
+
+<div id="myModalApproveReject" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog" style="width:750px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" id="header">Approve / Reject</h4>
+            </div>
+            <div class="modal-body">
+                <div>
+                    <label>Select Approve / Reject</label>
+                    <select id="ApproveReject" class="form-control">
+                        <option value="">Select  Approve / Reject</option>
+                        <option value="Approve">Approve</option>
+                        <option value="Reject">Reject</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Comments</label>
+                    <textarea id="ApproverComments" class="form-control"></textarea>
+                </div>
+
+            </div>
+            <div class="modal-footer"> <input type="button" onclick="SaveApprover();" class="btn btn-primary" value=" Update" /></div>
+        </div>
+    </div>
+</div>
+

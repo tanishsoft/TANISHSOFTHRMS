@@ -1,0 +1,524 @@
+﻿
+@{
+    ViewBag.Title = "Reimbursement form";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    var validatefiles = true;
+    $(document).ready(function () {
+        $("#conferenceDate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-80:+50",
+            Edit: true,
+
+        });
+        //$('#txtAmountconferenceFee').on('input', function () {
+        //    CalculateTotal();
+        //});
+        $('#txtAmounttravelExpense').on('input', function () {
+            CalculateTotal();
+        });
+        $('#txtAmountaccommodation').on('input', function () {
+            CalculateTotal();
+        });
+        $('#txtAmountMiscellaneous').on('input', function () {
+            CalculateTotal();
+        });
+        $('#txtAmountRegistrationFee').on('input', function () {
+            CalculateTotal();
+        });
+        getEmployeeTravelRequests();
+    });
+    function CalculateTotal() {
+        var finalAmount = parseInt(checkforspaceOrNull($('#txtAmounttravelExpense').val())) + parseInt(checkforspaceOrNull($('#txtAmountaccommodation').val())) + parseInt(checkforspaceOrNull($('#txtAmountMiscellaneous').val())) + parseInt(checkforspaceOrNull($('#txtAmountRegistrationFee').val()));
+        $("#txtAmountTotal").val(finalAmount);
+    }
+    function checkforspaceOrNull(value) {
+        if (value == null || value == "")
+            return 0;
+        return value;
+    }
+    function SaveSubmitPostTravelRequest() {
+        if (ValidatePostTravelRequest()) {
+            var totalAmount = parseInt($("#txtAmountTotal").val());
+            if (totalAmount > 0) {
+                if (window.FormData !== undefined) {
+                    var files = "";
+                    var fileData = new FormData();
+                    var fileUpload = $("#travelExpenseattachment").get(0);
+                    files = fileUpload.files;
+                    fileData.append("travelExpenseattachment", files[0]);
+
+
+                    fileUpload = $("#accommodationattachment").get(0);
+                    files = fileUpload.files;
+                    fileData.append("accommodationattachment", files[0]);
+
+                    fileUpload = $("#Miscellaneousattachment").get(0);
+                    files = fileUpload.files;
+                    fileData.append("miscellaneousattachment", files[0]);
+
+                    fileUpload = $("#RegistrationFeeattachment").get(0);
+                    files = fileUpload.files;
+                    fileData.append("registrationFeeattachment", files[0]);
+
+
+                    fileData.append('Name', $("#name").val());
+                    fileData.append('EmpId', $("#txtempId").val());
+
+                    fileData.append('Designation', $("#designation").val());
+                    fileData.append('ConferenceName', $("#conferenceName").val());
+
+                    fileData.append('ConferenceDate', $("#conferenceDate").val());
+                    fileData.append('Venue', $("#venue").val());
+                    if ($("#travelExpense").prop('checked')) {
+                        fileData.append('IsTravelExpense', "true");
+                    } else {
+                        fileData.append('IsTravelExpense', "false");
+                    }
+                    fileData.append('TravelExpense', $("#txtAmounttravelExpense").val());
+
+
+                    if ($("#accommodation").prop('checked')) {
+                        fileData.append('IsAccommodation', "true");
+                    } else {
+                        fileData.append('IsAccommodation', "false");
+                    }
+                    fileData.append('Accommodation', $("#txtAmountaccommodation").val());
+
+
+                    if ($("#Miscellaneous").prop('checked')) {
+                        fileData.append('IsMiscellaneous', "true");
+                    } else {
+                        fileData.append('IsMiscellaneous', "false");
+                    }
+
+                    fileData.append('MiscellaneousAmount', $("#txtAmountMiscellaneous").val());
+
+                    if ($("#RegistrationFee").prop('checked')) {
+                        fileData.append('IsRegistrationFee', "true");
+                    } else {
+                        fileData.append('IsRegistrationFee', "false");
+                    }
+
+
+                    fileData.append('RegistrationFeeAmount', $("#txtAmountRegistrationFee").val());
+
+                    fileData.append('PaidThrough', "");
+                    fileData.append('TotalAmount', $("#txtAmountTotal").val());
+                    fileData.append('HodName', $("#txtHodName").val());
+                    fileData.append('HodEmailId', $("#txtHodEmailId").val());
+                    fileData.append('Status', 'Approval Pending');
+                    fileData.append('Notes', $("#txtnotes").val());
+                    fileData.append('TravellerDetails', $("#TravellerDetails").val());
+                    var TravelRequestId = 0;
+                    if ($('input[name="EmployeeTravelRequests"]:checked').val() != null && $('input[name="EmployeeTravelRequests"]:checked').val() != "") {
+                        TravelRequestId = $('input[name="EmployeeTravelRequests"]:checked').val();
+                    }
+                    fileData.append('TravelRequestId', TravelRequestId);
+                    console.log(fileData);
+                    $.ajax({
+                        type: "POST",
+                        url: "/TravelDesk/SaveReimbursementForm",
+                        contentType: false,
+                        processData: false,
+                        data: fileData,
+                        success: function (data) {
+                            alert(data);
+                            window.location.reload();
+                        },
+                        error: function (err) {
+                            alert(err.statusText);
+                        }
+                    });
+                }
+            } else {
+                alert("The Total Amount Should be greater than Zero.");
+            }
+        } else if (validatefiles) {
+            alert("Please Enter all the required details");
+        }
+    }
+    function ValidatePostTravelRequest() {
+
+        validatefiles = true;
+        var validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#conferenceDate").val() == "") {
+            $("#conferenceDate").addClass('css-error');
+            validate = false;
+        }
+        if ($("#conferenceName").val() == "") {
+            $("#conferenceName").addClass('css-error');
+            validate = false;
+        }
+        //if ($("#ddlSponsoredby").val() == "") {
+        //    $("#ddlSponsoredby").addClass('css-error');
+        //    validate = false;
+        //}
+
+        if ($("#venue").val() == "") {
+            $("#venue").addClass('css-error');
+            validate = false;
+        }
+        validatefiles = true;
+
+        if ($("#travelExpense").prop('checked')) {
+
+            var fileUpload = $("#travelExpenseattachment").get(0);
+            var files = fileUpload.files;
+            if (files == null || files.length == 0) {
+                validatefiles = false;
+                validate = false;
+            }
+
+        }
+        if ($("#RegistrationFee").prop('checked')) {
+            var fileUpload = $("#RegistrationFeeattachment").get(0);
+            var files = fileUpload.files;
+            if (files == null || files.length == 0) {
+                validatefiles = false;
+                validate = false;
+            }
+        }
+        if ($("#Miscellaneous").prop('checked')) {
+            var fileUpload = $("#Miscellaneousattachment").get(0);
+            var files = fileUpload.files;
+            if (files == null || files.length == 0) {
+                validatefiles = false;
+                validate = false;
+            }
+        }
+        if ($("#accommodation").prop('checked')) {
+            var fileUpload = $("#accommodationattachment").get(0);
+            var files = fileUpload.files;
+            if (files == null || files.length == 0) {
+                validatefiles = false;
+                validate = false;
+            }
+
+        }
+        if (!validatefiles) {
+            alert("Please select all the required documents");
+        }
+        return validate;
+    }
+    function onChangeRadio() {
+        $("#name").val("");
+        $("#designation").val("");
+        $("#txtMailId").val("");
+        $("#txtPhoneNumber").val("");
+        $("#txtDateofBirth").val("");
+
+        $.get("/NewUserRequest/GetEmployeeDetails", {
+            empid: $("#txtempId").val(),
+            reqtype: "Other"
+        }, function (data) {
+            if (data != null && data != "") {
+                findReportingManager(data.ReportingManagerId);
+                $("#name").val(data.FirstName);
+                $("#designation").val(data.Designation);
+                $("#txtMailId").val(data.EmailId);
+                $("#txtPhoneNumber").val(data.PhoneNumber);
+                getEmployeeTravelRequests();
+            } else {
+                $("#txtempId").val("");
+            }
+        });
+    }
+    function findReportingManager(ReportingManagerId) {
+
+        $.get("/NewUserRequest/GetEmployeeDetails", {
+            empid: ReportingManagerId,
+            reqtype: "Other"
+        }, function (data) {
+            if (data != null && data != "") {
+                $("#txtHodEmpid").val(ReportingManagerId);
+                $("#txtHodName").val(data.FirstName);
+                $("#txtHodEmailId").val(data.EmailId);
+            }
+        });
+    }
+    function getEmployeeTravelRequests() {
+        $("#divoldtravelrequests").html("");
+        $.get("/TravelDesk/getEmployeeTravelRequests?empid=" + $("#txtempId").val(), function (data) {
+            $("#divoldtravelrequests").html("");
+            var html = ' <table class="table table-bordered table-striped" id="tblManageTravelDesk">' +
+                '<thead>' +
+                '<tr style="background-color: #786C67;color: white;">' +
+                '<th>Id</th>' +
+                '<th>Select</th>' +
+                '<th>Category</th>' +
+                '<th>Event Start</th>' +
+                '<th>Event End</th>' +
+                ' <th>Name Of Conference</th>' +
+                '<th>Place</th>' +
+                '<th>Status</th>' +
+                '</tr>' +
+                '</thead>' +
+                '<tbody>';
+            for (var i = 0; i < data.length; i++) {
+                html += '<tr><td>' + data[i].TravelDeskId + '</td><td><input name="EmployeeTravelRequests" value="' + data[i].TravelDeskId + '" type="radio" /></td><td>' + data[i].TravelCategory + '</td>';
+                html += '<td>' + data[i].EventStartDate + '</td>';
+                html += '<td>' + data[i].EventEndDate + '</td>';
+                html += '<td>' + data[i].NameOfConference + '</td>';
+                html += '<td>' + data[i].PlaceFrom + ' ' + data[i].PlaceTo + '</td>';
+                html += '<td>' + data[i].Status + '</td>';
+                html += '</tr>';
+            }
+            html += '</tbody></table>';
+            $("#divoldtravelrequests").html(html);
+        });
+    }
+</script>
+<div class="panel panel-default" style="width:80%;margin:auto; margin-bottom:10px;">
+    <div class="panel-heading" style="background: #FEC20E;color:white; font-weight:normal;">
+        <span class="glyphicon glyphicon-arrow-right"></span>&nbsp;Reimbursement form
+    </div>
+    <div class="panel-body CpxNewRequest" style="min-height:500px;">
+        <div class="row" style="width:95%;margin:auto;">
+
+            <div class="col-md-12">
+                <form>
+
+                    <div class="row">
+
+
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="name">Emp Id:</label>
+                                <input type="text" name="name" id="txtempId" onchange="onChangeRadio();" autocomplete="off" class="form-control" value="@ViewBag.CurrentUser.EmpId" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="name">Name:<label class="text-danger">*</label></label>
+                                <input type="text" class="form-control" id="name" name="name" value="@ViewBag.CurrentUser.FirstName" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="designation">Designation:<label class="text-danger">*</label></label>
+                                <input type="text" class="form-control" id="designation" name="designation" value="@ViewBag.CurrentUser.Designation" />
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+
+                            <div class="form-group">
+                                <label for="conferenceName">Conference Name:<label class="text-danger">*</label> </label>
+                                <input type="text" class="form-control" id="conferenceName" name="conferenceName">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="venue">Venue:<label class="text-danger">*</label></label>
+                                <input type="text" class="form-control" id="venue" name="venue">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="conferenceDate">Conference Date:<label class="text-danger">*</label> </label>
+                                <input type="text" class="form-control" readonly="readonly" id="conferenceDate" name="conferenceDate">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="block" style="height:auto; margin-bottom:5px;">
+                        <h2 style="text-transform:none;">Select Travel Request if submitted before travel(optional):</h2>
+                        <div class="block-middle values" style="min-height:75px;">
+                            <div id="divoldtravelrequests">
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="block" style="height:auto; margin-bottom:5px;">
+                        <h2 style="text-transform:none;">Expenses:</h2>
+                        <div class="block-middle values" style="min-height:75px;">
+                            <table class="table table-stribbed">
+                                <tr>
+
+                                    <td style="text-align:left">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="travelExpense" name="travelExpense">
+                                            <label class="form-check-label" for="travelExpense">Travel Expense</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <input type="number" value="0" id="txtAmounttravelExpense" class="form-control" />
+                                    </td>
+
+                                    <td>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <input type="file" id="travelExpenseattachment" />
+                                            </div>
+                                            <div class="col-md-4">
+                                                Only system generated receipts
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                </tr>
+                                <tr>
+
+                                    <td style="text-align:left">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="accommodation" name="accommodation">
+                                            <label class="form-check-label" for="accommodation">Accommodation</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <input type="number" value="0" id="txtAmountaccommodation" class="form-control" />
+                                    </td>
+
+                                    <td>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <input type="file" id="accommodationattachment" />
+                                            </div>
+                                            <div class="col-md-4">
+                                                Only system generated receipts
+                                            </div>
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+                                <tr>
+
+                                    <td style="text-align:left">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="Miscellaneous" name="Miscellaneous">
+                                            <label class="form-check-label" for="Miscellaneous">Miscellaneous</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <input type="number" value="0" id="txtAmountMiscellaneous" class="form-control" />
+                                    </td>
+
+                                    <td>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <input type="file" id="Miscellaneousattachment" />
+                                            </div>
+                                            <div class="col-md-4">
+                                                Only system generated receipts
+                                            </div>
+                                        </div>
+
+
+                                    </td>
+
+                                </tr>
+                                <tr>
+
+                                    <td style="text-align:left">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="RegistrationFee" name="RegistrationFee">
+                                            <label class="form-check-label" for="RegistrationFee">Registration Fee:</label>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <input type="number" value="0" id="txtAmountRegistrationFee" class="form-control" />
+                                    </td>
+
+                                    <td>
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <input type="file" id="RegistrationFeeattachment" />
+                                            </div>
+                                            <div class="col-md-4">
+                                                Only system generated receipts
+                                            </div>
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+                                <tr>
+
+                                    <td>
+                                        Total
+                                    </td>
+                                    <td>
+                                        <input type="number" id="txtAmountTotal" value="0" readonly="readonly" class="form-control" />
+                                    </td>
+
+                                    <td>
+                                        <p>
+                                            Note: Manual receipts can be submitted to the Accounts department directly.
+                                        </p>
+                                    </td>
+
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            
+                            <div class="form-group">
+                                <label>
+                                    Traveller Details:
+                                </label>
+                                <input type="text" id="TravellerDetails" class="form-control" value="@ViewBag.CurrentUser.FirstName" />
+                            </div>
+                        </div>
+                        <div class="col-md-4"  style="display:none;">
+                            <div class="form-group">
+                                <label>
+                                    Sponsored by:<label class="text-danger">*</label>
+                                </label>
+                                <select id="ddlSponsoredby" class="form-control">
+                                    <option value="">Select</option>
+                                    <option value="FF">FF</option>
+                                    <option value="FHERF">FHERF</option>
+
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>
+                                    Notes:
+                                </label>
+                                <textarea id="txtnotes" class="form-control" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="block" style="height:auto; margin-bottom:5px;">
+                        <h2 style="text-transform:none;">HOD/Approver details:</h2>
+                        <div class="block-middle values" style="min-height:75px;">
+                            <table class="table table-stribbed">
+                                <tr>
+                                    <td>
+                                        <label>Hod Name<label class="text-danger">*</label></label>
+                                    </td>
+                                    <td>
+                                        <input autocomplete="off" type="text" name="HodName" id="txtHodName" value="@ViewBag.HodName" class="form-control" rel="6" />
+                                        <input autocomplete="off" type="hidden" name="HodEmpid" id="txtHodEmpid" value="@ViewBag.HodEmpId" class="form-control" rel="6" />
+                                    </td>
+                                    <td>
+                                        &nbsp;
+                                    </td>
+                                    <td>
+                                        <label>HOD Mail Id<label class="text-danger">*</label></label>
+                                    </td>
+                                    <td>
+                                        <input autocomplete="off" type="text" name="HodEmailId" id="txtHodEmailId" value="@ViewBag.HodEmailId" required class="form-control" />
+                                    </td>
+                                </tr>
+
+                            </table>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary" onclick="SaveSubmitPostTravelRequest();">Submit</button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>

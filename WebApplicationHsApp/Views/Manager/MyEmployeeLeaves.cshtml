@@ -1,0 +1,808 @@
+﻿@{
+    ViewBag.Title = "MyEmployeeLeaves";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+        ApprovedDataTable();
+        //$(".btdate").datepicker();
+        $(".txtDate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy"
+        });
+        LoadLeaveTypes();
+        LoadEmployees();
+        $("#daytype").addClass("trCompoff");
+    });
+    function ApprovedDataTable() {
+        $('#ApprovedDataTable').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Manager/AjaxMyApprovedView",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aoColumns": [
+                  //{ "sName": "LeaveId" },
+                    { "sName": "LocationName" },
+                      { "sName": "DepartmentName" },
+                     { "sName": "UserName" },
+                            { "sName": "LeaveTypeName" },
+
+                             {
+                                 "sName": "IsFullday",
+                                 "bSortable": false,
+                                 "render": function (data) {
+                                     if (data == "True") {
+                                         return "Full Day";
+                                     }
+                                     if (data == "False") {
+                                         return "Half Day";
+                                     }
+                                 }
+                             },
+                            { "sName": "LeaveSessionDay" },
+                            { "sName": "LeaveFromDate" },
+                            { "sName": "LeaveTodate" },
+                            { "sName": "AddressOnLeave" },
+                            { "sName": "ReasonForLeave" },
+                            { "sName": "TotalLeaves" },
+                            { "sName": "LeaveStatus" },
+                            { "sName": "LeaveCreatedOn" },
+                            
+                            {
+                                "sName": "LeaveId",
+                                "bSortable": false,
+                                "render": function (data) {
+
+                                    return '<div class="btn-group">' +
+  '<div class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+  '<ul class="dropdown-menu dropdown-menu-right">' +
+    //'<li><a href="#" id="' + data + '" onclick="EditLeave(this.id);">Edit Leave</a></li> <li><a href="#" id="' + data + '" onclick="CancelLeave(this.id);">Delete Leave</a></li><li><a href="#" id="' + data + '" onclick="Approve(this.id);">Approve</a></li> ' +
+                                        '<li><a href="#" onclick="ViewDetails(this.id);" id="' + data + '">View Details</a></li><li><a href="#" id="' + data + '" onclick="Reject(this.id);">Reject</a></li><li><a href="#" id="' + data + '" onclick="CancelLeave(this.id);">Cancel Leave</a></li>' +
+  '</ul></div>';
+                                }
+                            }
+
+            ],
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, 500, 1000], [10, 20, 30, 50, 100, 150, 200, 500, 1000]],
+            "sDom": 'T<"clear">lfrtip',
+            "oTableTools": {
+                "sSwfPath": "/swf/copy_csv_xls_pdf.swf",
+                "aButtons": [
+                    "copy", "xls", "pdf"
+                ]
+            },
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "LeaveTypeid", "value": $("#ddlLeaveType").val() },
+                    { "name": "fromdate", "value": $("#fromdate").val() },
+                    { "name": "todate", "value": $("#todate").val() },
+                     { "name": "Emp", "value": $("#ddlEmployees").val() }
+                );
+            }
+        });
+        $("#ApprovedDataTable_length").addClass("col-md-6");
+        $("#ApprovedDataTable_info").addClass("col-md-6");
+    }
+    function ViewDetails(id) {
+        $.ajax({
+            type: "POST",
+            url: "/Hr/ViewLeave",
+            data: "id=" + id,
+            success: function (data) {
+                $("#FormBody").html(data);
+                $("#myModalWorkDone").modal("show");
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+
+    }
+
+
+    function Reject(id) {
+        $(".css-error").removeClass('css-error');
+        currentId = id;
+        $("#myModalReject").modal("show");
+    }
+    function Approve(id) {
+        $.ajax({
+            type: "GET",
+            url: "/Hr/ApproveLeave",
+            data: "id=" + id,
+            success: function (data) {
+                ApprovedDataTable();
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+
+    function SaveComments() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#txtcomments").val() == "") {
+            $("#txtcomments").addClass('css-error');
+            validate = false;
+        }
+        if (validate) {
+            var tdata = {
+                id: currentId,
+                comments: $("#txtcomments").val()
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Hr/RejectLeave",
+                data: tdata,
+                success: function (data) {
+                    $("#myModalReject").modal("hide");
+                    ApprovedDataTable();
+                    $("#txtcomments").val("");
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            alert("Please fill all mandatory fields");
+        }
+    }
+
+    function LoadEmployees() {
+
+        $.ajax({
+            type: "GET",
+            url: "/Manager/GetMyEmployeelist",
+            //data: "id=" + $("#ddlDepartment").val(),
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- All Employees -</option>');
+                var options1 = [];
+                options1.push('<option value="">- Select Employee -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].CustomUserId + '">' + data[i].FirstName + " " + data[i].LastName + '</option>');
+                    options1.push('<option value="' + data[i].CustomUserId + '">' + data[i].FirstName + " " + data[i].LastName + '</option>');
+                }
+                $("#ddlEmployees").html(options.join(''));
+                $("#ddlEmployees1").html(options1.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+
+    }
+    function LoadLeaveTypes() {
+        $.ajax({
+            type: "POST",
+            url: "/HrAdmin/GetLeaveTypes",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="0">- All LeaveTypes -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LeaveTypeId + '">' + data[i].LeaveName + '</option>');
+                }
+                $("#ddlLeaveType").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+
+
+
+    function clearAll() {
+        $("#ddlLeaveType1").val("");
+        $("#DateofAvailableCompoff").val("");
+        $("#LeaveFromDate").val("");
+        $("#LeaveTodate").val("");
+        $("#ReasonForLeave").val("");
+        $("#AddressOnLeave").val("");
+        $("#Level1Approver").val("");
+        $("#Level2Approver").val("");
+        $("#txtDate").val("");
+        $("#FromTime").val("");
+        $("#ToTime").val("");
+        $("#perReasonForLeave").val("");
+        $("#LevelApprover").val("");
+        ApprovedDataTable();
+    }
+    function dropdowncheckedchange(id) {
+        if ($("#" + id).val() == "6") {
+            $("#trfromdate").addClass("trCompoff");
+        }
+        else {
+            $("#trfromdate").removeClass("trCompoff");
+        }
+    }
+    function SaveLeave() {
+
+        var CompOff = false;
+        var LeaveToDate = $("#LeaveTodate").val();
+        if ($("#ddlLeaveType1").val() == 6) {
+
+            $("#LeaveFromDate").val(LeaveToDate);
+            $("#DateofAvailableCompoff").val(LeaveToDate);
+            CompOff = true;
+        }
+        var LeaveFromDate = $("#LeaveFromDate").val();
+      
+        validateLeave();
+
+        if (validate) {
+            if ($("#ddlLeaveType1").val() == 6) {
+                LeaveFromDate = LeaveToDate;
+            }
+            LeaveFromDate = ConvertDatefromoneddmmyyytommddyyy(LeaveFromDate);
+            LeaveToDate = ConvertDatefromoneddmmyyytommddyyy(LeaveToDate);
+            var fullday = $('input:checkbox[name=cbfullday]').is(':checked');
+            //var CompOff = $('input:checkbox[name=cbIsCompOff]').is(':checked');
+            //var skillsSelect = document.getElementById("ddlLocation1");
+            //var selectedText = skillsSelect.options[skillsSelect.selectedIndex].text;
+
+            //var deptSelect = document.getElementById("ddlDepartment1");
+            //var deptText = deptSelect.options[deptSelect.selectedIndex].text;
+            var showconfirmmsg = false;
+            var custSelect = document.getElementById("ddlEmployees1");
+            var custText = custSelect.options[custSelect.selectedIndex].text;
+
+            var date1 = new Date((LeaveFromDate));
+            var date2 = new Date((LeaveToDate));
+            var timeDiff = Math.abs(date2.getTime() - date1.getTime());
+            var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+            diffDays = diffDays + 1;
+            if (diffDays > 3 && $("#ddlLeaveType1").val() == 4) {
+                showconfirmmsg = true;
+            }
+          
+            var msg = "Please submit sickness certificate to hr from a registered medical practitioner, not below the rank of MBBS. ";
+            var task = {
+                LocationId: 1,
+                DepartmentId: 12,
+                LocationName: "Unit 1 - Bogulkunta",
+                DepartmentName: "Information Technology",
+                UserId: $("#ddlEmployees1").val(),
+                UserName: custText,
+                LeaveTypeId: $("#ddlLeaveType1").val(),
+                LeaveTypeName: $("#ddlLeaveType1 option:selected").text(),
+                IsFullday: fullday,
+                IsCompOff: CompOff,
+                DateofAvailableCompoff: $("#LeaveFromDate").val(),
+                LeaveFromDate: $("#LeaveFromDate").val(),
+                LeaveTodate: $("#LeaveTodate").val(),
+                //LeaveFromDate: LeaveFromDate,
+                //LeaveTodate: LeaveToDate,
+                ReasonForLeave: $("#ReasonForLeave").val(),
+                AddressOnLeave: $("#AddressOnLeave").val()
+            };
+            if (showconfirmmsg) {
+                $.ajax({
+                    type: "POST",
+                    url: "/Hr/GetCountOfMMedicalHarLeave",
+                    data: task,
+                    success: function (data) {
+                        if (data > 3) {
+                            if (confirm(msg)) {
+                                PostLeavedata(task);
+                            }
+                        } else {
+                            PostLeavedata(task);
+                        }
+                    }
+                });
+            } else {
+                PostLeavedata(task);
+            }
+        }
+        else {
+            alert("Please fill all mandatory fields");
+        }
+    }
+    function PostLeavedata(task) {
+        $.ajax({
+            type: "POST",
+            url: "/Hr/HrSaveLeaveManagement",
+            data: task,
+            success: function (data) {
+                alert(data);
+                clearAll();
+                $("#myModalLeave").modal("hide");
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function validateLeave() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+
+        if ($("#ddlLeaveType1").val() == "") {
+            $("#ddlLeaveType1").addClass('css-error');
+            validate = false;
+        }
+
+        if ($("#ddlLocation1").val() == " ") {
+            $("#ddlLocation1").addClass('css-error');
+            validate = false;
+        }
+        if ($("#ddlDepartment1").val() == " ") {
+            $("#ddlDepartment1").addClass('css-error');
+            validate = false;
+        }
+        if ($("#ddlEmployees1").val() == " ") {
+            $("#ddlEmployees1").addClass('css-error');
+            validate = false;
+        }
+        if ($("#LeaveFromDate").val() == "") {
+            $("#LeaveFromDate").addClass('css-error');
+            validate = false;
+        }
+        if ($("#LeaveTodate").val() == "") {
+            $("#LeaveTodate").addClass('css-error');
+            validate = false;
+        }
+        if ($("#ReasonForLeave").val() == "") {
+            $("#ReasonForLeave").addClass('css-error');
+            validate = false;
+        }
+        //if ($("#AddressOnLeave").val() == "") {
+        //    $("#AddressOnLeave").addClass('css-error');
+        //    validate = false;
+        //}
+    }
+
+    function cbcheckedchange(value) {
+        if (value) {
+            $("#trCompoff").removeClass("trCompoff");
+            $("#trfromdate").addClass("trCompoff");
+        }
+        else {
+            $("#trfromdate").removeClass("trCompoff");
+            $("#trCompoff").addClass("trCompoff");
+        }
+    }
+    function cbcheckedchangeForEdit(value) {
+        ShowHideElementByElementID("Utrfromdate", false);
+        ShowHideElementByElementID("UtrCompoff", false);
+        if (value) {
+            ShowHideElementByElementID("UtrCompoff", true);
+        }
+        else {
+            ShowHideElementByElementID("Utrfromdate", true);
+        }
+    }
+
+    function LoadApprover() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetEmployeesByUserLocation",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Approver -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].CustomUserId + '">' + data[i].FirstName + ' ' + data[i].LastName + '</option>');
+                }
+                $("#Level1Approver").html(options.join(''));
+                $("#Level2Approver").html(options.join(''));
+                $("#LevelApprover").html(options.join(''));
+
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadLeaveTypes() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLeaveTypes",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="0">- All LeaveTypes -</option>');
+                var options1 = [];
+                options1.push('<option value="">- Select LeaveType -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LeaveTypeId + '">' + data[i].LeaveName + '</option>');
+                    options1.push('<option value="' + data[i].LeaveTypeId + '">' + data[i].LeaveName + '</option>');
+                }
+
+                
+                $("#ddlLeaveType").html(options.join(''));
+                $("#ddlLeaveType1").html(options1.join(''));
+                $("#UddlLeaveType1").html(options1.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function CancelLeave(id) {
+        var r = confirm("Are you sure!");
+        if (r == true) {
+            $.ajax({
+                type: "POST",
+                url: "/Hr/CancelLeave",
+                data: "id=" + id,
+                success: function (data) {
+                    alert(data);
+                    ApprovedDataTable();
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+    }
+    function EditLeave(id) {
+        $.ajax({
+            type: "GET",
+            url: "/Manager/GetEditLeaveDetailsByID",
+            data: "id=" + id,
+            success: function (data) {
+                if (data != null) {
+                    //$("#blockLeave").html(data);
+                    BindEditLeaveDataToModel_PageLevel(data);
+                }
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    var EditLeaveDataID = 0;
+    function BindEditLeaveDataToModel_PageLevel(EditLeaveData) {
+        EditLeaveDataID = parseFloat(EditLeaveData.LeaveId);
+        var IsFullDayLeave = (EditLeaveData.IsFullday == "True") ? true : false;
+        var IsCompOFfLeave = (EditLeaveData.IsCompOff == "True") ? true : false;
+        $("#UddlLeaveType1").val(EditLeaveData.LeaveTypeId);
+        $("#ULeaveFromDate").val(EditLeaveData.LeaveFromDate_CustomFormat_1);
+        $("#UDateofAvailableCompoff").val(EditLeaveData.DateofAvailableCompoff_CustomFormat_1);
+        $("#UReasonForLeave").val(EditLeaveData.ReasonForLeave);
+        $("#UsAddressOnLeave").val(EditLeaveData.AddressOnLeave);
+        $("#Ucbfullday").prop("checked", IsFullDayLeave);
+        $("#UcbIsCompOff").prop("checked", IsCompOFfLeave);
+        cbcheckedchangeForEdit(IsCompOFfLeave);
+        $("#ULeaveTodate").val(EditLeaveData.LeaveToDate_CustomFormat_1);
+        $("#myModalEditLeave").modal("show");
+        DatePickerMultiUseFun_GlobalValidationJS();
+    }
+    function UpdateLeave() {
+        if (ValidateLeaveDataBeforeUpdate()) {
+            var task = {
+                DateofAvailableCompoff: $("#DateofAvailableCompoff1").val() != undefined ? $("#DateofAvailableCompoff1").val() : "",
+                LeaveFromDate: $("#LeaveFromDate1").val() != undefined ? $("#LeaveFromDate1").val() : "",
+                LeaveTodate: $("#LeaveTodate1").val() != undefined ? $("#LeaveTodate1").val() : "",
+                LeaveId: $("#LeaveId1").val() != undefined ? $("#LeaveId1").val() : "",
+            };
+            var fullday = $('input:checkbox[name=Ucbfullday]').is(':checked');
+            var CompOff = $('input:checkbox[name=UcbIsCompOff]').is(':checked');
+
+            var task = {
+                LeaveId: EditLeaveDataID,
+                LeaveTypeId: $("#UddlLeaveType1").val(),
+                LeaveTypeName: $("#UddlLeaveType1 option:selected").text(),
+                IsFullday: fullday,
+                IsCompOff: CompOff,
+                DateofAvailableCompoff: $("#UDateofAvailableCompoff").val(),
+                LeaveFromDate: $("#ULeaveFromDate").val(),
+                LeaveTodate: $("#ULeaveTodate").val(),
+                ReasonForLeave: $("#UReasonForLeave").val(),
+                AddressOnLeave: $("#UsAddressOnLeave").val(),
+            };
+            $.ajax({
+                type: "POST",
+                url: "/HrAdmin/HrUpdateLeaveManagement",
+                data: task,
+                success: function (data) {
+                    alert(data);
+                    ApprovedDataTable();
+                    $("#myModalEditLeave").modal("hide");
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+    }
+    function ShowHideElementByElementID(ElementID, Status) {
+        $("#" + ElementID).hide();
+        if (Status) {
+            $("#" + ElementID).show();
+        }
+    }
+    function ValidateLeaveDataBeforeUpdate() {
+        var fullday = $('input:checkbox[name=Ucbfullday]').is(':checked');
+        var CompOff = $('input:checkbox[name=UcbIsCompOff]').is(':checked');
+        $("#ULeaveFromDate").removeClass("EditDataRequired");
+        $("#UDateofAvailableCompoff").removeClass("EditDataRequired");
+        if (CompOff) {
+            $("#UDateofAvailableCompoff").addClass("EditDataRequired");
+        } else {
+            $("#ULeaveFromDate").addClass("EditDataRequired");
+        }
+        var Valid = ValidateRequiredFieldsByClassName_GlobalJS("EditDataRequired");
+        return Valid;
+    }
+    function cbcheckedchange1(value) {
+        if (value) {
+            $("#trCompoff1").removeClass("trCompoff");
+            $("#trfromdate1").addClass("trCompoff");
+        }
+        else {
+            $("#trfromdate1").removeClass("trCompoff");
+            $("#trCompoff1").addClass("trCompoff");
+        }
+    }
+    function cbfullday_change() {
+        if (!$("#cbfullday").prop("checked")) {
+            $("#trfromdate").addClass("trCompoff");
+            $("#daytype").removeClass("trCompoff");
+        }
+        else {
+            $("#trfromdate").removeClass("trCompoff");
+            $("#daytype").addClass("trCompoff");
+        }
+    }
+    function ExporttoExcel() {
+        window.location = "/Manager/MyEmployeeLeaves_ExportToExcel?Emp=" + $("#ddlEmployees").val() + "&fromdate=" + $("#fromdate").val() + "&todate=" + $("#todate").val() + "&LeaveTypeid=" + $("#ddlLeaveType").val();
+    }
+</script>
+
+<style>
+    .trCompoff {
+        display: none;
+    }
+</style>
+<div id="myModalReject" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Remarks</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Comments<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <textarea class="form-control" id="txtcomments"></textarea>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" class="btn btn-primary" onclick="SaveComments();" />
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">Employees Leave Applications<a href="#" data-toggle="modal" class="pull-right" data-target="#myModalLeave">New  Leave</a> </div>
+    <div class="panel-body">
+        <div class="row" style="padding-bottom:5px;">
+            <div class="col-md-12" style="padding-bottom:5px;">
+
+                <div class="col-md-2">
+                    <select id="ddlEmployees" class="form-control" style="max-width:200px;">
+                        <option value="">All Employees</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select id="ddlLeaveType" class="form-control" style="max-width:200px;">
+                        <option value="0">All Leave Types</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input type='text' class="form-control txtDate" id='fromdate' placeholder="From Date" style="max-width:200px;" />
+                </div>
+                <div class="col-md-2"><input type='text' class="form-control txtDate" id='todate' placeholder="To Date" style="max-width:200px;" /> </div>
+                
+                   
+                    <div class="col-md-2"><input type="button" class="btn btn-sm btn-success" value="Go" onclick="ApprovedDataTable();" /> </div>
+                <div class="col-md-2"><input type="button" class="btn btn-sm btn-default" value="Export To Excel" onclick="ExporttoExcel();" /> </div>
+
+                
+            </div>
+        </div>
+        <table id="ApprovedDataTable" class="table table-striped table-bordered  dt-responsive " style="width:100%;">
+            <thead>
+                <tr>
+                    <td>Location</td>
+                    <td>Department</td>
+                    <td>User Name</td>
+                    <th>Leave Type</th>
+                    <th>Day Type</th>
+                    <th>Leave Session Day</th>
+                    <th>From Date  </th>
+                    <th>To date</th>
+                    <th>Address on Leave</th>
+                    <th>Reason For Leave</th>
+                    <th>Total Leaves</th>
+                    <th>Leave Status</th>
+                    <th>Applied Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div id="myModalWorkDone" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Leave Details</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;" id="FormBody">
+
+                </div>
+
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="myModalLeave" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Leave </h4>
+            </div>
+            <div class="modal-body">
+                <table class="table" style="width:80%;">
+                    <tr>
+                        <td>
+                            Employee
+                        </td>
+                        <td>
+                            <select id="ddlEmployees1" class="form-control">
+                                <option value="">Select Employee</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Leave Type<span style="color:red;">*</span> </td>
+                        <td>
+                            <select id="ddlLeaveType1" class="form-control" onchange="dropdowncheckedchange(this.id)">
+                                <option value="">Select Leave Type</option>
+                            </select>
+                            <input type="hidden" id="cbIsCompOff" />
+                            <input type="hidden" id="DateofAvailableCompoff" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Is Full day <span style="color:red;">*</span></td>
+                        <td><input type="checkbox" id="cbfullday" name="cbfullday" checked="checked" style="padding-left:30px;" onchange="cbfullday_change();" /></td>
+                    </tr>
+                    <tr id="daytype">
+                        <td>Day type</td>
+                        <td>
+                            <select class="form-control" id="typeoftheday">
+                                <option value="">Select</option>
+                                <option value="1st Half">1st Half</option>
+                                <option value="2nd Half">2nd Half</option>
+                            </select>
+                        </td>
+                    </tr>
+                    @*<tr>
+                            <td>Is Comp Off</td>
+                            <td><input type="checkbox" name="cbIsCompOff" id="cbIsCompOff" onchange="cbcheckedchange(this.checked);" style="padding-left:30px;" /></td>
+                        </tr>
+                        <tr class="trCompoff" id="trCompoff">
+                            <td>Date of Available Compoff<span style="color:red;">*</span></td>
+                            <td><input type="text" class="form-control txtDate" id="DateofAvailableCompoff" /></td>
+                        </tr>*@
+                    <tr id="trfromdate">
+                        <td>Leave From Date<span style="color:red;">*</span></td>
+                        <td><input class="form-control txtDate" id="LeaveFromDate" type="text" placeholder="" /></td>
+                    </tr>
+                    <tr>
+                        <td>Leave To date<span style="color:red;">*</span></td>
+                        <td><input class="form-control txtDate" id="LeaveTodate" type="text" placeholder="" /></td>
+                    </tr>
+                    <tr>
+                        <td>Reason For Leave<span style="color:red;">*</span></td>
+                        <td><input class="form-control" id="ReasonForLeave" type="text" placeholder="" /></td>
+                    </tr>
+                    <tr>
+                        <td>Address On Leave</td>
+                        <td><input class="form-control" id="AddressOnLeave" type="text" placeholder="" /></td>
+                    </tr>
+
+
+                </table>
+
+            </div>
+            <div class="modal-footer">
+                <input class="btn btn-primary" type="button" value="Save" onclick="SaveLeave()" />
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="myModalEditLeave" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Leave </h4>
+            </div>
+            <div class="modal-body">
+                @*<div id="blockLeave"></div>*@
+                <table class="table" style="width:80%;">
+                    <tr>
+                        <td>Leave Type<span style="color:red;">*</span> </td>
+                        <td>
+                            <select id="UddlLeaveType1" class="form-control EditDataRequired">
+                                <option value="">Select Leave Type</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Is Full day <span style="color:red;">*</span></td>
+                        <td><input type="checkbox" id="Ucbfullday" name="Ucbfullday" style="padding-left:30px;" /></td>
+                    </tr>
+                    <tr>
+                        <td>Is Comp Off</td>
+                        <td><input type="checkbox" name="UcbIsCompOff" id="UcbIsCompOff" onchange="cbcheckedchangeForEdit(this.checked);" style="padding-left:30px;" /></td>
+                    </tr>
+                    <tr class="UtrCompoff" id="UtrCompoff" style="display:none;">
+                        <td>Date of Available Compoff<span style="color:red;">*</span></td>
+                        <td><input type="text" class="form-control txtDate" id="UDateofAvailableCompoff" /></td>
+                    </tr>
+                    <tr id="Utrfromdate">
+                        <td>Leave From Date<span style="color:red;">*</span></td>
+                        <td><input class="form-control txtDate" id="ULeaveFromDate" type="text" placeholder="" /></td>
+                    </tr>
+                    <tr>
+                        <td>Leave To date<span style="color:red;">*</span></td>
+                        <td><input class="form-control txtDate EditDataRequired" id="ULeaveTodate" type="text" placeholder="" /></td>
+                    </tr>
+                    <tr>
+                        <td>Reason For Leave<span style="color:red;">*</span></td>
+                        <td><input class="form-control EditDataRequired" id="UReasonForLeave" type="text" placeholder="" /></td>
+                    </tr>
+                    <tr>
+                        <td>Address On Leave</td>
+                        <td><input class="form-control EditDataRequired" id="UsAddressOnLeave" type="text" placeholder="" /></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <input class="btn btn-primary" type="button" value="Update" onclick="UpdateLeave()" />
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>

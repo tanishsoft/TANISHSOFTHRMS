@@ -1,0 +1,79 @@
+﻿
+@{
+    ViewBag.Title = "SubmitImage";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="panel panel-primary">
+    <div class="panel-heading">Submit To Doctor For ValidateImage</div>
+    <div class="panel-body">
+        <table class="table">
+            <tr>
+                <td>
+                    Select Module :
+                </td>
+                <td>
+                    <select class="form-control" id="ddlselect">
+                        <option value="Basic OBS USG Module" selected="selected">Basic OBS USG Module</option>
+                        <option value="Basic Gynec Module">Basic Gynec Module</option>
+                        <option value="Advanced Obs USG Module">Advanced Obs USG Module</option>
+                        <option value="Doppler">Doppler</option>
+                    </select>
+                </td>
+
+            </tr>
+            <tr>
+                <td>
+                    Select Category :
+                </td>
+                <td>
+                    <select class="form-control" id="ddlselect">
+                        <option value="MEAN SAC DIAMETER" selected="selected">MEAN SAC DIAMETER</option>
+                        <option value="CROWN-RUMP LENGTH">CROWN-RUMP LENGTH</option>
+                        <option value="FETAL PRESENTATION">FETAL EXTREMITIES</option>
+                        <option value="BIPARIETAL DIAMETER">BIPARIETAL DIAMETER</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <p>
+                        2 Images are required for this competency
+                        Image 1:
+                        Image magnified appropriately
+                        Focal zone at appropriate level
+                        Ultrasound plane at widest dimensions of gestational sac
+                        Gestational sac measured in 2 orthogonal dimensions using inner-to-inner technique
+                        Image 2:
+                        Image magnified
+                        Focal zone at appropriate level
+                        Ultrasound plane of gestational sac perpendicular to that of image 1
+                        Gestational sac measured at widest dimension using inner-to-inner technique
+                        *Mean sac diameter appropriately calculated from mean of all 3 dimensions from images 1 & 2
+                    </p>
+                    <p>
+                        Mean sac diameter : A, Gestational sac visualized in sagittal plane of uterus. Note length and height of gestational sac (measurements 1 and 2, respectively).  B,Maximum width of gestational sac measured in plane perpendicular to that of A. Mean sac diameter is calculated from mean of length, height (A), and width (B).
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Select Images
+                </td>
+                <td>
+                    <input type="file" id="images" multiple />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                  &nbsp;
+                </td>
+                <td style="text-align:left;">
+                    <input type="button" id="btnsubmito" value="Submit to Doctor" style="float:left;" class="btn btn-primary" />
+                </td>
+            </tr>
+        </table>
+        <br /><br />
+    </div>
+</div>

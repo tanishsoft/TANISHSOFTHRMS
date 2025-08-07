@@ -1,0 +1,154 @@
+﻿
+@{
+    ViewBag.Title = "EmployeeSearch";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            &nbsp;
+        </div>
+        <div class="col-md-4">
+            <div class="search-container" style="width:300px;">
+                <form>
+                    <h5>Employee Search</h5>
+                    <select id="selUser" onchange="Onchangeloadprofile();" class="form-control typeahead border-primary" name="query" data-provide="typeahead" autocomplete="off"></select>
+
+                </form>
+            </div>
+        </div>
+        <div class="col-md-4">
+            &nbsp;
+        </div>
+
+    </div>
+</div>
+<br />
+<div class="inside-nav">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle nav2-menu">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+    </div>
+    <div class="clearfix"></div>
+    <ul class="nav nav-tabs nav2">
+        <li class="active"><a data-toggle="tab" style="background-color: #d72828;color: white;font-weight: bold; font-size: 14px;" href="#home">Profile</a></li>
+
+    </ul>
+    <div class="tab-content" style="background-color:white;">
+        <div id="home" class="tab-pane fade in active">
+            <div class="row section-profile">
+
+                <div class="col-md-3 col-lg-3">
+                    &nbsp;
+                </div>
+                <div class="user-block col-xs-12 col-md-6 col-lg-6">
+                    <div class="user-block-in">
+                        <div class="user">
+                            <span>employee</span>
+                            <span class="active">ACTIVE</span>
+                            <div class="clearfix"></div>
+                            <img id="profp_img" src="/Images/Fernandez.png" style="width:80px; height:80px;border-radius:50px;" alt="uesr-img">
+                            <h5 id="profp_empname"></h5>
+                            <small id="profp_designation"></small>
+
+                            <ul>
+                                <li>
+                                    Location <br>
+                                    <strong id="profp_location"></strong>
+                                </li>
+                                <li>
+                                    Department <br>
+                                    <strong id="profp_dept"></strong>
+                                </li>
+                                <li>
+                                    CUG number <br>
+                                    <strong id="profp_phone"></strong>
+                                </li>
+
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        @*<div class="informetion-block">
+                            <h6>CUG number</h6>
+                            <p id="profp_phone"></p>
+                        </div>*@
+                        <div class="informetion-block">
+                            <h6>Extenstion</h6>
+                            <p id="profp_Extenstion"></p>
+                        </div>
+                        <div class="informetion-block">
+                            <h6>Email</h6>
+                            <p id="profp_Email"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-lg-3">
+                    &nbsp;
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        $("#selUser").select2({
+            ajax: {
+                url: "/Home/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 4
+        });
+    });
+    function Onchangeloadprofile() {
+        $.get("/Home/GetEmployeeById?Userid=" + $("#selUser").val(), function (data) {
+            $("#profp_empname").html(data.FirstName + " " + data.LastName);
+            checkImage("/Images/Employees/" + data.EmpId + ".jpg", function () {
+                $("#profp_img").attr("src", "/Images/Employees/" + data.EmpId + ".jpg");
+            }, function () {
+                $("#profp_img").attr("src", "/Images/Employees/" + data.EmpId + ".png");
+            });
+
+            $("#profp_designation").html(data.Designation);
+            $("#profp_location").html(data.LocationName);
+
+            $("#profp_dept").html(data.DepartmentName);
+            $("#profp_Email").html(data.EmailId);
+
+            $("#profp_Extenstion").html(data.Extenstion);
+            $("#profp_phone").html(data.PhoneNumber);
+            $("#moreabout").html("About");
+            $("#profp_DOJ").html(moment(data.DateOfJoining).format("DD/MM/YYYY"));
+        });
+
+    }
+
+    function checkImage(src, good, bad) {
+        var img = new Image();
+        img.onload = good;
+        img.onerror = bad;
+        img.src = src;
+    }
+</script>

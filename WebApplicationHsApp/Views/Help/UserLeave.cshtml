@@ -1,0 +1,112 @@
+﻿
+@{
+    ViewBag.Title = "UserLeave";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        HOD ROLES
+
+    </div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-lg-3 col-xlg-2 col-md-4">
+                <div class="stickyside">
+                    <div class="list-group" id="top-menu">
+                        <a href="#1" class="list-group-item">Main Page</a>
+                        <a href="#22" class="list-group-item">Apply Leave</a>
+                        <a href="#3" class="list-group-item">Apply Permission</a>
+                        <a href="#4" class="list-group-item">Create Comp Off</a>
+                        <a href="#5" class="list-group-item">Leave Status</a>
+                        <a href="#6" class="list-group-item">Permission Status</a>
+                        <a href="#7" class="list-group-item">Comp off Status</a>
+                        <a href="#8" class="list-group-item">View DutyRoster</a>
+                        <a href="#9" class="list-group-item">Approve Comp-Off</a>
+                        <a href="#10" class="list-group-item">Employee Leaves</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-9 col-xlg-10 col-md-8">
+                <div class="card">
+                    <div class="card-block">
+                        <h4 class="card-title" id="1">1. Main Page</h4>
+                        <p>Go to leave Menu and Click the Leave then it showes 2 options 1. Leave Management 2. View DutyRoaster</p>
+                        <ol>
+                            <li>Leave Management</li>
+                            <li>View DutyRoster</li>
+                            
+                        </ol>
+                        <img src="~/Images/Help/main.png" class="img-responsive" />
+
+                        <h4 class="card-title m-t-40" id="22">2.Apply Leave </h4>
+                        <p>If You Want to Apply Leave Click on Apply Leave </p>
+                        @*<p>Fill all the details and submit it. Automatically the application triggers an email to reporting manager.</p>
+                        <p> If you want to cancel leave, go to the Action button click cancel, Automatically leave belance updated.</p>*@
+                        <p>Note: 
+                             <ol>
+                                 <li>If Your Applied Leave is Approved then You cannot cancel it </li>
+                                 <li>Before You Apply Leave Please check Whether the DutyRoaster is Assigned or not</li>
+                             </ol>
+                        </p>
+                        <img src="~/Images/Help/Leave/applyleave.jpg" class="img-responsive" />
+
+
+                        <h4 class="card-title m-t-40" id="3">3. Apply Permission</h4>
+                        <p> If You Want to Apply Permission Click on “Apply Permission ” .</p>
+                        <p>Go to the Right Side of the Corner had "New Permission" Click it. Enter the Details and Save it.</p>
+                        <p>  Note: Any employee must take permission only two hours per month. </p>
+                        <img src="~/Images/Help/Leave/permission.jpg" class="img-responsive" />
+
+                        <h4 class="card-title m-t-40" id="4">4. Create Comp Off Request</h4>
+                        <p>If you want to Create Comp-Off Resquest click on "Create CompOff Resquest" in side menu and click it.</p>
+                        @*<p> Select date do you wrokdone on sunday, Enter the Reason and Sava it</p>*@
+                        
+                        <img src="~/Images/Help/Leave/compoffreqest.png" class="img-responsive" />
+
+                       
+
+                        <h4 class="card-title m-t-40" id="5">5.Applied Leave Status</h4>
+                        <p>If you want to Apply Leave Status click on “Status Applied Leave ” in side menu and click it.</p>
+                       <img src="~/Images/Help/Leave/Leavestatus.png" class="img-responsive" />
+
+                        <h4 class="card-title m-t-40" id="6">6. Applied Permission Status</h4>
+                        <p>If you want Permission click on “Permission ” in side menu and click it.</p>
+                       
+                        <img src="~/Images/Help/Leave/permission.jpg" class="img-responsive" />
+                         
+                        <h4 class="card-title m-t-40" id="7">7. Status of CompOff Request</h4>
+                        <p>If you want to check CompOff Request Status click on “Status of CompOff Request ” in side menu and click it.</p>
+                        <img src="~/Images/Help/Leave/statucmoff.png" class="img-responsive" />
+                        
+
+
+                        <h4 class="card-title m-t-40" id="8">8. View DutyRoster</h4>
+                        <p>Here can view the DutyRoster Shift created or not</p>\
+                        <p>Here we can view whether the DutyRoster Shift is created or not</p>
+                        <img src="~/Images/Help/Leave/ViewDutyRoster.jpg" class="img-responsive" />
+                       
+                        
+                          <h4 class="card-title m-t-40" id="9">9.Approve Comp-Off</h4>
+                        <p>If you are Hod of department need to approve a leave click on “Approve Cmp Request ” in side menu.</p>\
+                        <p>Here we can view whether the DutyRoster Shift is created or not</p>
+                        <img src="~/Images/Help/Leave/compoffreqest.png" class="img-responsive" />
+
+
+
+                        <h4 class="card-title m-t-40" id="10">10.Employee Leaves</h4>
+                        <p>Here can view the DutyRoaster Shift created or not</p>\
+                        <p>HR Admin able to manage Leave Count by employee. Go to the page Hr admin --> Employee Leaves (in Menu).</p>
+                          <img src="~/Images/Help/HrAdmin/empleavecount.jpg" class="img-responsive" />
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+

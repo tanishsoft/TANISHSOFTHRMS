@@ -1,0 +1,91 @@
+﻿
+@{
+    ViewBag.Title = "ManageCheckList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="row">
+    <div class="col-md-2" style="padding-left:0px;padding-right:0px;">
+        @Html.Partial("_SideNavAccommodation")
+    </div>
+    <div class="col-md-10" style="padding-left:0px;padding-right:0px;">
+        <div class="panel panel-default" id="myleaestableshow">
+            <div class="panel-heading" id="titleofpage">Manage CheckList</div>
+            <div class="panel-body">
+                <table class="table table-bordered" style="width:100%;">
+                    <thead>
+                        <tr style="background-color:teal;color:white;">
+                            <td>Department</td>
+                            <td>Service Name</td>
+                            <th>Description</th>
+                            <td>Comments</td>
+                            <td></td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>IT</td>
+                            <td>Netowork</td>
+                            <th>Verify Network connections</th>
+                            <td>ok</td>
+                            <td>
+                                <div class="btn-group">
+                                    <div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li class="dontScoll"><a href="javascript:void(0);" id="1">Edit</a></li>
+                                        <li class="dontScoll"><a href="javascript:void(0);" id="2">Delete</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>IT</td>
+                            <td>Phone Connection</td>
+                            <th>Verify Phone connections</th>
+                            <td>ok</td>
+                            <td>
+                                <div class="btn-group">
+                                    <div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li class="dontScoll"><a href="javascript:void(0);" id="1">Edit</a></li>
+                                        <li class="dontScoll"><a href="javascript:void(0);" id="2">Delete</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Housekeeping</td>
+                            <td>RoomService</td>
+                            <th>Room service</th>
+                            <td>ok</td>
+                            <td>
+                                <div class="btn-group">
+                                    <div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li class="dontScoll"><a href="javascript:void(0);" id="1">Edit</a></li>
+                                        <li class="dontScoll"><a href="javascript:void(0);" id="2">Delete</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Housekeeping</td>
+                            <td>Cloths Replace</td>
+                            <th>Verify Cloths Replace</th>
+                            <td>ok</td>
+                            <td>
+                                <div class="btn-group">
+                                    <div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>
+                                    <ul class="dropdown-menu dropdown-menu-right">
+                                        <li class="dontScoll"><a href="javascript:void(0);" id="1">Edit</a></li>
+                                        <li class="dontScoll"><a href="javascript:void(0);" id="2">Delete</a></li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+

@@ -1,0 +1,713 @@
+﻿@{
+    ViewBag.Title = "ManageEmployees";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="~/Scripts/ManageEmployee.js"></script>
+<script>
+
+    function FinalExportExcel() {
+        if (confirm("Are you sure you want to export?")) {
+            var url = '/HrAdmin/ExportExcelEmployees';
+            window.location = url;
+        }
+    }
+</script>
+<ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#home">Active Employees</a></li>
+    <li><a data-toggle="tab" href="#menu1">In Active Employees</a></li>
+    <li><a data-toggle="tab" href="#menu2">Hold Employees</a></li>
+</ul>
+
+<div class="tab-content" style="padding:10px;">
+    <div id="home" class="tab-pane fade in active">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Manage  Employees
+                <a href="~/HrAdmin/AddEmployee" class="pull-right" style="color:green;font-weight:bold;cursor:pointer;">Add Employee</a><span onclick="ExcelExpoertInavtiveEmp();" class="pull-right" style="color:red;font-weight:bold;cursor:pointer;">Excel Export Who Have Login&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+            </div>
+
+            <div class="panel-body">
+                <div class="col-md-12" style="padding-bottom:5px;">
+                    <div class="col-md-2">
+                        <select id="ddlLocationForFilter" class="form-control" style="max-width:200px;" onchange="LoadDepartmentForFilter();">
+                            <option value="">All Locations</option>
+                        </select>
+
+                    </div>
+                    <div class="col-md-2">
+                        <select id="ddlDepartmentForFilter" class="form-control" style="max-width:200px;">
+                            <option value="">All Departments</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="button" class="btn btn-sm btn-success" value="Go" onclick="LoadData();" />
+                        <span class="pull-right" style="color:crimson;font-weight:bold;cursor:pointer;" onclick="FinalExportExcel();">Export to Excel</span>
+                    </div>
+
+                </div>
+                <table id="tbltable" class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;">
+                    <thead>
+                        <tr>
+                            @*<th>User Id</th>*@
+                            <th>Location</th>
+                            <th>Name</th>
+                            <th>Emp Id</th>
+                            <th>Email Id</th>
+                            @*<th>RoomNo</th>*@
+                            <th>Mobile</th>
+                            @*<th>Extension Number</th>*@
+                            <th>Department</th>
+                            <th>Sub Department</th>
+                            <th>Designation</th>
+                            <th>Reporting Manager</th>
+                            <th>Food Type</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="menu1" class="tab-pane fade">
+        <div class="panel panel-default">
+            <div class="panel-heading">In Active  Employees</div>
+            <div class="panel-body">
+                <table id="tbltableinactive" class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th>User Id</th>
+                            <th>Location</th>
+                            <th>Name</th>
+                            <th>Emp Id</th>
+                            <th>Email Id</th>
+                            <th>RoomNo</th>
+                            <th>Mobile</th>
+                            <th>Extension Number</th>
+                            <th>Department</th>
+                            <th>Designation</th>
+                            <th>Reporting Manager</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="menu2" class="tab-pane fade">
+        <div class="panel panel-default">
+            <div class="panel-heading">Hold  Employees</div>
+            <div class="panel-body">
+                <table id="tbltablehold" class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th>User Id</th>
+                            <th>Location</th>
+                            <th>Name</th>
+                            <th>Emp Id</th>
+                            <th>Email Id</th>
+
+                            <th>Mobile</th>
+
+                            <th>Department</th>
+                            <th>Designation</th>
+                            <th>Reporting Manager</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Assign Role</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-10">
+                        <table class="table" style="width:100%;">
+                            <tr>
+                                <td>Role<span style="color:red;">*</span></td>
+                                <td>
+                                    <select id="ddlRole" class="form-control">
+                                        <option value="">Select Role</option>
+                                        <option value="Admin">Admin</option>
+                                        <option value="DepartmentManager">DepartmentManager</option>
+                                        <option value="SubDepartmentManager">Sub Department Manager</option>
+                                        <option value="Doctor">Doctor</option>
+                                        <option value="Employee">Employee</option>
+                                        <option value="HrAdmin">Hr Admin</option>
+                                        <option value="HrEmployee">Hr Employee</option>
+                                        <option value="HrManager">Hr Manager</option>
+                                        <option value="LocationManager">Location Manager</option>
+                                        <option value="Nurse">Nurse</option>
+                                        <option value="Patient">Patient</option>
+                                        <option value="Vendor">Vendor</option>
+                                        <option value="NicuDrug">Nicu Drug</option>
+                                        <option value="ITTeam">IT Team</option>
+                                        <option value="SecurityTeam">Security Team</option>
+                                        <option value="VideoTraining">Video Training</option>
+                                        <option value="CanteenTeam">CanteenTeam</option>
+                                        <option value="CanteenAdminTeam">CanteenAdminTeam</option>
+                                        <option value="Audit">Audit</option>
+                                        <option value="ASQ">ASQ</option>
+                                    </select>
+
+                                </td>
+                            </tr>
+
+                        </table>
+
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <input class="btn btn-primary" type="button" value="Save" onclick="SaveRoleToEmployee();" />
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="myTransfer" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Transfer Employee</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-10">
+                        <table class="table" style="width:100%;">
+                            <tr>
+                                <td>Location<span style="color:red;">*</span></td>
+                                <td>
+                                    <select class="form-control TransferRequiredData" id="ddlLocation" onchange="LoadDepartment();">
+                                        <option value="">Select Location</option>
+                                    </select>
+                                </td>
+
+                            </tr>
+                            <tr>
+                                <td>Department <span style="color:red">*</span></td>
+                                <td>
+                                    <select class="form-control TransferRequiredData" id="ddlDepartment" onchange="DepartmentChange()">
+                                        <option value=""> Select Department</option>
+                                    </select>
+                                </td>
+
+                            </tr>
+                            <tr>
+                                <td>Sub Department </td>
+                                <td>
+                                    <select class="form-control" id="ddlSubDepartment">
+                                        <option value=""> Select Sub Department</option>
+                                    </select>
+                                </td>
+
+                            </tr>
+                            <tr>
+                                <td>Designation </td>
+                                <td>
+                                    <select class="form-control" id="DesignationID">
+                                        <option value=""> Select Designation</option>
+                                    </select>
+                                </td>
+
+                            </tr>
+                            <tr>
+                                <td>Reporting Manager</td>
+                                <td>
+                                    <select id="TranferRMEmpId" class="form-control EmpId" style="width:100%;" name="query" data-provide="typeahead" autocomplete="off"></select>
+                                </td>
+                            </tr>
+                         
+                        </table>
+
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <input class="btn btn-primary" type="button" value="Transfer" onclick="SaveTransferEmployee();" />
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div id="DeleteEmployeeModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Are you sure you want to delete employee</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-10">
+                        <table class="table" style="width:100%; display:none;" id="tralrmid">
+                            <tr>
+                                <td>
+                                    Location
+                                </td>
+                                <td>
+                                    <select id="ddlLocationForRepaorting" class="form-control" style="max-width:200px;" onchange="ddlLocationForRepaortingChange();">
+                                        <option value="">Select Location</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Department
+                                </td>
+                                <td>
+                                    <select id="ddlDepartmentForFilterReporting" class="form-control" style="max-width:200px;" onchange="LoadEmployeesReporting();">
+                                        <option value="">Select Department</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Employee
+                                </td>
+                                <td>
+                                    <select id="ddlEmployeesForFilterreporting" class="form-control" style="max-width:200px;">
+                                        <option value="">Select Employee</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </table>
+                        <table class="table" style="width:100%;">
+
+                            <tr>
+                                <td>Date Of Leaving<span style="color:red;">*</span></td>
+                                <td>
+                                    <input type="text" class="form-control" id="DateOfLeaving" />
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input class="btn btn-primary" type="button" value="Delete" onclick="ConfirmDeleteEmployee();" />
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div id="ResetPasswordEmployeeModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Update Password</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-10">
+                        <table class="table" style="width:100%;">
+                            <tr>
+                                <td>New Password<span style="color:red;">*</span></td>
+                                <td>
+                                    <input type="password" class="form-control" id="Password" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Confirm Password<span style="color:red;">*</span></td>
+                                <td>
+                                    <input type="password" class="form-control" id="ConfirmPassword" />
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input class="btn btn-primary" type="button" value="Update Password" onclick="UpdatePasswordToEmployee();" />
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!--Reset to all employees-->
+<div id="myModalallemployees" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Update Password</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-10">
+                        <table class="table" style="width:100%;">
+                            <tr>
+                                <td>New Password<span style="color:red;">*</span></td>
+                                <td>
+                                    <input type="password" class="form-control" id="txtPassword" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Confirm Password<span style="color:red;">*</span></td>
+                                <td>
+                                    <input type="password" class="form-control" id="txtConfirmPassword" />
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input class="btn btn-primary" type="button" value="Update Password" onclick="UpdatePasswordToAllEmployee();" />
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="EditEmployeeDataModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content" style="width:800px;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Edit Employee</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row CustomRowPadding_5PX_CSS" style="padding:5px;">
+                    <div class="col-sm-2">
+                        <label class="required">User Name</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control EditUserRequiredField" id="txtEditUserName" />
+                    </div>
+                    <div class="col-sm-2">
+                        <label class="required">Location</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control ReadOnlyField_CSS" id="txtEditLocationName" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row CustomRowPadding_5PX_CSS" style="padding:5px;">
+                    <div class="col-sm-2">
+                        <label class="required">Department</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control ReadOnlyField_CSS" id="txtEditDepartmentName" readonly="readonly" />
+                    </div>
+                    <div class="col-sm-2">
+                        <label class="">Sub-Department</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control ReadOnlyField_CSS" id="txtEditSubDepartmentName" readonly="readonly" />
+                    </div>
+                </div>
+                <div class="row CustomRowPadding_5PX_CSS" style="padding:5px;">
+                    <div class="col-sm-2">
+                        <label class="">Mobile</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" id="txtEditMobileNumber" />
+                    </div>
+                    <div class="col-sm-2">
+                        <label class="">Email ID</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" id="txtEditEmailID" onchange="ValidateEmailIDForEdit_PageLevel(this.id);" />
+                    </div>
+                </div>
+                <div class="row CustomRowPadding_5PX_CSS" style="padding:5px;">
+                    <div class="col-sm-2">
+                        <label class="">Gender</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <select class="form-control" id="DDLGender">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-2">
+                        <label class="required">Designation</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <select class="form-control EditUserRequiredField" id="DDLEditDesignation"></select>
+                    </div>
+                </div>
+
+                <div class="row CustomRowPadding_5PX_CSS" style="padding:5px;">
+                    <div class="col-sm-2">
+                        <label class="">Date Of Joining</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control datetotext" id="txtDateOfjoining" />
+                    </div>
+                    <div class="col-sm-2">
+                        <label class="required">Date Of Birth</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control datetotext" id="txtDateOfBirth" />
+                    </div>
+                </div>
+                <div class="row CustomRowPadding_5PX_CSS" style="padding:5px;">
+                    <div class="col-sm-2">
+                        <label class="">Is OnRoll Doctor</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="checkbox" id="IsOnRollDoctor" />
+                    </div>
+                    <div class="col-sm-2">
+                        <label class="">Is OffRoll Doctor</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="checkbox" id="IsOffRollDoctor" />
+                    </div>
+                </div>
+                <div class="row CustomRowPadding_5PX_CSS" style="padding:5px;">
+                    <div class="col-sm-2">
+                        <label class="">Employee Type</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <select id="ddlemployeetype" class="form-control">
+                            <option value="">Select</option>
+                            <option value="Employee">Employee</option>
+                            <option value="HOD">HOD</option>
+                            <option value="HeadofHOD">Head of HOD</option>
+                            <option value="ManagerOfHod">Head of Manager</option>
+                            <option value="Director">Director</option>
+                        </select>
+                    </div>
+                   
+                </div>
+
+                <div class="row CustomRowPadding_5PX_CSS" style="padding:5px;">
+                    <div class="col-sm-2">
+                        <label class="">Adhaar Card</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" id="txtEditAdhaarCard" />
+                    </div>
+                    <div class="col-sm-2">
+                        <label class="">Pan Card</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" id="txtEditPanCard" />
+                    </div>
+                </div>
+
+                <div class="row CustomRowPadding_5PX_CSS" style="padding:5px;">
+                    <div class="col-sm-2">
+                        <label class="">Reporting Manager</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <select id="ddlEditReportingManagerId" class="form-control typeahead border-primary" name="ddlEditReportingManagerId" data-provide="typeahead" autocomplete="off" style="width:200px;"></select>
+                    </div>
+                    <div class="col-sm-2">
+                        <label class="">Photo</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="file" id="EditPhoto" name="ImageFile" accept="image/*" onchange="loadFile(event)" />
+                        <img id="Editoutput" style="border-radius: 50%; width:100px;" />
+                    </div>
+                </div>
+                <div class="row CustomRowPadding_5PX_CSS" style="padding:5px;">
+                    <div class="col-sm-2">
+                        <label class="">Qualification</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" id="txtQualification" />
+                    </div>
+                    <div class="col-sm-2">
+                        <label class="">College Name</label>
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="text" class="form-control" id="txtEditCollegeName" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input class="btn btn-primary" type="button" value="Update" onclick="ProceedToEditEmployeeData_PageLevel();" />
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="modalEmployeeTransferHistory" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Employee Transfer History</h4>
+            </div>
+            <div class="modal-body">
+                <div id="DivemployeeTransferHistory">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="modalEmployeeUpdateRemarksnew" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Manage Remarks</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-2">
+                        Remarks
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" id="txtupdateemployeeremarsk" class="form-control" />
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="UpdateRemarksofemppost();">Update Remarks</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalEmployeeUpdateFoodType" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Manage Food Type</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-2">
+                        Food Type
+                    </div>
+                    <div class="col-md-4">
+                        <select id="ddlFoodType" class="form-control">
+                            <option value="">Select</option>
+                            <option value="Entitled">Entitled</option>
+                            <option value="UnEntitled">UnEntitled</option>
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="UpdateFoodTypeOfEmployee();">Update</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="modalEmployeeactiveinactive" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">App Login active</h4>
+            </div>
+            <div class="modal-body">
+                <div id="divapploginactivechange">
+                    <div class="row">
+                        <div class="col-md-3">
+
+                        </div>
+                        <div class="col-md-3">
+                            Select Status:
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-control" id="ddlselectstatusofapplogin">
+                                <option value="">Select</option>
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="changetheappstatus();">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalEmployeeServiceAnniversary" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Remainder For Service Anniversary</h4>
+            </div>
+            <div class="modal-body">
+                <div id="divapploginactivechange">
+                    <div class="row">
+                        <div class="col-md-3">
+
+                        </div>
+                        <div class="col-md-3">
+                            Select Status:
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-control" id="ddlselectstatusofServiceAnniversary">
+                                <option value="">Select</option>
+                                <option value="true">Yes</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="changetheServiceAnniversary();">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,639 @@
+﻿
+@{
+    ViewBag.Title = "ApproveCPX";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    var oTable;
+    $(document).ready(function () {
+        LoadData();
+    });
+    function LoadData() {
+        oTable = $('#tblManageTaskApprovers').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Cpx/AjaxbyCpxDetailsToApproveMaster",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "TaskCpxId" },
+                { "sName": "Type" },
+                { "sName": "CPXRelatedTo" },
+                { "sName": "CreatorLocationName" },
+                { "sName": "CreatorDepartmentName" },
+                { "sName": "CreatorName" },
+                { "sName": "ProjectTitle" },
+                { "sName": "Item" },
+                { "sName": "Qty" },
+                { "sName": "EstimatedCost" },
+                { "sName": "Budgeted" },
+                { "sName": "CpxStatus" },
+                { "sName": "MyApprovalStatus" },
+                {
+                    "sName": "TaskCpxId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        var isapproved = false;
+                        var n = data.includes("Yes");
+                        if (n) {
+                            isapproved = true;
+                            data = data.replace("Yes-", "");
+                        }
+                        var htmlcontect = '';
+                        htmlcontect += '<div class="btn-group">';
+                        htmlcontect += '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>';
+                        htmlcontect += '<ul class="dropdown-menu dropdown-menu-right">';
+                        htmlcontect += '<li class="dontScoll"><a href="javascript:void(0);" id="' + data + '" onclick="ViewTaskDetails(this.id);">View Task</a></li>';
+                        if (!isapproved) {
+                            htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="ApproveTask(this.id);" style="color:green;"><span class="glyphicon glyphicon-thumbs-up"></span>&nbsp;Approve</a></li>';
+                            htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="CancelRequest(this.id);" style="color:red;"><span class="glyphicon glyphicon-thumbs-down"></span>&nbsp;Reject</a></li>';
+                            htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="QueryOnRequest(this.id);">Add/Manage Queries</a></li>';
+                        }
+                        htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="ViewFiles(this.id);">View Files</a></li>';
+                        htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="ViewApprovers(this.id);">View Approvers</a></li> ';
+                        //htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="WorkDonwstatus(this.id);">WorkDone Comments</a></li> ';
+                        //htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="ViewFiles(this.id);">View Files</a></li>';
+                        //htmlcontect += '<li><a href="/Cpx/PrintCPX/' + data + '" id="' + data + '" target="_blank">Print</a></li>';
+                        htmlcontect += '</ul></div>';
+                        return htmlcontect;
+                        //'<a href="javascript:void(0);" id="' + data + '" title="Cancel" class="btn btn-danger" onclick="ViewTaskDetails(this.id);">View</a>';
+
+                    }
+                }
+            ],
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "status", "value": $("#ddlapproverstatus").val() }
+                );
+            },
+            "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                $('td:eq(0)', nRow).html('<a href="javascript:void(0);" id="' + aData[0] + '" title="View Details" onclick="ViewTaskDetails(this.id);">' + aData[0] + '</a>')
+                $('td:eq(7)', nRow).html('<a href="javascript:void(0);" id="' + aData[0] + '" title="View Details" onclick="ViewTaskDetails(this.id);">' + aData[7] + '</a>');
+
+                switch (aData[11]) {
+                    case 'No':
+                        $('td:eq(11)', nRow).css('color', '#E67D21');
+                        break;
+                    case 'New':
+                        $('td:eq(11)', nRow).css('color', '#3598dc');
+                        break;
+                    case 'Yes':
+                        $('td:eq(11)', nRow).css('color', '#8E44AD');
+                        break;
+                    case 'Reopen':
+                        $('td:eq(11)', nRow).css('color', '#5FC29D');
+                        break;
+                    case 'Rejected':
+                        $('td:eq(11)', nRow).css('color', '#a71f23');
+                        break;
+                    default:
+                        $('td:eq(11)', nRow).css('color', 'Green');
+                        break;
+                }
+                switch (aData[10]) {
+                    case 'Pending':
+                        $('td:eq(10)', nRow).css('color', '#E67D21');
+                        break;
+                    case 'New':
+                        $('td:eq(10)', nRow).css('color', '#3598dc');
+                        break;
+                    case 'In Progress':
+                        $('td:eq(10)', nRow).css('color', '#8E44AD');
+                        break;
+                    case 'Reopen':
+                        $('td:eq(10)', nRow).css('color', '#5FC29D');
+                        break;
+                    case 'Rejected':
+                        $('td:eq(10)', nRow).css('color', '#a71f23');
+                        break;
+                    default:
+                        $('td:eq(10)', nRow).css('color', 'Green');
+                        break;
+                }
+                switch (aData[9]) {
+                    case 'No':
+                        $('td:eq(9)', nRow).css('color', '#a71f23');
+                        break;
+                    default:
+                        $('td:eq(9)', nRow).css('color', 'Green');
+                        break;
+                }
+            }
+        });
+        $("#tblManageTaskApprovers_length").addClass("col-md-6");
+        $("#tblManageTaskApprovers_filter").prepend('<div style="float:left;margin-right: 100px;padding-bottom: 2px;"> Select Approval Status : <select id="ddlapproverstatus" onchange="onchangeapprovers()" class="form-control" title="Pending For approval"><option value="All" selected>All</option><option value="Yes">Yes</option><option value="No">No</option></div></select>');
+    }
+    function onchangeapprovers() {
+        oTable.api().ajax.reload(null, false);
+    }
+    var currentid;
+    function ViewFiles(id) {
+        currentid = id;
+        //alert(id);
+        BindListoffiles(id);
+        $("#divManageDocuments").modal("show");
+    }
+    function BindListoffiles(id) {
+        $.get("/Cpx/GetListOfFiles", { id: id }, function (data) {
+            var html = "<table class='table  table-bordered'><tr style='background-color:teal;color:white;'><td>Name</td><td> Action</td></tr>";
+            for (var i = 0; i < data.length; i++) {
+                html += "<tr><td>" + data[i].DocumentName + "</td><td><a  target='_blank' href='/ExcelUplodes/" + data[i].DocumentPath + "'>View</a> </td></tr>";
+            }
+            html + "</table>";
+            $("#Divdocumentshistory").html(html);
+        });
+    }
+    var currentrequestid;
+    function CancelRequest(id) {
+        currentrequestid = id;
+        $("#myModalRejectrequest").modal("show");
+    }
+    var technicaladmin = "False";
+    function ApproveTask(id) {
+        currentrequestid = id;
+        technicaladmin = $("#approvertype").html();
+        $.get("/Cpx/GetApproversList?id=" + id, function (data) {
+            $.get("/Cpx/GetFullDetailsOfCpx?id=" + id, function (cpdata) {
+                $("#txtCPXPreferredMakeModel").val("");
+                $("#cpxProductMainFeatures").val("");
+                $("#txtCPXEstimatedCost").val("");
+                $("#txtCPXPreferredMakeModel").val(cpdata.Model);
+                $("#cpxProductMainFeatures").val(cpdata.MainFeatures);
+                $("#txtCPXEstimatedCost").val(cpdata.EstimatedCost);
+                if (cpdata.Budgeted == "Yes") {
+                    $('#txtCPXBudgetedYes').prop('checked', true);
+                } else {
+                    $('#txtCPXBudgetedNo').prop('checked', true);
+                }
+
+                var item = "Item";
+                if (cpdata.CPXType == "CPX" || cpdata.CPXType == "CAPX") {
+                    item = "Item";
+                }
+                else if (cpdata.CPXType == "AMC/CMC") {
+                    item = "AMC Item";
+                }
+                else if (cpdata.CPXType == "Repair") {
+                    item = "Repair Item";
+                }
+                else if (cpdata.CPXType == "Replacement") {
+                    item = "Replacement Item";
+                }
+
+                html = "<p><b>" + item + " :</b> " + cpdata.Item + "<br /><b>Item Details :</b>" + cpdata.ItemDetails + " </p><table class='table table-bordered table-striped'>";
+                html += "<tr><td>Department</td><td>Approver </td><td>Approval Level</td><td>Is Approved</td><td>Approved Date</td><td>Approve Comments</td></tr>";
+                for (var i = 0; i < data.length; i++) {
+                    html += "<tr><td>" + data[i].DepartmentName + "</td>";
+                    html += "<td>" + data[i].FirstName + "</td>";
+                    var name = '';
+                    switch (data[i].ApprovalLevel) {
+                        case "0":
+                            name = 'HOD';
+                            break;
+                        case "1":
+                            name = 'Technical Admin';
+                            break;
+                        case "2":
+                            name = 'Unit Admin';
+                            break;
+                        case "3":
+                            name = 'Medial Director';
+                            break;
+                        case "4":
+                            name = 'Final Approver 1';
+                            break;
+                        case "5":
+                            name = 'Finance Approve';
+                            break;
+                        case "6":
+                            name = 'Final Approver 2';
+                            break;
+                        case "7":
+                            name = 'Final Approver 3';
+                            break;
+                        case "8":
+                            name = 'Purchase Approver 1';
+                            break;
+                        case "9":
+                            name = 'Purchase Approver 2';
+                            break;
+                    }
+                    html += "<td>" + name + "</td>";
+                    if (data[i].IsApproved) {
+                        html += "<td>Yes</td>";
+                    } else {
+                        html += "<td>No</td>";
+                    }
+                    html += "<td>" + data[i].ApprovedDate + "</td>";
+                    html += "<td>" + data[i].ApproveComments + "</td></tr>";
+                }
+                html += "</table>";
+                if (technicaladmin == "True") {
+                    $(".techinicaladmin").show();
+                } else {
+                    $(".techinicaladmin").hide();
+                }
+                $("#divfullapproversdetails").html(html);
+                $("#myModalApproverequest").modal("show");
+            });
+        });
+
+    }
+    var a = ['', 'one ', 'two ', 'three ', 'four ', 'five ', 'six ', 'seven ', 'eight ', 'nine ', 'ten ', 'eleven ', 'twelve ', 'thirteen ', 'fourteen ', 'fifteen ', 'sixteen ', 'seventeen ', 'eighteen ', 'nineteen '];
+    var b = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+
+    function inWords(num) {
+        if ((num = num.toString()).length > 9) return 'overflow';
+        n = ('000000000' + num).substr(-9).match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
+        if (!n) return; var str = '';
+        str += (n[1] != 0) ? (a[Number(n[1])] || b[n[1][0]] + ' ' + a[n[1][1]]) + 'crore ' : '';
+        str += (n[2] != 0) ? (a[Number(n[2])] || b[n[2][0]] + ' ' + a[n[2][1]]) + 'lakh ' : '';
+        str += (n[3] != 0) ? (a[Number(n[3])] || b[n[3][0]] + ' ' + a[n[3][1]]) + 'thousand ' : '';
+        str += (n[4] != 0) ? (a[Number(n[4])] || b[n[4][0]] + ' ' + a[n[4][1]]) + 'hundred ' : '';
+        str += (n[5] != 0) ? ((str != '') ? 'and ' : '') + (a[Number(n[5])] || b[n[5][0]] + ' ' + a[n[5][1]]) + 'only ' : '';
+        return str;
+    }
+    function ApproveCpxRequest() {
+        var validatedata = true;
+        if (technicaladmin == "True") {
+            if ($("#txtCPXPreferredMakeModel").val() == "") {
+                validatedata = false;
+            }
+            if ($("#cpxProductMainFeatures").val() == "") {
+                validatedata = false;
+            }
+            if ($("#txtCPXEstimatedCost").val() == "") {
+                validatedata = false;
+            }
+            if ($("input[name='CPXBudgeted']:checked").val() == "") {
+                validatedata = false;
+            }
+        }
+        if (validatedata) {
+
+            if (confirm("Are you sure you want to approve the capex of estimated cost : " + $("#txtCPXEstimatedCost").val() + " ( " + inWords($("#txtCPXEstimatedCost").val()) + ")")) {
+
+                if (technicaladmin == "True") {
+                    $.get("/Cpx/ApproveCpxRequest?id=" + currentrequestid + "&comments=" + $("#txtcommentsapprove").val()
+                        + "&PreferredMakeModel=" + $("#txtCPXPreferredMakeModel").val()
+                        + "&ProductMainFeatures=" + $("#cpxProductMainFeatures").val()
+                        + "&EstimatedCost=" + $("#txtCPXEstimatedCost").val()
+                        + "&Budgeted=" + $("input[name='CPXBudgeted']:checked").val()
+                        , function (data) {
+                            alert(data);
+                            $("#myModalApproverequest").modal("hide");
+                            /* LoadData();*/
+                            oTable.api().ajax.reload(null, false);
+                        });
+                } else {
+
+                    $.get("/Cpx/ApproveCpxRequest?id=" + currentrequestid + "&comments=" + $("#txtcommentsapprove").val()
+                        , function (data) {
+                            alert(data);
+                            $("#myModalApproverequest").modal("hide");
+                            //LoadData();
+                            oTable.api().ajax.reload(null, false);
+                        });
+                }
+
+
+            }
+
+        } else {
+            alert("Please enter all the required feilds");
+        }
+    }
+    function RejectCpxRequest() {
+        $.get("/Cpx/RejectCpxRequest?id=" + currentrequestid + "&comments=" + $("#txtcommentsreject").val(), function (data) {
+            $("#myModalRejectrequest").modal("hide");
+            //LoadData();
+            oTable.api().ajax.reload(null, false);
+        });
+    }
+    function ViewTaskDetails(id) {
+        var html = "";
+        $.get("/Cpx/GetFullDetailsOfCpx?id=" + id, function (data) {
+            html = "<table class='table table-bordered table-striped'>";
+            html += "<tr><td>Type</td><td>" + data.CPXType + "</td></tr>";
+            var item = "Item"; var company = "";
+            if (data.CPXType == "CPX") {
+                item = "Item";
+                company = "";
+            }
+            else if (data.CPXType == "AMC/CMC") {
+                item = "AMC Item";
+                company = "AMC Company";
+            }
+            else if (data.CPXType == "Repair") {
+                item = "Repair Item";
+                company = "Repair Company";
+            }
+            else if (data.CPXType == "Replacement") {
+                item = "Replacement Item";
+                company = "Replacement Company";
+            }
+            html += "<tr><td>CPX Date</td><td>" + data.CreatedDate + "</td></tr>";
+            html += "<tr><td>CPX Related To</td><td>" + data.CpxRelatedTo + "</td></tr>";
+            html += "<tr><td>Project Title</td><td>" + data.ProjectTitle + "</td></tr>";
+            html += "<tr><td>Qty</td><td>" + data.Qty + "</td></tr>";
+            html += "<tr><td>Budgeted</td><td>" + data.Budgeted + "</td></tr>";
+            html += "<tr><td>Creator</td><td>" + data.CreatorLocationName + " " + data.CreatorDepartmentName + " " + data.CreatorName + "</td></tr>";
+            //html += "<tr><td>Creator Department</td><td>" + data.CreatorDepartmentName + "</td></tr>";
+            //html += "<tr><td>Creator </td><td>" + data.CreatorName + "</td></tr>";
+            html += "<tr><td>Estimated Cost</td><td>" + data.EstimatedCost + "</td></tr>";
+            html += "<tr><td>Item</td><td>" + data.Item + "</td></tr>";
+            if (data.IsNewItem == "Yes") {
+                html += "<tr><td>Is New Item</td><td>" + data.IsNewItem + "</td></tr>";
+            } else {
+                html += "<tr><td>Is Repeat Item</td><td>Yes</td></tr>";
+            }
+            html += "<tr><td>Item Details</td><td>" + data.ItemDetails + "</td></tr>";
+            html += "<tr><td>Main Features</td><td>" + data.MainFeatures + "</td></tr>";
+            html += "<tr><td>Model</td><td>" + data.Model + "</td></tr>";
+            html += "<tr><td>Priority</td><td>" + data.Priority + "</td></tr>";
+            html += "<tr><td>Request For Department</td><td>" + data.RequestForDepartment + "</td></tr>";
+            if (data.CPXType != "CAPX" && data.CPXType != "CPX")
+                html += "<tr><td>" + company + "</td><td>" + data.SupportCompany + "</td></tr>";
+            if (data.CPXType == "AMC/CMC") {
+                html += "<tr><td>Last Renewal Date</td><td>" + data.AMCLastRenewalDate + "</td></tr>";
+                html += "<tr><td>Next Renewal Date</td><td>" + data.AMCNextRenewalDate + "</td></tr>";
+            } else if (data.CPXType == "Replacement") {
+                html += "<tr><td>Replacement Reason</td><td>" + data.ReasonForReplacement + "</td></tr>";
+                html += "<tr><td>Existing Product Model</td><td>" + data.OldProductModel + "</td></tr>";
+                html += "<tr><td>Old Product Cost</td><td>" + data.OldProductCost + "</td></tr>";
+            }
+            else if (data.CPXType == "Repair") {
+            }
+            html += "</table>";
+            $("#divfullrequestdetails").html(html);
+            $("#myModalFullrequest").modal("show");
+        });
+    }
+    function ViewApprovers(id) {
+        var html = "";
+        $.get("/Cpx/GetFullDetailsOfCpx?id=" + id, function (maindata) {
+            var item = "Item";
+            if (maindata.CPXType == "CPX" || maindata.CPXType == "CAPX") {
+                item = "Item";
+            }
+            else if (maindata.CPXType == "AMC/CMC") {
+                item = "AMC Item";
+            }
+            else if (maindata.CPXType == "Repair") {
+                item = "Repair Item";
+            }
+            else if (maindata.CPXType == "Replacement") {
+                item = "Replacement Item";
+            }
+            $.get("/Cpx/GetApproversList?id=" + id, function (data) {
+                html = "<p><b>" + item + " :</b> " + maindata.Item + "<br /><b>Item Details :</b>" + maindata.ItemDetails + " </p><table class='table table-bordered table-striped'>";
+
+                html += "<tr><td style='display:none'>Department</td><td>Approver </td><td>Approval Level</td><td>Is Approved</td><td>Approved Date</td><td>Approve Comments</td></tr>";
+                for (var i = 0; i < data.length; i++) {
+                    html += "<tr><td style='display:none'>" + data[i].DepartmentName + "</td>";
+                    html += "<td>" + data[i].FirstName + "</td>";
+                    var name = '';
+                    switch (data[i].ApprovalLevel) {
+                        case "-1":
+                            name = 'Incharge';
+                            break;
+                        case "0":
+                            name = 'HOD';
+                            break;
+                        case "1":
+                            name = 'Technical Admin';
+                            break;
+                        case "2":
+                            name = 'Unit Admin';
+                            break;
+                        case "3":
+                            name = 'Medial Director';
+                            break;
+                        case "4":
+                            name = 'Final Approver 1';
+                            break;
+                        case "5":
+                            name = 'Finance Approve';
+                            break;
+                        case "6":
+                            name = 'Final Approver 2';
+                            break;
+                        case "7":
+                            name = 'Final Approver 3';
+                            break;
+                        case "8":
+                            name = 'Purchase Approver 1';
+                            break;
+                        case "9":
+                            name = 'Purchase Approver 2';
+                            break;
+                    }
+                    html += "<td>" + name + "</td>";
+                    if (data[i].IsApproved) {
+                        html += "<td>Yes</td>";
+                    } else {
+                        html += "<td>No</td>";
+                    }
+                    html += "<td>" + data[i].ApprovedDate + "</td>";
+                    html += "<td>" + data[i].ApproveComments + "</td></tr>";
+                }
+                html += "</table>";
+                $("#divfullapproversdetails1").html(html);
+                $("#myModalViewApprovers").modal("show");
+            });
+        });
+    }
+
+    function QueryOnRequest(id) {
+        currentid = id;
+        BindQueryonReques(id);
+        $("#divManageQueryOnRequest").modal("show");
+    }
+    function SubmitQueryonRequest() {
+        var model = {
+            Id: 0,
+            TaskCpxId: currentid,
+            Notes: $("#txtquerycomments").val(),
+            CreatedBy: "Approver"
+        };
+        $.post("/Cpx/SaveQueriesOnComments", model, function (data) {
+            alert("Query is added successfully");
+            //$("#divManageQueryOnRequest").modal("hide");
+            BindQueryonReques(currentid);
+        });
+    }
+    function BindQueryonReques(id) {
+        $.get("/Cpx/GetQueriesOrCommentsonRequest", { id: id }, function (data) {
+            var html = "<table class='table  table-bordered'><tr style='background-color:teal;color:white;'><td>Comments</td><td>Added By</td><td> Date</td></tr>";
+            for (var i = 0; i < data.length; i++) {
+                html += "<tr><td>" + data[i].Notes + "</td><td>" + data[i].CreatedBy + " </td><td>" + data[i].CreatedOn + " </td></tr>";
+            }
+            html + "</table>";
+            $("#Divqueryonrequest").html(html);
+        });
+    }
+</script>
+<span id="approvertype" style="display:none;">@ViewBag.IsTechApprover</span>
+@*<input type="hidden" id="approvertype" value="@ViewBag.IsTechApprover" />*@
+<input type="hidden" id="hidapprover" value="@User.Identity.Name" />
+<div class="modal fade" id="myModalViewApprovers" role="dialog">
+    <div class="form-block">
+        <h3>View Approvers<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <div id="divfullapproversdetails1">
+
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="myModalFullrequest" role="dialog">
+    <div class="form-block">
+        <h3>View Request<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <div id="divfullrequestdetails">
+
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="myModalRejectrequest" role="dialog">
+    <div class="form-block">
+        <h3>Reject Request<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <div id="divapproverequesst">
+            <table class="table" style="width:100%;">
+
+                <tr>
+                    <td>
+                        Comments
+                    </td>
+                    <td>
+                        <textarea id="txtcommentsreject" class="form-control"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        &nbsp;
+                    </td>
+                    <td>
+                        <input type="button" id="btnapprove" class="btn btn-danger" onclick="RejectCpxRequest();" value="Reject" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="myModalApproverequest" role="dialog">
+    <div class="form-block">
+        <h3>Approve Request<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <div id="divapproverequest">
+            <div id="divfullapproversdetails">
+
+            </div>
+            <table class="table" style="width:100%;">
+                <tr class="techinicaladmin">
+                    <td>Preferred Make and Model<span style="color:red;">*</span> </td>
+                    <td><input autocomplete="off" type="text" name="PreferredMakeandModel" id="txtCPXPreferredMakeModel" class="form-control" /></td>
+
+                    <td>Product’s Main Features<span style="color:red;">*</span></td>
+                    <td> <input autocomplete="off" type="text" name="productMainFeatures" id="cpxProductMainFeatures" class="form-control" rel="6" /></td>
+                </tr>
+                <tr class="techinicaladmin">
+                    <td>Estimated Cost<span style="color:red;">*</span></td>
+                    <td><input autocomplete="off" type="number" name="EstimatedCost" id="txtCPXEstimatedCost" required class="form-control" /></td>
+
+                    <td>Budgeted<span style="color:red;">*</span></td>
+                    <td> <input type="radio" name="CPXBudgeted" value="Yes" id="txtCPXBudgetedYes" />&nbsp;Yes &nbsp;&nbsp;<input type="radio" value="No" name="CPXBudgeted" id="txtCPXBudgetedNo" />&nbsp;No</td>
+                </tr>
+                <tr>
+                    <td>
+                        Comments
+                    </td>
+                    <td colspan="2">
+                        <textarea id="txtcommentsapprove" class="form-control"></textarea>
+                    </td>
+
+                    <td>
+                        <input type="button" id="btnapprove" class="btn btn-warning" onclick="ApproveCpxRequest();" value="Approve" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div id="divManageDocuments" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Manage Documents</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="row" style="padding:5px;" id="Divdocumentshistory">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading" style=" font-weight:normal;">
+        <span class="glyphicon glyphicon-arrow-right"></span>&nbsp;Approve CPX
+    </div>
+    <div class="panel-body" style="min-height:600px;">
+        <table class="table table-bordered" id="tblManageTaskApprovers">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>Cpx No.</th>
+                    <th>Type</th>
+                    <th>Cpx RelatedTo</th>
+                    <th>Location</th>
+                    <th>Department</th>
+                    <th>User</th>
+                    <th>Project</th>
+                    <th>Item</th>
+                    <th>Qty</th>
+                    <th>Estimated Cost</th>
+                    <th>Budgeted</th>
+                    <th>Cpx Status</th>
+                    <th>My Approve Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div id="divManageQueryOnRequest" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Manage Query/Comments</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <tr>
+                        <td>
+                            Enter Details:
+                        </td>
+                        <td>
+                            <textarea id="txtquerycomments" class="form-control" rows="3"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="button" id="btnsubmitquery" class="btn btn-primary" value="Save" onclick="SubmitQueryonRequest();" />
+                        </td>
+                    </tr>
+                </table>
+                <div class="row" style="padding:5px;" id="Divqueryonrequest">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

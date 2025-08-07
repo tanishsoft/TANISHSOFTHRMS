@@ -1,0 +1,84 @@
+﻿
+<script>
+    var validate = true;
+    var eId = 0;
+    $(document).ready(function () {
+        LoadData();
+    });
+    
+   
+    function LoadData() {
+        $('#tblCategory').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/CMS/AjaxGetVendorMealReceived",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "Id" },
+                { "sName": "Vendor" },
+                { "sName": "Location" },
+                { "sName": "ReceivedOn" },
+                { "sName": "Comment" },
+                
+                       { "sName": "IsActive" },
+                       {
+                           "sName": "CategoryId",
+                           "bSortable": false,
+                           "render": function (data, row, r) {
+                               //console.log(r);
+                               return '<div class="btn-group">' +
+                                   '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                                   '<ul class="dropdown-menu dropdown-menu-right">' +
+                                   '<li><a href="javascript:void(0);"  onclick="onEdit(' + data + ')">Edit</a></li>' +
+                                   '<li><a href="javascript:void(0);"  onclick="onDelete(' + data + ')">Delete</a></li>' +
+                                   '</ul></div>';
+                           }
+                       }
+            ]
+        });
+        $("#tblCategory_length").addClass("col-md-6");
+        $("#tblCategory_length").addClass("col-md-6");
+    }
+
+    function onEdit(id) {
+        window.location.href = '/CMS/CreateReceive?id=' + id;
+
+    }
+
+
+    function onDelete(id) {
+        if (confirm('Are you sure you want to delete?')) {
+            $.getJSON("@Url.Action("DeleteCMStore", "CMS")", { id: id }, function (data) {
+            
+                LoadData();
+            });
+        } return false;
+    }
+    function New()
+    {
+        window.location.href = '/CMS/CreateReceive';
+  }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading"><a href="#" class="pull-right" onclick="New();">New Item</a></div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblCategory">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Vendor</th>
+                    <th>Location</th>
+                    <th>ReceivedOn</th>
+                    <th>Comment</th>
+                    
+
+                    <th>Is Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+

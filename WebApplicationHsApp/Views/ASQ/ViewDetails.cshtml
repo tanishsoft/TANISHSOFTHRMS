@@ -1,0 +1,126 @@
+﻿@model WebApplicationHsApp.Models.AsqFilledDetailViewModel
+@{
+    ViewBag.Title = "ViewDetails";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+<script>
+    function GoBack() {
+        window.location = "/ASQ/ManageResponses";
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading">View  <span style="cursor:pointer; font-size:8px; margin-left:100px;" onclick="printDiv('divpdfmain','Export Details')">Export to PDF</span>  <span style="float:right;cursor:pointer;" onclick="GoBack();"> Go Back </span></div>
+    <div class="panel-body" id="divpdfmain">
+        <table class="table table-striped table-bordered" style="width:100%;">
+            <tr>
+                <td>
+                    Mother name
+                </td>
+                <td>@Model.asq.MotherName</td>
+
+                <td>
+                    Baby MR Number
+                </td>
+                <td>@Model.asq.BabyMRNumber</td>
+            </tr>
+            <tr>
+                <td>
+                    Child’s gender
+                </td>
+                <td>@Model.asq.BabyGender</td>
+
+                <td>
+                    Date of birth
+                </td>
+                <td>@Model.asq.DateOfBirth</td>
+            </tr>
+            <tr>
+                <td>
+                    Phone Number
+                </td>
+                <td>@Model.asq.PhoneNumber</td>
+
+                <td>
+                    Baby No
+                </td>
+                <td>@Model.asq.BabyNo</td>
+            </tr>
+            <tr>
+                <td>
+                    Person name filling
+                </td>
+                <td>@Model.asq.PersonFilling</td>
+
+                <td>
+                    Relationship to child
+                </td>
+                <td>@Model.asq.RelationshipChild</td>
+
+            </tr>
+        </table>
+
+        <table class="table" style="width:100%;">
+            @foreach (var s in Model.SubForm)
+            {
+                <tr>
+                    <td style="color:orange;font-weight:bold; text-align:left;">
+                        @s.FillingType
+                        @if (s.FillingType != "OVERALL")
+                        {
+                            <span style="float:right">Score: @s.Count</span>
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <table class="table table-bordered" style="width:100%;">
+                            @if (s.FillingType == "OVERALL")
+                            {
+                                foreach (var q in s.questions)
+                                {
+                                    <tr>
+                                        <td>@q.Question</td>
+                                        <td>@q.Answner</td>
+                                        <td>@q.Remarks</td>
+                                    </tr>
+                                }
+                            }
+                            else
+                            {
+                                foreach (var q in s.questions)
+                                {
+                                    <tr>
+                                        <td>@q.Question</td>
+                                        <td>@q.Answner</td>
+                                    </tr>
+                                }
+                            }
+                        </table>
+                    </td>
+                </tr>
+            }
+        </table>
+    </div>
+</div>
+<script>
+
+
+    function printDiv(divId,   title) {
+
+        let mywindow = window.open('', 'PRINT', 'height=650,width=1200,top=100,left=150');
+
+        mywindow.document.write(`<html><head><title>${title}</title>`);
+        mywindow.document.write('</head><body >');
+        mywindow.document.write(document.getElementById(divId).innerHTML);
+        mywindow.document.write('</body></html>');
+
+        mywindow.document.close(); // necessary for IE >= 10
+        mywindow.focus(); // necessary for IE >= 10*/
+
+        mywindow.print();
+        mywindow.close();
+
+        return true;
+    }
+</script>

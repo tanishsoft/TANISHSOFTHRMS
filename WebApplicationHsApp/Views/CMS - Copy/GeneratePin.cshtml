@@ -1,0 +1,19 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    var id =@ViewBag.id;
+    var pin=@ViewBag.Pin;
+    $(document).ready(function () {
+        $('#pin').text(pin);
+    });
+        function generatePin() {
+        $.get("/HrAdmin/GeneratePin?userId="+id , function (Result) {
+            alert("Pin :" + Result);
+            window.location.reload();
+        });
+    }
+</script>
+
+<div style="text-align:center;">Your Pin Is : <label id="pin"></label>  <a href="javascript:void(0);" style="color:darkgoldenrod;" onclick="generatePin();">Generate/change PIN</a></div>

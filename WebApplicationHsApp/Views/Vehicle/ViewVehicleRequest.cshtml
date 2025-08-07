@@ -1,0 +1,588 @@
+﻿
+@{
+    ViewBag.Title = "ViewVehicleRequest";
+}
+
+<script>
+    $(document).ready(function () {
+        LoadData();
+        $(".date")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd-mm-yy",
+                Edit: true
+
+            })
+        $('#btnExport').click(function () {
+            validateDate();
+
+            if (validate) {
+                FromDate = $("#FromDateExcel").val();
+                ToDate = $("#ToDateExcel").val();
+                window.location = '/Vehicle/ExportExcelVehicleRequest?FromDate=' + FromDate + '&ToDate=' + ToDate;
+                $("#FromDateExcel").val("");
+                $("#ToDateExcel").val("");
+            }
+        });
+        $('#btnGO').click(function () {
+            //$('#tblVehicleRequest').dataTable().draw();
+        });
+
+
+        $('#btnRejected').click(function () {
+            if ($("#RejecttxtRemarks").val() != "") {
+                UpadateStatus($("#RejectReqId").val(), "Rejected", $("#RejecttxtRemarks").val());
+                $("#UpdateRemarksmodal").modal("hide");
+            }
+            else {
+                alert("Enter Remarks");
+            }
+        });
+    });
+    $.fn.dataTable.ext.search.push(
+        function (settings, data, dataIndex) {
+            FromDate = $("#FromDateExcel").val();
+            ToDate = $("#ToDateExcel").val();
+            var Date = data[5] || 0;
+
+            if (
+                (ToDate <= Date && Date >= FromDate)) {
+                return true;
+            }
+            return false;
+        }
+    );
+    function validateDate() {
+
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#FromDateExcel").val() == "") {
+            $("#FromDateExcel").addClass('css-error');
+            validate = false;
+        }
+        if ($("#ToDateExcel").val() == "") {
+            $("#ToDateExcel").addClass('css-error');
+            validate = false;
+        }
+    }
+    function LoadData() {
+
+        var Table = $('#tblVehicleRequest').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Vehicle/AjaxGetVehicleRequest",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+
+                { "sName": "VehicleRequestId" },
+                { "sName": "UserId" },
+                { "sName": "FirstName" },
+                { "sName": "DepartmentName" },
+                //{ "sName": "Designation" },
+                { "sName": "PhoneNumber" },
+                //{ "sName": "Extenstion" },
+                { "sName": "VehicleTypeRequested" },
+                { "sName": "FromAddress" },
+                { "sName": "ToAddress" },
+                { "sName": "Date" },
+                { "sName": "Noof" },
+                { "sName": "returnr" },
+                { "sName": "Returndate" },
+                { "sName": "Status" },
+                { "sName": "VehicleDetails" },
+                { "sName": "Email" },
+                {
+                    "sName": "VehicleRequestId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><button  id="' + data + '" onclick="RequestUpdate(this.id);" class="btn btn-link">Request Update</button></li>' +
+                            '<li><button  id="' + data + '" onclick="ViewHistory(this.id);" class="btn btn-link">Comments&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button></li>' +
+                            '<li><button  id="' + data + '" onclick="ViewDetails(this.id);" class="btn btn-link">View&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button></li>' +
+                            '<li><button id="' + data + '" onclick="UpadateStatus(this.id,this.value,null);" value="Approved" class="btn btn-link">Approved&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</button></li>' +
+                            '<li><button id="' + data + '" onclick="UpdateRemarks(this.id);" value="Rejected" class="btn btn-link">Rejected</button></li>' +
+                            '</ul></div>';
+                    }
+                }
+            ]
+        });
+        $("#tblVehicleRequest_length").addClass("col-md-6");
+        $("#tblVehicleRequest_length").addClass("col-md-6");
+    }
+    function UpdateRemarks(Id) {
+        $("#RejectReqId").val(Id);
+        $("#UpdateRemarksmodal").modal("show");
+    }
+    var currentId = 0;
+    function ViewHistory(id) {
+        currentId = id;
+        $.get("/Vehicle/GetVehicleComments?id=" + id, function (data) {
+            var html = "<table class='table'><tr><td>Date</td><td>Comment Type</td><td>Comment</td><td>Comment By</td></tr>";
+            for (var i = 0; i < data.length; i++) {
+                html += "<tr><td>" + data[i].CommentOn + "</td><td>" + data[i].CommentType + "</td><td>" + data[i].Comment + "</td><td>" + data[i].CommentBy + "</td></tr>";
+            };
+            html += "</table>";
+            $("#ViewAssetHistory").html(html);
+            $("#myModalViewDetails").modal('show');
+        });
+    }
+    function ViewDetails(id) {
+        currentId = id;
+        $.get("/Vehicle/GetRequestVehicleById?RequestId=" + id, function (data) {
+            var html = "<table class='table table-bordered'>";
+            html += "<tr><td>Pick Up Location</td><td>" + data.FromAddress + "</td><td>Drop Location</td><td>" + data.ToAddress + "</td></tr>";
+            html += "<tr><td>Mobile</td><td>" + data.Mobile + "</td><td>Email</td><td>" + data.Email + "</td></tr>";
+            html += "<tr><td>Date</td><td>" + data.Date + "</td><td>Status</td><td>" + data.Status + "</td></tr>";
+            html += "<tr><td>Start Time</td><td>" + data.StartTime + "</td><td>No of Persons</td><td>" + data.NoofPersons + "</td></tr>";
+            html += "<tr><td>Vehicle</td><td>" + data.VehicleDetails + "</td><td>Driver Contact</td><td>" + data.DriverContactDetails + "</td></tr>";
+            html += "<tr><td>Remarks</td><td>" + data.Remarks + "</td><td>Vehicle Type</td><td>" + data.VehicleRegisterType + "</td></tr>";
+            html += "<tr><td>Vehicle Type Allocated</td><td>" + data.VehicleTypeAllocated + "</td><td>Return Required</td><td>" + data.returnRequired + "</td></tr>";
+            html += "<tr><td>Return date</td><td>" + data.Returndate + "</td><td>Return Time</td><td>" + data.Returntime + "</td></tr>";
+            html += "</table>";
+            $("#divFullViewvehicle").html(html);
+            $("#myModalFullViewDetails").modal('show');
+        });
+    }
+    function UpdateComments() {
+        $.get("/Vehicle/addComment?id=" + currentId + "&comment=" + $("#txtAssetComments").val(), function (data) {
+            alert(data);
+            $("#UpdateComments").val("");
+            ReloadViewHistory(currentId);
+        });
+    }
+    function ReloadViewHistory(id) {
+        $.get("/Vehicle/GetVehicleComments?id=" + id, function (data) {
+            var html = "<table class='table'><tr><td>Date</td><td>Comment Type</td><td>Comment</td><td>Comment By</td></tr>";
+            for (var i = 0; i < data.length; i++) {
+                html += "<tr><td>" + data[i].CommentOn + "</td><td>" + data[i].CommentType + "</td><td>" + data[i].Comment + "</td><td>" + data[i].CommentBy + "</td></tr>";
+            };
+            html += "</table>";
+            $("#ViewAssetHistory").html(html);
+        });
+    }
+    function UpadateStatus(RequestId, val, Remarks) {
+        $.ajax({
+            type: "POST",
+            url: '/Vehicle/UpdateStatus?Id=' + RequestId + '&Status=' + val + '&Remarks=' + Remarks,
+            success: function (data) {
+
+                if (data == true)
+                    LoadData();
+                else
+                    alert("Admin Already Update the Status.....");
+            }
+
+        });
+
+    }
+    var RequestUpdate = function (VehicleRequestId) {
+
+        $("#VehicleRequestId").val(VehicleRequestId);
+        var Url = "/Vehicle/GetRequestVehicleById?RequestId=" + VehicleRequestId;
+        $.ajax({
+            type: "GET",
+            url: Url,
+            success: function (data) {
+                $("#myModalRequestUpdate").modal("show");
+
+                var obj = data;
+                $("#VehicleRequestId").val(obj.VehicleRequestId);
+                $("#VehicleTypeAllocate").val(obj.VehicleTypeAllocated);
+                $("#VehicleDetails").val(obj.VehicleDetails);
+                if (obj.VehicleRegisterType != null)
+                    $("#RegisterType").val(obj.VehicleRegisterType);
+                $("#DriverDetails").val(obj.DriverContactDetails);
+                $("#txtRemarks").val(obj.Remarks);
+                if (obj.Status != null)
+                    $("#Status").val(obj.Status);
+                if (obj.startHour != null)
+                    $("#starthour").val(obj.startHour);
+                if (obj.startmin != null) $("#startmin").val(obj.startmin);
+                if (obj.startam != null) $("#startTime").val(obj.startam);
+            }
+        })
+    }
+    function OnclickUpdateRequest() {
+        var task = {
+            VehicleRequestId: $("#VehicleRequestId").val(),
+            VehicleTypeAllocated: $("#VehicleTypeAllocate").val(),
+            VehicleDetails: $("#VehicleDetails").val(),
+            DriverContactDetails: $("#DriverDetails").val(),
+            VehicleRegisterType: $("#RegisterType").val(),
+            Status: $("#Status").val(),
+            Remarks: $("#txtRemarks").val(),
+            StartTime: $("#starthour").val() + " " + $("#startmin").val() + " " + $("#startTime").val(),
+            SendEmail: $('#cbsendemail').prop('checked')
+        };
+        $.ajax({
+            type: "POST",
+            url: "/Vehicle/UpdateVehicleRequest",
+            data: task,
+            success: function (data) {
+                $("#myModalRequestUpdate").modal("hide");
+                //ClearAll();
+                if (data == true)
+                    LoadData();
+                else
+                    alert("Admin Already Update the Status.....");
+
+
+            }
+        });
+
+    }
+    function ClearAll() {
+        $("#VehicleRequestId").val("");
+        $("#VehicleTypeAllocate").val("");
+        $("#VehicleDetails").val("");
+        $("#DriverDetails").val("");
+        $("#RegisterType").val(" ");
+        $("#Status").val("-1");
+        $("#starthour").val("00");
+        $("#startmin").val("00");
+        $("#startTime").val("AM")
+    }
+</script>
+<div id="myModalFullViewDetails" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">View</h4>
+            </div>
+            <div class="modal-body">
+                <div id="divFullViewvehicle">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalViewDetails" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">View</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        Enter Comments
+                    </div>
+                    <div class="col-md-4">
+                        <textarea id="txtAssetComments" class="form-control" autocomplete="off"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="button" id="btnpr" class="btn btn-primary" value="Save" onclick="UpdateComments();" />
+                    </div>
+                </div>
+                <div id="ViewAssetHistory">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        View All Requests
+        <input type="button" id="btnExport" value="Export Excel" class="btn btn-link pull-right" />
+
+    </div>
+    <div class="panel-body">
+
+        <div class="row" style="padding:5px;">
+            <div class="col-12 col-sm-3 col-xl d-flex">
+                <div class="card flex-fill" style="background-color:#3598dc; color:white; text-align:center;border-radius:20px;">
+                    <div class="card-body py-4">
+                        <div class="media">
+                            <div class="d-inline-block mt-2 mr-3 col-md-6">
+                                <h2><span class="glyphicon glyphicon-hand-up"></span></h2>
+                            </div>
+                            <div class="media-body">
+                                <h3 class="mb-2" style="margin-top:5px;">
+                                    @if (ViewBag.New != null)
+                                    {
+                                        @ViewBag.New;
+                                    }
+                                </h3>
+                                <div class="mb-0">New Requests</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-3 col-xl d-flex">
+                <div class="card flex-fill" style="background-color:#E67D21; color:white;text-align:center;border-radius:20px;">
+                    <div class="card-body py-4">
+                        <div class="media">
+                            <div class="d-inline-block mt-2 mr-3 col-md-6">
+                                <h2><span class="glyphicon glyphicon-hand-right"></span></h2>
+                            </div>
+                            <div class="media-body">
+                                <h3 class="mb-2" style="margin-top:5px;">
+                                    @if (ViewBag.inprogess != null)
+                                    {
+                                        @ViewBag.inprogess;
+                                    }
+                                </h3>
+                                <div class="mb-0">In Progress</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-3 col-xl d-flex">
+                <div class="card flex-fill" style="background-color:#5FC29D; color:white;text-align:center;border-radius:20px;">
+                    <div class="card-body py-4">
+                        <div class="media">
+                            <div class="d-inline-block mt-2 mr-3  col-md-6">
+                                <h2><span class="glyphicon glyphicon-thumbs-down"></span></h2>
+                            </div>
+                            <div class="media-body">
+                                <h3 class="mb-2" style="margin-top:5px;">
+                                    @if (ViewBag.Reopen != null)
+                                    {
+                                        @ViewBag.Reopen;
+                                    }
+                                </h3>
+                                <div class="mb-0">Rejected</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-3 col-xl d-flex">
+                <div class="card flex-fill" style="background-color:#8E44AD; color:white;text-align:center;border-radius:20px;">
+                    <div class="card-body py-4">
+                        <div class="media">
+                            <div class="d-inline-block mt-2 mr-3 col-md-6">
+                                <h2><span class="glyphicon glyphicon-thumbs-up"></span></h2>
+                            </div>
+                            <div class="media-body">
+                                <h3 class="mb-2" style="margin-top:5px;">
+                                    @if (ViewBag.Completed != null)
+                                    {
+                                        @ViewBag.Completed;
+                                    }
+                                </h3>
+                                <div class="mb-0">Approved</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div><br />
+        <div class="row">
+            <div class="col-md-3">
+
+            </div>
+            <div class="col-md-6">
+                <table style="width:100%;">
+                    <tr>
+                        <td><label for="name" class="lbl">From Date</label> </td>
+                        <td><input class="date form-control" type="text" placeholder="Select Date" id="FromDateExcel" /></td>
+                        <td><label for="name" class="lbl">TO Date</label></td>
+                        <td><input class="date form-control" type="text" placeholder="Select Date" id="ToDateExcel" /></td>
+                        <td><input type="button" id="btnGO" value="GO" class="btn btn-primary" /></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-3">
+
+            </div>
+
+        </div>
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblVehicleRequest">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th class="none">Employee Id</th>
+                    <th>Employee Name </th>
+                    <th>Employee Location and Dep.</th>
+                    <th class="none">Contact No</th>
+                    <th class="none">Vehicle Type</th>
+                    <th>Pickup location</th>
+                    <th>Drop location</th>
+                    <th>Pick up Date & Time</th>
+                    <th class="none">No.Of Persons</th>
+                    <th class="none">Return</th>
+                    <th class="none">Return Date and Time</th>
+                    <th>Status</th>
+                    <th class="none">Vehicle Details</th>
+                    <th class="none">Email</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div id="myModalRequestUpdate" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title text-info"><b>Update</b></h4>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <input type="hidden" class="form-control" id="VehicleRequestId">
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Vehicle Type Allocate</label>
+
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="VehicleTypeAllocate">
+                        </div>
+                    </div>
+
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name">Vehicle Details</label></div>
+                        <div class="col-md-8">
+                            <textarea class="form-control" id="VehicleDetails"></textarea>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name">Driver Details</label></div>
+                        <div class="col-md-8">
+                            <textarea class="form-control" id="DriverDetails"></textarea>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name">Register Type</label></div>
+                        <div class="col-md-8">
+                            <select class="form-control" id="RegisterType">
+                                <option value=" ">select Register Type</option>
+                                <option value="IN HOUSE">IN HOUSE</option>
+                                <option value="OUT SIDE">OUT SIDE</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name">Status</label></div>
+                        <div class="col-md-8">
+                            <select class="form-control" id="Status">
+                                <option value="In progress">IN PROGRESS</option>
+                                <option value="Approved">APPROVED</option>
+                                <option value="VEHICLE NOT AVAILABLE">VEHICLE NOT AVAILABLE</option>
+                                <option value="Rejected">REJECTED</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Start Time</label>
+
+                        </div>
+                        <div class="col-md-8">
+                            <div class="row">
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+
+                                        <span class="form-label">Hour</span>
+                                        <select class="form-control" id="starthour">
+                                            <option value="00">00</option>
+                                            <option value="01">01</option>
+                                            <option value="02">02</option>
+                                            <option value="03">03</option>
+                                            <option value="04">04</option>
+                                            <option value="05">05</option>
+                                            <option value="06">06</option>
+                                            <option value="07">07</option>
+                                            <option value="08">08</option>
+                                            <option value="09">09</option>
+                                            <option value="10">10</option>
+                                            <option value="11">11</option>
+                                            <option value="12">12</option>
+                                        </select>
+                                        <span class="select-arrow"></span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <span class="form-label">Min</span>
+                                        <select class="form-control" id="startmin">
+                                            <option value="00">00</option>
+                                            <option value="05">05</option>
+                                            <option value="10">10</option>
+                                            <option value="15">15</option>
+                                            <option value="20">20</option>
+                                            <option value="25">25</option>
+                                            <option value="30">30</option>
+                                            <option value="35">35</option>
+                                            <option value="40">40</option>
+                                            <option value="45">45</option>
+                                            <option value="50">50</option>
+                                            <option value="55">55</option>
+                                        </select>
+                                        <span class="select-arrow"></span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="form-group">
+                                        <span class="form-label">AM/PM</span>
+                                        <select class="form-control" id="startTime">
+                                            <option value="AM">AM</option>
+                                            <option value="PM">PM</option>
+                                        </select>
+                                        <span class="select-arrow"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label>Remarks</label>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" id="txtRemarks" class="form-control" />
+                        </div>
+
+                    </div>
+                    <div class="row" style="padding:5px;">  <div class="col-md-6"><input type="checkbox" checked="checked" id="cbsendemail" />SEND EMAIL</div></div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Update" onclick="OnclickUpdateRequest();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div class="modal fade" id="UpdateRemarksmodal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4>Enter Remarks </h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="RejectReqId" />
+                <div class="row">
+                    <div class="col-md-3">
+                        <label>Remarks</label>
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" id="RejecttxtRemarks" class="form-control" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-primary" data-dismiss="modal" id="r">Cancel</a>
+                <input type="button" href="#" class="btn btn-danger" id="btnRejected" value="Reject" />
+            </div>
+        </div>
+    </div>
+</div>

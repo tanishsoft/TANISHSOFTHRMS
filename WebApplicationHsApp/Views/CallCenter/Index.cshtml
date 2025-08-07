@@ -1,0 +1,1707 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+
+    .card {
+        margin-bottom: 1.875rem;
+        border: none;
+        border-radius: 0;
+        -webkit-box-shadow: 0 10px 40px 0 rgba(62,57,107,.07),0 2px 9px 0 rgba(62,57,107,.06);
+        box-shadow: 0 10px 40px 0 rgba(62,57,107,.07),0 2px 9px 0 rgba(62,57,107,.06)
+    }
+
+        .card .card {
+            -webkit-box-shadow: none !important;
+            box-shadow: none !important
+        }
+
+        .card .card-title {
+            font-weight: 500;
+            letter-spacing: .05rem;
+            font-size: 1.12rem
+        }
+
+        .card .card-bordered {
+            border: 1px solid rgba(0,0,0,.06)
+        }
+
+        .card.card-fullscreen {
+            display: block;
+            z-index: 9999;
+            position: fixed;
+            width: 100% !important;
+            height: 100% !important;
+            top: 0;
+            right: 0;
+            left: 0;
+            bottom: 0;
+            overflow: auto
+        }
+
+        .card .card-body[class*=border-bottom-] {
+            border-bottom-width: 2px !important
+        }
+
+        .card .card-img-overlay.bg-overlay {
+            background: rgba(0,0,0,.45)
+        }
+
+        .card .card-img-overlay .text-muted {
+            color: #1B2942 !important
+        }
+
+        .card.card-minimal {
+            border: none;
+            -webkit-box-shadow: none;
+            box-shadow: none
+        }
+
+    .card-body {
+        -webkit-box-flex: 1;
+        -webkit-flex: 1 1 auto;
+        -moz-box-flex: 1;
+        -ms-flex: 1 1 auto;
+        flex: 1 1 auto;
+        padding: 1.5rem;
+    }
+
+    .table-responsive {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .card-moved .card, .card-moved .card-header {
+        background-color: #FFA87D;
+        color: #FFF
+    }
+
+    .handle, .titleArea {
+        cursor: move
+    }
+
+    .card-header {
+        border-bottom: none
+    }
+
+        .card-header .card-title {
+            margin-bottom: 0
+        }
+
+        .card-header .heading-elements, .card-header .heading-elements-toggle {
+            background-color: inherit;
+            position: absolute;
+            top: 20px;
+            right: 21px
+        }
+
+            .card-header .heading-elements-toggle.heading-top-elements .page-item, .card-header .heading-elements.heading-top-elements .page-item {
+                display: inline-block
+            }
+
+            .card-header .heading-elements a, .card-header .heading-elements-toggle a {
+                padding: 0 8px
+            }
+
+                .card-header .heading-elements a.btn, .card-header .heading-elements-toggle a.btn {
+                    padding-top: 6px;
+                    padding-bottom: 6px
+                }
+
+    .card-footer {
+        border-top: 1px solid #EEE
+    }
+
+    .media {
+        display: flex;
+        -webkit-box-align: start;
+        -webkit-align-items: flex-start;
+        -moz-box-align: start;
+        -ms-flex-align: start;
+        align-items: flex-start
+    }
+
+    .media-body {
+        -webkit-box-flex: 1;
+        -webkit-flex: 1;
+        -moz-box-flex: 1;
+        -ms-flex: 1;
+        flex: 1;
+    }
+
+    .align-items-stretch {
+        -webkit-box-align: stretch !important;
+        -webkit-align-items: stretch !important;
+        -moz-box-align: stretch !important;
+        -ms-flex-align: stretch !important;
+        align-items: stretch !important;
+    }
+
+    .white {
+        color: #FFF !important;
+    }
+
+    .bg-primary {
+        background-color: #00B5B8 !important;
+    }
+
+        .bg-primary.bg-darken-2, .btn-primary.btn-darken-2 {
+            background-color: #008385 !important;
+        }
+
+    .bg-danger.bg-darken-2, .btn-danger.btn-darken-2 {
+        background-color: #FF425C !important;
+    }
+
+    .bg-warning.bg-darken-2, .btn-warning.btn-darken-2 {
+        background-color: #FF864A !important;
+    }
+
+    .bg-success.bg-darken-2, .btn-success.btn-darken-2 {
+        background-color: #11A578 !important;
+    }
+
+    .text-center {
+        text-align: center !important;
+    }
+
+    .p-2 {
+        padding: 1.5rem !important;
+    }
+
+    .font-large-2 {
+        font-size: 5rem !important;
+    }
+
+    .bg-gradient-x-primary {
+        background-image: -webkit-gradient(linear,left top,right top,from(#008385),to(#00E7EB));
+        background-image: -webkit-linear-gradient(left,#008385 0,#00E7EB 100%);
+        background-image: -moz-linear-gradient(left,#008385 0,#00E7EB 100%);
+        background-image: -o-linear-gradient(left,#008385 0,#00E7EB 100%);
+        background-image: linear-gradient(to right,#008385 0,#00E7EB 100%);
+        background-repeat: repeat-x;
+    }
+
+    .h5, h5 {
+        font-size: 1.74rem;
+    }
+
+    .text-bold-400 {
+        font-weight: 400;
+    }
+
+    .mb-0, .my-0 {
+        margin-bottom: 0 !important;
+    }
+
+    .primary {
+        color: #00B5B8 !important
+    }
+
+    .danger {
+        color: #FF7588 !important;
+    }
+
+    .bg-danger {
+        background-color: #FF7588 !important;
+    }
+
+    .success {
+        color: #16D39A !important;
+    }
+
+    .bg-success {
+        background-color: #16D39A !important;
+    }
+
+    .warning {
+        color: #FFA87D !important;
+    }
+
+    .bg-warning {
+        background-color: #FFA87D !important;
+    }
+
+    #container {
+        height: 400px;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    /* Link the series colors to axis colors */
+    .highcharts-color-0 {
+        fill: #7cb5ec;
+        stroke: #7cb5ec;
+    }
+
+    .highcharts-axis.highcharts-color-0 .highcharts-axis-line {
+        stroke: #7cb5ec;
+    }
+
+    .highcharts-axis.highcharts-color-0 text {
+        fill: #7cb5ec;
+    }
+
+    .highcharts-color-1 {
+        fill: #90ed7d;
+        stroke: #90ed7d;
+    }
+
+    .highcharts-axis.highcharts-color-1 .highcharts-axis-line {
+        stroke: #90ed7d;
+    }
+
+    .highcharts-axis.highcharts-color-1 text {
+        fill: #90ed7d;
+    }
+
+
+    .highcharts-yaxis .highcharts-axis-line {
+        stroke-width: 2px;
+    }
+
+    .nav-pills li a {
+        color: white;
+    }
+
+        .nav-pills li a:hover {
+            color: black !important;
+        }
+
+    .nav-pills > li.active > a, .nav-pills > li.active > a:hover, .nav-pills > li.active > a:focus {
+        background-color: rgba(0,0,0,.2) !important;
+    }
+</style>
+<script>
+    var oTable;
+    $(document).ready(function () {
+        LoadLocations();
+        datatablebind();        
+        BindSpecializations();
+        //$("#divSpecialization").hide();
+        var dateFormat = "dd/mm/yy",
+            from = $("#txtfromdate")
+                .datepicker({
+                    changeMonth: true,
+                    changeYear: true,
+                    dateFormat: "dd/mm/yy"
+                })
+                .on("change", function () {
+                    to.datepicker("option", "minDate", getDate(this));
+                }),
+            to = $("#txttodate").datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy"
+            })
+                .on("change", function () {
+                    from.datepicker("option", "maxDate", getDate(this));
+                });
+
+
+        function getDate(element) {
+            var date;
+            try {
+                date = $.datepicker.parseDate(dateFormat, element.value);
+            } catch (error) {
+                date = null;
+            }
+            return date;
+        }
+    });
+    function BindSpecializations() {
+        $.get("/CallCenter/GetSpecializations", function (data) {
+            var options = [];
+            options.push('<option value="">- Select -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i] + '">' + data[i] + '</option>');
+            }
+            $("#Specialization").html(options.join(''));
+        });
+    }
+    function BindDoctorsbySpecialization() {
+        $.get("/CallCenter/GetDoctorsBySpecializations", {
+            name: $("#Specialization").val()
+        }, function (data) {
+            var options = [];
+            options.push('<option value="">- Select -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].DoctorName + '">' + data[i].DoctorName + '</option>');
+            }
+            $("#ddlDoctor").html(options.join(''));
+        });
+    }
+    //Bind Categories
+    function Loadcategory() {
+        $.get("/Common/GetCategoryByDepartmentId", {
+            id: 274, type: $("#TaskTypeFilter").val()
+        }, function (data) {
+            var options = [];
+            options.push('<option value="">- Select Category -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].Name + '">' + data[i].Name + '</option>');
+            }
+            $("#ddlCategoryTypeForFilter").html(options.join(''));
+        });
+    }
+    function LoadLocations() {
+        $.ajax({
+            type: "GET",
+            url: "/Common/GetLocations",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#ddlLocation").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadDepartment() {
+        if ($("#ddlLocation").val() != null && $("#ddlLocation").val() != "") {
+            $.ajax({
+                type: "GET",
+                url: "/CallCenter/GetDepartmentByLocation",
+                data: "id=" + $("#ddlLocation").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- Select Department -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                    }
+                    $("#ddlDepartment").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+    }
+    function onchangedepartment() {
+        $.get("/Common/GetCategoryByDepartmentId", {
+            id: 274, type: $("#TaskType").val()
+        }, function (data) {
+            $("#divusers").html("");
+            var options = [];
+            options.push('<option value="">- Select Category -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].Name + '">' + data[i].Name + '</option>');
+            }
+            $("#CategoryOfComplaint").html(options.join(''));
+            //$("#divSpecialization").show();
+        });
+        if ($("#ddlLocation").val() != null && $("#ddlLocation").val() != "" && $("#ddlDepartment").val() != null && $("#ddlDepartment").val() != "") {
+            $.get("/CallCenter/GetEmployeesByDepartmenet?locationid=" + $("#ddlLocation").val() + "&departmentid=" + $("#ddlDepartment").val(), function (data) {
+                var html = "<table class='table table-bordered'><thead><tr style='background-color: #b20320; color: white;'><td>EmpId</td><td>Name</td><td>Email</td><td>Phone</td></tr></thead><tbody>";
+                for (var i = 0; i < data.length; i++) {
+                    html += "<tr><td>" + data[i].SLAUserId + "</td><td>" + data[i].FirstName + "</td><td>" + data[i].EmpEmail + "</td><td>" + data[i].EmpMobile + "</td></tr>";
+                }
+                html += "</tbody></table>";
+                $("#divusers").html(html);
+            });
+        }
+
+        //divusers
+    }
+    function SaveTaskData() {
+        if ($("#ddlLocation").val() != "" && $("#Description").val() != "" && $("#Subject").val() != "" && $("#CategoryOfComplaint").val() != "" && $("#ddlDepartment").val() != "" && $("#MR_Phone_Number").val() != "") {
+            $("#myModal").modal("hide");
+            waitingDialog.show();
+            if (window.FormData !== undefined) {
+                // Create FormData object
+                var fileData = new FormData();
+                fileData.append('CreatorLocationId', $("#CreatorLocationId").val());
+                fileData.append('CreatorLocationName', $("#CreatorLocation").val());
+                fileData.append('CreatorDepartmentId', $("#CreatorDepartmentId").val());
+                fileData.append('CreatorDepartmentName', $("#CreatorDepartment").val());
+                fileData.append('CreatorId', $("#CreatorId").val());
+                fileData.append('CreatorName', $("#CreatorName").val());
+                fileData.append('CreatorPlace', $("#CreatorPlace").val());
+                fileData.append('AssertEquipId', $("#MR_Phone_Number").val());
+                fileData.append('AssertEquipName', $("#Specialization").val());
+                //fileData.append('Description', $("#Description").val());
+                //fileData.append('AssignLocationId', $("#ddlLocation").val());
+                fileData.append('Subject', $("#Subject").val());
+                fileData.append('Description', $("#Description").val());
+                fileData.append('AssignLocationId', $("#ddlLocation").val());
+                fileData.append('AssignLocationName', $("#ddlLocation option:selected").text());
+                fileData.append('AssignDepartmentId', $("#ddlDepartment").val());
+                fileData.append('AssignDepartmentName', $("#ddlDepartment option:selected").text());
+                fileData.append('CreatorStatus', 'New');
+                fileData.append('AssignStatus', 'New');
+                fileData.append('IsActive', true);
+                fileData.append('CategoryOfComplaint', $("#CategoryOfComplaint").val());
+                fileData.append('AssignId', $("#UserId").val());
+                fileData.append('AssignName', $("#UserName").val());
+                fileData.append('ExtensionNo', $("#extensionno").val());
+                fileData.append('EmailId', $("#eamilid").val());
+                fileData.append('Others', $("#txtothers").val());
+                fileData.append('CapexPrepareDate', $("#CapexPrepareDate").val());
+                fileData.append('CapexApproveDate', $("#CapexApproveDate").val());
+                fileData.append('Priority', $("#Priority").val());
+                fileData.append('TaskType', $("#TaskType").val());
+                fileData.append('Doctor', $("#ddlDoctor").val());
+                fileData.append('Specialization', $("#Specialization").val());
+                $.ajax({
+                    cache: true,
+                    type: "POST",
+                    url: "/CallCenter/AddNewTask",
+                    contentType: false,
+                    processData: false,
+                    data: fileData,
+                    success: function (data) {
+                        $("#ddlLocation").val("");
+                        $("#ddlDepartment").val("");
+                        $("#CategoryOfComplaint").val("");
+                        $("#MR_Phone_Number").val("");
+                        $("#ddlDoctor").val("");
+                        $("#extensionno").val("");
+                        $("#Specialization").val('');
+                        $("#extensionno").val('');
+                        $("#divusers").html("");
+                        $("#Subject").val("");
+                        $("#Description").val("");
+                        $("#TaskType").val("");
+                        oTable.api().ajax.reload(null, false);
+                        waitingDialog.hide();
+                    },
+                    error: function () {
+                        alert("error")
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        } else {
+            alert("Please Enter all required fields");
+        }
+    }
+
+    function datatablebind() {
+        oTable = $('#myDataTable').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/CallCenter/AjaxUserviewnew",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aoColumns": [
+                { "sName": "TaskId" },
+                { "sName": "Call_Date" },
+                { "sName": "ResTime" },
+                //{ "sName": "CreatorLocationName" },
+                { "sName": "Creator" },
+                { "sName": "Location" },
+                { "sName": "ExtensionNo" },
+                { "sName": "CategoryOfComplaint" },
+                //{ "sName": "AssertEquipName" },
+                { "sName": "Subject" },
+                { "sName": "AssignLocation" },
+                { "sName": "Assign" },
+                { "sName": "Work_done" },
+                { "sName": "Total_Time_Taken" },
+                { "sName": "ClosedDate" },
+                { "sName": "Status" },
+                //{ "sName": "SloverStatus" },
+                {
+                    "sName": "id",//myModalAssignTasktoepmloyee
+                    "bSortable": false,
+                    "render": function (data) {
+                        return GetHtmlContent(data);
+                    }
+                }
+            ],
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, 500, 1000], [10, 20, 30, 50, 100, 150, 200, 500, 1000]],
+            //"aaSorting": [[0, "asc"]],
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "locationid", "value": $("#ddlLocationForFilter").val() },
+                    { "name": "departmentid", "value": $("#ddlDepartmentForFilter").val() },
+                    { "name": "status", "value": $("#ddlStatusTypeForFilter").val() },
+                    { "name": "Emp", "value": $("#ddlEmployeesForFilter").val() },
+                    { "name": "fromdate", "value": $("#txtfromdate").val() },
+                    { "name": "todate", "value": $("#txttodate").val() },
+                    { "name": "category", "value": $("#ddlCategoryTypeForFilter").val() },
+                    { "name": "FormType", "value": $("#ddlPriority").val() },
+                    { "name": "Expired", "value": $("#TaskTypeFilter").val() }
+                );
+            },
+            "sDom": 'T<"clear">lfrtip',
+            "oTableTools": {
+                "sSwfPath": "/swf/copy_csv_xls_pdf.swf",
+                "aButtons": [
+                    "copy", "xls", "pdf"
+                ]
+            },
+            //initComplete: function () {
+            //    $("#myDataTable_length").append(' <span class="label label-default" style="font-size:medium">R Time: Response Time</span>&nbsp;&nbsp;            <span class="label label-primary" style="font-size:medium">Ext: Extension Number</span>&nbsp;&nbsp;            <span class="label label-success" style="font-size:medium">T.T.T: Total Time Taken</span>&nbsp;&nbsp;');
+            //},
+            "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                $('td:eq(7)', nRow).html('<a href="javascript:void(0);" id="' + aData[14] + '" onclick="ViewDescription(this.id);">' + aData[7] + '</a>');
+                //<a href="javascript:void(0);" id="' + data + '" onclick="StartTask(this.id);">Pick Up</a>
+                var status = aData[13].split('_');
+                $('td:eq(13)', nRow).html(status[0]);
+                if (parseFloat(status[1]) > 6) {
+                    $(nRow).css('background-color', 'lightsalmon');
+                } else {
+                    switch (status[0]) {
+                        case 'Pending':
+                            //$(nRow).css('class', 'myClassred');
+                            $('td:eq(13)', nRow).css('color', '#E67D21').css('font-weight', 'bold');
+                            break;
+                        case 'New':
+                            //$(nRow).css('background-color', 'green')
+                            $('td:eq(13)', nRow).css('color', '#3598dc').css('font-weight', 'bold');
+                            break;
+                        case 'In Progress':
+                            //$(nRow).css('background-color', 'blue')
+                            $('td:eq(13)', nRow).css('color', '#8E44AD').css('font-weight', 'bold');
+                            break;
+                        case 'Pending from user':
+                            $('td:eq(13)', nRow).html("Pending at user");
+                            $('td:eq(13)', nRow).css('color', '#E67D21').css('font-weight', 'bold');
+                            break;
+                        case 'Reopen':
+                            $('td:eq(13)', nRow).css('color', '#5FC29D').css('font-weight', 'bold');
+                            break;
+                        case 'Rejected':
+                            $('td:eq(13)', nRow).css('color', '#a71f23').css('font-weight', 'bold');
+                            break;
+                        default:
+                            $('td:eq(13)', nRow).css('color', 'Green').css('font-weight', 'bold');
+                            break;
+                    }
+                }
+            }
+        });
+    }
+    function ViewDescription(id) {
+        $.ajax({
+            type: "GET",
+            url: "/CallCenter/ViewDescription",
+            data: "id=" + id,
+            success: function (data) {
+
+                $("#divTaskDetailsdesc").html(data);
+                $("#myModalTaskDetailsdescription").modal('show');
+            }
+        });
+    }
+    function WorkDonwstatus(id) {
+        $.ajax({
+            type: "GET",
+            url: "/CallCenter/WorkDonwstatus",
+            data: "id=" + id,
+            success: function (data) {
+                $("#divTaskwork").html(data);
+                $("#mymodelworkdonedetailwork").modal('show');
+            }
+        });
+    }
+    function myWorkDonecomment(id) {
+        currnetid = id;
+        $("#myModalWorkDonecomment").modal("show");
+    }
+
+    function SaveMyworkcomment() {
+        if ($("#workdonereamrkscomment").val() != null
+        ) {
+            var tdata = {
+                id: currnetid,
+                remarks: $("#workdonereamrkscomment").val()
+            };
+            $.ajax({
+                type: "POST",
+                url: "/CallCenter/WorkDoneRemarksComment",
+                data: tdata,
+                success: function (data) {
+                    $("#workdonereamrkscomment").val('');
+                    $("#myModalWorkDonecomment").modal("hide");
+                    oTable.api().ajax.reload(null, false);
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        } else {
+            $("#workdonereamrkscomment").css("border", "solid 1px red");
+        }
+
+    }
+
+    function StartTask(id) {
+        $.ajax({
+            type: "GET",
+            url: "/CallCenter/StartTask",
+            data: "id=" + id,
+            success: function (data) {
+                if (data == "Success") {
+                    oTable.api().ajax.reload(null, false);
+                } else {
+                    alert(data);
+                }
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function DoneTaks(id) {
+        var tdata = {
+            id: id
+        };
+        $.ajax({
+            type: "GET",
+            url: "/CallCenter/DoneTask",
+            data: tdata,
+            success: function (data) {
+                if (data == "Success") {
+                    oTable.api().ajax.reload(null, false);
+                } else { alert(data); }
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function EndTask(id) {
+        $.ajax({
+            type: "POST",
+            url: "/CallCenter/EndTask",
+            data: "id=" + id,
+            success: function (data) {
+                //OpenSuccessAlertPopUpBox_ConfirmPopUpJS(data);
+                oTable.api().ajax.reload(null, false);
+
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function GetHtmlContent(data) {
+        var deptvalue = $("#currentuserDepartmentId").val();
+        var htmlcontect = "";
+        htmlcontect += '<div class="btn-group">';
+        htmlcontect += '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>';
+        htmlcontect += '<ul class="dropdown-menu dropdown-menu-right">';
+        htmlcontect += '<li class="dontScoll"><a href="javascript:void(0);" id="' + data + '" onclick="ViewTaskDetails(this.id);">View Task</a></li>';
+        var departmentslist = "12,13,16,20,26,41,44,50,68,76,85,95,102,111,146,190,302,272,264,279";
+
+        //if (departmentslist.includes(deptvalue)) {
+        htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="StartTask(this.id);">Pick Up</a></li>';
+        htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="EditDescription(this.id);">Edit Description</a></li>';
+        htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="myWorkDonecomment(this.id);">Edit Comments</a></li>';
+        htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="myWorkDone(this.id);">Completed</a></li> ';
+        htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="ReopenTask(this.id);">Re Issue</a></li> ';
+        //htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="EndTask(this.id);"> Close</a></li> ';
+        //htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="AssignTask(this.id);"> Assign to other department</a></li>';
+        //htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="AssignTasktoemployees(this.id);">Assign To Employee</a></li>';
+        //htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="AssignTasktoVendor(this.id);">Assign To Vendor</a></li>';
+        //}
+        //else {
+        //    // htmlcontect += '<li><a href="/Home/EditTask/' + data + '" id="' + data + '">Edit Task</a></li>';
+        //    // htmlcontect += '<li><a href="/Home/Update/' + data + '" id="' + data + '">Update Task</a></li>';
+        //    htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="EditDescription(this.id);">Edit Description</a></li>';
+        //    htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="DoneTaks(this.id);"> Close</a></li> ';
+        //}
+        //htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="ApproveCPX(this.id);">Approve CPX</a></li>';
+        //htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="RejectCPX(this.id);">Reject CPX</a></li>';
+        //htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="ViewComments(this.id);">View Comments</a></li> ';
+        //htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="WorkDonwstatus(this.id);">WorkDone Comments</a></li> ';
+        //htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="ViewFiles(this.id);">View Files</a></li>';
+        //htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="DeleteTask(this.id);">Delete Task</a></li> ';
+        htmlcontect += '</ul></div>';
+        return htmlcontect;
+    }
+    function ViewTaskDetails(id) {
+        //$(function () {
+        //    $('.dontScoll').click(function () {
+        //        $(window).scroll(function () { return false; });
+        //    });
+        //});
+        //   divTaskDetails
+        $.ajax({
+            type: "GET",
+            url: "/CallCenter/GetTask",
+            data: "id=" + id,
+            success: function (data) {
+                var html = "<table class='table table-bordered'>";
+                html += "<tr>";
+                //html += "<td>Call Date</td>";
+                //html += "<td>" + functionDate(data.CallDateTime) + "</td>";
+                html += "<td><b>Call Start Date</b></td>";
+                html += "<td>" + functionDate(data.CallStartDateTime) + "</td>";
+                html += "</tr>";
+                html += "<tr>";
+                html += "<td><b>From Location</b></td>";
+                html += "<td>" + data.CreatorLocationName + "</td>";
+                html += "</tr>";
+                html += "<tr>";
+                html += "<td><b>From Department</b></td>";
+                html += "<td>" + data.CreatorDepartmentName + "</td>";
+                html += "</tr>";
+                html += "<tr>";
+                html += "<td><b>Name</b></td>";
+                html += "<td>" + data.CreatorName + "</td>";
+                //html += "<td>Creator Place</td>";
+                //if (data.CreatorPlace != null) {
+                //    html += "<td>" + data.CreatorPlace + "</td>";
+                //} else {
+                //    html += "<td> </td>";
+                //}
+                html += "</tr>";
+                if (data.AssertEquipId != null && data.AssertEquipName != null) {
+                    html += "<tr>";
+                    html += "<td><b>Assert EquipId</b></td>";
+
+                    html += "<td>" + data.AssertEquipId + "</td>";
+                    html += "</tr>";
+                    html += "<tr>";
+                    html += "<td><b>Assert EquipName</b></td>";
+                    html += "<td>" + data.AssertEquipName + "</td>";
+                    html += "</tr>";
+                }
+                html += "<tr>";
+                html += "<td><b>Category Of Complaint</b></td>";
+                if (data.CategoryOfComplaint != null) {
+                    html += "<td>" + data.CategoryOfComplaint + "</td>";
+                } else {
+                    html += "<td></td>";
+                }
+                html += "</tr>";
+                html += "<tr>";
+                html += "<td><b>Description</b></td>";
+                html += "<td>" + data.Description + "</td>";
+                html += "</tr>";
+                html += "</tr>";
+                html += "<tr>";
+                html += "<td><b>Work Done</b></td>";
+                html += "<td>" + data.WorkDoneRemarks + "</td>";
+                html += "</tr>";
+                html += "<tr>";
+                html += "<td><b>Assign To Dept</b></td>";
+                html += "<td>" + data.AssignLocationName + " - " + data.AssignDepartmentName + "</td>";
+                html += "</tr>";
+                if (data.AssignName != null && data.AssignName != "") {
+                    html += "<tr>";
+                    html += "<td><b>Assign To</b></td>";
+                    html += "<td>" + data.AssignName + "</td>";
+                    html += "</tr>";
+                }
+
+                if (data.Priority != null && data.Priority != "") {
+                    html += "<tr>";
+                    html += "<td><b>Priority</b></td>";
+                    html += "<td>" + data.Priority + "</td>";
+                    html += "</tr>";
+                }
+                if (data.Doctor != null && data.Doctor != "") {
+                    html += "<tr>";
+                    html += "<td><b>Doctor</b></td>";
+                    html += "<td>" + data.Doctor + "</td>";
+                    html += "</tr>";
+                }
+                if (data.Specialization != null && data.Specialization != "") {
+                    html += "<tr>";
+                    html += "<td><b>Specialization</b></td>";
+                    html += "<td>" + data.Specialization + "</td>";
+                    html += "</tr>";
+                }
+                html += "</table>";
+                $("#divTaskDetails").html(html);
+                $("#myModalTaskDetails").modal('show');
+            }
+        });
+    }
+    function changedocumentreceived(id) {
+        var status = $("#" + id).val();
+        var ticketid = id.replace("selectdocumentreceived", "");
+        $.get("/Home/UpdateDocumentStatusTicket?ticketid=" + ticketid + "&status=" + status, function (data) {
+            alert(data);
+            $("#lbldocumentreceived").html(status);
+            oTable.api().ajax.reload(null, false);
+            //$("#myModalTaskDetails").modal('hide');
+            //ViewTaskDetails(ticketid);
+        });
+    }
+    function ReopenTask(id) {
+        if (confirm("Are you sure you want to reopen task?")) {
+            $.ajax({
+                type: "GET",
+                url: "/CallCenter/ReOpenTask",
+                data: "id=" + id,
+                success: function (data) {
+                    oTable.api().ajax.reload(null, false);
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+    }
+    function ViewTask(id) {
+        //   divTaskDetails
+        $.ajax({
+            type: "GET",
+            url: "/CallCenter/GetTask",
+            data: "id=" + id,
+            success: function (data) {
+                var html = "<table class='table table-bordered'>";
+                html += "<tr>";
+                html += "<td>Call Date</td>"; html += "<td>" + functionDate(data.CallDateTime) + "</td>";
+                html += "<td>Call Start Date</td>"; html += "<td>" + functionDate(data.CallStartDateTime) + "</td>";
+                html += "</tr>";
+                html += "<tr>";
+                html += "<td>Location</td>"; html += "<td>" + data.CreatorLocationName + "</td>";
+                html += "<td>Department</td>"; html += "<td>" + data.CreatorDepartmentName + "</td>";
+                html += "</tr>";
+
+                html += "<tr>";
+                html += "<td>Name</td>"; html += "<td>" + data.CreatorName + "</td>";
+                html += "<td>Creator Place</td>";
+                if (data.CreatorPlace != null) {
+                    html += "<td>" + data.CreatorPlace + "</td>";
+                } else {
+                    html += "<td> </td>";
+                }
+                html += "</tr>";
+                if (data.AssertEquipId != null && data.AssertEquipName != null) {
+                    html += "<tr>";
+                    html += "<td>Assert EquipId</td>";
+
+                    html += "<td>" + data.AssertEquipId + "</td>";
+                    html += "<td>Assert EquipName</td>";
+                    html += "<td>" + data.AssertEquipName + "</td>";
+                    html += "</tr>";
+                }
+                html += "<tr>";
+                html += "<td>Category Of Complaint</td>";
+                if (data.CategoryOfComplaint != null) {
+                    html += "<td>" + data.CategoryOfComplaint + "</td>";
+                } else {
+                    html += "<td></td>";
+                }
+                html += "<td>Description</td>";
+                html += "<td>" + data.Description + "</td>";
+                html += "</tr>";
+
+                html += "</table>";
+                $("#divTaskDetails").html(html);
+                $("#myModalTaskDetails").modal('show');
+            }
+        });
+    }
+
+    function ViewComments(id) {
+        currnetid = id;
+        $.ajax({
+            type: "GET",
+            url: "/Home/GetMyTaskComments",
+            data: "taskid=" + id,
+            success: function (data) {
+                var html = "";
+                var count = 1;
+                for (var i = 0; i < data.length; i++) {
+                    html += "<tr>";
+                    html += "<td>" + count + "</td>";
+                    html += "<td>" + data[i].Comment + "</td>";
+                    html += "<td>" + data[i].CommentedBy + "</td>";
+                    html += "<td>" + functionDate(data[i].CommentDate) + "</td>";
+                    html += "</tr>";
+                    count = count + 1;
+                }
+                $("#tblbodycomments").html(html);
+                $("#myModalComments").modal('show');
+                currnetid = id;
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function SaveNewComment() {
+        var data = {
+            taskid: currnetid,
+            comment: $("#workcomments").val()
+        }
+        $.ajax({
+            type: "GET",
+            url: "/Home/SaveMyTaskComment",
+            data: data,
+            success: function (data) {
+                $("#workcomments").val('');
+                ViewComments(currnetid);
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    var currentid;
+    function ViewFiles(id) {
+        currentid = id;
+        //alert(id);
+        BindListoffiles(id);
+        $("#divManageDocuments").modal("show");
+    }
+
+    function Uploaddataclick() {
+
+        // Checking whether FormData is available in browser
+        if (window.FormData !== undefined) {
+
+            var fileUpload = $("#selectfiletoupload").get(0);
+            var files = fileUpload.files;
+
+            // Create FormData object
+            var fileData = new FormData();
+
+            // Looping over all files and add it to FormData object
+            for (var i = 0; i < files.length; i++) {
+                fileData.append(files[i].name, files[i]);
+            }
+
+            // Adding one more key to FormData object
+            fileData.append('id', currentid);
+            fileData.append('public', $("#documentisprivate").val());
+            $.ajax({
+                url: '/Home/UploadFiles',
+                type: "POST",
+                contentType: false, // Not to set any content header
+                processData: false, // Not to process data
+                data: fileData,
+                success: function (result) {
+                    alert(result);
+                    BindListoffiles(currentid);
+                },
+                error: function (err) {
+                    alert(err.statusText);
+                }
+            });
+        } else {
+            alert("FormData is not supported.");
+        }
+    }
+    function BindListoffiles(id) {
+        $.get("/Home/GetListOfFiles", { id: id }, function (data) {
+            var html = "<table class='table  table-bordered'><tr style='background-color:teal;color:white;'><td>Name</td><td> Action</td></tr>";
+            for (var i = 0; i < data.length; i++) {
+                html += "<tr><td>" + data[i].DocumentName + "</td><td><a  target='_blank' href='/ExcelUplodes/" + data[i].DocumentPath + "'>View</a> </td></tr>";
+            }
+            html + "</table>";
+            $("#Divdocumentshistory").html(html);
+        });
+    }
+
+    var currentid = 0;
+
+    function myWorkDone(id) {
+        currnetid = id;
+        $("#myModalWorkDone").modal("show");
+    }
+    function SaveMyworkDone() {
+        if ($("#workdonereamrks").val() != null && $("#workdonereamrks").val() != "") {
+            var tdata = {
+                id: currnetid,
+                remarks: $("#workdonereamrks").val()
+            };
+            $.ajax({
+                type: "POST",
+                url: "/CallCenter/WorkDoneRemarks",
+                data: tdata,
+                success: function (data) {
+                    if (data == 'Success') {
+                        $("#workdonereamrks").val('');
+                        $("#myModalWorkDone").modal("hide");
+                        oTable.api().ajax.reload(null, false);
+                    } else {
+                        alert(data);
+                    }
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        } else {
+            $("#workdonereamrks").css("border", "solid 1px red");
+        }
+    }
+    function EditDescription(id) {
+        currentid = id;
+        $("#ddlselectcategoryedit").html("");
+        $("#ddlselectcategoryedit").html('<option value="">Select</option>');
+
+        $.ajax({
+            type: "GET",
+            url: "/CallCenter/GetTask",
+            data: "id=" + id,
+            success: function (data1) {
+                $("#ddlselectcategoryedit").val(data1.CategoryOfComplaint);
+                $("#myModalEditdescription").modal('show');
+                $("#EditDescriptiontxt").text(data1.Description);
+            }
+        });
+        //EditDescriptiontxt
+    }
+    function SaveDescription() {
+        $("#myModalEditdescription").modal("hide");
+        waitingDialog.show();
+        var data = {
+            id: currentid,
+            Description: $("#EditDescriptiontxt").val(),
+            Category: 0
+        }
+        $.ajax({
+            type: "GET",
+            url: "/CallCenter/UpdateDescription",
+            data: data,
+            success: function (data) {
+                waitingDialog.hide();
+                $("#myModalEditdescription").modal('hide');
+                oTable.api().ajax.reload(null, false);
+                if (data != "Success") {
+                    alert(data);
+                }
+            }
+        });
+    }
+
+ 
+
+    function ExportToExcelissues() {
+        var params = "FromDate=" + $("#txtfromdate").val() + "&ToDate=" + $("#txttodate").val();
+        if ($("#ddlLocationForFilter").val() != null && $("#ddlLocationForFilter").val() != "") {
+            params += "&locationid=" + $("#ddlLocationForFilter").val();
+        } else {
+            params += "&locationid=0";
+        }
+        if ($("#ddlDepartmentForFilter").val() != null && $("#ddlDepartmentForFilter").val() != "") {
+            params += "&departmentid=" + $("#ddlDepartmentForFilter").val();
+        } else {
+            params += "&departmentid=0";
+        }
+        params += "&status=" + $("#ddlStatusTypeForFilter").val();
+        params += "&emp=1";
+        params += "&category=" + $("#ddlCategoryTypeForFilter").val();
+        window.location = "/CallCenter/MyTasks_ExportToExcel?" + params;
+    }
+    function ShowmyModel() {
+        $('#myModal').modal('show');
+    }
+</script>
+<div class="modal fade" id="myModal" role="dialog">
+    <div class="form-block" style="width:80%;">
+        <h3 style="margin-bottom:10px !important;">New Request <button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <form id="AddNewTask" method="post" enctype="multipart/form-data">
+            <div class="form-row">
+                <div style="display:none;">
+                    <input type="text" name="name" id="CreatorLocation" disabled class="form-control" value="@ViewBag.CurrentUser.LocationName" />
+                    <input type="hidden" id="CreatorLocationId" disabled class="form-control" value="@ViewBag.CurrentUser.LocationId" />
+                    <input type="text" name="name" id="CreatorDepartment" disabled class="form-control" value="@ViewBag.CurrentUser.DepartmentName" />
+                    <input type="hidden" id="CreatorDepartmentId" disabled class="form-control" value="@ViewBag.CurrentUser.DepartmentId" />
+                    <input type="text" name="name" id="CreatorName" disabled class="form-control" value="@ViewBag.CurrentUser.FirstName" />
+                    <input type="hidden" id="CreatorId" disabled class="form-control" value="@ViewBag.CurrentUser.UserId" />
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="TaskType" id="lblTaskType">Type<span style="color:red;">*</span></label>
+                    <select id="TaskType" name="TaskType" class="form-control" onchange="onchangedepartment();">
+                        <option value="">Select</option>
+                        <option value="Requests">Requests</option>
+                        <option value="Complaints">Complaints</option>
+                    </select>
+                </div>
+                <!-- Default input -->
+                <div class="form-group col-md-4">
+                    <label>Assign Location<span style="color:red;">*</span></label>
+                    <select id="ddlLocation" class="form-control" onchange="LoadDepartment();">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                <!-- Default input -->
+                <div class="form-group col-md-4">
+                    <label>Assign Department<span style="color:red;">*</span></label>
+                    <select id="ddlDepartment" class="form-control" rel="8" style="" onchange="onchangedepartment();">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="CategoryOfComplaint" id="lblCategoryOfComplaint">Category <span style="color:red;">*</span></label>
+                    <select id="CategoryOfComplaint" name="billing-term" class="form-control">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-4">
+                    <label>MR/Phone Number*</label>
+                    <input type="number" maxlength="20" name="name" id="MR_Phone_Number" class="form-control" rel="6" />
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="Priority" id="lblPriority">Priority<span style="color:red;">*</span></label>
+                    <select id="Priority" name="Priority" class="form-control">
+                        <option value="">Select</option>
+                        <option value="Critical">Critical</option>
+                        <option value="High">High</option>
+                        <option value="Medium" selected>Medium</option>
+                        <option value="Low">Low</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-12" id="divusers" style="max-height: 200px; overflow: auto;">
+                </div>
+                <div class="form-group col-md-6" style="display:none;">
+                    <label>Extension No</label>
+                    <input type="number" maxlength="5" autocomplete="off" name="name" id="extensionno" rel="6" class="form-control" />
+                </div>
+                <div class="form-group col-md-4" style="display:none;">
+                    <label>Email address</label>
+                    <input type="text" name="name" id="eamilid" class="form-control" rel="14" value="@ViewBag.CurrentUser.EmailId" />
+                </div>
+                <div class="form-group col-md-4" style="display:none;">
+                    <label id="lbldocumentname">Document</label>
+                    <input type="file" id="NewTaskDocuments" name="NewTaskDocuments" class="form-control" />
+                </div>
+
+                <div class="form-group col-md-4">
+                    <label>Subject*</label>
+                    <input type="text" maxlength="50" name="name" id="Subject" class="form-control" rel="6" />
+                </div>
+                <div class="form-group col-md-4" id="divSpecialization">
+                    <label for="Specialization" id="lblSpecialization">Specialization<span style="color:red;">*</span></label>
+                    <select id="Specialization" name="Specialization" class="form-control" onchange="BindDoctorsbySpecialization();">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-4" id="divDoctors">
+                    <label for="ddlDoctor" id="lblddlDoctor">Doctor</label>
+                    <select id="ddlDoctor" name="ddlDoctor" class="form-control">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                <div class="form-group col-md-12">
+                    <label>Description</label>
+                    <textarea id="Description" rows="3" rel="7" class="form-control"></textarea>
+                </div>
+                <div class="form-group col-md-12">
+                    <button type="button" class="btn save" onclick="SaveTaskData();">SAVE</button>
+                    <button type="button" data-dismiss="modal" class="btn cancel">Cancel</button>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .dataTables_length, .myDataTable_filter {
+        max-width: 250px;
+    }
+
+    td {
+        word-break: break-all;
+    }
+</style>
+<input type="hidden" id="LocationId" />
+<input type="hidden" id="LocationName" />
+<input type="hidden" id="DepartmentId" />
+<input type="hidden" id="DepartmentName" />
+<input type="hidden" id="UserId" />
+<input type="hidden" id="UserName" />
+<input type="hidden" id="UserIdofemp" />
+<input type="hidden" id="UserNameofemp" />
+<input type="hidden" id="currentuserlocationid" value="@ViewBag.CurrentUser.LocationId" />
+<input type="hidden" id="currentuserDepartmentId" value="@ViewBag.CurrentUser.DepartmentId" />
+<input type="hidden" id="currentuserDepartmentName" value="@ViewBag.CurrentUser.DepartmentName" />
+<input type="hidden" id="CreatorPlace" value="@ViewBag.CurrentUser.PlaceAllocation" />
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <span class="glyphicon glyphicon-tasks" style="vertical-align:middle;color:darkcyan;"></span>&nbsp;My Task
+        <span class="hidden-xs" style="padding:5px; text-align:center; padding-left:100px;">
+            <span class="label text-danger" style="font-size:12px;">R Time: Response Time (Minutes)</span>&nbsp;&nbsp;
+            <span class="label text-primary" style="font-size:12px;">Ext: Extension Number</span>&nbsp;&nbsp;
+            <span class="label text-success" style="font-size:12px;">T.T.T: Total Time Taken</span>&nbsp;&nbsp;
+        </span>
+        <span class="pull-right" style="color:red;font-weight:bold;cursor:pointer;" onclick="ExportToExcelissues();">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong><span class="glyphicon glyphicon-download-alt" style="vertical-align:middle;"></span>&nbsp;Export Excel</strong></span><span class="pull-right" style="color:green;font-weight:bold;cursor:pointer;" onclick="ShowmyModel();"><span style="vertical-align:middle;" class="glyphicon glyphicon-plus-sign"></span>&nbsp;New Task</span>
+    </div>
+    <div class="panel-body" style="padding:4px;">
+        <div class="row">
+            <div class="col-xl-3 col-lg-3 col-12">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="media align-items-stretch">
+                            <div class="p-2 text-center bg-primary bg-darken-2">
+                                <i class="glyphicon glyphicon-thumbs-up font-large-2 white"></i>
+                            </div>
+                            <div class="p-2 bg-gradient-x-primary white media-body">
+                                <h5>Total Requests</h5>
+                                <h5 class="text-bold-400 mb-0">@ViewBag.TotalRequests</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-3 col-12">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="media align-items-stretch">
+                            <div class="p-2 text-center bg-danger bg-darken-2">
+                                <i class="glyphicon glyphicon-th-list font-large-2 white"></i>
+                            </div>
+                            <div class="p-2 bg-gradient-x-danger white media-body">
+                                <h5>Total Complaints</h5>
+                                <h5 class="text-bold-400 mb-0">@ViewBag.TotalComplaints</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-3 col-12">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="media align-items-stretch">
+                            <div class="p-2 text-center bg-warning bg-darken-2">
+                                <i class="glyphicon glyphicon-ok font-large-2 white"></i>
+                            </div>
+                            <div class="p-2 bg-gradient-x-warning white media-body">
+                                <h5>Total Closed</h5>
+                                <h5 class="text-bold-400 mb-0">@ViewBag.TotalClosed</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-3 col-lg-3 col-12">
+                <div class="card">
+                    <div class="card-content">
+                        <div class="media align-items-stretch">
+                            <div class="p-2 text-center bg-success bg-darken-2">
+                                <i class="glyphicon glyphicon-info-sign font-large-2 white"></i>
+                            </div>
+                            <div class="p-2 bg-gradient-x-success white media-body">
+                                <h5>In Progress</h5>
+                                <h5 class="text-bold-400 mb-0">@ViewBag.TotalInProgress</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" style="padding-bottom:5px;">
+            <div class="col-md-2">
+                <select id="ddlStatusTypeForFilter" class="form-control" style="max-width:200px;">
+                    <option value="">Select Status Type</option>
+                    <option value="New">New</option>
+                    <option value="Re Open">Re Open</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Done">Done</option>
+                    <option value="Pending from Vendor">Pending from Vendor</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select id="TaskTypeFilter" class="form-control" onchange="Loadcategory();" style="max-width:200px;">
+                    <option value="">Select Task Type</option>
+                    <option value="Requests">Requests</option>
+                    <option value="Complaints">Complaints</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <input type="text" class="form-control" autocomplete="off" placeholder="From Date" id="txtfromdate" style="max-width:200px;" />
+            </div>
+            <div class="col-md-2">
+                <input type="text" class="form-control" autocomplete="off" placeholder="To Date" id="txttodate" style="max-width:200px;" />
+            </div>
+            <div class="col-md-2">
+                <select id="ddlCategoryTypeForFilter" class="form-control" style="max-width:200px;">
+                    <option value="">Select Category</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-sm btn-success" value="Go" onclick="datatablebind();"><span class="glyphicon glyphicon-search" style="vertical-align:middle;"></span>&nbsp;Go</button>
+            </div>
+        </div>
+
+        <table id="myDataTable" class="table table-striped table-bordered  dt-responsive table-hover dataTables_wrapper" style="width:100%;">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>ID</th>
+                    <th>Call Date</th>
+                    <th>R.Time(h:m:s)</th>
+                    <th>Name</th>
+                    <th>Location</th>
+                    <th>MR/Phone Number</th>
+                    <th>Category</th>
+                    <th>Subject</th>
+                    <th>Ass.. Location</th>
+                    <th>Assign</th>
+                    <th>Work Done</th>
+                    <th>T.T.T(d:h:m)</th>
+                    <th>Closed Date</th>
+                    <th>Status</th>
+
+                    @*<th>User Status</th>*@
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+       
+    </div>
+
+</div>
+
+<div id="myModalAssignTask" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Assign Task</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Assign Location<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select id="ddlLocation1" class="form-control" onchange="LoadDepartment1();">
+                            <option value="">Select</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Assign Department<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <select id="ddlDepartment1" class="form-control" rel="8" style=""></select>
+                    </div>
+                </div>
+                @*<div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name">Assign Employee<span style="color:red;">*</span></label></div>
+                        <div class="col-md-8">
+                            <select id="ddlEmployees1" class="form-control" onchange="EmployeeChange();">
+                                <option value="">Select</option>
+                            </select>
+                        </div>
+                    </div>*@
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" class="btn btn-primary" onclick="Assigntakstoemployee();" />
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="myModalWorkDone" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Work Done Remarks</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Work Done Remarks<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <textarea class="form-control" id="workdonereamrks"></textarea>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" class="btn btn-primary" onclick="SaveMyworkDone();" />
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div id="myModalComments" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Comments </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Comment<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-6">
+                        <textarea class="form-control" id="workcomments"></textarea>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="button" id="btnasigntask" value="Save" class="btn btn-primary" onclick="SaveNewComment();" />
+                    </div>
+
+                </div>
+                <div class="row">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>
+                                    S.No
+                                </th>
+                                <th>
+                                    Comment
+                                </th>
+                                <th>Commented By</th>
+                                <th>Commented On</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tblbodycomments"></tbody>
+
+                    </table>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<div id="myModalAssignTasktoepmloyee" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Assign Task To Employee</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Assign Employee<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <select id="ddlassignemployeetothetask" class="form-control" onchange="EmployeeChangebyassigntotask();">
+                            <option value="">Select</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntasktoemp" value="Save" class="btn btn-primary" onclick="Assigntakstoemployeesbydepartment();" />
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div id="myModalTaskDetails" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Full Task Details</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px; height:350px;overflow-y:scroll;" id="divTaskDetails">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="myModalTaskDetailsdescription" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">View Descrpiton</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;" id="divTaskDetailsdesc">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="myModalEditdescription" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Edit Descrpiton</h4>
+            </div>
+            <div class="modal-body">
+                <table style="width:100%;" class="table">
+                    <tr>
+                        <td>
+                            Description
+                        </td>
+                        <td>
+                            <textarea class="form-control" id="EditDescriptiontxt" rows="4" style="width:100%;max-width:100%;"></textarea>
+                        </td>
+                    </tr>
+
+                </table>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="SaveDescription();">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="mymodelworkdonedetailwork" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Work Done</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;" id="divTaskwork">
+
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">close</button>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<div id="myModalWorkDonecomment" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Edit Work Done Comment</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name"> Edit Work Done Comment<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <textarea class="form-control" id="workdonereamrkscomment"></textarea>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" class="btn btn-primary" onclick="SaveMyworkcomment();" />
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div id="myModalAssignToVendor" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Remarks</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Remarks<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <textarea class="form-control" id="assigntoVendorRemarks"></textarea>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" class="btn btn-primary" onclick="SaveassigntoVendorRemarks();" />
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div id="divManageDocuments" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Manage Documents</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <tr>
+                        <td>
+                            Is It Private :
+                        </td>
+                        <td>
+                            <input type="checkbox" id="documentisprivate" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Select File  :
+                        </td>
+                        <td>
+                            <input type="file" name="file" id="selectfiletoupload" multiple />
+                        </td>
+                        <td>
+                            <input type="button" id="btnUploadfile" class="btn btn-primary" value="Upload" onclick="Uploaddataclick();" />
+                        </td>
+                    </tr>
+
+                </table>
+                <div class="row" style="padding:5px;" id="Divdocumentshistory">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>

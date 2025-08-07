@@ -1,0 +1,303 @@
+﻿
+@{
+    ViewBag.Title = "NewBiomedicalWaste";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+
+    #captureSignature {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+
+    #captureSignature2 {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+
+    #captureSignatureStaff {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+</style>
+<script src="~/Scripts/jSignature.min.js"></script>
+<!--[if lt IE 9]>
+<script  type="text/javascript" src="~/Scripts/flashcanvas.js"></script>
+    <![endif]-->
+<script>
+    var validate;
+    var eId = 0;
+
+    var $sigdiv, $sigdiv1, $sigdiv2;
+    $(document).ready(function () {
+        //$sigdiv = $("#captureSignatureIn").jSignature({ 'UndoButton': true });
+        //$sigdiv1 = $("#captureSignatureInNurseInChargeSign").jSignature({ 'UndoButton': true });
+      
+        LoadLocations(); 
+
+
+        //LoadDropdownvalues();
+    });
+    function LoadDropdownvalues() {
+        //$.get("/Common/GetCommonDropdownValues?dtype=Security", function (data) {
+        //    var options = [];
+        //    options.push('<option value="">- Select -</option>');
+        //    for (var i = 0; i < data.length; i++) {
+        //        options.push('<option value="' + data[i].Name + '">' + data[i].Name + '</option>');
+        //    }
+        //    $("#txtSecurity").html(options.join(''));
+        //});
+    }
+    function OnLocationchng() {
+        //$.get("/Register/GetSecurityDetails?locationId=" + $("#LocationId").val(), function (data) {
+        //    var options = [];
+        //    options.push('<option value="">- Select Security -</option>');
+        //    for (var i = 0; i < data.length; i++) {
+        //        options.push('<option value="' + data[i].FirstName + '">' + data[i].FirstName + '</option>');
+        //    }
+        //    $("#txtSecurity").html(options.join(''));
+        //});
+    }
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Locations -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#LocationId").html(options.join(''));
+                //options.push('<option value="Other">Other</option>');
+                //$("#LocationId2").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+
+    function SaveRegister() {
+
+        ValidateDetails();
+        if (validate) {
+            var task = {
+                Id: eId,
+                LocationId: $("#LocationId").val(),
+                SlipNo: $("#txtSlipNo").val(),
+                NameOfHCE: $("#txtNameOfHCE").val(),
+                MedicareRegistratioNo: $("#txtMedicareRegistratioNo").val(),
+                YellowNoOfBags: $("#txtYellowNoOfBags").val(),
+                YellowWeightKgs: $("#txtYellowWeightKgs").val(),
+                BlueNoOfBags: $("#txtBlueNoOfBags").val(),
+                BlueWeightKgs: $("#txtBlueWeightKgs").val(),
+                RedNoOfBags: $("#txtRedNoOfBags").val(),
+                RedWeightKgs: $("#txtRedWeightKgs").val(),
+                SharpsNoOfBags: $("#txtSharpsNoOfBags").val(),
+                SharpsWeightKgs: $("#txtSharpsWeightKgs").val(),
+                Remarks: $("#txtRemarks").val(),
+                TakenBy: $("#txtTakenByPerson").val(),
+                Security: "",
+                IsActive: true,
+                //SecuritySign: "data:" + $sigdiv.jSignature('getData', 'image').toString(),
+                //TakenBySign: "data:" + $sigdiv1.jSignature('getData', 'image').toString(),
+               /* SecuritySupervisorSign: "data:" + $sigdiv2.jSignature('getData', 'image').toString()*/
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Register/SaveNewBiomedicalWaste",
+                data: task,
+                success: function (data) {
+                    alert(data);
+                    clearAll();
+                }
+            });
+        }
+    }
+    function ValidateDetails() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+
+        if ($("#LocationId").val() == "") {
+            $("#LocationId").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtSlipNo").val() == "") {
+            $("#txtSlipNo").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtNameOfHCE").val() == "") {
+            $("#txtNameOfHCE").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtMedicareRegistratioNo").val() == "") {
+            $("#txtMedicareRegistratioNo").addClass('css-error');
+            validate = false;
+        }
+    }
+    function clearAll() {
+        window.location.href = "/Register/BiomedicalWaste";
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading" style="height:35px;"><a href="~/Register/BiomedicalWaste">Go Back</a> &nbsp;&nbsp;New Biomedical Waste Register </div>
+    <div class="panel-body">
+        <div class="modal-body">
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Location<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <select id="LocationId" class="form-control" onchange="OnLocationchng();">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="name">Slip No<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtSlipNo" class="form-control" />
+                </div>
+            </div>
+
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Name Of HCE<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtNameOfHCE" class="form-control" />
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Medicare Reg No<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtMedicareRegistratioNo" class="form-control" />
+                </div>
+            </div>
+
+            <div class="row" style="padding:5px;background-color:lightgoldenrodyellow;">
+                <div class="col-md-2">
+                    <label for="name">Yellow No Of Bags<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="number" id="txtYellowNoOfBags"  class="form-control" />
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Yellow Weight in Kgs<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtYellowWeightKgs" class="form-control" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;background-color:lightblue;">
+                <div class="col-md-2">
+                    <label for="name">Blue No Of Bags<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="number" id="txtBlueNoOfBags"  class="form-control" />
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Blue Weight in Kgs<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtBlueWeightKgs" class="form-control" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;background-color:lightcoral;">
+                <div class="col-md-2">
+                    <label for="name">Red No Of Bags<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="number" id="txtRedNoOfBags"  class="form-control" />
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Red Weight in Kgs<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtRedWeightKgs" class="form-control" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;background-color:lightgrey;">
+                <div class="col-md-2">
+                    <label for="name">Sharps No Of Bags<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="number" id="txtSharpsNoOfBags"  class="form-control" />
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Sharps Weight in Kgs<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtSharpsWeightKgs" class="form-control" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+
+
+                <div class="col-md-2">
+                    <label for="name">Taken By Person<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtTakenByPerson" class="form-control" />
+
+                </div>
+                @*<div class="col-md-2">
+            <label for="name">Security<span style="color:red;">*</span></label>
+        </div>
+        <div class="col-md-4">
+
+            <select id="txtSecurity" class="form-control">
+                <option value="">Select</option>
+            </select>
+        </div>*@
+                <div class="col-md-2">
+                    <label for="name">Remarks<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <textarea rows="2" id="txtRemarks" class="form-control"></textarea>
+                </div>
+            </div>
+           
+
+            @*<div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Security Sign<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <div id="captureSignatureIn">
+                    </div>
+                </div>
+          
+                <div class="col-md-2">
+                    <label for="name">Taken By Sign<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <div id="captureSignatureInNurseInChargeSign">
+                    </div>
+                </div>
+            </div>*@
+
+
+        </div>
+        <div>
+            <input type="button" id="btnasigntask" value="Save" onclick="SaveRegister();" class="btn btn-primary" />
+            <button type="button" class="btn btn-default" onclick="clearAll();">Cancel</button>
+        </div>
+    </div>
+</div>

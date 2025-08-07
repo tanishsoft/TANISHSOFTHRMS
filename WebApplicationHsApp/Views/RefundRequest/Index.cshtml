@@ -1,0 +1,537 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    var oTable;
+    $(document).ready(function () {
+        LoadData();
+        $(".date").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-50:+50",
+            Edit: true
+            //  minDate: 0
+        });
+        LoadLocations();
+    });
+    function LoadLocations() {
+        $.ajax({
+            type: "GET",
+            url: "/Common/GetLocations",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#ddlLocation").html(options.join(''));
+            },
+            error: function () {
+                alert("error");
+            }
+        });
+    }
+    function LoadData() {
+        oTable = $('#myDataTable').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/RefundRequest/AjaxGetRefundRequests",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aoColumns": [
+                { "sName": "RefundRequestId" },
+                { "sName": "LocationName" },
+                { "sName": "CreatedOn" },
+                { "sName": "PatientIpNo" },
+                { "sName": "PatientName" },
+                { "sName": "RefundAmount" },
+                { "sName": "Justification" },
+                { "sName": "RefundBillNo" },
+                //{ "sName": "ModeUsed" },
+                //{ "sName": "ModeUsedDetails" },
+                { "sName": "Status" },
+                { "sName": "CreatedBy" },
+                { "sName": "Accept" },
+                { "sName": "Approved" },
+                {
+                    "sName": "RefundRequestId",
+                    "bSortable": false,
+                    "render": function (data, row, r) {
+                      
+                        var htmlcontect = "";
+                        var datasplit = data.split('_');
+                        htmlcontect += '<div class="btn-group">';
+                        htmlcontect += '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>';
+                        htmlcontect += '<ul class="dropdown-menu dropdown-menu-right">';
+                        if (($("#hdnIsAccounts").val() == "Yes" || $("#hdnIsApprover").val() == "Yes") && r[8] != "Closed" && r[8] != "Rejected") {
+
+                            if (datasplit[1] == "Y" && $("#hdnIsApprover").val() == "Yes") {
+                                htmlcontect += '<li><a href="javascript:void(0);" style="cursor: pointer; color:green;" id="' + datasplit[0] + '" onclick="ApproveTheRefundReq(this.id);">Approve</a></li>';
+                                htmlcontect += '<li><a href="javascript:void(0);" style="cursor:pointer;color:red;" id="' + datasplit[0] + '" onclick="RejectTheRefundReq(this.id);">Reject</a></li>';
+                            } else if (datasplit[1] != "Y") {
+                                htmlcontect += '<li><a href="javascript:void(0);" style="cursor: pointer; color:green;" id="' + datasplit[0] + '" onclick="AcceptTheRefundReq(this.id);">Accept</a></li>';
+                            }
+
+                        }
+                        htmlcontect += '<li><a href="javascript:void(0);" id="' + datasplit[0] + '" onclick="ManageComments(this.id);">Manage Comments</a></li>';
+                        htmlcontect += '<li><a href="javascript:void(0);" id="' + datasplit[0] + '" onclick="ViewFiles(this.id);">Manage Documents</a></li>';
+                        htmlcontect += '<li><a href="javascript:void(0);" id="' + datasplit[0] + '" onclick="View(this.id);">View</a></li>';
+                        //htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="Edit(this.id);">Edit</a></li>';
+                        if ($("#hdnIsAccounts").val() == "Yes" && r[8] != "Closed" && r[8] != "Rejected" && r[8] != "Approval Waiting") {
+                            htmlcontect += '<li><a href="javascript:void(0);" style="cursor:pointer;color:red;" id="' + datasplit[0] + '" onclick="CloseTheRefundReq(this.id);">Close</a></li>';
+                        }
+                        htmlcontect += '</ul></div>';
+                        return htmlcontect;
+                    }
+                }
+            ],
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, 500, 1000], [10, 20, 30, 50, 100, 150, 200, 500, 1000]],
+            //"fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+            //    if (aData[14] != null && aData[14] != "") {
+            //        $('td:eq(14)', nRow).html('<a href="/ExcelUplodes/' + aData[14] + '" target="_blank" id="' + aData[14] + '">View</a>');
+            //    } else {
+            //        $('td:eq(14)', nRow).html('NA');
+            //    }
+            //    if (aData[13] == "Waiting") {
+            //        $('td', nRow).css("background-color", "#FFD580 !important");
+            //    }
+
+            //},
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "locationid", "value": $("#ddlLocation").val() },
+                    { "name": "category", "value": $("#txtJustification").val() },
+                    { "name": "fromdate", "value": $("#FromDateExcel").val() },
+                    { "name": "todate", "value": $("#ToDateExcel").val() }
+                );
+            },
+        });
+    }
+    function Edit(id) {
+        //$.get("/RefundRequest/GetConcession?id=" + id, function (data) {
+        //    if (data.Status == "Approval Waiting") {
+        window.location = "/RefundRequest/NewRequest?id=" + id;
+        //    } else {
+        //        alert("Only pending for approval Concessions can edit");
+        //    }
+        //});
+    }
+    function View(id) {
+        $.get("/RefundRequest/GetRefundRequests?id=" + id, function (data) {
+            var html = " <table class='table table-bordered'>";
+            html += "<tr><td>Date Of Submit</td><td>" + data.CreatedOn + "</td>";
+            html += "<td>IP Number</td><td>" + data.PatientIpNo + "</td></tr>";
+            html += "<tr><td>Patient Name</td><td>" + data.PatientName + "</td>";
+            html += "<td>Justification</td><td>" + data.Justification + "</td></tr>";
+            html += "<tr><td>Refund Bill No</td><td>" + data.RefundBillNo + "</td>";
+            html += "<td>Refund Amount</td><td>" + data.RefundAmount + "</td></tr>";
+            html += "<tr><td>AccountHolderName</td><td>" + data.AccountHolderName + "</td>";
+            html += "<td>Mode used by patient to pay amount</td><td>" + data.ModeUsed + "</td></tr>";
+
+            html += "<tr><td>Mode Used Details</td><td>" + data.ModeUsedDetails + "</td><td>Status</td><td>" + data.Status + "</td></tr>";
+            html += "<tr><td>IFSC</td><td>" + data.IFSC + "</td>";
+            html += "<td>BankName</td><td>" + data.BankName + "</td></tr>";
+
+            html += "<tr><td>Account Number</td><td>" + data.AccountNumber + "</td>";
+            html += "<td>Branch</td><td>" + data.Branch + "</td></tr>";
+            html += "<tr><td>Remarks</td><td>" + data.Remarks + "</td></tr>";
+
+            html += "</table>";
+            $("#divbinddata").html(html);
+            $("#myModalView").modal('show');
+        });
+    }
+    function ExportExcelData() {
+        if ($("#FromDateExcel").val() != null && $("#FromDateExcel").val() != "" &&
+            $("#ToDateExcel").val() != null && $("#ToDateExcel").val() != "") {
+            var params = "FromDate=" + $("#FromDateExcel").val() + "&ToDate=" + $("#ToDateExcel").val();
+            if ($("#ddlLocation").val() != null && $("#ddlLocation").val() != "") {
+                params += "&LocationId=" + $("#ddlLocation").val();
+            }
+
+
+            window.location = "/RefundRequest/ExportToExcel?" + params;
+        } else {
+            alert("Please select fromdate and todate");
+        }
+    }
+
+    function ManageComments(id) {
+        currentid = id;
+        BindQueryonRequest(id);
+        $("#divManageQueryOnRequest").modal("show");
+    }
+    function SubmitQueryonRequest() {
+        var model = {
+            Id: 0,
+            RefundRequestId: currentid,
+            Comment: $("#txtquerycomments").val(),
+            CommentedType: "General"
+        };
+        $.post("/RefundRequest/SaveQueriesOnComments", model, function (data) {
+            $("#txtquerycomments").val("");
+            //alert("Query is added successfully");
+            //$("#divManageQueryOnRequest").modal("hide");
+            BindQueryonRequest(currentid);
+        });
+    }
+    function BindQueryonRequest(id) {
+        $.get("/RefundRequest/GetQueriesOrCommentsonRequest", { id: id }, function (data) {
+            var html = "<table class='table  table-bordered'><tr style='background-color:teal;color:white;'><td>Comments</td><td>Added By</td><td> Date</td><td> Comment Type</td></tr>";
+            for (var i = 0; i < data.length; i++) {
+                html += "<tr><td>" + data[i].Notes + "</td><td>" + data[i].CreatedBy + " </td><td>" + data[i].CreatedOn + " </td><td>" + data[i].CommentedType + " </td></tr>";
+            }
+            html + "</table>";
+            $("#Divqueryonrequest").html(html);
+        });
+    }
+
+    var currentrequestid;
+    function RejectTheRefundReq(id) {
+        currentrequestid = id;
+
+        $("#myModalRejectrequest").modal("show");
+    }
+    function CloseTheRefundReq(id) {
+        $("#myModalCloserequest").modal("show");
+        currentrequestid = id;
+        //if (confirm("Are you sure you want to close?")) {
+        //    $.get("/Cpx/CloseCpxRequestByPurchase?id=" + id + "&comments=close", function (data) {
+        //        LoadData();
+        //    });
+        //}
+    }
+    function CloseRefundRequest() {
+        $.get("/RefundRequest/CloseRequestByAccounts?id=" + currentrequestid + "&comments=" + $("#txtcommentsClose").val(), function (data) {
+            $("#txtcommentsClose").val("");
+            $("#myModalCloserequest").modal("hide");
+            oTable.api().ajax.reload(null, false);
+        });
+    }
+    var status = "";
+    function AcceptTheRefundReq(id) {
+        status = "Accept";
+        currentrequestid = id;
+        $("#myModalApproverequest").modal("show");
+    }
+    function ApproveTheRefundReq(id) {
+        status = "Approved";
+        currentrequestid = id;
+        $("#myModalApproverequest").modal("show");
+    }
+    function ApproveCpxRequest() {
+        $.get("/RefundRequest/ApproveRequestByAccounts?id=" + currentrequestid + "&status=" + status + "&comments=" + $("#txtcommentsapprove").val(), function (data) {
+            oTable.api().ajax.reload(null, false);
+            $("#txtcommentsapprove").val("");
+            $("#myModalApproverequest").modal("hide");
+        });
+    }
+    function RejectCpxRequest() {
+        $.get("/RefundRequest/RejectRequest?id=" + currentrequestid + "&comments=" + $("#txtcommentsreject").val(), function (data) {
+            oTable.api().ajax.reload(null, false);
+            $("#txtcommentsreject").val("");
+            $("#myModalRejectrequest").modal("hide");
+        });
+    }
+
+    var currentid;
+    function ViewFiles(id) {
+        currentid = id;
+        //alert(id);
+        BindListoffiles(id);
+        $("#divManageDocuments").modal("show");
+    }
+    function Uploaddataclick() {
+
+        // Checking whether FormData is available in browser
+        if (window.FormData !== undefined) {
+
+            var fileUpload = $("#selectfiletoupload").get(0);
+            var files = fileUpload.files;
+
+            // Create FormData object
+            var fileData = new FormData();
+
+            for (var i = 0; i < files.length; i++) {
+                fileData.append(files[i].name, files[i]);
+            }
+
+            // Adding one more key to FormData object
+            fileData.append('id', currentid);
+            $.ajax({
+                url: '/RefundRequest/UploadFiles',
+                type: "POST",
+                contentType: false,
+                processData: false,
+                data: fileData,
+                success: function (result) {
+                    //alert(result);
+                    BindListoffiles(currentid);
+                },
+                error: function (err) {
+                    alert(err.statusText);
+                }
+            });
+        } else {
+            alert("FormData is not supported.");
+        }
+    }
+    function BindListoffiles(id) {
+        $.get("/RefundRequest/GetListOfFiles", { id: id }, function (data) {
+            var html = "<table class='table  table-bordered'><tr style='background-color:teal;color:white;'><td>Name</td><td> Action</td></tr>";
+            for (var i = 0; i < data.length; i++) {
+                html += "<tr><td>" + data[i].Title + "</td><td><a  target='_blank' href='/ExcelUplodes/" + data[i].Attachment + "'>View</a> </td></tr>";
+            }
+            html + "</table>";
+            $("#Divdocumentshistory").html(html);
+        });
+    }
+
+
+</script>
+<input type="hidden" id="hdnIsAccounts" value="@ViewBag.IsAccounts" />
+<input type="hidden" id="hdnIsApprover" value="@ViewBag.IsApprover" />
+
+<div class="panel panel-default">
+    <div class="panel-heading" style=" font-weight:normal;">
+        <span class="glyphicon glyphicon-arrow-right"></span>&nbsp; Refund Request
+        <a href="/RefundRequest/NewRequest?id=0" style="float:right;">New</a>
+    </div>
+    <div class="panel-body" style="min-height:600px;">
+        <div class="row" style="margin-bottom:5px;">
+            <div class="col-md-2">
+                <select class="form-control" id="ddlLocation">
+                    <option value="">Select Location</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-control clsrequired" name="Justification" id="txtJustification">
+                    <option value="">Select Justification</option>
+                    <option value="IP Cases" disabled="disabled" style="color:darkslategrey;font-weight:bold;">IP Cases</option>
+                    <option value="Excess of Advance - Cash Cases">Excess of Advance - Cash Cases</option>
+                    <option value="Excess of Advance - Insurance Cases">Excess of Advance - Insurance Cases</option>
+                    <option value="OP Cases" disabled="disabled" style="color:darkslategrey;font-weight:bold;">OP Cases</option>
+                    <option value="Consultation Cancel">Consultation Cancel</option>
+                    <option value="Video Consultation Cancel">Video Consultation Cancel</option>
+                    <option value="Registration Cancel">Registration Cancel</option>
+                    <option value="Wrong Billing">Wrong Billing</option>
+                    <option value="Excess Amount swiped">Excess Amount swiped</option>
+                    <option value="Scan Cancel">Scan Cancel</option>
+                    <option value="Lab Test Cancel">Lab Test Cancel</option>
+                    <option value="Other Services Cancel">Other Services Cancel</option>
+                    <option value="Concession - Refund">Concession - Refund</option>
+                    <option value="Double time paid by patient">Double time paid by patient</option>
+                    <option value="Excess Amount noticed by Accounts">Excess Amount noticed by Accounts</option>
+                    <option value="Pharmacy Cases" disabled="disabled" style="color:darkslategrey;font-weight:bold;">Pharmacy Cases</option>
+                    <option value="Double Swipe">Double Swipe</option>
+                    <option value="Sale Return">Sale Return</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+
+            </div>
+            <div class="col-md-2">
+
+            </div>
+            <div class="col-md-1">
+                <input class="date form-control" autocomplete="off" type="text" placeholder="From Date" id="FromDateExcel" />
+            </div>
+            <div class="col-md-1">
+                <input class="date form-control" autocomplete="off" type="text" placeholder="To Date" id="ToDateExcel" />
+            </div>
+            <div class="col-md-2">
+                <input type="button" id="btnExport" value="Export Excel" class="btn btn-link" onclick="ExportExcelData()" />
+                <input type="button" class="btn btn-danger" id="btnGo" onclick="LoadData();" value="Go" />
+            </div>
+
+        </div>
+        <table class="table table-bordered" id="myDataTable">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>No.</th>
+                    <th>Location</th>
+                    <th>Date</th>
+                    <th>IP/MR/Pharma_NO</th>
+                    <th>Patient Name</th>
+                    <th>Refund Amount</th>
+                    <th>Justification</th>
+
+                    <th>Refund BillNo</th>
+                    @*<th>Mode Used</th>
+                        <th>Mode Used Details</th>*@
+                    <th>Status</th>
+                    <th>Created By</th>
+                    <th>Accept By</th>
+                    <th>Approver</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="myModalView" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" style="color:white;">View</h4>
+            </div>
+            <div class="modal-body">
+                <div id="divbinddata">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="divManageDocuments" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Manage Documents</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <tr>
+                        <td>
+                            Select File  :
+                        </td>
+                        <td>
+                            <input type="file" name="file" id="selectfiletoupload" multiple />
+                        </td>
+                        <td>
+                            <input type="button" id="btnUploadfile" class="btn btn-primary" value="Upload" onclick="Uploaddataclick();" />
+                        </td>
+                    </tr>
+                </table>
+                <div class="row" style="padding:5px;" id="Divdocumentshistory">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div id="divManageQueryOnRequest" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Manage Query/Comments</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <tr>
+                        <td>
+                            Enter Details:
+                        </td>
+                        <td>
+                            <textarea id="txtquerycomments" class="form-control" rows="3"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="button" id="btnsubmitquery" class="btn btn-primary" value="Save" onclick="SubmitQueryonRequest();" />
+                        </td>
+                    </tr>
+                </table>
+                <div class="row" style="padding:5px;" id="Divqueryonrequest">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div><div class="modal fade" id="myModalRejectrequest" role="dialog">
+    <div class="form-block">
+        <h3>Reject Request<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <div id="divapproverequesst">
+            <table class="table" style="width:100%;">
+                <tr>
+                    <td>
+                        Comments
+                    </td>
+                    <td>
+                        <textarea id="txtcommentsreject" class="form-control"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        &nbsp;
+                    </td>
+                    <td>
+                        <input type="button" id="btnapprove" class="btn btn-danger" onclick="RejectCpxRequest();" value="Reject" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="myModalApproverequest" role="dialog">
+    <div class="form-block">
+        <h3>Approve/Accept Request<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <div id="divapproverequest">
+            <table class="table" style="width:100%;">
+                <tr>
+                    <td>
+                        Comments
+                    </td>
+                    <td>
+                        <textarea id="txtcommentsapprove" class="form-control"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        &nbsp;
+                    </td>
+                    <td>
+                        <input type="button" id="btnapprove" class="btn btn-warning" onclick="ApproveCpxRequest();" value="Approve" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="myModalCloserequest" role="dialog">
+    <div class="form-block">
+        <h3>Close Request<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <div id="divaCloserequest">
+            <table class="table" style="width:100%;">
+                <tr>
+                    <td>
+                        Comments
+                    </td>
+                    <td>
+                        <textarea id="txtcommentsClose" class="form-control"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        &nbsp;
+                    </td>
+                    <td>
+                        <input type="button" id="btnClose" class="btn btn-warning" onclick="CloseRefundRequest();" value="Close" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

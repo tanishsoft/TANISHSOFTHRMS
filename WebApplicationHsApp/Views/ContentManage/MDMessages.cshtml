@@ -1,0 +1,65 @@
+﻿
+@{
+    ViewBag.Title = "MDMessages";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="panel panel-default">
+        <div class="panel-heading">Md Madam Message replay </div>
+        <div class="panel-body" id="tbldatashow">
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+
+        GetAllMessages();
+    });
+
+    function GetAllMessages() {
+        $.ajax({
+            type: "GET",
+            url: "/ContentManage/GetSettingsResponsesUser",
+            data: { Key: "MdMessage" },
+            success: function (data) {
+                $("#tbldatashow").html("");
+
+                var htmlprepare = "";
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].Comments.length > 0) {
+                        $("#tbldatashow").append("<p>" + data[i].SettingsValue + "</p>");
+                        var htmlupdate = "";
+                        for (var j = 0; j < data[i].Comments.length; j++) {
+                            htmlupdate += "<div class='list-group'>";
+                            htmlupdate += "<div  class='list-group-item list-group-item-action flex-column align-items-start'>";
+                            htmlupdate += "<div class='d-flex w-100 justify-content-between'>";
+                            htmlupdate += "<h5 class='mb-1' style='color:crimson;font-weight:bold;' >" + data[i].Comments[j].CreatedBy + "<span style='float:right;color:green;'> " + data[i].Comments[j].CreatedOn + "</span></h5>";
+                            //htmlupdate += "<small class='text-muted'>" + data[i].Comments[j].CreatedOn + "</small>";
+                            htmlupdate += "</div>";
+
+                            htmlupdate += "<p class='mb-1'>" + data[i].Comments[j].Message + "</p>";
+                       
+                            var subcomments = data[i].Comments[j].SubComments;
+                            for (var k = 0; k < subcomments.length; k++) {
+                                htmlupdate += "<p class='mb-1'> " + subcomments[k].CreatedBy + " - " + subcomments[k].Message + " - <span>" + data[i].Comments[j].CreatedOn + " </span></p>";
+
+                            }
+                            //$("#tbldatashow").append("<small class='text-muted'>Donec id elit non mi porta.</small>");
+                            htmlupdate += "</div>";
+                            htmlupdate += "</div>";
+                        }
+                        $("#tbldatashow").append(htmlupdate);
+                    }
+                }
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+  
+
+</script>
+

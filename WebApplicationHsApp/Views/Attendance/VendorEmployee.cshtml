@@ -1,0 +1,175 @@
+﻿
+@{
+    ViewBag.Title = "VendorEmployee";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+
+        $("#txtFromDate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy"
+        });
+        $("#txtToDate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy"
+        });
+        LoadEmployees();
+        LoadAllVendros();
+        //LoadAlltheSwipes();
+    });
+    function LoadAllVendros() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetAllVendors",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Vendor -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].VendorId + '">' + data[i].Name + '</option>');
+                }
+                $("#ddlVendors").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadEmployees() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetEmployeesByVendor?VendorId=" + $("#ddlVendors").val(),
+            success: function (data) {
+
+                var options = [];
+                options.push('<option value="">- Select Employee -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].CustomUserId + '">' + data[i].FirstName + '</option>');
+                }
+                $("#ddlemployees").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadAlltheSwipes() {
+        if ($("#txtFromDate").val() != null && $("#txtFromDate").val() != "" && $("#txtToDate").val() != null && $("#txtToDate").val() != "") {
+            $('#tbltable').dataTable({
+                "bServerSide": true,
+                "sAjaxSource": "/Attendance/AjaxGetVendorEmployeeSwipesTotal",
+                "bProcessing": true,
+                "bDestroy": true,
+                "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+                //"aaSorting": [[0, "desc"]],
+                "aoColumns": [
+                    { "sName": "employeeid" },
+                    { "sName": "LocationName" },
+                    { "sName": "DepartmentName" },
+                    { "sName": "FirstName" },
+                    { "sName": "att_date" },
+                    { "sName": "in_time" },
+                    { "sName": "out_time" },
+                    { "sName": "latein" },
+                    { "sName": "lateout" },
+                    { "sName": "earlyin" },
+                    { "sName": "earlyout" },
+                    { "sName": "status" }
+                ],
+                "fnServerParams": function (aoData) {
+                    aoData.push(                        
+                        { "name": "FormType", "value": $("#ddlVendors").val() },
+                        { "name": "Emp", "value": $("#ddlemployees").val() },
+                        { "name": "fromdate", "value": $("#txtFromDate").val() },
+                        { "name": "todate", "value": $("#txtToDate").val() }
+                    );
+                }
+            });
+            $("#tbltable_length").addClass("col-md-6");
+            $("#tbltable_length").addClass("col-md-6");
+        } else {
+            alert("Please Enter From date and To date");
+        }
+    }
+
+    function Loadthereports() {
+        if ($("#txtFromDate").val() != "" && $("#txtFromDate").val() != null && $("#txtToDate").val() != "" && $("#txtToDate").val() != null) {
+            var departmentid = 0;
+
+            window.location = "/Attendance/GetSwipeswithRoasterForVendor?Fromdate=" + $("#txtFromDate").val() + "&Todate=" + $("#txtToDate").val() + "&locationId=0&Departmentid=0&employeeid=" + 0 + "&FormType=" + $("#ddlVendors").val();
+        } else {
+            alert("Please select all required fields");
+        }
+    }
+
+
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading">Out Source Employees Swipe</div>
+    <div class="panel-body">
+
+        <table class="table">
+            <tr>
+                @if (User.IsInRole("Admin") || User.IsInRole("HrAdmin"))
+                {
+                    <td>
+                        Vendor
+                    </td>
+                    <td>
+                        <select id="ddlVendors" class="form-control" onchange="LoadEmployees();">
+                            <option value="">Select</option>
+                        </select>
+                    </td>
+                }
+                <td>
+                    Employee
+                </td>
+                <td>
+                    <select id="ddlemployees" class="form-control">
+                        <option value="">Select</option>
+                    </select>
+                </td>
+                <td>
+                    From Date
+                </td>
+                <td><input type="text" id="txtFromDate" class="form-control" autocomplete="off" /> </td>
+                <td>
+                    To Date
+                </td>
+                <td><input type="text" id="txtToDate" class="form-control" autocomplete="off" /> </td>
+                <td>
+                    <input type="button" id="btngo2" value="Export To Excel" class="btn btn-warning" onclick="Loadthereports();" />
+                    <input type="button" id="btngo" value="Go" class="btn btn-primary" onclick="LoadAlltheSwipes();" />
+                </td>
+            </tr>
+
+        </table>
+
+        <table class="table table-striped table-hover table-bordered" id="tbltable">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Location</th>
+                    <th>Department</th>
+                    <th>Name</th>
+                    <th>Attandance Date</th>
+                    <th>In Time</th>
+                    <th>Out Time</th>
+                    <th>
+                        Late In
+                    </th>
+                    <th>
+                        Late Out
+                    </th>
+                    <th>Early In</th>
+                    <th>Early Out</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>

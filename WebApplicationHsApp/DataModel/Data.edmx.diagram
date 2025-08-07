@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="9b293748155f40eabfac4ee3eeb16e6a" Name="Diagram1">
+        <EntityTypeShape EntityType="MyIntranetAppModel.C__MigrationHistory" Width="1.5" PointX="0.75" PointY="6.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.AspNetRole" Width="1.5" PointX="0.75" PointY="2.5" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.AspNetUserClaim" Width="1.5" PointX="5.25" PointY="1" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.AspNetUserLogin" Width="1.5" PointX="5.25" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.AspNetUser" Width="1.5" PointX="3" PointY="1.375" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.Message" Width="1.5" PointX="2.75" PointY="6.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.Room" Width="1.5" PointX="4.75" PointY="6.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.SystemLog" Width="1.5" PointX="6.75" PointY="6.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_AcademicsVideoHistory" Width="1.5" PointX="7.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_AcademicsVideos" Width="1.5" PointX="8.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_AdminCategory" Width="1.5" PointX="8.75" PointY="9.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_AdminDocument" Width="1.5" PointX="10.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_AdministrationTracker" Width="1.5" PointX="0.75" PointY="10.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_AdministrationTrackerDocument" Width="1.5" PointX="2.75" PointY="10.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_AdministrationTrackerNotes" Width="1.5" PointX="10.75" PointY="5.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_AdministrationTrackerPurchase" Width="1.5" PointX="10.75" PointY="9.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_AdministrationTrackerTask" Width="1.5" PointX="4.75" PointY="11.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_AdminSubCategory" Width="1.5" PointX="12.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Appointments" Width="1.5" PointX="12.75" PointY="5.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_AppointmentSlot" Width="1.5" PointX="12.75" PointY="10.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_AppraisalSetting" Width="1.5" PointX="14.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_AppraiseeDevelopmentTraning" Width="1.5" PointX="2.75" PointY="14.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_AsqForm" Width="1.5" PointX="14.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_AsqQuestions" Width="1.5" PointX="4.75" PointY="14.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_AsqSubForm" Width="1.5" PointX="6.75" PointY="14.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Asset" Width="1.5" PointX="8.75" PointY="14.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Asset_MobileAllotment" Width="1.5" PointX="10.75" PointY="14.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_AssetBrand" Width="1.5" PointX="14.75" PointY="11.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_AssetComponent" Width="1.5" PointX="12.75" PointY="15.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_AssetHistory" Width="1.5" PointX="14.75" PointY="15.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_AssetModel" Width="1.5" PointX="16.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_AssetTranfer" Width="1.5" PointX="16.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_AssetType" Width="1.5" PointX="16.75" PointY="10.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_AssetTypeComponent" Width="1.5" PointX="16.75" PointY="14.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_AssignEmployeesToManager" Width="1.5" PointX="18.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_att_master" Width="1.5" PointX="0.75" PointY="18.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_att_master_doctor" Width="1.5" PointX="2.75" PointY="18.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_bm_Asset" Width="1.5" PointX="18.75" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_bm_AssetDoument" Width="1.5" PointX="18.75" PointY="11.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_bm_AssetTransfer" Width="1.5" PointX="14.75" PointY="18.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_bm_BreakDown" Width="1.5" PointX="18.75" PointY="15.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_bm_CheckList" Width="1.5" PointX="20.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_bm_CheckListItem" Width="1.5" PointX="20.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_bm_DailyRound" Width="1.5" PointX="20.75" PointY="7.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_bm_Doument" Width="1.5" PointX="20.75" PointY="13.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_bm_PreventiveMaintenance" Width="1.5" PointX="20.75" PointY="17.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_bm_PreventiveMaintenance_CheckList" Width="1.5" PointX="22.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_bm_ShiftingRequest" Width="1.5" PointX="2.75" PointY="22.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_bm_TeamSetup" Width="1.5" PointX="22.75" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Booking" Width="1.5" PointX="22.75" PointY="7.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Building" Width="1.5" PointX="8.75" PointY="22.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_CallCenterDepartment" Width="1.5" PointX="10.75" PointY="22.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Candidates" Width="1.5" PointX="22.75" PointY="16.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_CaseSheetRetrival" Width="1.5" PointX="22.75" PointY="20.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Category" Width="1.5" PointX="12.75" PointY="23.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_CellPhoneRequest" Width="1.5" PointX="14.75" PointY="23.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_CellPhoneRequestApprover" Width="1.5" PointX="16.75" PointY="23.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_cm_Canteen" Width="1.5" PointX="24.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_cm_Category" Width="1.5" PointX="4.75" PointY="24.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_cm_EmpOrders" Width="1.5" PointX="24.75" PointY="5.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_cm_Item" Width="1.5" PointX="24.75" PointY="13.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_cm_ItemCategory" Width="1.5" PointX="24.75" PointY="21.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_cm_ItemMealType" Width="1.5" PointX="24.75" PointY="24.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_cm_ItemTransfer" Width="1.5" PointX="6.75" PointY="25.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_cm_ItemTransferItem" Width="1.5" PointX="8.75" PointY="25.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_cm_MealType" Width="1.5" PointX="18.75" PointY="25.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_cm_Payment" Width="1.5" PointX="26.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_cm_ReceivedStock" Width="1.5" PointX="26.75" PointY="5.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_cm_ReceivedStockItem" Width="1.5" PointX="26.75" PointY="10.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_cm_Store" Width="1.5" PointX="10.75" PointY="26.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_cm_StoreEmp" Width="1.5" PointX="26.75" PointY="14.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_cm_Transaction" Width="1.5" PointX="26.75" PointY="18.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_cm_TransactionItem" Width="1.5" PointX="26.75" PointY="26.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_cm_UnitType" Width="1.5" PointX="20.75" PointY="27.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_cm_VendorMeal" Width="1.5" PointX="28.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_cm_VendorMealRequest" Width="1.5" PointX="28.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_cm_VendorMealRequestMealType" Width="1.5" PointX="28.75" PointY="10.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_cmp_Diet" Width="1.5" PointX="28.75" PointY="14.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_cmp_DietMenu" Width="1.5" PointX="28.75" PointY="18.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_cmp_OrderRequest" Width="1.5" PointX="22.75" PointY="28.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_cmp_OrderRequestAttendendent" Width="1.5" PointX="28.75" PointY="23.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_cmp_OrderRequestAttendendentByPatient" Width="1.5" PointX="30.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_cmp_OrderRequestByPatient" Width="1.5" PointX="30.75" PointY="6.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Comment" Width="1.5" PointX="30.75" PointY="12.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_CommonDepartment" Width="1.5" PointX="12.75" PointY="30.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_CompOffEncash" Width="1.5" PointX="14.75" PointY="30.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Concession" Width="1.5" PointX="30.75" PointY="16.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_ConsentForm" Width="1.5" PointX="16.75" PointY="30.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_CugList" Width="1.5" PointX="24.75" PointY="30.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_DefaultShiftType" Width="1.5" PointX="30.75" PointY="26.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Delegate" Width="1.5" PointX="0.75" PointY="31.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Department" Width="1.5" PointX="2.75" PointY="31.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_DepartmentShifts" Width="1.5" PointX="18.75" PointY="31.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_DepartmentVsCategory" Width="1.5" PointX="26.75" PointY="31.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_DepartmentVsCommonDepartment" Width="1.5" PointX="28.75" PointY="31.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_DeviceInfo" Width="1.5" PointX="30.75" PointY="31.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Dms" Width="1.5" PointX="32.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_DmsCategory" Width="1.5" PointX="4.75" PointY="32.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Doctor" Width="1.5" PointX="32.75" PointY="5.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Doctor_RegistrationFrom" Width="1.5" PointX="6.75" PointY="32.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_DoctorPunchInOutEntries" Width="1.5" PointX="8.75" PointY="32.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Drug" Width="1.5" PointX="32.75" PointY="10.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_DrugNicuReport" Width="1.5" PointX="32.75" PointY="14.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_EmpCounseling" Width="1.5" PointX="32.75" PointY="20.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_EmpCounselingFamily" Width="1.5" PointX="32.75" PointY="26.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_EmployeeDetails" Width="1.5" PointX="32.75" PointY="32.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_EmpSchedule" Width="1.5" PointX="10.75" PointY="33.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_EmpScheduleBreak" Width="1.5" PointX="34.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_EmrEntry" Width="1.5" PointX="34.75" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Event" Width="1.5" PointX="34.75" PointY="13.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_EventManage" Width="1.5" PointX="34.75" PointY="19.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_EventManageDelegate" Width="1.5" PointX="24.75" PointY="34.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_EventManageDelegateMealType" Width="1.5" PointX="34.75" PointY="25.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_EventManageDelegateMealTypeHistory" Width="1.5" PointX="26.75" PointY="34.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_EventManageDelegateMethod" Width="1.5" PointX="34.75" PointY="30.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_EventManageDelegatePayment" Width="1.5" PointX="12.75" PointY="35.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_EventManageMealType" Width="1.5" PointX="14.75" PointY="35.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_EventManageMethod" Width="1.5" PointX="16.75" PointY="35.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_EventManagePayment" Width="1.5" PointX="18.75" PointY="35.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_FeedBack" Width="1.5" PointX="28.75" PointY="35.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_FhNda" Width="1.5" PointX="34.75" PointY="35.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Floor" Width="1.5" PointX="36.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_FloorDepartment" Width="1.5" PointX="2.75" PointY="36.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_GatePass" Width="1.5" PointX="36.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_GatePassAsset" Width="1.5" PointX="36.75" PointY="11.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Group" Width="1.5" PointX="36.75" PointY="15.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Holiday" Width="1.5" PointX="36.75" PointY="18.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_HomePageVideos" Width="1.5" PointX="20.75" PointY="36.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Hr_Remainder" Width="1.5" PointX="36.75" PointY="22.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Hr_RemainderAction" Width="1.5" PointX="36.75" PointY="27.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Hr_RemainderLog" Width="1.5" PointX="36.75" PointY="31.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Hr_RemainderType" Width="1.5" PointX="36.75" PointY="35.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_JobsHistory" Width="1.5" PointX="38.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_KraReviewSheet" Width="1.5" PointX="38.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_KraReviewSheetOther" Width="1.5" PointX="8.75" PointY="38.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Leave" Width="1.5" PointX="38.75" PointY="9.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_LeaveType" Width="1.5" PointX="38.75" PointY="18.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_LeaveUpdateHistory" Width="1.5" PointX="38.75" PointY="22.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Likes" Width="1.5" PointX="38.75" PointY="26.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Location" Width="1.5" PointX="38.75" PointY="30.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_locationlist" Width="1.5" PointX="38.75" PointY="34.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_ManageAllocation" Width="1.5" PointX="38.75" PointY="37.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_ManageLeave" Width="1.5" PointX="0.75" PointY="39.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_MasterEmployeeDesignation" Width="1.5" PointX="2.75" PointY="39.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_MealType" Width="1.5" PointX="40.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_NewUserAccessRequest" Width="1.5" PointX="40.75" PointY="4.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_NewUserRequestSubdepartment" Width="1.5" PointX="4.75" PointY="40.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Notification" Width="1.5" PointX="10.75" PointY="40.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_NotificationLog" Width="1.5" PointX="40.75" PointY="11.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Oracle_subdepts" Width="1.5" PointX="12.75" PointY="40.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_OutSourceUser" Width="1.5" PointX="14.75" PointY="40.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Page" Width="1.5" PointX="40.75" PointY="15.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Patient" Width="1.5" PointX="16.75" PointY="40.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_PatientBill" Width="1.5" PointX="18.75" PointY="40.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_PatientBillItem" Width="1.5" PointX="40.75" PointY="20.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Payment" Width="1.5" PointX="20.75" PointY="40.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_PerfomanceReview" Width="1.5" PointX="40.75" PointY="25.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Permission" Width="1.5" PointX="34.75" PointY="40.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Place" Width="1.5" PointX="40.75" PointY="36.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Post" Width="1.5" PointX="22.75" PointY="41.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Protocol" Width="1.5" PointX="24.75" PointY="41.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Purchase" Width="1.5" PointX="26.75" PointY="41.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_PurchaseItem" Width="1.5" PointX="28.75" PointY="41.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_ReportingManager" Width="1.5" PointX="30.75" PointY="41.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_RequestCompOffLeave" Width="1.5" PointX="40.75" PointY="41.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Roaster" Width="1.5" PointX="42.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Room" Width="1.5" PointX="42.75" PointY="5.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Settings" Width="1.5" PointX="42.75" PointY="9.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_SettingsResponse" Width="1.5" PointX="42.75" PointY="12.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Share" Width="1.5" PointX="42.75" PointY="17.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_ShiftType" Width="1.5" PointX="42.75" PointY="20.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_SubComment" Width="1.5" PointX="42.75" PointY="24.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_subdepartment" Width="1.5" PointX="42.75" PointY="28.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Survey" Width="1.5" PointX="42.75" PointY="31.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_SurveyResult" Width="1.5" PointX="42.75" PointY="35.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Task" Width="1.5" PointX="42.75" PointY="39.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_TaskApprove" Width="1.5" PointX="2.75" PointY="43.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_TaskApproverMaster" Width="1.5" PointX="4.75" PointY="43.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_TaskAutoAssignSetting" Width="1.5" PointX="6.75" PointY="43.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_TaskCallcenter" Width="1.5" PointX="36.75" PointY="43.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_TaskComment" Width="1.5" PointX="44.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_TaskCpx" Width="1.5" PointX="44.75" PointY="3.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_TaskCpxDoument" Width="1.5" PointX="44.75" PointY="13.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_TaskDoument" Width="1.5" PointX="44.75" PointY="17.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_TaskHistory" Width="1.5" PointX="44.75" PointY="21.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_TaskRemainderLogs" Width="1.5" PointX="44.75" PointY="24.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_TaskSLAUser" Width="1.5" PointX="44.75" PointY="27.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_TravelDesk" Width="1.5" PointX="44.75" PointY="31.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_TravelDeskTravel" Width="1.5" PointX="44.75" PointY="38.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_User" Width="1.5" PointX="44.75" PointY="43.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_User_History" Width="1.5" PointX="8.75" PointY="45.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_User_YearWiseHistory" Width="1.5" PointX="10.75" PointY="45.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_UserAssertDocuments" Width="1.5" PointX="18.75" PointY="45.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_UserAssets" Width="1.5" PointX="46.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_UserGroup" Width="1.5" PointX="46.75" PointY="6.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_usernotes" Width="1.5" PointX="46.75" PointY="10.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_VehicleRequest" Width="1.5" PointX="46.75" PointY="14.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Vendor" Width="1.5" PointX="20.75" PointY="46.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Visitor" Width="1.5" PointX="46.75" PointY="21.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_TravelDeskApprover" Width="1.5" PointX="22.75" PointY="46.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_TravelDeskDocument" Width="1.5" PointX="46.75" PointY="26.75" IsExpanded="true" />
+        <AssociationConnector Association="MyIntranetAppModel.FK_dbo_AspNetUserClaims_dbo_AspNetUsers_UserId" ManuallyRouted="false" />
+        <AssociationConnector Association="MyIntranetAppModel.FK_dbo_AspNetUserLogins_dbo_AspNetUsers_UserId" ManuallyRouted="false" />
+        <AssociationConnector Association="MyIntranetAppModel.AspNetUserRoles" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_DailyVisiting" Width="1.5" PointX="33.75" PointY="46.75" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_ValetParking" Width="1.5" PointX="0.75" PointY="47.75" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_DropdownValues" Width="1.5" PointX="3.375" PointY="47.75" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_FMUDataRetrieval" Width="1.5" PointX="5.375" PointY="47.75" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_NursingDetails" Width="1.5" PointX="47.375" PointY="29.75" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_NursingDetailsDocument" Width="1.5" PointX="29.375" PointY="47.75" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_VehicleRequestComment" Width="1.5" PointX="47.375" PointY="38.75" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_MainEvent" Width="1.5" PointX="47.375" PointY="41.75" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_MainEventGallery" Width="1.5" PointX="47.375" PointY="46.75" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_MainEventResult" Width="1.5" PointX="17.375" PointY="48.75" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_GatePassComment" Width="1.5" PointX="25.375" PointY="48.75" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Img_Gallery" Width="1.5" PointX="49.375" PointY="0.75" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Img_GalleryImages" Width="1.5" PointX="49.375" PointY="4.75" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Doula" Width="1.5" PointX="49.375" PointY="8.75" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_Doula_Specific" Width="1.5" PointX="49.375" PointY="14.75" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_TaskCpxComment" Width="1.5" PointX="49.375" PointY="17.75" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_TaskCpxItem" Width="1.5" PointX="49.375" PointY="20.75" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_RefundRequest" Width="1.5" PointX="49.375" PointY="24.75" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_RefundRequestAccess" Width="1.5" PointX="49.375" PointY="31.75" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_RefundRequestComment" Width="1.5" PointX="49.375" PointY="35.75" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_RefundRequestDocument" Width="1.5" PointX="49.375" PointY="39.75" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_TravelDeskReimbursementDocument" Width="1.5" PointX="39.375" PointY="49.75" />
+        <EntityTypeShape EntityType="MyIntranetAppModel.tbl_TravelDeskReimbursementform" Width="1.5" PointX="41.375" PointY="49.75" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

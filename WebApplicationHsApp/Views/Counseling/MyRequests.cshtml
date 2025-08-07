@@ -1,0 +1,77 @@
+﻿
+@{
+    ViewBag.Title = "MyRequests";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+        LoadData();
+    });
+    function LoadData() {
+        $('#tblCounselingdetails').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Counseling/AjaxGetMyCounselingdetails",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "id" },
+                { "sName": "Location" },
+                { "sName": "User" },
+                { "sName": "Mobile" },
+                { "sName": "self" },
+                { "sName": "Doctor" },
+                { "sName": "Date" },
+                { "sName": "Slot" },
+                { "sName": "Notes" },
+                { "sName": "Observation" },
+                {
+                    "sName": "Id",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><button id="' + data + '" onclick="CancelRequest(this.id);" value="Cancel" class="btn btn-link">Cancel</button></li>' +
+                            '</ul></div>';
+                    }
+                }
+            ]
+        });
+        $("#tblVehicleRequest_length").addClass("col-md-6");
+        $("#tblVehicleRequest_length").addClass("col-md-6");
+    }
+    function CancelRequest(id) {
+        $.get("/Counseling/CancelRequest?id=" + id, function (data) {
+            alert(data);
+            LoadData();
+        });
+    }
+</script>
+
+<div class="panel panel-default">
+    <div class="panel-heading" style=" font-weight:normal;">
+        <span class="glyphicon glyphicon-arrow-right"></span>&nbsp;Manage My Requests
+    </div>
+    <div class="panel-body" style="min-height:600px;">
+        <table class="table table-bordered" id="tblCounselingdetails">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>Id</th>
+                    <th>Location</th>
+                    <th>User</th>
+                    <th>Mobile</th>
+                    <th>Self/Family</th>
+                    <th>Doctor</th>
+                    <th>Date</th>
+                    <th>Slot</th>
+                    <th>Notes</th>
+                    <th>Observation</th>
+
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>

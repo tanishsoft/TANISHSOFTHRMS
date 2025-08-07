@@ -1,0 +1,163 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    var validate = true;
+    var eId = 0;
+    $(document).ready(function () {
+        LoadData();
+    });
+    function LoadData() {
+        $('#tblMealType').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/CMS/AjaxGetCMSMealType",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "Id" },
+
+                       { "sName": "Name" },
+                       { "sName": "Description" },
+                       //{ "sName": "IsActive" },
+                       {
+                           "sName": "CategoryId",
+                           "bSortable": false,
+                           "render": function (data, row, r) {
+                               var name = "'" + r[1] + "'";
+                               var des = "'" + r[2] + "'";
+                               var checked = "'" + r[4] + "'";
+
+                               return '<div class="btn-group">' +
+                                   '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                                   '<ul class="dropdown-menu dropdown-menu-right">' +
+                                   '<li><a href="javascript:void(0);"  onclick="onEdit(' + name + ',' + data + ',' + des +  ')">Edit</a></li>' +
+                                   '<li><a href="javascript:void(0);"  onclick="onDelete(' + data + ')">Delete</a></li>' +
+                                   '</ul></div>';
+                           }
+                       }
+            ]
+        });
+        $("#tblMealType_length").addClass("col-md-6");
+        $("#tblMealType_length").addClass("col-md-6");
+    }
+    function OnclickSave() {
+        validateMealType();
+        if (validate) {
+            var task = {
+                MealTypeId:eId,
+                MealTypeName: $("#Name").val(),
+                MealTypeDescription: $("#Description").val(),
+                IsActive: true
+            };
+            $.ajax({
+                type: "POST",
+                url: "/CMS/Save_UpdateCMSMealType",
+                data: task,
+                success: function (data) {
+                    $("#myModalMealType").modal('hide');
+                    //alert(data);
+                    clearAll(); LoadData();
+                }
+            });
+        }
+        //else {
+        //    alert("Fields Required");
+        //}
+    }
+    function validateMealType() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#Name").val() == "") {
+            $("#Name").addClass('css-error');
+            validate = false;
+        }
+
+        if ($("#Description").val() == "") {
+            $("#Description").addClass('css-error');
+            validate = false;
+        }
+    }
+    function Edit(id) {
+        eId = id;
+
+    }
+    function onEdit(a, b, c) {
+        debugger;
+        clearAll();
+        eId = b;
+        $("#Name").val(a);
+        $("#Description").val(c);
+        $("#myModalMealType").modal('show');
+        $("#header").text("Update");
+    }
+    function clearAll() {
+        $("#header").text("Add New");
+        $(".css-error").removeClass('css-error');
+        $("#Name").val("");
+        $("#Description").val("");
+        eId = 0;
+    }
+            function onDelete(id) {
+        if (confirm('Are you sure you want to delete?')) {
+            $.getJSON("@Url.Action("DeleteCMMealType", "CMS")", { id: id }, function (data) {
+                clearAll();
+                LoadData();
+            });
+        } return false;
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading" style="height:35px;background: linear-gradient(to bottom, rgba(217,39,64,1) 35%,rgba(146,0,0,1) 77%);">Meal Type<a href="#" data-toggle="modal" class="pull-right" style="color:white;" data-target="#myModalMealType">New MealType</a></div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblMealType">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    @*<th>Is Active</th>*@
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="myModalMealType" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="clearAll();">×</button>
+                <h4 class="modal-title" id="header">Add New Meal Type</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name"> Name<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="Name">
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Description<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="Description">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" onclick="OnclickSave();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearAll();">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+

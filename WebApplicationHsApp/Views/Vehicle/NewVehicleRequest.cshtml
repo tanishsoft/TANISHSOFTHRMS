@@ -1,0 +1,551 @@
+﻿@{
+    ViewBag.Title = "NewVehicleRequest";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+        $(".date")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                Edit: true,
+                minDate: 0
+
+            })
+        $('#picktext').hide();
+        $('#droptext').hide();
+        $(".Return").css("display", "none");
+        //$('#RequestTime').timepicker({
+        //    timeFormat: 'hh:mm:ss tt',
+        //    step:1
+        //});
+    });
+    function GetLocList() {
+        $.get('/Common/GetLocations', function (data) {
+            var options = [];
+            options.push('<option value="0">- Select Location -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+            }
+            $("#fromlocation").html(options.join(''));
+        });
+    }
+    function OnclickSaveRequest() {
+        validateRequest();
+        if (validate) {
+
+            var Return = "No";
+            if ($('#Return').is(":checked")) {
+                Return = $('#Return').val();
+            }
+            debugger;
+
+            var from = "";
+            var to = "";
+                from = $("#fromlocation").val();
+            var to = $("#tolocation").val();
+            if (from == 'others') {
+                from = $("#fromlocationtext").val();
+                alert(from);
+            }
+            if (to == 'others') {
+                to = $("#tolocationtext").val();
+                alert(to)
+            }
+            var task = {
+                VehicleTypeRequested: $("#vehicleType").val(),
+                Date: $("#Date").val(),
+                    ToAddress: to,              
+                FromAddress: from,
+                RequestorComments: $("#Comments").val(),
+                ArriveTime: $("#Arrivehour").val() + ":" + $("#Arrivemin").val() + " " + $("#Arrivetime").val(),
+                Mobile: $("#Mobile").val(),
+                Email: $("#Email").val(),
+                NoofPersons: $("#NoofPersons").val(),
+                returnRequired: Return,
+                Returndate: $("#RetunDate").val(),
+                Returntime: $("#Returnhour").val() + ":" + $("#Returnmin").val() + " " + $("#Returntime").val(),
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Vehicle/SaveRequest",
+                data: task,
+                success: function (data) {
+                    alert(data);
+                    ClearAll();
+                }
+            });
+        }
+    }
+    function validateRequest() {
+        validate = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#tolocation").val() == 0) {
+            $("#tolocation").after('<span class="error" style="color:Red;">Enter Drop Location</span>');
+            $("#tolocation").addClass('css-error');
+            validate = false;
+        } else if ($("#tolocation").val() == "others") {
+            if ($("#tolocationtext").val() == "") {
+                $("#tolocationtext").after('<span class="error" style="color:Red;">Enter Drop Location</span>');
+                $("#tolocationtext").addClass('css-error');
+                validate = false;
+            }
+
+        }
+        if ($("#fromlocation").val() == 0) {
+            $("#fromlocation").after('<span class="error" style="color:Red;">Enter Pick up Location</span>');
+            $("#fromlocation").addClass('css-error');
+            validate = false;
+        }
+        else if ($("#fromlocation").val() == "others") {
+            if ($("#fromlocationtext").val() == "") {
+                $("#fromlocationtext").after('<span class="error" style="color:Red;">Enter Pick up Location</span>');
+                $("#fromlocationtext").addClass('css-error');
+                validate = false;
+            }
+
+        }
+        
+        if ($("#Date").val() == "") {
+            $("#Date").after('<span class="error" style="color:Red;">select Date</span>');
+            $("#Date").addClass('css-error');
+            validate = false;
+        }
+        if ($("#vehicleType").val() == 0) {
+            $("#vehicleType").after('<span class="error" style="color:Red;">select Vehicle Type</span>');
+            $("#vehicleType").addClass('css-error');
+            validate = false;
+        }
+        //if ($("#Comments").val() == "") {
+        //    $("#Comments").after('<span class="error" style="color:Red;">Enter Comments</span>');
+        //    $("#Comments").addClass('css-error');
+        //    validate = false;
+        //}
+        if ($("#Arrivehour").val() == 00) {
+            $("#Arrivehour").after('<span class="error" style="color:Red;">select Arrive Time</span>');
+            $("#Arrivehour").addClass('css-error');
+            validate = false;
+        }
+        if ($("#Mobile").val() == "") {
+            $("#Mobile").after('<span class="error" style="color:Red;">Enter Mobile</span>');
+            $("#Mobile").addClass('css-error');
+            validate = false;
+        }
+        var emailReg = /^([\w-\.]+@@([\w-]+\.)+[\w-]{2,4})?$/;
+        var emailaddressVal = $("#Email").val();
+        if ($("#Email").val() == "") {
+            $("#Email").addClass('css-error');
+            $("#Email").after('<span class="error" style="color:Red;">Enter  email address.</span>');
+            validate = false;
+        }
+        
+
+        if ($("#NoofPersons").val() == "") {
+            $("#NoofPersons").after('<span class="error" style="color:Red;">Enter No of persons</span>');
+            $("#NoofPersons").addClass('css-error');
+            validate = false;
+        }
+        if ($('#Return').is(":checked")) {
+            var Return = $("#RetunDate").val();
+            var pick = $("#Date").val();
+            if ($("#RetunDate").val() == "") {
+                $("#RetunDate").after('<span class="error" style="color:Red;">select Date</span>');
+                $("#RetunDate").addClass('css-error');
+                validate = false;
+            }
+            else if (Return < pick) {
+                $("#RetunDate").after('<span class="error" style="color:Red;">return date always after day or same of pick up date</span>');
+                $("#RetunDate").addClass('css-error');
+                validate = false;
+            }
+            if ($("#Returnhour").val() == 00) {
+                $("#Returnhour").after('<span class="error" style="color:Red;">select Return Time</span>');
+                $("#Returnhour").addClass('css-error');
+                validate = false;
+            }
+            else if ($("#Returnhour").val() != 00 && $("#Arrivehour").val() != 00 && $("#Date").val() != "" && $("#RetunDate").val() != "") {
+                debugger;
+                var ArrDate = $('#Date').datepicker('getDate');
+                var ReDate = $('#RetunDate').datepicker('getDate');
+                var arrhours = Number($("#Arrivehour").val());
+                var arrminutes = Number($("#Arrivemin").val());
+                var arrAMPM = $("#Arrivetime").val();
+                if (arrAMPM == "PM" && arrhours < 12) arrhours = arrhours + 12;
+                if (arrAMPM == "AM" && arrhours == 12) arrhours = arrhours - 12;
+                var sarrHours = arrhours.toString();
+                var sarrMinutes = arrminutes.toString();
+                if (arrhours < 10) sarrHours = "0" + sarrHours;
+                if (arrminutes < 10) sarrMinutes = "0" + sarrMinutes;
+                var rehours = Number($("#Returnhour").val());
+                var reminutes = Number($("#Returnmin").val());
+                var reAMPM = $("#Returntime").val();
+                if (reAMPM == "PM" && rehours < 12) rehours = rehours + 12;
+                if (reAMPM == "AM" && rehours == 12) rehours = rehours - 12;
+                var sreHours = rehours.toString();
+                var sreMinutes = reminutes.toString();
+                if (rehours < 10) sreHours = "0" + sreHours;
+                if (reminutes < 10) sreMinutes = "0" + sreMinutes;
+                var ReDateTimestamp = ReDate.setHours(sreHours, sreMinutes, 0, 0)
+                var ArrDateTimestamp = ArrDate.setHours(sarrHours, sarrMinutes, 0, 0);
+                if (ReDateTimestamp <= ArrDateTimestamp) {
+                    alert("Return time is always greater than Pick Up Time");
+                    validate = false;
+                }
+            }
+        }
+
+        var d = new Date();
+        var hour = d.getHours(), mins = d.getMinutes();
+        var selectedDate = $('#Date').datepicker('getDate');
+
+        if (d.setHours(0, 0, 0, 0) == selectedDate.setHours(0, 0, 0, 0)) {
+            var Time = "";
+            if (mins < 10)
+                mins = "0" + mins;
+
+
+            if (hour == 0) {
+                hour = 12;
+            }
+            var hour2 = parseInt($("#Arrivehour").val()), mins2 = parseInt($("#Arrivemin").val());
+            if ($("#Arrivetime").val() == "PM") {
+                hour2 = hour2 + 12;
+            }
+            //var current = hour + ":" + mins + " " + suffix, user = $("#Arrivehour").val() + ':' + $("#Arrivemin").val() + ' ' + $("#Arrivetime").val()
+            if (hour >= hour2) {
+                if (mins >= mins2) {
+                    alert('Please enter the time greater than current time');
+                    validate = false;
+                }
+
+                // }
+            }
+        }
+        var hours = Number($("#Arrivehour").val());
+        var minutes = Number($("#Arrivemin").val());
+        var AMPM = $("#Arrivetime").val();
+        if (AMPM == "PM" && hours < 12) hours = hours + 12;
+        if (AMPM == "AM" && hours == 12) hours = hours - 12;
+        var sHours = hours.toString();
+        var sMinutes = minutes.toString();
+        if (hours < 10) sHours = "0" + sHours;
+        if (minutes < 10) sMinutes = "0" + sMinutes;;
+        var today = new Date();
+        var currentDateTimestamp = today.getTime();
+        var selectedDateTimestamp = selectedDate.setHours(sHours, sMinutes, 0, 0);
+        if (Math.abs(currentDateTimestamp - selectedDateTimestamp) <= 60 * 60 * 24 * 1000) {
+            alert("Please call and update to transport department your booking cab less than 24 hours");
+        }
+    }
+    function isNumber(evt) {
+
+        var iKeyCode = (evt.which) ? evt.which : evt.keyCode
+        if (iKeyCode != 46 && iKeyCode > 31 && (iKeyCode < 48 || iKeyCode > 57)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+    function ClearAll() {
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        $("#Returnhour").val("00");
+        $("#Returnmin").val("00");
+        $("#Arrivehour").val("00");
+        $("#Arrivemin").val("00");
+        $("#Comments").val("");
+        $("#Date").val("");
+        $("#RetunDate").val("");
+        $("#fromlocationtext").val("");
+        $("#tolocationtext").val("");
+        $("#fromlocation").val("0");
+        $("#tolocation").val("0");
+        $("#vehicleType").val("0");
+        $("#Mobile").val("");
+        $("#Email").val("");
+        $("#NoofPersons").val("");
+        $('#Return').attr('checked', false);
+        $('#picktext').hide();
+        $('#droptext').hide();
+        $(".Return").css("display", "none");
+    }
+    function selfromloc(val,type) {
+        debugger;
+        if (val == 'others' && type == 'pick') {
+            $('#picktext').show();
+        } else
+        {
+            $('#picktext').hide();
+        }
+        if (val == 'others' && type == 'drop') {
+            $('#droptext').show();
+        } else {
+            $('#droptext').hide();
+        }
+    }
+    function ReturnSelect(val) {
+        if (val) {
+            $(".Return").css("display", "block");
+        } else
+            $(".Return").css("display", "none");
+
+    }
+</script>
+<style>
+    .form-label {
+        color: teal;
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+    input, select, textarea {
+        max-width: 100%;
+    }
+</style>
+<div class="panel panel-success">
+    <div class="panel-heading"><span class="glyphicon glyphicon-plane"></span>&nbsp;Request a vehicle</div>
+    <div class="panel-body">
+        <form style="width:50%;margin:auto;">
+            <div class="row">
+
+                <div class="col-sm-6">
+
+                    <div class="row">
+                        <div class="form-group">
+                            <span class="form-label">Pick up Date & Time<span style="color:red;">*</span></span>
+                            <input class="date form-control" type="text" placeholder="Select Date" id="Date" readonly="readonly" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <table>
+                        <tr>
+                            <td style="padding:3px;">
+                                <div class="form-group">
+
+                                    <span class="form-label">Hour<span style="color:red;">*</span></span>
+                                    <select class="form-control" style="max-width:50px !important;" id="Arrivehour">
+                                        <option value="00">00</option>
+                                        <option value="01">01</option>
+                                        <option value="02">02</option>
+                                        <option value="03">03</option>
+                                        <option value="04">04</option>
+                                        <option value="05">05</option>
+                                        <option value="06">06</option>
+                                        <option value="07">07</option>
+                                        <option value="08">08</option>
+                                        <option value="09">09</option>
+                                        <option value="10">10</option>
+                                        <option value="11">11</option>
+                                        <option value="12">12</option>
+                                    </select>
+                                </div>
+                            </td>
+                            <td style="padding:3px;">
+                                <div class="form-group">
+                                    <span class="form-label">Min</span>
+                                    <select class="form-control" style="max-width:50px !important;" id="Arrivemin">
+                                        <option value="00">00</option>
+                                        <option value="05">05</option>
+                                        <option value="10">10</option>
+                                        <option value="15">15</option>
+                                        <option value="20">20</option>
+                                        <option value="25">25</option>
+                                        <option value="30">30</option>
+                                        <option value="35">35</option>
+                                        <option value="40">40</option>
+                                        <option value="45">45</option>
+                                        <option value="50">50</option>
+                                        <option value="55">55</option>
+                                    </select>
+                                </div>
+                            </td>
+                            <td style="padding:3px;">
+                                <div class="form-group">
+                                    <span class="form-label">AM/PM</span>
+                                    <select class="form-control" style="max-width:60px !important;" id="Arrivetime">
+                                        <option value="AM">AM</option>
+                                        <option value="PM">PM</option>
+                                    </select>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <span class="form-label">Type of Vehicle<span style="color:red;">*</span></span>
+                        <select class="form-control" id="vehicleType">
+                            <option value="0">--select Type--</option>
+                            <option value="Car">Car</option>
+                            <option value="Van">Van</option>
+                            <option value="Mini Bus">MINI Bus</option>
+                            <option value="Bus">Bus</option>
+                            <option value="Load Carrier">Load Carrier(TATA ACE/BOLOERO)</option>
+
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <span class="form-label">No.of Persons<span style="color:red;">*</span></span>
+                        <input type="text" class="form-control" placeholder="Enter No of persons" id="NoofPersons" onkeypress="javascript:return isNumber(event)" maxlength="2" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <span class="form-label">Pickup location <span style="color:red;">*</span></span>
+                        <select class="form-control" id="fromlocation" onchange="selfromloc(this.value,'pick');">
+                            <option value="0">--select Pick up Location--</option>
+                            <option value="FH-Bogulkunta">FH-Bogulkunta</option>
+                            <option value="FH-Hyderguda">FH-Hyderguda</option>
+                            <option value="FH OP Clinic-Hyderguda">FH OP Clinic-Hyderguda</option>
+                            <option value="Stork Home BanjaraHills">Stork Home BanjaraHills</option>
+                            <option value="FH OP Clinic-Miyapur">FH OP Clinic-Miyapur</option>
+                            <option value="Fernandez CDC">Fernandez CDC</option>
+                            <option value="Fernandez school of nursing">Fernandez school of nursing</option>
+                            <option value="others">Others</option>
+                        </select>
+                        <div class="form-group" id="picktext">
+                            <span class="form-label">Enter Location Pick-up<span style="color:red;">*</span></span>
+                            <textarea class="form-control" placeholder="Enter ZIP/Location" id="fromlocationtext"></textarea>
+                        </div>
+                        <div style="padding-left:30px;"><input type="checkbox" value="Yes" id="Return" onclick="ReturnSelect(this.checked);" /><span class="form-label">Is the vehicle required for return journey</span></div>
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <span class="form-label">Drop location<span style="color:red;">*</span></span>
+                        <select class="form-control" id="tolocation" onchange="selfromloc(this.value,'drop');">
+                            <option value="0">--select Drop Location--</option>
+                            <option value="FH-Bogulkunta">FH-Bogulkunta</option>
+                            <option value="FH-Hyderguda">FH-Hyderguda</option>
+                            <option value="FH OP Clinic-Hyderguda">FH OP Clinic-Hyderguda</option>
+                            <option value="Stork Home BanjaraHills">Stork Home BanjaraHills</option>
+                            <option value="FH OP Clinic-Miyapur">FH OP Clinic-Miyapur</option>
+                            <option value="Fernandez CDC">Fernandez CDC</option>
+                            <option value="Fernandez school of nursing">Fernandez school of nursing</option>
+                            <option value="others">Others</option>
+                        </select>
+                        <div class="form-group" id="droptext">
+                            <span class="form-label">Enter Location Drop<span style="color:red;">*</span></span>
+                            <textarea class="form-control" placeholder="Enter ZIP/Location" id="tolocationtext"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row Return">
+
+                <div class="col-sm-6">
+
+                    <div class="row">
+                        <div class="form-group">
+                            <span class="form-label">Return Date<span style="color:red;">*</span></span>
+                            <input class="date form-control" type="text" placeholder="Select Date" id="RetunDate" readonly="readonly" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <table>
+                        <tr>
+                            <td style="padding:3px;">
+                                <div class="form-group">
+
+                                    <span class="form-label">Hour<span style="color:red;">*</span></span>
+                                    <select class="form-control" style="max-width:50px !important;" id="Returnhour">
+                                        <option value="00">00</option>
+                                        <option value="01">01</option>
+                                        <option value="02">02</option>
+                                        <option value="03">03</option>
+                                        <option value="04">04</option>
+                                        <option value="05">05</option>
+                                        <option value="06">06</option>
+                                        <option value="07">07</option>
+                                        <option value="08">08</option>
+                                        <option value="09">09</option>
+                                        <option value="10">10</option>
+                                        <option value="11">11</option>
+                                        <option value="12">12</option>
+                                    </select>
+                                </div>
+                            </td>
+                            <td style="padding:3px;">
+                                <div class="form-group">
+                                    <span class="form-label">Min</span>
+                                    <select class="form-control" style="max-width:50px !important;" id="Returnmin">
+                                        <option value="00">00</option>
+                                        <option value="05">05</option>
+                                        <option value="10">10</option>
+                                        <option value="15">15</option>
+                                        <option value="20">20</option>
+                                        <option value="25">25</option>
+                                        <option value="30">30</option>
+                                        <option value="35">35</option>
+                                        <option value="40">40</option>
+                                        <option value="45">45</option>
+                                        <option value="50">50</option>
+                                        <option value="55">55</option>
+                                    </select>
+                                </div>
+                            </td>
+                            <td style="padding:3px;">
+                                <div class="form-group">
+                                    <span class="form-label">AM/PM</span>
+                                    <select class="form-control" style="max-width:60px !important;" id="Returntime">
+                                        <option value="AM">AM</option>
+                                        <option value="PM">PM</option>
+                                    </select>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <span class="form-label"> Contact No<span style="color:red;">*</span></span>
+                        <input type="text" class="form-control integer-cls" value="@ViewBag.Mobile" placeholder="Enter Phone Number" id="Mobile" onkeypress="javascript:return isNumber(event)" maxlength="10" />
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <span class="form-label">Contact Email<span style="color:red;">*</span></span>
+                        <input type="text" class="form-control" value="@ViewBag.Email" placeholder="Enter EMail" id="Email" />
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <span class="form-label">Purpose of requisition</span>
+                    </div>
+
+                    <div class="form-group">
+
+                        <textarea class="form-control" placeholder="Enter your Purpose of requisition" id="Comments"></textarea>
+                    </div>
+
+                </div>
+
+
+            </div>
+            <div class="row">
+                <span class="form-label" style="font-size: 80%;"> Please give your request before 24 hrs or latest by 4 pm of the previous day </span>
+            </div>
+            <div class="row" style="text-align:center">
+                <button type="button" class="btn  btn-warning" onclick="OnclickSaveRequest();"><span class="glyphicon glyphicon-ok-circle"></span>&nbsp;Submit</button>
+            </div><br />
+        </form>
+    </div>
+</div>

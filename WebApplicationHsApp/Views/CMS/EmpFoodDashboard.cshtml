@@ -1,0 +1,215 @@
+﻿
+@{
+    ViewBag.Title = "EmpFoodDashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    function LoadDashboardData() {
+        $.get("/CMS/GetCountOfEmployeeFood?fromdate=" + $("#txtfromdate").val() + "&todate=" + $("#txttodate").val(), function (data) {
+            var html = "";
+            var BFEntitled = 0, BFUnEntitled = 0, LEntitled = 0, LUnEntitled = 0, DEntitled = 0, DUnEntitled = 0;
+            for (var i = 0; i < data.length; i++) {
+                BFEntitled = BFEntitled + parseInt(data[i].BFEntitledCount);
+                BFUnEntitled = BFUnEntitled + parseInt(data[i].BFUnEntitledCount);
+                LEntitled = LEntitled + parseInt(data[i].LEntitledCount);
+                LUnEntitled = LUnEntitled + parseInt(data[i].LUnEntitledCount);
+                DEntitled = DEntitled + parseInt(data[i].DEntitledCount);
+                DUnEntitled = DUnEntitled + parseInt(data[i].DUnEntitledCount);
+                var bftotal = (parseInt(data[i].BFEntitledCount) + parseInt(data[i].BFUnEntitledCount));
+                var ltotal = (parseInt(data[i].LEntitledCount) + parseInt(data[i].LUnEntitledCount));
+                var dtotal = (parseInt(data[i].DEntitledCount) + parseInt(data[i].DUnEntitledCount));
+                html += "<tr>";
+                html += "<td>" + data[i].Date + "</td>";
+                html += "<td>" + bftotal + "</td>";
+                html += "<td>" + data[i].BFEntitledCount + "</td>";
+                html += "<td>" + data[i].BFUnEntitledCount + "</td>";
+                html += "<td>" + ltotal + "</td>";
+                html += "<td>" + data[i].LEntitledCount + "</td>";
+                html += "<td>" + data[i].LUnEntitledCount + "</td>";
+                html += "<td>" + dtotal + "</td>";
+                html += "<td>" + data[i].DEntitledCount + "</td>";
+                html += "<td>" + data[i].DUnEntitledCount + "</td>";
+                html += "</tr>";
+            }
+            $("#tblcountofdata").html(html);
+            $("#BreakfastTotal").html((BFEntitled + BFUnEntitled));
+            $("#BreakfastEntitled").html((BFEntitled));
+            $("#BreakfastUnEntitled").html((BFUnEntitled));
+
+            $("#LunchTotal").html((LEntitled + LUnEntitled));
+            $("#LunchEntitled").html((LEntitled));
+            $("#LunchUnEntitled").html((LUnEntitled));
+
+            $("#DinnerTotal").html((DEntitled + DUnEntitled));
+            $("#DinnerEntitled").html((DEntitled));
+            $("#DinnerUnEntitled").html((DUnEntitled));
+        });
+    }
+    $(document).ready(function () {
+        $(".datepick").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            Edit: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30"
+        });
+        LoadDashboardData();
+    });
+    function ExporttoPDF() {
+        window.location = '/CMS/ExportToCountOfEmployeeFood?fromdate=' + $("#txtfromdate").val() + '&todate=' + $("#txttodate").val();
+    }
+</script>
+<div class="panel panel-default" id="myleaestableshow">
+    <div class="panel-heading" id="titleofpage">Emp Food Dashboard</div>
+    <div class="panel-body">
+        <div id="partialDiv">
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table">
+                        <tr>
+                            <td>
+                                From Date : <input type="text" id="txtfromdate" class="form-control datepick" autocomplete="off" />
+                            </td>
+                            <td>
+                                To Date : <input type="text" id="txttodate" class="form-control datepick" autocomplete="off" />
+                            </td>
+                            <td>
+                                <br />
+
+                                <input type="button" id="btngo" value="Export To PDF" class="btn btn-warning" onclick="ExporttoPDF();" />
+                                <input type="button" id="btngo" value="Go" class="btn btn-primary" onclick="LoadDashboardData();" />
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" style="background: crimson !important; color:white; font-weight: bold;">
+                            Break fast
+                        </div>
+                        <div class="panel-body">
+                            <div id="DivMyOrders">
+                                <table class="table table-striped" style="width:100%;">
+
+                                    <tbody>
+                                        <tr>
+                                            <td>Total Sale</td>
+                                            <td id="BreakfastTotal">0</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Entitled</td>
+                                            <td id="BreakfastEntitled">0</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Un Entitled</td>
+                                            <td id="BreakfastUnEntitled">0</td>
+                                        </tr>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" style="background: chocolate !important; color: white; font-weight: bold;">
+                            Lunch
+                        </div>
+                        <div class="panel-body">
+                            <div id="DivMyOrders">
+                                <table class="table table-striped" style="width:100%;">
+
+                                    <tbody>
+                                        <tr>
+                                            <td>Total Sale</td>
+                                            <td id="LunchTotal">0</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Entitled</td>
+                                            <td id="LunchEntitled">0</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Un Entitled</td>
+                                            <td id="LunchUnEntitled">0</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading" style="background: darkgoldenrod !important; color: white; font-weight: bold;">
+                            Dinner
+                        </div>
+                        <div class="panel-body">
+                            <table class="table table-striped" style="width:100%;">
+
+                                <tbody>
+                                    <tr>
+                                        <td>Total Sale</td>
+                                        <td id="DinnerTotal">0</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Entitled</td>
+                                        <td id="DinnerEntitled">0</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Un Entitled</td>
+                                        <td id="DinnerUnEntitled">0</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-bordered" style="width:100%;">
+                        <thead>
+                            <tr style="background-color:crimson;color:white;">
+                                <td>
+                                    Date
+                                </td>
+                                <td>
+                                    Break Fast Total
+                                </td>
+                                <td>
+                                    Break Fast Entitled
+                                </td>
+                                <td>
+                                    Break Fast Un Entitled
+                                </td>
+                                <td>
+                                    Lunch Total
+                                </td>
+                                <td>
+                                    Lunch Entitled
+                                </td>
+                                <td>
+                                    Lunch Un Entitled
+                                </td>
+                                <td>
+                                    Dinner Total
+                                </td>
+                                <td>
+                                    Dinner Entitled
+                                </td>
+                                <td>
+                                    Dinner Un Entitled
+                                </td>
+                            </tr>
+                        </thead>
+                        <tbody id="tblcountofdata">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

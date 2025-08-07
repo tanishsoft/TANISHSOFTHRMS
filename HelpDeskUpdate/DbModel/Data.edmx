@@ -1,0 +1,358 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+      <Schema Namespace="MyIntranetAppModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="tbl_Task">
+          <Key>
+            <PropertyRef Name="TaskId" />
+          </Key>
+          <Property Name="TaskId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CallDateTime" Type="datetime" />
+          <Property Name="CallStartDateTime" Type="datetime" />
+          <Property Name="CreatorLocationId" Type="int" />
+          <Property Name="CreatorLocationName" Type="varchar" MaxLength="150" />
+          <Property Name="CreatorDepartmentId" Type="int" />
+          <Property Name="CreatorDepartmentName" Type="varchar" MaxLength="150" />
+          <Property Name="CreatorId" Type="int" />
+          <Property Name="CreatorName" Type="varchar" MaxLength="250" />
+          <Property Name="CreatorPlace" Type="varchar" MaxLength="150" />
+          <Property Name="AssertEquipId" Type="varchar" MaxLength="250" />
+          <Property Name="AssertEquipName" Type="varchar" MaxLength="250" />
+          <Property Name="CategoryOfComplaint" Type="varchar" MaxLength="250" />
+          <Property Name="Description" Type="varchar(max)" />
+          <Property Name="AssignLocationId" Type="int" />
+          <Property Name="AssignLocationName" Type="varchar" MaxLength="150" />
+          <Property Name="AssignDepartmentId" Type="int" />
+          <Property Name="AssignDepartmentName" Type="varchar" MaxLength="150" />
+          <Property Name="AssignId" Type="int" />
+          <Property Name="AssignName" Type="varchar" MaxLength="250" />
+          <Property Name="WorkDoneRemarks" Type="varchar" MaxLength="250" />
+          <Property Name="CallEndDateTime" Type="datetime" />
+          <Property Name="AssignStatus" Type="varchar" MaxLength="150" />
+          <Property Name="CreatorStatus" Type="varchar" MaxLength="150" />
+          <Property Name="LatestComment" Type="varchar" MaxLength="500" />
+          <Property Name="TaskDoneByUserId" Type="varchar" MaxLength="50" />
+          <Property Name="TaskDoneByName" Type="varchar" MaxLength="150" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="ExtensionNo" Type="varchar" MaxLength="50" />
+          <Property Name="EmailId" Type="varchar(max)" />
+          <Property Name="Others" Type="varchar(max)" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+          <Property Name="Subject" Type="nvarchar" MaxLength="250" />
+          <Property Name="IsVendorTicket" Type="bit" />
+          <Property Name="CapexPrepareDate" Type="datetime" />
+          <Property Name="CapexApproveDate" Type="datetime" />
+          <Property Name="TaskType" Type="varchar" MaxLength="150" />
+        </EntityType>
+        <EntityType Name="tbl_TaskRemainderLogs">
+          <Key>
+            <PropertyRef Name="TaskRemainderLogId" />
+          </Key>
+          <Property Name="TaskRemainderLogId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TaskId" Type="int" />
+          <Property Name="SentOn" Type="datetime" />
+          <Property Name="SentTo" Type="varchar" MaxLength="150" />
+          <Property Name="SentHod" Type="varchar" MaxLength="250" />
+        </EntityType>
+        <EntityType Name="tbl_User">
+          <Key>
+            <PropertyRef Name="UserId" />
+          </Key>
+          <Property Name="UserId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="FirstName" Type="varchar" MaxLength="250" />
+          <Property Name="LastName" Type="varchar" MaxLength="250" />
+          <Property Name="CustomUserId" Type="varchar" MaxLength="100" />
+          <Property Name="DateOfBirth" Type="datetime" />
+          <Property Name="DateOfJoining" Type="datetime" />
+          <Property Name="EmailId" Type="varchar" MaxLength="150" />
+          <Property Name="PhoneNumber" Type="varchar" MaxLength="15" />
+          <Property Name="Gender" Type="varchar" MaxLength="50" />
+          <Property Name="Extenstion" Type="varchar" MaxLength="150" />
+          <Property Name="LocationId" Type="int" />
+          <Property Name="LocationName" Type="varchar" MaxLength="150" />
+          <Property Name="DepartmentId" Type="int" />
+          <Property Name="DepartmentName" Type="varchar" MaxLength="150" />
+          <Property Name="DepartmentId1" Type="int" />
+          <Property Name="DepartmentName1" Type="varchar" MaxLength="150" />
+          <Property Name="DepartmentId2" Type="int" />
+          <Property Name="DepartmentName2" Type="varchar" MaxLength="150" />
+          <Property Name="Designation" Type="varchar" MaxLength="150" />
+          <Property Name="PlaceAllocation" Type="varchar" MaxLength="150" />
+          <Property Name="UserType" Type="varchar" MaxLength="50" />
+          <Property Name="SecurityQuestion" Type="varchar" MaxLength="350" />
+          <Property Name="SecurityAnswner" Type="varchar" MaxLength="250" />
+          <Property Name="Comments" Type="varchar" MaxLength="500" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="SubDepartmentId" Type="int" />
+          <Property Name="SubDepartmentName" Type="varchar" MaxLength="50" />
+          <Property Name="DateOfLeaving" Type="datetime" />
+          <Property Name="DesignationID" Type="bigint" />
+          <Property Name="ChangePassword" Type="bit" />
+          <Property Name="IsEmployeesReporting" Type="bit" />
+          <Property Name="EmpId" Type="int" />
+          <Property Name="IsAppLogin" Type="bit" />
+          <Property Name="IsOffRollDoctor" Type="bit" />
+          <Property Name="IsOnRollDoctor" Type="bit" />
+          <Property Name="IsEmployee" Type="bit" />
+          <Property Name="CugNumber" Type="varchar" MaxLength="20" />
+          <Property Name="EmployeePhoto" Type="varchar" MaxLength="100" />
+          <Property Name="DigitalSignature" Type="varchar" MaxLength="150" />
+        </EntityType>
+        <EntityContainer Name="MyIntranetAppModelStoreContainer">
+          <EntitySet Name="tbl_Task" EntityType="Self.tbl_Task" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_TaskRemainderLogs" EntityType="Self.tbl_TaskRemainderLogs" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_User" EntityType="Self.tbl_User" Schema="dbo" store:Type="Tables" />
+        </EntityContainer>
+      </Schema>
+    </edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="MyIntranetAppModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="tbl_Task">
+          <Key>
+            <PropertyRef Name="TaskId" />
+          </Key>
+          <Property Name="TaskId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CallDateTime" Type="DateTime" Precision="3" />
+          <Property Name="CallStartDateTime" Type="DateTime" Precision="3" />
+          <Property Name="CreatorLocationId" Type="Int32" />
+          <Property Name="CreatorLocationName" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatorDepartmentId" Type="Int32" />
+          <Property Name="CreatorDepartmentName" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatorId" Type="Int32" />
+          <Property Name="CreatorName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="CreatorPlace" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="AssertEquipId" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="AssertEquipName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="CategoryOfComplaint" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="AssignLocationId" Type="Int32" />
+          <Property Name="AssignLocationName" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="AssignDepartmentId" Type="Int32" />
+          <Property Name="AssignDepartmentName" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="AssignId" Type="Int32" />
+          <Property Name="AssignName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="WorkDoneRemarks" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="CallEndDateTime" Type="DateTime" Precision="3" />
+          <Property Name="AssignStatus" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatorStatus" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="LatestComment" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="TaskDoneByUserId" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="TaskDoneByName" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="ExtensionNo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="EmailId" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Others" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+          <Property Name="Subject" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="IsVendorTicket" Type="Boolean" />
+          <Property Name="CapexPrepareDate" Type="DateTime" Precision="3" />
+          <Property Name="CapexApproveDate" Type="DateTime" Precision="3" />
+          <Property Name="TaskType" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="tbl_TaskRemainderLogs">
+          <Key>
+            <PropertyRef Name="TaskRemainderLogId" />
+          </Key>
+          <Property Name="TaskRemainderLogId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TaskId" Type="Int32" />
+          <Property Name="SentOn" Type="DateTime" Precision="3" />
+          <Property Name="SentTo" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="SentHod" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="tbl_User">
+          <Key>
+            <PropertyRef Name="UserId" />
+          </Key>
+          <Property Name="UserId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="FirstName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="LastName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="CustomUserId" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="DateOfBirth" Type="DateTime" Precision="3" />
+          <Property Name="DateOfJoining" Type="DateTime" Precision="3" />
+          <Property Name="EmailId" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="PhoneNumber" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="Gender" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Extenstion" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="LocationId" Type="Int32" />
+          <Property Name="LocationName" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="DepartmentId" Type="Int32" />
+          <Property Name="DepartmentName" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="DepartmentId1" Type="Int32" />
+          <Property Name="DepartmentName1" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="DepartmentId2" Type="Int32" />
+          <Property Name="DepartmentName2" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="Designation" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="PlaceAllocation" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="UserType" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="SecurityQuestion" Type="String" MaxLength="350" FixedLength="false" Unicode="false" />
+          <Property Name="SecurityAnswner" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Comments" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="SubDepartmentId" Type="Int32" />
+          <Property Name="SubDepartmentName" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="DateOfLeaving" Type="DateTime" Precision="3" />
+          <Property Name="DesignationID" Type="Int64" />
+          <Property Name="ChangePassword" Type="Boolean" />
+          <Property Name="IsEmployeesReporting" Type="Boolean" />
+          <Property Name="EmpId" Type="Int32" />
+          <Property Name="IsAppLogin" Type="Boolean" />
+          <Property Name="IsOffRollDoctor" Type="Boolean" />
+          <Property Name="IsOnRollDoctor" Type="Boolean" />
+          <Property Name="IsEmployee" Type="Boolean" />
+          <Property Name="CugNumber" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="EmployeePhoto" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="DigitalSignature" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityContainer Name="MyIntranetAppEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="tbl_Task" EntityType="Self.tbl_Task" />
+          <EntitySet Name="tbl_TaskRemainderLogs" EntityType="Self.tbl_TaskRemainderLogs" />
+          <EntitySet Name="tbl_User" EntityType="Self.tbl_User" />
+        </EntityContainer>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="MyIntranetAppModelStoreContainer" CdmEntityContainer="MyIntranetAppEntities">
+          <EntitySetMapping Name="tbl_Task">
+            <EntityTypeMapping TypeName="MyIntranetAppModel.tbl_Task">
+              <MappingFragment StoreEntitySet="tbl_Task">
+                <ScalarProperty Name="TaskId" ColumnName="TaskId" />
+                <ScalarProperty Name="CallDateTime" ColumnName="CallDateTime" />
+                <ScalarProperty Name="CallStartDateTime" ColumnName="CallStartDateTime" />
+                <ScalarProperty Name="CreatorLocationId" ColumnName="CreatorLocationId" />
+                <ScalarProperty Name="CreatorLocationName" ColumnName="CreatorLocationName" />
+                <ScalarProperty Name="CreatorDepartmentId" ColumnName="CreatorDepartmentId" />
+                <ScalarProperty Name="CreatorDepartmentName" ColumnName="CreatorDepartmentName" />
+                <ScalarProperty Name="CreatorId" ColumnName="CreatorId" />
+                <ScalarProperty Name="CreatorName" ColumnName="CreatorName" />
+                <ScalarProperty Name="CreatorPlace" ColumnName="CreatorPlace" />
+                <ScalarProperty Name="AssertEquipId" ColumnName="AssertEquipId" />
+                <ScalarProperty Name="AssertEquipName" ColumnName="AssertEquipName" />
+                <ScalarProperty Name="CategoryOfComplaint" ColumnName="CategoryOfComplaint" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="AssignLocationId" ColumnName="AssignLocationId" />
+                <ScalarProperty Name="AssignLocationName" ColumnName="AssignLocationName" />
+                <ScalarProperty Name="AssignDepartmentId" ColumnName="AssignDepartmentId" />
+                <ScalarProperty Name="AssignDepartmentName" ColumnName="AssignDepartmentName" />
+                <ScalarProperty Name="AssignId" ColumnName="AssignId" />
+                <ScalarProperty Name="AssignName" ColumnName="AssignName" />
+                <ScalarProperty Name="WorkDoneRemarks" ColumnName="WorkDoneRemarks" />
+                <ScalarProperty Name="CallEndDateTime" ColumnName="CallEndDateTime" />
+                <ScalarProperty Name="AssignStatus" ColumnName="AssignStatus" />
+                <ScalarProperty Name="CreatorStatus" ColumnName="CreatorStatus" />
+                <ScalarProperty Name="LatestComment" ColumnName="LatestComment" />
+                <ScalarProperty Name="TaskDoneByUserId" ColumnName="TaskDoneByUserId" />
+                <ScalarProperty Name="TaskDoneByName" ColumnName="TaskDoneByName" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="ExtensionNo" ColumnName="ExtensionNo" />
+                <ScalarProperty Name="EmailId" ColumnName="EmailId" />
+                <ScalarProperty Name="Others" ColumnName="Others" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+                <ScalarProperty Name="Subject" ColumnName="Subject" />
+                <ScalarProperty Name="IsVendorTicket" ColumnName="IsVendorTicket" />
+                <ScalarProperty Name="CapexPrepareDate" ColumnName="CapexPrepareDate" />
+                <ScalarProperty Name="CapexApproveDate" ColumnName="CapexApproveDate" />
+                <ScalarProperty Name="TaskType" ColumnName="TaskType" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_TaskRemainderLogs">
+            <EntityTypeMapping TypeName="MyIntranetAppModel.tbl_TaskRemainderLogs">
+              <MappingFragment StoreEntitySet="tbl_TaskRemainderLogs">
+                <ScalarProperty Name="TaskRemainderLogId" ColumnName="TaskRemainderLogId" />
+                <ScalarProperty Name="TaskId" ColumnName="TaskId" />
+                <ScalarProperty Name="SentOn" ColumnName="SentOn" />
+                <ScalarProperty Name="SentTo" ColumnName="SentTo" />
+                <ScalarProperty Name="SentHod" ColumnName="SentHod" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_User">
+            <EntityTypeMapping TypeName="MyIntranetAppModel.tbl_User">
+              <MappingFragment StoreEntitySet="tbl_User">
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="FirstName" ColumnName="FirstName" />
+                <ScalarProperty Name="LastName" ColumnName="LastName" />
+                <ScalarProperty Name="CustomUserId" ColumnName="CustomUserId" />
+                <ScalarProperty Name="DateOfBirth" ColumnName="DateOfBirth" />
+                <ScalarProperty Name="DateOfJoining" ColumnName="DateOfJoining" />
+                <ScalarProperty Name="EmailId" ColumnName="EmailId" />
+                <ScalarProperty Name="PhoneNumber" ColumnName="PhoneNumber" />
+                <ScalarProperty Name="Gender" ColumnName="Gender" />
+                <ScalarProperty Name="Extenstion" ColumnName="Extenstion" />
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="LocationName" ColumnName="LocationName" />
+                <ScalarProperty Name="DepartmentId" ColumnName="DepartmentId" />
+                <ScalarProperty Name="DepartmentName" ColumnName="DepartmentName" />
+                <ScalarProperty Name="DepartmentId1" ColumnName="DepartmentId1" />
+                <ScalarProperty Name="DepartmentName1" ColumnName="DepartmentName1" />
+                <ScalarProperty Name="DepartmentId2" ColumnName="DepartmentId2" />
+                <ScalarProperty Name="DepartmentName2" ColumnName="DepartmentName2" />
+                <ScalarProperty Name="Designation" ColumnName="Designation" />
+                <ScalarProperty Name="PlaceAllocation" ColumnName="PlaceAllocation" />
+                <ScalarProperty Name="UserType" ColumnName="UserType" />
+                <ScalarProperty Name="SecurityQuestion" ColumnName="SecurityQuestion" />
+                <ScalarProperty Name="SecurityAnswner" ColumnName="SecurityAnswner" />
+                <ScalarProperty Name="Comments" ColumnName="Comments" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="SubDepartmentId" ColumnName="SubDepartmentId" />
+                <ScalarProperty Name="SubDepartmentName" ColumnName="SubDepartmentName" />
+                <ScalarProperty Name="DateOfLeaving" ColumnName="DateOfLeaving" />
+                <ScalarProperty Name="DesignationID" ColumnName="DesignationID" />
+                <ScalarProperty Name="ChangePassword" ColumnName="ChangePassword" />
+                <ScalarProperty Name="IsEmployeesReporting" ColumnName="IsEmployeesReporting" />
+                <ScalarProperty Name="EmpId" ColumnName="EmpId" />
+                <ScalarProperty Name="IsAppLogin" ColumnName="IsAppLogin" />
+                <ScalarProperty Name="IsOffRollDoctor" ColumnName="IsOffRollDoctor" />
+                <ScalarProperty Name="IsOnRollDoctor" ColumnName="IsOnRollDoctor" />
+                <ScalarProperty Name="IsEmployee" ColumnName="IsEmployee" />
+                <ScalarProperty Name="CugNumber" ColumnName="CugNumber" />
+                <ScalarProperty Name="EmployeePhoto" ColumnName="EmployeePhoto" />
+                <ScalarProperty Name="DigitalSignature" ColumnName="DigitalSignature" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

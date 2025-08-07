@@ -1,0 +1,152 @@
+﻿@model WebApplicationHsApp.Models.PrintMobileViewModel
+@{
+    Layout = null;
+}
+<style>
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    table, th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+    }
+</style>
+<script>
+            window.onload = function () { window.print(); }
+    </script>
+<div class="container" style="display: contents;">
+    <div class="row" style="display:flex; flex-direction:column;align-content:center;justify-content:center;width:85%">
+        <div class="col-md-12">
+            <div>
+                <img src="~/Images/logo2.png" style="height: 65px;" />
+                @*<label align="left">Mobile Phone Policy</label>*@
+            </div>
+            <div>
+                <div>
+                    <label>Mobile Phone Allotment</label>
+                    <label style="margin-left:250px;">FH/ADMIN/POL - @Model.CellPhoneRequestId</label>
+                </div>
+                <div>
+                    <h3 style="margin-left:80px;">Annexure II – Mobile Phone Allotment / Undertaking Form</h3>
+                </div>
+
+            </div><br />
+            <div style="width:80%;margin:auto;"></div>
+            <table class="table" align="center" style="width:80%">
+                <tr>
+                    <th colspan="2" align="center">Employee Details</th>
+                </tr>
+                <tr>
+                    <td> Name:  @Model.Name</td>
+                    <td> Designation:  @Model.Designation</td>
+                </tr>
+                <tr>
+                    <td> Emp No.:   @Model.EmpNo</td>
+                    <td> Department:  @Model.Department</td>
+                </tr>
+            </table><br />
+            <table class="table" align="center" style="width:80%">
+                <tr align="center">
+                    <th align="center" colspan="3"> Approval Level</th>
+                </tr>
+                <tr>
+                    <td> HOD Approved</td>
+                    <td> @Model.HODName</td>
+                    <td> @Model.HODApprovedOn</td>
+                </tr>
+                <tr>
+                    <td> Admin Approved</td>
+                    <td>  @Model.AdminName</td>
+                    <td>  @Model.AdminApprovedOn</td>
+                </tr>
+                <tr>
+                    <td> IT Approved</td>
+                    <td>  @Model.ITUpdatedBy</td>
+                    <td>  @Model.ITUpdatedOn</td>
+                </tr>
+            </table><br />
+            <table class="table" align="center" style="width:80%">
+                <tr>
+                    <th colspan="3" align="center">Configuration Details</th>
+                </tr>
+                <tr>
+                    <td> Make/Brand : @Model.BrandName</td>
+                    <td colspan="2"> Model: @Model.ModelName</td>
+                </tr>
+                <tr>
+                    <td>
+                        Serial Number: @Model.SerialNumber<br />
+                        BatterySerialNo:  @Model.BatterySerialNo<br />
+                        IMEI No.: @Model.IMEINO<br />
+                        IMEI No.:  @Model.IMEINO:<br />
+                    </td>
+                    <td colspan="2"> DOP: @Model.DOP</td>
+                </tr>
+                <tr>
+                    <th align="left" colspan="3"> AssetLabel: @Model.AssetLabel</th>
+                </tr>
+                <tr>
+                    <th align="left" colspan="3">
+                        Accessories:   @Model.Accessories
+                    </th>
+                </tr>
+                <tr>
+                    <th align="left" colspan="3">
+                        Warrenty:@Model.AssetLabel
+                    </th>
+                </tr>
+                <tr>
+                    <td>
+                        MonthlyPlan: @Model.MonthlyPlan<br />
+                        Description:  @Model.Description
+                    <td> SIMNO: @Model.SIMNO</td>
+                    <td> MobileNumber: @Model.MobileNumber</td>
+                </tr>
+            </table><br />
+            <label>Accepted by :: @Model.accpected</label>
+            @*<table style="border:none;width:80%;" align="center">
+            <tr style="border:none;">
+                <td style="border:none;"> IssuedByName: @Model.IssuedByEmpName</td>
+                <td style="border:none;"> Signature: @Model.IssuedByEmpName</td>
+                <td style="border:none;"> Date: @Model.AssignDate</td>
+            </tr>
+        </table><br />
+        <table style="border:none;width:80%;" align="center">
+            <tr style="border:none;">
+                <td style="border:none;"> NameOfTheEmployee: @Model.Name</td>
+                <td style="border:none;"> Signature: @Model.Name</td>
+                <td style="border:none;"> Date: @Model.AssignDate</td>
+            </tr>
+        </table><br />
+        <table class="table" align="center" style="width:80%">
+            <tr align="center">
+                <th align="center" colspan="2">Return Of Asset</th>
+            </tr>
+            <tr>
+                <td> RecivedByName: @Model.ReturnReceivedName</td>
+                <td> Signature: @Model.ReturnReceivedName</td>
+            </tr>
+            <tr>
+                <td> Date: @Model.ReturnReceivedOn</td>
+                <td> Remarks: @Model.ReturnReceivedComments</td>
+            </tr>
+        </table><br />*@
+            <div>
+                <p align="left" style="font-size:12px; margin:1px;">
+                    Acknowledgement:
+                </p>
+                <p style="font-size: 12px; margin: 1px;">• The CUG mobile is the property of  Tanishsoft Hrms and when using mobile phone, special care must be taken to ensure that organisation’s business information is not compromised. </p>
+                <p style="font-size: 12px; margin: 1px;">• CUG owners should make judicious use of their phones only for official purpose and restrict their usage within the allotted plan. </p>
+                <p style="font-size: 12px; margin: 1px;">• If the CUG mobile is lost, stolen or damaged, the incident MUST be reported immediately to the Administrator in writing for initiating further course of action. If not Management will be compelled to take suitable administrative/disciplinary action.
+                <p style="font-size: 12px; margin: 1px;">• Mobile phone allocated to a user may not be used by any other person without the express written permission of Fernandez.
+                <p style="font-size: 12px; margin: 1px;">
+                    • Do not click photographs with your mobile phones without permission from the authorities concerned. Do not send obscene / pornographic text / images using SMS /MMS.
+                    My signature indicates that I have read, understood and agree to abide by the above statements. I authorize Fernandez to recover all excess bill amounts from my salary.  Fernandez will seek to recover cost for repair or replacement of the mobile device / SIM card due to negligence on my part and/or failure to follow the above statements. I agree to fully cooperate with Mobile reporting requirements and with property loss, theft or damage or incident investigations.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

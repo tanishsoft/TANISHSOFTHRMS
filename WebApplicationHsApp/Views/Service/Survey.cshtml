@@ -1,0 +1,28 @@
+﻿
+@{
+    ViewBag.Title = "Survey";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="~/Scripts/Survey/Plugins/knockout-debug.js"></script>
+<script src="~/Scripts/Survey/Plugins/survey.ko.js"></script>
+<link href="~/Scripts/Survey/Plugins/survey.css" rel="stylesheet" />
+
+<link href="~/Scripts/Survey/index.css" rel="stylesheet" />
+<style>
+    label {
+        color: teal !important;
+        font-weight: normal !important;
+    }
+
+    input, select, textarea {
+        max-width: 100% !important;
+    }
+</style>
+<div>
+
+
+    <div id="surveyElement" style="width:85%;margin:auto;">
+    </div>
+    <script src="~/Scripts/Survey/survey.js"></script>
+
+</div>

@@ -1,0 +1,404 @@
+﻿
+@{
+    ViewBag.Title = "GatePassApprove";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+
+    .col-md-6 {
+        margin-bottom: 10px;
+    }
+</style>
+<script>
+    var eId = 0;
+    $(document).ready(function () {
+
+        LoadData();
+        LoadDropdownvalues();
+        LoadLocations();
+    });
+    function GetDatestr(date) {
+        var d = new Date(parseInt(date.substr(6)));
+        return d.toLocaleString("en-GB");
+    }
+    var locations;
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                locations = data;
+                //var options = [];
+                //options.push('<option value="">- All Locations -</option>');
+                //for (var i = 0; i < data.length; i++) {
+                //    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                //}
+                //$("#LocationId").html(options.join(''));
+                //$("#LocationId2").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function getlocationame(id) {
+        for (var i = 0; i < locations.length; i++) {
+            if (locations[i].LocationId == id) {
+                return locations[i].LocationName;
+            }
+        }
+        return '';
+    }
+    function LoadData() {
+        $('#tblRequest').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Register/AjaxGatePassApprove",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+
+                { "sName": "GatePassId" },
+                { "sName": "LocationId" },
+                { "sName": "NameOfTheCompany" },
+                { "sName": "Date" },
+                { "sName": "Address" },
+                //{ "sName": "AuthorizedByName" },
+                { "sName": "AuthorizedByEmpId" },
+                { "sName": "AuthorizedByDesignation" },
+                { "sName": "AuthorizedByDepartment" },
+                { "sName": "ReceivingCompanyName" },
+                { "sName": "Comments" },
+                { "sName": "GatePassType" },
+                { "sName": "Status" },
+                { "sName": "Workflow" },
+                {
+                    "sName": "Id",
+                    "bSortable": false,
+                    "render": function (data) {
+
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><a href="javascript:void(0);"  onclick="ViewGatePass(' + data + ')">View</a></li>' +
+                            '<li><a href="javascript:void(0);"  onclick="ApproveOrReject(' + data + ')">Approve</a></li>' +                     
+                            '</ul></div>';
+                    }
+                }
+            ]
+            //"fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+
+            //    //  $('td:eq(4)', nRow).html('<a href="javascript:void(0);" id="' + aData[0] + '" onclick="ViewComponents(this.id);">View</a>');
+            //    //<a href="javascript:void(0);" id="' + data + '" onclick="StartTask(this.id);">Pick Up</a>
+            //    if (aData[5] != 0)
+            //        $('td:eq(5)', nRow).html('<span>' + aData[5] + '  Asset<span>&nbsp;<a href="javascript:void(0);" id="' + aData[0] + '" onclick="ViewTotalAssets(this.id);">To View</a>');
+            //    else
+            //        $('td:eq(5)', nRow).html('<span>' + aData[5] + '  Asset<span>');
+
+            //    $('td:eq(5)', nRow).css('color', 'blue').css('font-weight', 'bold');
+            //    if (aData[6] != 0)
+            //        $('td:eq(6)', nRow).html('<span>' + aData[6] + '  User <span>&nbsp;<a href="javascript:void(0);" id="' + aData[0] + '" onclick="ViewAssignUserDetails(this.id);">To View</a>');
+            //    else
+            //        $('td:eq(5)', nRow).html('<span>' + aData[6] + '  Asset<span>');
+            //    $('td:eq(6)', nRow).css('color', 'orange').css('font-weight', 'bold');
+            //    $('td:eq(7)', nRow).css('color', 'green').css('font-weight', 'bold');
+            //}
+        });
+        $("#tblRequest_length").addClass("col-md-6");
+        $("#tblRequest_length").addClass("col-md-6");
+    }
+    function ApproveOrReject(id) {
+        eId = id;
+        $.get("/Custom/GetGatePassComments?id=" + id, function (data) {
+            var html = "<table class='table table-border'><tr><td>CommentedOn</td><td>Status</td><td>Workflow</td><td>Comment</td></tr>";
+            for (var i = 0; i < data.length; i++) {
+                html += "<tr><td>" + data[i].CommentedOn + "</td><td>" + data[i].Status + "</td><td>" + data[i].Workflow + "</td><td>" + data[i].Comment + "</td></tr>";
+            }
+            $("#divcommentstobindoldApproveReject").html(html);
+            $("#myModalApproveReject").modal('show');
+        });
+       
+    }
+    function ViewGatePass(id) {
+        eId = id;
+        $.get("/Custom/GetGatePassDetails?id=" + id, function (data) {
+            var html = "<table class='table table-bordered'>";
+            html += "<tr><td>From Location</td><td>" + getlocationame(data.LocationId) + "</td></tr>";
+            html += "<tr><td>To Location</td><td>" + data.ToLocation + "</td></tr>";
+            html += "<tr><td>Gate Pass Type</td><td>" + data.GatePassType + "</td></tr>";
+            if (data.ToLocation == "Other") {
+                html += "<tr><td>Rec. Company Name</td><td>" + data.ReceivingCompanyName + "</td></tr>";
+                html += "<tr><td>Rec. Company Contact Name</td><td>" + data.ToLocationCmpCPName + "</td></tr>";
+                html += "<tr><td>Rec. Company Contact Mobile</td><td>" + data.ToLocationCmpCPMobile + "</td></tr>";
+                html += "<tr><td>Rec. Company Contact Email</td><td>" + data.ToLocationCmpCPEmail + "</td></tr>";
+            }
+            html += "<tr><td>Authorized By Name</td><td>" + data.AuthorizedByName + "</td></tr>";
+            html += "<tr><td>Authorized By Department</td><td>" + data.AuthorizedByDepartment + "</td></tr>";
+            html += "<tr><td>Authorized By Designation</td><td>" + data.AuthorizedByDesignation + "</td></tr>";
+            html += "<tr><td>Expected DateOfReturn</td><td>" + (data.ExpectedDateOfReturn) + "</td></tr>";
+            html += "<tr><td>CreatedOn</td><td>" + GetDatestr(data.CreatedOn) + "</td></tr>";
+            html += "<tr><td>CreatedBy</td><td>" + (data.CreatedBy) + "</td></tr>";
+            html += "<tr><td>Comments</td><td>" + data.Comments + "</td></tr>";
+            html += "<tr><td>Address</td><td>" + data.Address + "</td></tr>";
+            html += "<tr><td colspan='2'>";
+            for (var i = 0; i < data.assets.length; i++) {
+                html += "Asset : <b>" + data.assets[i].AssetLabel + "</b>, Qty:<b>" + data.assets[i].Quantity + "</b>, Reason : <b>" + data.assets[i].Reason + "</b><br />";
+            }
+
+            html += "</td></tr>";
+            html += "</table>";
+            $("#tableview").html(html);
+            $("#myModalView").modal('show');
+        });
+    }
+    function UpdateStatus(id) {
+        eId = id;
+        $("#myModalUpdateStatus").modal('show');
+    }
+    function Appected(id) {
+        eId = id;
+        $.get("/Custom/GetGatePassComments?id=" + id, function (data) {
+            var html = "<table class='table table-bordered'><tr><td>CommentedOn</td><td>Status</td><td>Workflow</td><td>Comment</td><td>Commented by</td></tr>";
+            for (var i = 0; i < data.length; i++) {
+                html += "<tr><td>" + data[i].CommentedOn + "</td><td>" + data[i].Status + "</td><td>" + data[i].CurrentWorkFlow + "</td><td>" + data[i].Comments + "</td><td>" + data[i].Name + "</td></tr>";
+            }
+            html += "</table>";
+            $("#divcommentstobindold").html(html);
+            $("#myModalAppected").modal('show');
+        });
+        
+        
+    }
+    function LoadDropdownvalues() {
+        $.get("/Common/GetCommonDropdownValues?dtype=GatePassStatus", function (data) {
+            var options = [];
+            options.push('<option value="">- Select -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].Name + '">' + data[i].Name + '</option>');
+            }
+            $("#ddlstatusMain").html(options.join(''));
+        });
+    }
+    function Delete(id) {
+        if (confirm("Are you sure you want to delete?")) {
+            $.get("/Custom/DeleteGatePass?id=" + id, function (data) {
+                alert("Successfully Deleted ");
+                LoadData();
+            });
+        }
+    }
+    function OnclickReject() {
+        if ($("#ApproverComments").val() != "") {
+            if (confirm("Are you sure you want to Reject the request?")) {
+                $.get("/Custom/ApproveRejectGatePass?id=" + eId + "&status=Reject&comments=" + $("#ApproverComments").val(), function (data) {
+                    alert("Gass pass rejected successfully");
+                    LoadData();
+                    $("#myModalApproveReject").modal('hide');
+                });
+            }
+        }
+        else {
+            alert("Please enter comments");
+        }
+
+    }
+    function OnclickApprove() {
+        if ($("#ApproverComments").val() != "") {
+            if (confirm("Are you sure you want to Approve the request?")) {
+                $.get("/Custom/ApproveRejectGatePass?id=" + eId + "&status=Approve&comments=" + $("#ApproverComments").val(), function (data) {
+                    alert("Gass pass Approved successfully");
+                    LoadData();
+                    $("#myModalApproveReject").modal('hide');
+                });
+            }
+        }
+        else {
+            alert("Please enter comments");
+        }
+    }
+
+    function OnclickSecurityReject() {
+        if ($("#SecurityComments").val() != "") {
+            if (confirm("Are you sure you want to Reject the request?")) {
+                $.get("/Custom/SecurityAcceptGatePass?id=" + eId + "&status=Rejected&comments" + $("#SecurityComments").val(), function (data) {
+                    alert("Gass pass rejected successfully");
+                    LoadData();
+                });
+            }
+        }
+        else {
+            alert("Please enter comments");
+        }
+    }
+    function OnclickSaveStatus() {
+
+        if (confirm("Are you sure you want to update status?")) {
+            $.get("/Custom/UpdateGatePassStatus?id=" + eId + "&status=" + $("#ddlstatusMain").val(), function (data) {
+                $("#myModalUpdateStatus").modal('hide');
+                alert("Gass pass updated successfully");
+                LoadData();
+
+            });
+        }
+    }
+    function OnclickSecurityApprove() {
+        if ($("#SecurityComments").val() != "") {
+            if (confirm("Are you sure you want to Accept the request?")) {
+                $.get("/Custom/SecurityAcceptGatePass?id=" + eId + "&status=Accepted&comments=" + $("#SecurityComments").val(), function (data) {
+                    alert("Gass pass Accepted successfully");
+                    LoadData();
+                    $("#myModalAppected").modal('hide');
+                });
+            }
+        }
+        else {
+            alert("Please enter comments");
+        }
+    }
+    function NewRequest() {
+        window.location.replace("/Custom/GatePass");
+    }
+    function Edit(id) {
+        window.location.replace("/Custom/GatePass?id=" + id);
+    }
+</script>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Approve Gate Pass</div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblRequest">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+
+                    <th>Id</th>
+                    <th>Location</th>
+                    <th>To Location</th>
+                    <th>Date</th>
+                    <th>Address</th>
+                    <th>Authorized By Name</th>
+
+                    <th>Recv.. Cmp</th>
+                    <th>Comments</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Workflow</th>
+                    <th>Created By</th>
+                    <th>Department</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div id="myModalApproveReject" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="clearAll();">×</button>
+                <h4 class="modal-title" id="header">Approve </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-12" id="divcommentstobindoldApproveReject">
+
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-6">
+                        <label>Comments<span class="text-danger">*</span></label>
+                        <textarea class="form-control maxwidth" rows="1" id="ApproverComments" style="height:50px;"></textarea>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnApprove" value="Approve" onclick="OnclickApprove();" class="btn btn-primary">
+                <input type="button" id="btnReject" value="Reject" onclick="OnclickReject();" class="btn btn-danger">
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="myModalUpdateStatus" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="clearAll();">×</button>
+                <h4 class="modal-title" id="header">Status </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-6">
+                        <label>Status<span class="text-danger">*</span></label>
+                        <select id="ddlstatusMain" class="form-control">
+                            <option value="">Select</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnSave" value="Save" onclick="OnclickSaveStatus();" class="btn btn-primary" />
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div id="myModalAppected" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="clearAll();">×</button>
+                <h4 class="modal-title" id="header">Security Accept </h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="divcommentstobindold">
+
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-6">
+                        <label>Comments<span class="text-danger">*</span></label>
+                        <textarea class="form-control maxwidth" rows="1" id="SecurityComments" style="height:50px;"></textarea>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnApprove" value="Accept" onclick="OnclickSecurityApprove();" class="btn btn-primary">
+                <input type="button" id="btnReject" value="Reject" onclick="OnclickSecurityReject();" class="btn btn-danger">
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="myModalView" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" id="headerView">View</h4>
+            </div>
+            <div class="modal-body">
+                <div id="tableview">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

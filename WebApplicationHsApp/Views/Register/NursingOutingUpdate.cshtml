@@ -1,0 +1,169 @@
+﻿
+@{
+    ViewBag.Title = "NursingOutingUpdate";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+</style>
+
+<script src="~/Scripts/jSignature.min.js"></script>
+<!--[if lt IE 9]>
+<script  type="text/javascript" src="~/Scripts/flashcanvas.js"></script>
+    <![endif]-->
+<script>
+    var $sigdiv, $sigdiv2, id = 0;
+    $(document).ready(function () {
+        $sigdiv = $("#captureSignature").jSignature({ 'UndoButton': true });
+        $sigdiv2 = $("#captureSignatureSecurity").jSignature({ 'UndoButton': true });
+
+        //$("#txtReturnNumber").change(function () {
+        //    $.get("/Custom/GetUserDetailsByEmpId?id=" + $("#txtReturnNumber").val(), function (data) {
+        //        if (data != "Enter Valid Request ID") {
+        //            $("#txtstaffName").html(data.FirstName + ' ' + data.DepartmentName);
+        //        }
+        //    });
+        //});
+        ViewDetails();
+        //LoadDropdownvalues();
+    });
+    function Cancel() {
+        window.location.replace("/Register/NursingOuting");
+    }
+
+    function OnLocationchng(id) {
+        $.get("/Register/GetSecurityDetails?locationId=" + id, function (data) {
+            var options = [];
+            options.push('<option value="">- Select Security -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].FirstName + '">' + data[i].FirstName + '</option>');
+            }
+            $("#txtTakingSecurity").html(options.join(''));
+        });
+    }
+    function SaveUserSignoff() {
+        var model = {
+            id: $("#hidBreakdownid").val(),
+            signature: "data:" + $sigdiv.jSignature('getData', 'image').toString(),
+            signature2: "data:" + $sigdiv2.jSignature('getData', 'image').toString(),
+            userempId: $("#txtTakingSecurity").val()
+          
+        }
+        $.post('/Register/SaveNursingOutingUpdate', model, function (data) {
+            alert("Successfully updated");
+            window.location.replace("/Register/NursingOuting");
+        });
+    }
+    function GetDatestr(date) {
+        var d = new Date(parseInt(date.substr(6)));
+        return d.toLocaleString("en-GB");
+    }
+    function ViewDetails() {
+        $.get("/Register/GetRegister_NursingOuting?id=" + $("#hidBreakdownid").val(), function (data) {
+            var html = "<table class='table table-bordered'>";
+            OnLocationchng(data.LocationId);
+            /* html += "<tr><td>Location</td><td>" + getlocationame(data.LocationId) + "</td></tr>";*/
+            html += "<tr><td>Employee No</td><td>" + data.EmployeeNo + "</td></tr>";
+            html += "<tr><td>Employee Name</td><td>" + data.EmployeeName + "</td></tr>";
+            html += "<tr><td>Out Security</td><td>" + data.OutSecurity + "</td></tr>";
+            html += "<tr><td>Reason For Going</td><td>" + data.ReasonForGoing + "</td></tr>";
+            html += "<tr><td>Out Remarks</td><td>" + data.OutRemarks + "</td></tr>";
+            if (data.OutDate != null && data.OutDate != "") {
+                html += "<tr><td>Out Date</td><td>" + GetDatestr(data.OutDate) + "</td></tr>";
+            }
+            if (data.InDate != null && data.InDate != "") {
+                html += "<tr><td>In Date</td><td>" + GetDatestr(data.InDate) + "</td></tr>";
+            }
+
+            if (data.LeaveFromDate != null && data.LeaveFromDate != "") {
+                html += "<tr><td>Leave From Date</td><td>" + data.LeaveFromDate + "</td></tr>";
+            }
+            if (data.LeaveToDate != null && data.LeaveToDate != "") {
+                html += "<tr><td>Leave To Date</td><td>" + data.LeaveToDate + "</td></tr>";
+            }
+            if (data.ShiftName != null && data.ShiftName != "") {
+                html += "<tr><td>Shift Name</td><td>" + data.ShiftName + "</td></tr>";
+            }
+            if (data.InSecurity != null && data.InSecurity != "") {
+                html += "<tr><td>In Security </td><td>" + data.InSecurity + "</td></tr>";
+            }
+
+            if (data.OutEmployeeSign != null && data.OutEmployeeSign != "") {
+                html += "<tr><td>OutPerson Sign</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.OutPersonSign + "' /></td></tr>";
+            }
+            if (data.OutSecuritySign != null && data.OutSecuritySign != "") {
+                html += "<tr><td>Out Security Sign</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.OutSecuritySign + "' /></td></tr>";
+            }
+            if (data.InEmployeeSign != null && data.InEmployeeSign != "") {
+                html += "<tr><td>In Person Sign</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.InPersonSign + "' /></td></tr>";
+            }
+            if (data.InSecuritySign != null && data.InSecuritySign != "") {
+                html += "<tr><td>In Security Sign</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.InSecuritySign + "' /></td></tr>";
+            }
+            html += "</table>";
+            $("#tableview").html(html);
+        });
+    }
+</script>
+
+<style>
+    #captureSignature {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+</style>
+<input type="hidden" id="hidBreakdownid" value="@ViewBag.Id" />
+<div class="panel panel-default">
+    <div class="panel-heading">Hostel Return Update</div>
+    <div class="panel-body">
+        <div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="tableview">
+
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+
+                <div class="col-md-2">
+                    In Security
+                </div>
+                <div class="col-md-4">
+                    <select id="txtTakingSecurity" class="form-control">
+                        <option value="">Select Security</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row" style="padding:15px;">
+
+                <div class="form-group col-md-12">
+                    <label style="margin-bottom:5px;">In Employee Signature</label><br />
+                    <div id="captureSignature">
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="row" style="padding:15px;">
+
+                <div class="form-group col-md-12">
+                    <label style="margin-bottom:5px;">In Security Signature</label><br />
+                    <div id="captureSignatureSecurity">
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div>
+            <input type="button" id="btnasigntask" value="Save" onclick="SaveUserSignoff();" class="btn btn-primary">
+            <button type="button" class="btn btn-default" onclick="Cancel();">Cancel</button>
+        </div>
+    </div>
+</div>

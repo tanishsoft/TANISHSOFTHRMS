@@ -1,0 +1,584 @@
+﻿
+@{
+    ViewBag.Title = "ManageNicuDrug";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+        LoadLocation();
+        $(".removestock").css("display", "none");
+        $(".addstock").css("display", "none");
+        $("#txtDrugExpiryDate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            minDate: 0
+        });
+        $("#txtfromdate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            maxDate: 0
+        });
+        $("#txttodate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            maxDate: 0
+        });
+        $("#txtremovefromdate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            maxDate: 0
+        });
+        $("#txtremovetodate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            maxDate: 0
+        });
+
+    });
+    function LoadLocation() {
+        $.ajax({
+            type: "GET",
+            url: "/Common/GetLocations",
+            success: function (data) {
+
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#ddlLocation").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadFloor() {
+        $.ajax({
+            type: "GET",
+            url: "/Common/GetFloorsByDepartmentId",
+            data: "id=" + $("#ddlDepartment").val(),
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Floor -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].FloorId + '">' + data[i].FloorName + '</option>');
+                }
+                $("#ddlFloor").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+
+    }
+
+    function LoadDepartment() {
+        if ($("#ddlLocation").val() != null && $("#ddlLocation").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Common/GetDepartmentByLocation",
+                data: "id=" + $("#ddlLocation").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- Select Department -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                    }
+                    $("#ddlDepartment").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+    }
+
+    function GoTheDrug() {
+        var task = {
+            Location: $("#ddlLocation").val(),
+            Department: $("#ddlDepartment").val(),
+            Floor: $("#ddlFloor").val()
+        };
+        $.ajax({
+            type: "GET",
+            url: "/Common/GetDrugsEntryData",
+            data: task,
+            success: function (data) {
+                $("#resultsTableBind").html(data);
+            }
+        });
+    }
+    function funchangevalues() {
+        if ($("#ddlselecttype").val() == "Credit") {
+            $(".removestock").css("display", "none");
+            $(".addstock").css("display", "table-cell");
+        } else {
+            $(".removestock").css("display", "table-cell");
+            $(".addstock").css("display", "none");
+        }
+    }
+    var currentid;
+    function checkthestockbind(id) {
+        currentid = id;
+        var cid = currentid.split("_");
+        $("#lbltitle").html(cid[1]);
+        if ($("#ddlselecttype").val() == "Credit") {
+            $(".removestock").css("display", "none");
+            $(".addstock").css("display", "table-cell");
+        } else {
+            $(".removestock").css("display", "table-cell");
+            $(".addstock").css("display", "none");
+        }
+        $("#modalDruginfoadd").modal('show');
+
+        var task = {
+            DrugId: cid[0],
+            date: cid[1]
+        };
+        $.ajax({
+            type: "GET",
+            url: "/Common/GetCurrentMonthDrugHistory",
+            data: task,
+            success: function (data) {
+                $("#tblhistory").html("");
+                var html = "<h4>Credit History</h4><table class='table table-bordered'> <tr><td>Stock Qty</td><td>Drug Expiry Date</td><td>Remarks </td<tr>";
+                var html2 = "<h4>Debit History</h4><table class='table table-bordered'><tr><td>Stock Qty</td><td>IP Number</td><td>MR number </td><td>Patient Name</td><td>Room or Bed no</td><td>Remarks</td><tr>";
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].TypeOfStock == "Add") {
+                        html += "<tr><td>" + data[i].StockQty + "</td><td>" + data[i].DrugExpiryDate + "</td><td>" + data[i].Remarks + "</td><tr>";
+                    } else {
+                        html2 += "<tr><td>" + data[i].StockQty + "</td><td>" + data[i].PatientId + "</td><td>" + data[i].MrNumber + "</td><td>" + data[i].PatientName + "</td><td>" + data[i].RoomNo + "</td><td>" + data[i].Remarks + "</td><tr>";
+                    }
+                }
+                html += "</table>";
+                html2 += "</table>";
+                $("#tblhistory").append(html);
+                $("#tblhistory").append(html2);
+            }
+        });
+    }
+    function SaveDruginfo() {
+        var cid = currentid.split("_");
+        var valuecheck = $("#ddlselecttype").val();
+        var IsCredit = false;
+        var IsDebit = false;
+        if (valuecheck == "Credit") {
+            IsCredit = true;
+        } else {
+            IsDebit = true;
+        }
+        //add validations
+        var validate = true;
+        if ($("#txtStockQty").val() == null || $("#txtStockQty").val() == "" || $("#txtRemarks").val() == null || $("#txtRemarks").val() == "") {
+            validate = false;
+        }
+        if (IsDebit) {
+
+            if ($("#txtMRnumber").val() == null || $("#txtMRnumber").val() == "" || $("#txtPatientId").val() == null || $("#txtPatientId").val() == "") {
+                validate = false;
+            }
+            if ($("#txtPatientName").val() == null || $("#txtPatientName").val() == "" || $("#txtRoomNoorBedno").val() == null || $("#txtRoomNoorBedno").val() == "") {
+                validate = false;
+            }
+        }
+        if (validate) {
+            var task = {
+                DrugId: cid[0],
+                IsCredit: IsCredit,
+                IsDebit: IsDebit,
+                StockQty: $("#txtStockQty").val(),
+                PatientId: $("#txtPatientId").val(),
+                PatientName: $("#txtPatientName").val(),
+                Remarks: $("#txtRemarks").val(),
+                MrNumber: $("#txtMRnumber").val(),
+                RoomNo: $("#txtRoomNoorBedno").val(),
+                DrugExpiryDate: $("#txtDrugExpiryDate").val(),
+                StockDate: cid[1]
+            };
+            $.ajax({
+                type: "GET",
+                url: "/Common/SaveDrugInfo",
+                data: task,
+                success: function (data) {
+                    if (data == "Success") {
+                        $("#modalDruginfoadd").modal('hide');
+                        $("#txtStockQty").val("");
+                        $("#txtPatientId").val("");
+                        $("#txtPatientName").val("");
+                        $("#txtRemarks").val("");
+                        //$("#ddlselecttype").val("");
+
+                        $("#txtMRnumber").val("");
+                        $("#txtRoomNoorBedno").val("");
+                        $("#txtDrugExpiryDate").val("");
+
+                        GoTheDrug();
+                    }
+                    alert(data);
+                }
+            });
+        } else {
+            alert("Please enter all the required fields");
+        }
+    }
+
+
+
+    function LoadData() {
+        if ($("#txtfromdate").val() != null && $("#txtfromdate").val() != "" && $("#txttodate").val() != null && $("#txttodate").val() != "") {
+            $('#tbltable').dataTable({
+                "bServerSide": true,
+                "sAjaxSource": "/Common/AjaxGetDrugReportAddViewModel",
+                "bProcessing": true,
+
+                "bDestroy": true,
+                "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+                //"aaSorting": [[0, "desc"]],
+                "aoColumns": [
+                           { "sName": "Date" },
+                           { "sName": "Time" },
+                           { "sName": "DrugName" },
+                           { "sName": "BeforeAddQty" },
+                           { "sName": "AddQty" },
+                           { "sName": "TotalQty" },
+                           { "sName": "ExpireDate" },
+                           { "sName": "Username" },
+                           { "sName": "Location" },
+                           { "sName": "Floor" },
+                           { "sName": "Remarks" }
+
+                ],
+                "fnServerParams": function (aoData) {
+                    aoData.push(
+                        { "name": "fromdate", "value": $("#txtfromdate").val() },
+                        { "name": "todate", "value": $("#txttodate").val() }
+                    );
+                }
+
+            });
+        } else {
+            alert("Please enter from date and to date");
+        }
+    }
+
+    function LoadDataRemove() {
+        if ($("#txtremovefromdate").val() != null && $("#txtremovefromdate").val() != "" && $("#txtremovetodate").val() != null && $("#txtremovetodate").val() != "") {
+            $('#tbltableremove').dataTable({
+                "bServerSide": true,
+                "sAjaxSource": "/Common/AjaxGetDrugReportRemoveViewModel",
+                "bProcessing": true,
+
+                "bDestroy": true,
+                "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+                //"aaSorting": [[0, "desc"]],
+                "aoColumns": [
+                           { "sName": "Date" },
+                           { "sName": "Time" },
+                            { "sName": "IpNumber" },
+                             { "sName": "MrNumber" },
+                              { "sName": "PatientName" },
+                               { "sName": "RoomNumber" },
+                           { "sName": "DrugName" },
+                           { "sName": "BeforeGivetopatientqty" },
+                           { "sName": "HowmanygiventoPatient" },
+                           { "sName": "NowbalanceQty" },
+
+                           { "sName": "Username" },
+                           { "sName": "Location" },
+                           { "sName": "Floor" },
+                           { "sName": "Remarks" }
+
+                ],
+                "fnServerParams": function (aoData) {
+                    aoData.push(
+                        { "name": "fromdate", "value": $("#txtremovefromdate").val() },
+                        { "name": "todate", "value": $("#txtremovetodate").val() }
+                    );
+                }
+
+            });
+        } else {
+            alert("Please enter from date and to date");
+        }
+    }
+
+    function ExportExcel_DrugReportAddViewModel() {
+        if ($("#txtfromdate").val() != null && $("#txtfromdate").val() != "" && $("#txttodate").val() != null && $("#txttodate").val() != "") {
+
+            window.location = "/Common/ExportExcel_DrugReportAddViewModel?fromdate=" + $("#txtfromdate").val() + "&todate=" + $("#txttodate").val();
+        } else {
+            alert("Please enter from date and to date");
+        }
+    }
+    function ExportExcel_DrugReportRemoveViewModel() {
+        if ($("#txtremovefromdate").val() != null && $("#txtremovefromdate").val() != "" && $("#txtremovetodate").val() != null && $("#txtremovetodate").val() != "") {
+
+            window.location = "/Common/ExportExcel_DrugReportRemoveViewModel?fromdate=" + $("#txtremovefromdate").val() + "&todate=" + $("#txtremovetodate").val();
+        } else {
+            alert("Please enter from date and to date");
+        }
+    }
+</script>
+<style>
+    .tdclassview {
+        color: teal;
+        cursor: pointer;
+        text-align: center;
+    }
+</style>
+<ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#home">Manage</a></li>
+    <li><a data-toggle="tab" href="#menu1">Reports</a></li>
+
+</ul>
+
+<div class="tab-content">
+    <div id="home" class="tab-pane fade in active">
+        <br />
+        <div class="row">
+            <div class="col-md-1">
+                Location
+            </div>
+            <div class="col-md-2">
+                <select id="ddlLocation" class="form-control" onchange="LoadDepartment();"></select>
+            </div>
+            <div class="col-md-1">
+                Department
+            </div>
+            <div class="col-md-2">
+                <select id="ddlDepartment" class="form-control" onchange="LoadFloor();"></select>
+            </div>
+            <div class="col-md-1">
+                Floor
+            </div>
+            <div class="col-md-2">
+                <select id="ddlFloor" class="form-control"></select>
+            </div>
+            <div class="col-md-2">
+                <input type="button" id="btngenerate" class="btn btn-primary" value="Go" onclick="GoTheDrug();" />
+            </div>
+        </div>
+        <div class="row">
+            <div id="resultsTableBind" style="overflow-x:scroll;min-height:400px;">
+
+            </div>
+        </div>
+    </div>
+    <div id="menu1" class="tab-pane fade">
+        <br />
+        <div class="panel panel-default">
+            <div class="panel-heading"> Add Report</div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-1">
+                        &nbsp;
+                    </div>
+                    <div class="col-md-11">
+                        <table class="table">
+                            <tr>
+                                <td>From Date</td>
+                                <td>
+                                    <input type="text" id="txtfromdate" class="form-control" />
+                                </td>
+                                <td>To Date</td>
+                                <td>
+                                    <input type="text" id="txttodate" class="form-control" />
+                                </td>
+                                <td>
+                                    <input type="button" value="Go" onclick="LoadData();" class="btn btn-primary" />
+                                </td>
+                                <td>
+                                    <input type="button" value="Export To Excel" onclick="ExportExcel_DrugReportAddViewModel();" class="btn btn-warning" />
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    <table id="tbltable" class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;">
+                        <thead>
+                            <tr>
+
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>Drug Name</th>
+                                <th>Before Add Qty</th>
+
+                                <th>Add Qty</th>
+
+                                <th>Total Qty</th>
+                                <th>Expire Date</th>
+                                <th>Username</th>
+                                <th>Location</th>
+                                <th>Floor</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <br />
+        <div class="panel panel-default">
+            <div class="panel-heading"> Remove Report</div>
+            <div class="panel-body">
+
+                <div class="row">
+                    <div class="col-md-1">
+                        &nbsp;
+                    </div>
+                    <div class="col-md-11">
+                        <table class="table">
+                            <tr>
+                                <td>From Date</td>
+                                <td>
+                                    <input type="text" id="txtremovefromdate" class="form-control" />
+                                </td>
+                                <td>To Date</td>
+                                <td>
+                                    <input type="text" id="txtremovetodate" class="form-control" />
+                                </td>
+                                <td>
+                                    <input type="button" value="Go" onclick="LoadDataRemove();" class="btn btn-primary" />
+                                </td>
+                                <td>
+                                    <input type="button" value="Export To Excel" onclick="ExportExcel_DrugReportRemoveViewModel();" class="btn btn-warning" />
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="row">
+                    <table id="tbltableremove" class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;">
+                        <thead>
+                            <tr>
+
+                                <th>Date</th>
+                                <th>Time</th>
+                                <th>IP Number</th>
+                                <th>MR Number</th>
+                                <th>Patient Name</th>
+                                <th>Room Number</th>
+                                <th>Drug Name</th>
+                                <th>Before Give</th>
+
+                                <th>Given To</th>
+
+                                <th>Balance</th>
+
+                                <th>Username</th>
+                                <th>Location</th>
+                                <th>Floor</th>
+                                <th>Remarks</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="modalDruginfoadd" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:800px;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Manage Drug in <label id="lbltitle"></label></h4>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <tr>
+                        <td>
+                            Type
+                        </td>
+                        <td>
+                            <select class="form-control" id="ddlselecttype" onchange="funchangevalues();">
+                                <option value="Credit">Add</option>
+                                <option value="Debit">Remove</option>
+                            </select>
+                        </td>
+
+                        <td>
+                            Stock Qty<span style="color:red;">*</span>
+                        </td>
+                        <td>
+                            <input type="number" id="txtStockQty" class="form-control" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="addstock">
+                            Drug Expiry Date<span style="color:red;">*</span>
+                        </td>
+                        <td class="addstock">
+                            <input type="text" id="txtDrugExpiryDate" class="form-control" />
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td class="removestock">
+                            IP Number<span style="color:red;">*</span>
+                        </td>
+                        <td class="removestock">
+                            <input type="text" id="txtPatientId" class="form-control" />
+                        </td>
+
+                        <td class="removestock">
+                            MR number<span style="color:red;">*</span>
+                        </td>
+                        <td class="removestock">
+                            <input type="text" id="txtMRnumber" class="form-control" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="removestock">
+                            Patient Name<span style="color:red;">*</span>
+                        </td>
+                        <td class="removestock">
+                            <input type="text" id="txtPatientName" class="form-control" />
+                        </td>
+
+                        <td class="removestock">
+                            Room No or Bed no<span style="color:red;">*</span>
+                        </td>
+                        <td class="removestock">
+                            <input type="text" id="txtRoomNoorBedno" class="form-control" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Remarks<span style="color:red;">*</span>
+                        </td>
+                        <td>
+                            <textarea id="txtRemarks" class="form-control"></textarea>
+                        </td>
+
+                        <td>
+                            &nbsp;
+
+                        </td>
+                        <td style="padding:10px;">
+                            <button type="button" class="btn btn-primary" onclick="SaveDruginfo();">Save</button>
+
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </td>
+                    </tr>
+                </table>
+                <div id="tblhistory">
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>

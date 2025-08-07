@@ -1,0 +1,60 @@
+﻿
+@{
+    ViewBag.Title = "Events ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="~/Scripts/Commonimgpreview.js"></script>
+<style type="text/css" media="print">
+    * {
+        display: none;
+    }
+</style>
+<style>
+    .back-to-top {
+        cursor: pointer;
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: none;
+    }
+</style>
+
+<br />
+<div class="row">
+    <div class="col-md-12">
+
+        <div class="panel panel-danger">
+            <div class="panel-heading"> Events </div>
+            <div class="panel-body">
+                @foreach (var v in Model)
+                {
+                   
+                        <div class="row" style="padding-left:50px;padding-right:50px;">
+                            <div class="col-md-12" style="border-bottom:2px solid #c93437;">
+                                <h4> <b>@v.Name</b></h4>
+                                @if (v.FilePath != null && v.FilePath != "")
+                                {
+                                    if (v.FilePath.Contains("pdf"))
+                                    {
+                                        <p><a target="_blank" href="~/ExcelUplodes/@v.FilePath#toolbar=0&amp;navpanes=0&amp;statusbar=0&amp;readonly=true; disableprint=true;">Click Here to View</a> </p>
+                                    }
+                                    else
+                                    {
+                                        <p><a href="~/ExcelUplodes/@v.FilePath" target="_blank"> Click Here to View</a></p>
+
+                                    }
+                                }
+
+                            </div>
+                        </div>
+                    
+
+                }
+
+
+            </div>
+        </div>
+
+        
+    </div>
+</div>

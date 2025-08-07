@@ -1,0 +1,891 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+
+    th, td {
+        white-space: nowrap;
+    }
+
+    .fontlable {
+        font-size: 15px;
+        font-weight: bold;
+    }
+    /*.color {
+        color: red;
+    }*/
+</style>
+<script>
+    var validate = true;
+    var eId = 0;
+    $('.time').timepicker();
+    var type = "";
+    var ItemsList = [];
+    $(document).ready(function () {
+        debugger;
+        $(".error1").hide();
+        $(".date").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            Edit: true,
+            minDate: 0
+        });
+        //$("#txtFromDate")
+        //    .datepicker({
+        //        changeMonth: true,
+        //        changeYear: true,
+        //        dateFormat: "dd/mm/yy",
+        //        Edit: true,
+        //        //minDate:0,
+        //        yearRange: "-30:+30",
+        //        onSelect: function (dateText, inst) {
+        //            $("#txtToDate").datepicker("option", "minDate",
+        //                $("#txtFromDate").datepicker("getDate"));
+        //        }
+        //    });
+        //$("#txtToDate")
+        //    .datepicker({
+        //        changeMonth: true,
+        //        changeYear: true,
+        //        yearRange: "-30:+30",
+        //        dateFormat: "dd/mm/yy",
+        //        Edit: true,
+
+        //    });
+        LoadData();
+        LoadItems();
+
+        //LoadLocations();
+        EmployeeSearch();
+        LoadStore();
+        $(".EmpId").select2("trigger", "select", { data: { id: '@ViewBag.Userid', text: '@ViewBag.UserName' } });
+    });
+    function validatedetails() {
+        setTimeout(function () { $('.error1').fadeOut('fast'); }, 5000);
+        var valid = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if (!inputvalidation('FromStoreId', 'Select From Store')) valid = false;
+        if (!inputvalidation('ToStoreId', 'Select To Store')) valid = false;
+        //if (!inputvalidation('ModeOfTransfer', 'select ModeOfTransfer')) valid = false;
+        debugger;
+        if ($('#SenderEmpId').val() == null) {
+            $('.error1').show();
+            $('.error1').text("Select Sender Employee");
+
+            valid = false;
+        }
+        if (!inputvalidation('SentOnDate', 'select Date')) valid = false;
+        if (!inputvalidation('SenderNotes', 'Select SenderNotes')) valid = false;
+        if (type == "Receiver") {
+            if ($('#ReceiverEmpId').val() == null) {
+                $('.error1').show();
+                $('.error1').text("Select Receiver Employee");
+
+                valid = false;
+            }
+             //if (!inputvalidation('ReceiverEmpId', 'Select ReceiverEmpId')) valid = false;
+        if (!inputvalidation('ReceiverNotes', 'Enter ReceiverNotes')) valid = false;
+        if (!inputvalidation('ReceivedOnDate', 'Select ReceivedOnDate')) valid = false;
+        }
+
+        var table = document.getElementById("ItemTable");
+
+        var table_len = (table.rows.length);
+        for (var i = 1; i < table_len; i++) {
+            var mt = $("#ItemId" + i).val();
+            if ($("#ItemId" + i).val() == "") {
+                $("#ItemId" + i).after('<span class="error" style="color:Red;">select Item</span>');
+                $("#ItemId" + i).addClass('css-error');
+                validate = false;
+            }
+            if (!inputvalidation('QtySend' + i, 'Send Qty')) valid = false;
+            if (type == "Receiver") {
+                if (!inputvalidation('QtyRecived'+i, 'Received Qty')) valid = false;
+                if (!inputvalidation('QtyReturn'+i, 'Enter Return Qty')) valid = false;
+                if (!inputvalidation('QtyDamage'+i, 'Select Damage Qty')) valid = false;
+            }
+        }
+        return valid;
+    }
+    function LoadStore() {
+        $.ajax({
+            type: "POST",
+            url: "/CMS/GetCMS_Store",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Store -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].StoreId + '">' + data[i].StoreName + '</option>');
+                }
+                $(".StoreId").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadItems(id, val) {
+        $.ajax({
+            type: "POST",
+            url: "/CMS/GetCMS_Items",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Item -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].ItemId + '">' + data[i].ItemName + '</option>');
+
+                }
+                $("#ItemId").html(options.join(''));
+                $("#ItemId" + id).html(options.join(''));
+
+                var table = document.getElementById("ItemTable");
+                var table_len = (table.rows.length);
+                for (var i = 1; i < table_len; i++) {
+                    var mealtype = $("#ItemId" + i).val();
+                    if (mealtype != "")
+                        $("#ItemId" + id + " option[value=" + mealtype + "]").remove();
+
+                }
+                var len = $("#ItemId" + id + " option").length;
+                if (len == 1) {
+                    delete_row(id);
+                }
+                if (val != "")
+                    $("#ItemId" + id).val(val);
+            },
+
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    //function LoadLocations() {
+    //    $.ajax({
+    //        type: "POST",
+    //        url: "/Common/GetLocations",
+    //        //data: "id=",
+    //        success: function (data) {
+    //            var options = [];
+    //            options.push('<option value="">- All Locations -</option>');
+    //            for (var i = 0; i < data.length; i++) {
+    //                options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+    //            }
+    //            $(".Location").html(options.join(''));
+    //        },
+    //        error: function () {
+    //            alert("error")
+    //        }
+    //    });
+    //}
+    function EmployeeSearch() {
+
+        $(".EmpId").select2({
+            ajax: {
+                url: "/Home/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            width: 'element',
+            minimumInputLength: 4
+        });
+    }
+    function inputvalidation(selector, Text) {
+        var validate = true;
+        if ($("#" + selector).val() == "") {
+            $("#" + selector).after('<span class="error" style="color:Red;">' + Text + '</span>');
+            $("#" + selector).addClass('css-error');
+            validate = false;
+        }
+        return validate;
+    }
+    function LoadData() {
+        $('#tblCategory').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/CMS/AjaxGetCMSItemTransfer",
+            "bProcessing": true,
+            "bDestroy": true,
+            "scrollX": true,
+            "autoWidth": false,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "Id" },
+                { "sName": "FromStoreId" },
+                { "sName": "ToStore" },
+                //{ "sName": "Mode" },
+                { "sName": "Sender" },
+                { "sName": "Receiver" },
+                //{ "sName": "Sendernotes" },
+                //{ "sName": "ReceiverNotes" },
+                { "sName": "Send Date" },
+                { "sName": "Receive Date" },
+                { "sName": "RequestedEmpId" },
+                { "sName": "RequestedOn" },
+                //{ "sName": "RequestorNotes" },
+                //{ "sName": "IsCanteen" },
+                //{ "sName": "FromLocationId" },
+                //{ "sName": "ToLocationId" },
+                //{ "sName": "IsActive" },
+                {
+                           "sName": "Id",
+                           "bSortable": false,
+                           "render": function (data, row, r) {
+                               //console.log(r);
+                               return '<div class="btn-group">' +
+                                   '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                                   '<ul class="dropdown-menu dropdown-menu-right">' +
+                                   '<li><a href="javascript:void(0);"  onclick="onView(' + data + ')">View</a></li>' +
+                                   '<li><a href="javascript:void(0);"  onclick="onEdit(' + data + ')">Edit</a></li>' +
+                                   '<li><a href="javascript:void(0);"  onclick="onDelete(' + data + ')">Delete</a></li>' +
+                                   '<li><a href="javascript:void(0);"  onclick="SenderUpdate(' + data + ')">Sender Update</a></li>' +
+                                   '<li><a href="javascript:void(0);"  onclick="ReceiverUpdate(' + data + ')">Receiver Update</a></li>' +
+                                   '</ul></div>';
+                           }
+                }
+            ]
+        });
+        $("#tblCategory_length").addClass("col-md-6");
+        $("#tblCategory_length").addClass("col-md-6");
+    }
+    function onEdit(id) {
+        EditLoadPartialdivonclick("CreateCMItemTransfer", "Update ItemTransfer", id);
+    }
+
+    function EditLoadPartialdivonclick(link, title, id) {
+        $("#titleofpage").html(title);
+        $("#partialDiv").load("/CMS/" + link + "?id=" + id);
+    }
+    function onDelete(id) {
+        if (confirm('Are you sure you want to delete?')) {
+            $.getJSON("@Url.Action("DeleteCMItemTransfer", "CMS")", { id: id }, function (data) {
+                //clearAll();
+                LoadData();
+            });
+        } return false;
+    }
+    function New()    {
+        window.location.href = '/CMS/CreateCMItemTransfer';
+    }
+    function LoadPartialdivonclick(link, title) {
+        $("#titleofpage").html(title);
+        $("#partialDiv").load("/CMS/" + link);
+    }
+    function onView(id) {
+        eId = id;
+        $("#myModalView").modal('show');
+        $.get("/CMS/GetCMS_ItemTransfer_ById?id=" + id, function (res) {
+            if (res.SenderEmpName!=null)
+                $("#VSenderEmpId").text(res.SenderEmpName);
+            if (res.FromStoreName != null)
+                $("#VFromStoreId").text(res.FromStoreName);
+            if (res.ToStoreName != null)
+            $("#VToStoreId").text(res.ToStoreName);
+            //$("#VModeOfTransfer").text(res.ModeOfTransfer);
+            //$("#VSenderEmpId").text(res.SenderEmpId);
+            if (res.ReceiverEmpId != null)
+                $("#VReceiverEmpId").text(res.ReceiverEmpId);
+            if (res.SenderNotes != null)
+                $("#VSenderNotes").text(res.SenderNotes);
+            if (res.ReceiverNotes != null)
+                $("#VReceiverNotes").text(res.ReceiverNotes);
+            if (res.SentOnDate != null)
+                $("#VSentOnDate").text(res.SentOnDate);
+            if (res.SentOnTime != null)
+                $("#VSentOnTime").text(res.SentOnTime);
+            if (res.ReceivedOnDate != null)
+                $("#VReceivedOnDate").text(res.ReceivedOnDate);
+            if (res.ReceivedOnTime != null)
+                $("#VReceivedOnTime").text(res.ReceivedOnTime);
+            if (res.RequestedEmpName != null)
+                $("#VRequestedEmpId").text(res.RequestedEmpName);
+            if (res.ReceiverEmpName != null)
+                $("#VReceiverEmpId").text(res.ReceiverEmpName);
+            if (res.RequestedOn != null)
+                $("#VRequestedOn").text(res.RequestedOn);
+            if (res.RequestorNotes != null)
+            $("#VRequestorNotes").text(res.RequestorNotes);
+            //$("#VFromLocationId").text(res.FromLocationName);
+            //$("#VToLocationId").text(res.ToLocationName);
+            //$('#VIsCanteen').text(res.IsCanteen);
+            $("#VItemTable").empty();
+            var table = document.getElementById("VItemTable");
+            var table_len = (table.rows.length);
+            table.insertRow(table_len).outerHTML = '<tr><th>Item</th><th>Qty Requested</th><th class="Sender">Qty Send</th><th class="Receiver">Qty Recived</th><th class="Receiver">Qty Return</th><th class="Receiver">Qty Damage</th><th>Notes</th></tr>';
+            LoadViewItemsDetails(id);
+            //LoadItemsDetails(id, 'sen');
+        });
+    }
+    function SenderUpdate(id) {
+        eId = id;
+        type = "Sender";
+        $.get("/CMS/GetCMS_ItemTransfer_ById?id=" + id, function (res) {
+            $("#FromStoreId").val(res.FromStoreId);
+            $("#ToStoreId").val(res.ToStoreId);
+            //$("#ModeOfTransfer").val(res.ModeOfTransfer);
+            //$("#SenderEmpId").val(res.SenderEmpId);
+            //$("#ReceiverEmpId").val(res.ReceiverEmpId);
+            //$("#SenderNotes").val(res.SenderNotes);
+            //$("#ReceiverNotes").val(res.ReceiverNotes);
+            //$("#SentOnDate").val(res.SentOnDate);
+            //$("#SentOnTime").val(res.SentOnTime);
+            //$("#ReceivedOnDate").val(res.ReceivedOnDate);
+            //$("#ReceivedOnTime").val(res.ReceivedOnTime);
+            $("#RequestedEmpId").select2("trigger", "select", { data: { id: res.RequestedEmpId, text: res.RequestedEmpName } });
+            $("#RequestedOn").val(res.RequestedOn);
+            $("#RequestorNotes").val(res.RequestorNotes);
+            //$("#FromLocationId").val(res.FromLocationId);
+            //$("#ToLocationId").val(res.ToLocationId);
+            //$('#IsCanteen').prop('checked', res.IsCanteen);
+            $("#header").text("Update Item");
+            $("#ItemTable").empty();
+            var table = document.getElementById("ItemTable");
+            var table_len = (table.rows.length);
+            table.insertRow(table_len).outerHTML = '<tr><th>Item</th><th>Qty Requested</th><th class="Sender">Qty Send</th><th class="Receiver">Qty Recived</th><th class="Receiver">Qty Return</th><th class="Receiver">Qty Damage</th><th>Notes</th></tr>';
+
+            LoadItemsDetails(id,'Sender');
+        });
+    }
+    function ReceiverUpdate(id) {
+        eId = id;
+        type = "Receiver";
+        $.get("/CMS/GetCMS_ItemTransfer_ById?id=" + id, function (res) {
+            debugger;
+            $("#FromStoreId").val(res.FromStoreId);
+            $("#ToStoreId").val(res.ToStoreId);
+            //$("#ModeOfTransfer").val(res.ModeOfTransfer);
+            $("#SenderEmpId").val(res.SenderEmpId);
+            if (res.SenderEmpName!=null)
+            $("#SenderEmpId").select2("trigger", "select", { data: { id: res.SenderEmpId, text: res.SenderEmpName } });
+            $("#SenderNotes").val(res.SenderNotes);
+            $("#SentOnDate").val(res.SentOnDate);
+
+            //$("#ReceivedOnDate").datepicker("option", "minDate",
+            //    $("#SentOnDate").datepicker("getDate"));
+            $("#SentOnTime").val(res.SentOnTime);
+            $("#RequestedEmpId").select2("trigger", "select", { data: { id: res.RequestedEmpId, text: res.RequestedEmpName } });
+            $("#RequestedOn").val(res.RequestedOn);
+            $("#RequestorNotes").val(res.RequestorNotes);
+            //$("#FromLocationId").val(res.FromLocationId);
+            //$("#ToLocationId").val(res.ToLocationId);
+            //$('#IsCanteen').prop('checked', res.IsCanteen);
+            $("#header").text("Update Item");
+            $("#ItemTable").empty();
+            var table = document.getElementById("ItemTable");
+            var table_len = (table.rows.length);
+            table.insertRow(table_len).outerHTML = '<tr><th>Item</th><th>Qty Requested</th><th class="Sender">Qty Send</th><th class="Receiver">Qty Recived</th><th class="Receiver">Qty Return</th><th class="Receiver">Qty Damage</th><th>Notes</th></tr>';
+
+            LoadItemsDetails(id,"Receiver");
+        });
+
+    }
+    function LoadViewItemsDetails(id) {
+        $.get("/CMS/GetCMS_TransferItems_BytraId?id=" + id, function (res) {
+            var table = document.getElementById("VItemTable");
+            var table_len = (table.rows.length);
+            for (var i = 0; i < res.length; i++) {
+                var row = "<tr>";
+                row += "<td>" + res[i].ItemId + "</td>";
+
+                row += res[i].QtyRequested != null ? "<td>" + res[i].QtyRequested + "</td>" : "<td>&nbsp;</td>";
+                row += res[i].QtySend != null ? "<td>" + res[i].QtySend + "</td>" : "<td>&nbsp;</td>";
+                row += res[i].QtyRecived != null ? "<td>" + res[i].QtyRecived + "</td>" : "<td>&nbsp;</td>";
+                row += res[i].QtyReturn != null ? "<td>" + res[i].QtyReturn + "</td>" : "<td>&nbsp;</td>";
+                row += res[i].QtyDamage != null ? "<td>" + res[i].QtyDamage + "</td>" : "<td>&nbsp;</td>";
+                row += res[i].Notes != null ? "<td>" + res[i].Notes + "</td>" : "<td>&nbsp;</td>";
+                row+="</tr>"
+                table.insertRow(table_len).outerHTML = row;
+
+            }
+
+
+
+        });
+            }
+    function LoadItemsDetails(id,val) {
+        $.get("/CMS/GetCMS_TransferItems_BytraId?id=" + id, function (res) {
+            var table = document.getElementById("ItemTable");
+            for (var i = 0; i < res.length; i++) {
+                AddItem(res[i].ItemId);
+                $("#QtyRequested" + (i + 1)).val(res[i].QtyRequested);
+                $(".Id" + (i + 1)).text(res[i].Id);
+                $("#QtySend" + (i + 1)).val(res[i].QtySend);
+
+                $("#Notes" + (i + 1)).val(res[i].Notes);
+                $("#myModalSenderUpdate").modal('show');
+                if (val == 'Receiver') {
+                    $(".Receiver").show();
+                    $(".Senderfiled").prop('disabled', true);
+                    $("#QtyRecived" + (i + 1)).val(res[i].QtyRecived);
+                    $("#QtyReturn" + (i + 1)).val(res[i].QtyReturn);
+                    $("#QtyDamage" + (i + 1)).val(res[i].QtyDamage);
+                }
+                else {
+                    $(".Receiver").hide();
+                    $(".Senderfiled").prop('disabled', false);
+                }
+
+            }
+        });
+    }
+    function AddItem(val) {
+        var table = document.getElementById("ItemTable");
+        var table_len = (table.rows.length);
+
+        if (table_len > 1) {
+            if (eId == 0) {
+                if ($("#ItemId" + (table_len - 1)).val() != "")
+                    var row = table.insertRow(table_len).outerHTML = "<tr class='datarow' id='row" + table_len + "'><td class='Id" + table_len + "' style='display:none;'>0</td><td> <select id='ItemId" + table_len + "' class='form-control' style='max-width:200px;'> <option value=''>Select Item</option></select></td><td>  <input type='number' class='form-control' id='QtyRequested" + table_len + "'></td><td>  <input type='number' class='form-control' id='QtySend" + table_len + "'></td><td class='Receiver'>  <input type='number' class='form-control' id='QtyRecived" + table_len + "'></td><td class='Receiver'>  <input type='number' class='form-control' id='QtyReturn" + table_len + "'></td><td class='Receiver'>  <input type='number' class='form-control' id='QtyDamage" + table_len + "'></td><td>  <textarea class='form-control' id='Notes" + table_len + "'></textarea></td></tr>";
+                // <td>  <input type='number' class='form-control' id='QtySend" + table_len + "'></td><td>  <input type='number' class='form-control' id='QtyRecived" + table_len + "'></td><td>  <input type='number' class='form-control' id='QtyReturn" + table_len + "'></td><td>  <input type='number' class='form-control' id='QtyDamage" + table_len + "'></td>
+                //var row = table.insertRow(table_len).outerHTML = "<tr class='datarow' id='row" + table_len + "'><td class='Id" + table_len + "' style='display:none;'>0</td><td class='ItemId" + table_len + "'>" + $("#ItemId").val() + "</td><td class='QtyRequested" + table_len + "'>" + $("#QtyRequested").val() + "</td><td class='QtySend" + table_len + "'>" + $('#QtySend').val() + "</td><td class='QtyRecived" + table_len + "'>" + $("#QtyRecived").val() + "</td><td class='QtyReturn" + table_len + "'>" + $("#QtyReturn").val() + "</td><td class='QtyDamage" + table_len + "'>" + $('#QtyDamage').val() + "</td><td class='Notes" + table_len + "'>" + $('#Notes').val() + "</td><td><span class='glyphicon glyphicon-edit' style='color:greem;cursor:pointer;' onclick='Edit_row(" + table_len + ")'></span> <span class='glyphicon glyphicon-trash' style='color:red;cursor:pointer;' onclick='delete_row(" + table_len + ")'></span></td></tr>";
+                else
+                    alert("select Item First");
+            }
+            else {
+                var row = table.insertRow(table_len).outerHTML = "<tr class='datarow' id='row" + table_len + "'><td class='Id" + table_len + "' style='display:none;'>0</td><td> <select id='ItemId" + table_len + "' class='form-control' style='max-width:200px;'> <option value=''>Select Item</option></select></td><td>  <input type='number' class='form-control' id='QtyRequested" + table_len + "'></td><td>  <input type='number' class='form-control' id='QtySend" + table_len + "'></td><td class='Receiver'>  <input type='number' class='form-control' id='QtyRecived" + table_len + "'></td><td class='Receiver'>  <input type='number' class='form-control' id='QtyReturn" + table_len + "'></td><td class='Receiver'>  <input type='number' class='form-control' id='QtyDamage" + table_len + "'></td><td><textarea class='form-control' id='Notes" + table_len + "'></textarea></td></tr>";
+                //<td>  <input type='number' class='form-control' id='QtySend" + table_len + "'></td><td>  <input type='number' class='form-control' id='QtyRecived" + table_len + "'></td><td>  <input type='number' class='form-control' id='QtyReturn" + table_len + "'></td><td>  <input type='number' class='form-control' id='QtyDamage" + table_len + "'></td>
+            }
+        }
+        else {
+            var row = table.insertRow(table_len).outerHTML = "<tr class='datarow' id='row" + table_len + "'><td class='Id" + table_len + "' style='display:none;'>0</td><td> <select id='ItemId" + table_len + "' class='form-control' style='max-width:200px;'> <option value=''>Select Item</option></select></td><td>  <input type='number' class='form-control' id='QtyRequested" + table_len + "'></td><td>  <input type='number' class='form-control' id='QtySend" + table_len + "'></td><td class='Receiver'><input type='number' class='form-control' id='QtyRecived" + table_len + "'></td><td class='Receiver'>  <input type='number' class='form-control' id='QtyReturn" + table_len + "'></td><td class='Receiver'><input type='number' class='form-control' id='QtyDamage" + table_len + "'></td><td><textarea class='form-control' id='Notes" + table_len + "'></textarea></td></tr>";
+        }
+        LoadItems(table_len, val);
+        $('#ItemTable').show();
+    }
+
+
+    function delete_row(no) {
+        document.getElementById("row" + no + "").outerHTML = "";
+        var table = document.getElementById("ItemTable");
+
+        var table_len = (table.rows.length - 1);
+        if (table_len == 0) {
+            $('#ItemTable').hide();
+        }
+    }
+    function OnclickSavechanges() {
+        if (type == "Receiver") {
+            OnClickReceiverUpdate();
+        }
+        else {
+            OnClickSenderUpdate();
+        }
+    }
+
+
+    function OnClickSenderUpdate() {
+        var valid = validatedetails();
+        if (valid) {
+            if (window.FormData !== undefined) {
+                var files = "";
+                // Create FormData object
+                var fileData = new FormData();
+                var fileUpload = $("#SenderAttachment").get(0);
+                files = fileUpload.files;
+                //  if (files.length != 0) {
+                fileData.append("SenderAttachment", files[0]);
+                fileData.append('ItemTransferId', eId);
+                //fileData.append('ModeOfTransfer', $("#ModeOfTransfer").val());
+                fileData.append('SenderEmpId', $("#SenderEmpId").val());
+                fileData.append('SenderNotes', $("#SenderNotes").val());
+                fileData.append('SentOnDate', $("#SentOnDate").val());
+                fileData.append('SentOnTime', $("#SentOnTime").val());
+
+                $.ajax({
+                    type: "POST",
+                    url: "/CMS/SenderUpdate",
+                    contentType: false,
+                    processData: false,
+                    data: fileData,
+                    success: function (data) {
+                        console.log(data);
+                        SaveItem(data);
+                        $("#myModalSenderUpdate").modal('hide');
+                        alert("Successfully Saved");
+                        LoadPartialdivonclick('ManageCMSItemTransfer', 'Place Item Request');
+                    },
+                    error: function (err) {
+                        alert(err.statusText);
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+    }
+    function OnClickReceiverUpdate() {
+        var valid = validatedetails();
+        if (valid) {
+            if (window.FormData !== undefined) {
+                var files = "";
+                // Create FormData object
+                var fileData = new FormData();
+                var fileUpload = $("#ReceiverAttachment").get(0);
+                files = fileUpload.files;
+                //  if (files.length != 0) {
+                fileData.append("ReceiverAttachment", files[0]);
+                fileData.append('ItemTransferId', eId);
+                //fileData.append('ModeOfTransfer', $("#ModeOfTransfer").val());
+                fileData.append('ReceiverEmpId', $("#ReceiverEmpId").val());
+                fileData.append('ReceiverNotes', $("#ReceiverNotes").val());
+                fileData.append('ReceivedOnDate', $("#ReceivedOnDate").val());
+                fileData.append('ReceivedOnTime', $("#ReceivedOnTime").val());
+
+                $.ajax({
+                    type: "POST",
+                    url: "/CMS/ReceiverUpdate",
+                    contentType: false,
+                    processData: false,
+                    data: fileData,
+                    success: function (data) {
+                        console.log(data);
+                        SaveItem(data);
+                        $("#myModalSenderUpdate").modal('hide');
+                        alert("Successfully Saved");
+                        LoadPartialdivonclick('ManageCMSItemTransfer', 'Place Item Request');
+                    },
+                    error: function (err) {
+                        alert(err.statusText);
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+    }
+    function SaveItem(id) {
+        var ItemList = [];
+        var table = document.getElementById("ItemTable");
+
+        var table_len = (table.rows.length);
+        for (var i = 1; i < table_len; i++) {
+            if (type == "Receiver") {
+                ItemList.push({
+                    Id: parseInt($(".Id" + i).text()),
+                    ItemTransferId: parseInt(id),
+                    ItemId: parseInt($("#ItemId" + i).val()),
+                    QtyRequested: parseInt($("#QtyRequested" + i).val()),
+                    QtySend: parseFloat($("#QtySend" + i).val()).toFixed(2),
+                    QtyRecived: parseFloat($("#QtyRecived" + i).val()).toFixed(2),
+                    QtyReturn: parseFloat($("#QtyReturn" + i).val()).toFixed(2),
+                    QtyDamage: parseFloat($("#QtyDamage" + i).val()).toFixed(2),
+                    Notes: $("#Notes" + i).val()
+                });
+            }
+            else {
+                ItemList.push({
+                    Id: parseInt($(".Id" + i).text()),
+                    ItemTransferId: parseInt(id),
+                    ItemId: parseInt($("#ItemId" + i).val()),
+                    QtyRequested: parseInt($("#QtyRequested" + i).val()),
+                    QtySend: parseFloat($("#QtySend" + i).val()).toFixed(2),
+                    QtyRecived: parseFloat("0").toFixed(2),
+                    QtyReturn: parseFloat("0").toFixed(2),
+                    QtyDamage: parseFloat("0").toFixed(2),
+                    Notes: $("#Notes" + i).val()
+                });
+            }
+
+        }
+
+        $.post("/CMS/Save_UpdateItemTransferList", { model: ItemList }, function (res) {
+            LoadPartialdivonclick('ManageCMSItemTransfer', 'Place Item Request');
+        });
+    }
+    function clearupdate() {
+        $("#myModalSenderUpdate").modal('hide');
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading" style="height:35px;background: linear-gradient(to bottom, rgba(217,39,64,1) 35%,rgba(146,0,0,1) 77%);">Manage Item Transfer<a href="/CMS/CreateCMItemTransfer" class="pull-right" style="color:white;">Request for Items</a></div>
+    <div class="panel-body divtable">
+        <table class="table table-striped table-bordered  nowrap display" style="width:100%;" id="tblCategory">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>From Store</th>
+                    <th>To Store</th>
+                    @*<th>Mode Of Transfer</th>*@
+                    <th>Sender</th>
+                    <th>Receiver</th>
+                    @*<th>Sender Notes</th>
+                        <th>Receiver Notes</th>*@
+                    <th>Sent Date</th>
+                    <th>Receive Date</th>
+                    <th>Requested By</th>
+                    <th>Requested On</th>
+                    @*<th>Requested Notes</th>
+                        <th>IsCanteen</th>
+                        <th>From Location</th>
+                        <th>To Location</th>*@
+                    @*<th>Is Active</th>*@
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+@*Sendor/Receiver PopUp*@
+<div id="myModalSenderUpdate" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog" style="width:750px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" onclick="clearupdate();">×</button>
+                <h4 class="modal-title" id="header">Sender Updeate</h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger error1" role="alert">
+
+                </div>
+                <div class="row" style="width:95%;margin:auto;">
+
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label>From Store<span class="text-danger">*</span> </label>
+                                <select class="form-control StoreId" id="FromStoreId" disabled="disabled"></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label>To Store<span class="text-danger">*</span></label>
+                                <select class="form-control StoreId" id="ToStoreId" disabled="disabled"></select>
+                            </div>
+                        </div>
+                        <div class="row Requester">
+                            <div class="col-md-6">
+                                <label>Requested EmpId<span class="text-danger">*</span></label><br />
+                                <select id="RequestedEmpId" style="width:280px;" class="form-control typeahead EmpId" disabled="disabled" name="query" data-provide="typeahead" autocomplete="off"></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Requested On<span class="text-danger">*</span></label>
+                                <input type="text" name="RequestedOn" id="RequestedOn" class="form-control date" disabled="disabled" />
+                            </div>
+
+                            @*<div class="col-md-6">
+                                    <label>From Location</label>
+                                    <select class="form-control Location" id="FromLocationId" disabled="disabled"></select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label>To Location</label>
+                                    <select class="form-control Location" id="ToLocationId" disabled="disabled"></select>
+                                </div>*@
+                            <div class="col-md-6">
+                                <label>Requestor Notes</label>
+                                <input type="text" class="form-control" name="RequestorNotes" id="RequestorNotes" disabled="disabled" />
+                            </div>
+                            @*<div class="col-md-6">
+                                    <label>Mode Of Transfer<span class="text-danger">*</span></label>
+                                    <select class="form-control" id="ModeOfTransfer"><option value="">Select ModeOfTransfer </option><option value="Van">Van</option></select>
+                                </div>*@
+
+                        </div>
+                        <div class="row Sender">
+                            <div class="col-md-6">
+                                <label>Sender EmpId<span class="text-danger">*</span></label><br />
+                                <select id="SenderEmpId" style="width:280px;" class="form-control typeahead EmpId Senderfiled" name="query" data-provide="typeahead" autocomplete="off"></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Sender Notes<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control Senderfiled" name="SenderNotes" id="SenderNotes" />
+                            </div>
+                            <div class="col-md-6">
+                                <label>Sent On Date</label>
+                                <input type="text" name="SentOnDate" id="SentOnDate" class="form-control date Senderfiled" />
+                            </div>
+                            <div class="col-md-6 input-group bootstrap-timepicker timepicker">
+                                <label>Sent On Time</label>
+                                <input type="text" name="SentOnTime" id="SentOnTime" class="form-control Senderfiled time" />
+                            </div>
+                            <div class="col-md-12" style="display:none;">
+                                <label>Sender Attachment</label>
+                                <input type="file" name="document" id="SenderAttachment" class="form-control Senderfiled" />
+                            </div>
+                        </div>
+                        <div class="row Receiver">
+                            <div class="col-md-6">
+                                <label>Receiver EmpId<span class="text-danger">*</span></label>
+                                <select id="ReceiverEmpId" style="width:280px;" class="form-control typeahead EmpId" name="query" data-provide="typeahead" autocomplete="off"></select>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Receiver Notes<span class="text-danger">*</span></label>
+                                <textarea class="form-control" id="ReceiverNotes"></textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Received On Date<span class="text-danger">*</span></label>
+                                <input type="text" name="ReceivedOnDate" id="ReceivedOnDate" class="form-control date" />
+                            </div>
+                            <div class="col-md-6  input-group bootstrap-timepicker timepicker">
+                                <label>Received On Time<span class="text-danger">*</span></label>
+                                <input type="text" name="ReceivedOnTime" id="ReceivedOnTime" class="form-control time" />
+                            </div>
+                            <div class="col-md-12" style="display:none;">
+                                <label>Receiver Attachment</label>
+                                <input type="file" name="document" id="ReceiverAttachment" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="custom-control custom-checkbox" style="display:none;">
+                            <input type="checkbox" class="custom-control-input" id="IsCanteen" name="IsCanteen">
+                            <label class="custom-control-label" for="IsCanteen">IsCanteen</label>
+                        </div>
+                        <table id="ItemTable" class="table table-borderedtable-condensed table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Qty Requested</th>
+                                    <th class="Sender">Qty Send</th>
+                                    <th class="Receiver">Qty Recived</th>
+                                    <th class="Receiver">Qty Return</th>
+                                    <th class="Receiver">Qty Damage</th>
+                                    <th>Notes</th>
+                                    <th>Action </th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" onclick="OnclickSavechanges();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" onclick="clearupdate();">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@*View PopUp*@
+<div id="myModalView" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog" style="width:750px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" id="header">View</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="width:95%;margin:auto;">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="fontlable">From Store : </label>
+                            <label id="VFromStoreId" class="color"></label>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="fontlable">To Store : </label>
+                            <label id="VToStoreId" class="color"></label>
+                        </div>
+                        @*<div class="col-md-6">
+                                <label class="fontlable">From Location </label>
+                                <label id="VFromLocationId" class="color"></label>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fontlable">To Location </label>
+                                <label id="VToLocationId" class="color"></label>
+                            </div>*@
+                        @*<div class="col-md-6">
+                                <label class="fontlable">Mode Of Transfer </label>
+                                <label id="VModeOfTransfer" class="color"></label>
+                            </div>*@
+                        @*<div class="col-md-6">
+                                <label class="fontlable">IsCanteen </label>
+                                <label id="VIsCanteen" class="color"></label>
+                            </div>*@
+                    </div>
+                    <div style="margin-top:10px;">
+                        <label style="color:green">Requester Details : </label>
+                        <div class="row" style="border-top:solid 1px lightgray;">
+                            <div class="col-md-12">
+                                <label class="fontlable">Requested EmpName : </label>
+                                <label id="VRequestedEmpId" class="color"></label>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fontlable">Requested On : </label>
+                                <label id="VRequestedOn" class="color"></label>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fontlable">Requestor Notes : </label>
+                                <label id="VRequestorNotes" class="color"></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top:10px;">
+                        <label style="color:green">Sender Details : </label>
+                        <div class="row" style="border-top:solid 1px lightgray;">
+                            <div class="col-md-12">
+                                <label class="fontlable">Sender EmpName : </label>
+                                <label id="VSenderEmpId" class="color"></label>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fontlable">Sender Notes : </label>
+                                <label id="VSenderNotes" class="color"></label>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fontlable">Sent On Date : </label>
+                                <label id="VSentOnDate" class="color"></label>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fontlable">Sent On Time : </label>
+                                <label id="VSentOnTime" class="color"></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top:10px;">
+                        <label style="color:green">Receiver Details : </label>
+                        <div class="row" style="border-top:solid 1px lightgray;">
+                            <div class="col-md-12">
+                                <label class="fontlable">Receiver EmpName : </label>
+                                <label id="VReceiverEmpId" class="color"></label>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fontlable">Receiver Notes : </label>
+                                <label id="VReceiverNotes" class="color"></label>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fontlable">Received On Date : </label>
+                                <label id="VReceivedOnDate" class="color"></label>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="fontlable">Received On Time : </label>
+                                <label id="VReceivedOnTime" class="color"></label>
+                            </div>
+
+                        </div>
+                    </div>
+                    <table id="VItemTable" class="table table-borderedtable-condensed table-striped">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Qty Requested</th>
+                                <th>Qty Send</th>
+                                <th>Qty Recived</th>
+                                <th>Qty Return</th>
+                                <th>Qty Damage</th>
+                                <th>Notes</th>
+                                <th>Action </th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

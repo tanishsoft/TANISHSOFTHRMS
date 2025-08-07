@@ -1,0 +1,389 @@
+﻿
+@{
+    ViewBag.Title = "ManageRemainderType";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<script>
+    var validate = true;
+    var eId = 0;
+    $(document).ready(function () {
+        LoadData();
+    });
+    function LoadData() {
+        $('#tblRemainderType').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/HRRemainder/AjaxGetRemainderType",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "Id" },
+                { "sName": "Name" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "IsActive" },
+                {
+                           "sName": "Id",
+                           "bSortable": false,
+                           "render": function (data, row, r) {
+                             
+                               return '<div class="btn-group">' +
+                                   '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                                   '<ul class="dropdown-menu dropdown-menu-right">' +
+                                   '<li><a href="javascript:void(0);"  onclick="onEdit(' + data + ')">Edit</a></li>' +
+                                   '<li><a href="javascript:void(0);"  onclick="onDelete(' + data + ')">Delete</a></li>' +
+                                   '</ul></div>';
+                           }
+                }
+            ]
+        });
+        $("#tblDiet_length").addClass("col-md-6");
+        $("#tblDiet_length").addClass("col-md-6");
+    }
+    function OnclickSave() {
+        validateCategory();
+        if (validate) {
+            var task = {
+                RemainderTypeId:eId,
+                RemainderType: $("#txtName").val(),              
+                RemainderSentToEmail: $("#RemainderCCEmail").val(),
+                RemainderNoOfDays: parseInt($("#ddlnoofdays").val()),
+                RemainderSentToEmployee: $("#RemainderToEmployee").prop('checked'),
+                RemainderSentToHOD: $("#RemainderToHOD").prop('checked'),
+                RemainderNoOfDays1: parseInt($("#ddlnoofdays1").val()),
+                RemainderSentToEmployee1: $("#RemainderToEmployee1").prop('checked'),
+                RemainderSentToHOD1: $("#RemainderToHOD1").prop('checked'),
+                RemainderNoOfDays2: parseInt($("#ddlnoofdays2").val()),
+                RemainderSentToEmployee2: $("#RemainderToEmployee2").prop('checked'),
+                RemainderSentToHOD2: $("#RemainderToHOD2").prop('checked'),
+                RemainderNoOfDays3: parseInt($("#ddlnoofdays3").val()),
+                RemainderSentToEmployee3: $("#RemainderToEmployee3").prop('checked'),
+                RemainderSentToHOD3: $("#RemainderToHOD3").prop('checked'),
+                RemainderNoOfDaysNotes: $("#txtRemainderText").val(),
+                RemainderRepeatType: $("#ddlremainderRepeatType").val(),
+                RemainderSentType: $("#ddlremaindersenttype").val(),
+                IsActive: true,
+            };
+            $.ajax({
+                type: "POST",
+                url: "/HRRemainder/SaveRemainderType",
+                data: task,
+                success: function (data) {
+                    $("#myModal").modal('hide');
+                    clearAll(); LoadData();
+                   
+                }
+            });
+        }
+    }
+    function validateCategory() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#txtName").val() == "") {
+            $("#txtName").addClass('css-error');
+            validate = false;
+        }
+        if ($("#ddlnoofdays").val() == "") {
+            $("#ddlnoofdays").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtRemainderText").val() == "") {
+            $("#txtRemainderText").addClass('css-error');
+            validate = false;
+        }
+        //if ($("#ddlremainderRepeatType").val() == "") {
+        //    $("#ddlremainderRepeatType").addClass('css-error');
+        //    validate = false;
+        //}
+        if ($("#ddlremaindersenttype").val() == "") {
+            $("#ddlremaindersenttype").addClass('css-error');
+            validate = false;
+        }
+    }
+        function onDelete(id) {
+        if (confirm('Are you sure you want to delete?')) {
+            $.getJSON("@Url.Action("DeleteCMPDiet", "InPatientCms")", { id: id }, function (data) {
+                clearAll();
+                LoadData();
+            });
+        } return false;
+    }
+    function onEdit(id) {
+        clearAll();
+        eId = id;
+        $.get("/HRRemainder/GetRemainderTypeDetails?id=" + id, function (data) {
+            $("#txtName").val(data.RemainderType);
+            $("#RemainderCCEmail").val(data.RemainderSentToEmail);
+            $("#ddlnoofdays").val(data.RemainderNoOfDays);
+            $("#RemainderToEmployee").prop('checked', data.RemainderSentToEmployee);
+            $("#RemainderToHOD").prop('checked', data.RemainderSentToHOD);
+            $("#ddlnoofdays1").val(data.RemainderNoOfDays1);
+            $("#RemainderToEmployee1").prop('checked', data.RemainderSentToEmployee1);
+            $("#RemainderToHOD1").prop('checked', data.RemainderSentToHOD1);
+            $("#ddlnoofdays2").val(data.RemainderNoOfDays2);
+            $("#RemainderToEmployee2").prop('checked', data.RemainderSentToEmployee2);
+            $("#RemainderToHOD2").prop('checked', data.RemainderSentToHOD2);
+
+            $("#ddlnoofdays3").val(data.RemainderNoOfDays3);
+            $("#RemainderToEmployee3").prop('checked', data.RemainderSentToEmployee3);
+            $("#RemainderToHOD3").prop('checked', data.RemainderSentToHOD3);
+            $("#txtRemainderText").val(data.RemainderNoOfDaysNotes);
+            $("#ddlremainderRepeatType").val(data.RemainderRepeatType);
+            $("#ddlremaindersenttype").val(data.RemainderSentType);
+            $("#myModal").modal('show');
+            $("#header").text("Update Remainder Type");
+        });
+       
+    }
+    function clearAll() {
+        $("#header").text("New Type");
+        $(".css-error").removeClass('css-error');
+        $("#Name").val("");
+        $("#IsActive").prop('checked', true);
+        eId = 0;
+    }
+
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading" style="height:35px;">Manage Reminder Type<a href="#" data-toggle="modal" class="pull-right" data-target="#myModal">New</a></div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblRemainderType">
+            <thead>
+                <tr style="background-color:chocolate;color:white;">
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>No.Of Days</th>
+                    <th>Repeat Type</th>
+                    <th>Sent Type</th>
+                    <th>Reminder Notes</th>
+                    <th>To Employee</th>
+                    <th>To HOD</th>
+                    <th>Email To </th>
+                    <th>Is Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="myModal" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="clearAll();">×</button>
+                <h4 class="modal-title" id="header">New Type</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Name<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="txtName" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">No Of Days Before 1</label>
+                    </div>
+                    <div class="col-md-8">
+                        <select class="form-control" id="ddlnoofdays">
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="15">15</option>
+                            <option value="30">30</option>
+                            <option value="45">45</option>
+                            <option value="60">60</option>
+                            <option value="90">90</option>
+                            <option value="120">120</option>
+                            <option value="180">180</option>
+                            <option value="360">360</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="name">Reminder To Employee 1 </label>
+                        <input type="checkbox" class="custom-control-input" id="RemainderToEmployee" name="RemainderToEmployee" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="name">Reminder To HOD 1 </label>
+                        <input type="checkbox" class="custom-control-input" id="RemainderToHOD" name="RemainderToHOD" />
+                    </div>
+                </div>
+            
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">No Of Days Before 2 </label>
+                    </div>
+                    <div class="col-md-8">
+                        <select class="form-control" id="ddlnoofdays1">
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="15">15</option>
+                            <option value="30">30</option>
+                            <option value="45">45</option>
+                            <option value="60">60</option>
+                            <option value="90">90</option>
+                            <option value="120">120</option>
+                            <option value="180">180</option>
+                            <option value="360">360</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="name">Reminder To Employee 2 </label>
+                        <input type="checkbox" class="custom-control-input" id="RemainderToEmployee1" name="RemainderToEmployee1" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="name">Reminder To HOD 2 :</label>
+                        <input type="checkbox" class="custom-control-input" id="RemainderToHOD1" name="RemainderToHOD1" />
+                    </div>
+                </div>
+               
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">No Of Days Before 3</label>
+                    </div>
+                    <div class="col-md-8">
+                        <select class="form-control" id="ddlnoofdays2">
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="15">15</option>
+                            <option value="30">30</option>
+                            <option value="45">45</option>
+                            <option value="60">60</option>
+                            <option value="90">90</option>
+                            <option value="120">120</option>
+                            <option value="180">180</option>
+                            <option value="360">360</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="name">Reminder To Employee 3 :</label>
+                        <input type="checkbox" class="custom-control-input" id="RemainderToEmployee2" name="RemainderToEmployee2" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="name">Reminder To HOD 3 :</label>
+                        <input type="checkbox" class="custom-control-input" id="RemainderToHOD2" name="RemainderToHOD2" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">No Of Days Before 4</label>
+                    </div>
+                    <div class="col-md-8">
+                        <select class="form-control" id="ddlnoofdays3">
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="15">15</option>
+                            <option value="30">30</option>
+                            <option value="45">45</option>
+                            <option value="60">60</option>
+                            <option value="90">90</option>
+                            <option value="120">120</option>
+                            <option value="180">180</option>
+                            <option value="360">360</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="name">Reminder To Employee 4 :</label>
+                        <input type="checkbox" class="custom-control-input" id="RemainderToEmployee3" name="RemainderToEmployee3" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="name">Reminder To HOD 4 :</label>
+                        <input type="checkbox" class="custom-control-input" id="RemainderToHOD3" name="RemainderToHOD3" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Reminder Text<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="txtRemainderText" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px; display:none;">
+                    <div class="col-md-4">
+                        <label for="name">Reminder Repeat Type</label>
+                    </div>
+                    <div class="col-md-8">
+                        <select class="form-control" id="ddlremainderRepeatType">
+                            <option value="">Select</option>
+                            <option value="Daily">Daily</option>
+                            <option value="WeeklyOnce">Weekly Once</option>
+                            <option value="TwoWeeksOnce">Two Weeks Once</option>
+                            <option value="Monthly">Monthly</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Reminder Sent Type</label>
+                    </div>
+                    <div class="col-md-8">
+                        <select class="form-control" id="ddlremaindersenttype">
+                            <option value="">Select</option>
+                            <option value="Email">Email</option>
+                            <option value="SMS">SMS</option>
+                            <option value="Both">Both</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Reminder CC Email <span style="font-size:8px;">Multiple emails with comma(,) saparated</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <textarea rows="2" class="form-control" id="RemainderCCEmail" autocomplete="off"></textarea>
+                    </div>
+                </div>
+                
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" onclick="OnclickSave();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearAll();">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+

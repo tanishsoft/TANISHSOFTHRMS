@@ -1,0 +1,129 @@
+﻿@model WebApplicationHsApp.Models.HelpDeskReportViewModel
+@{
+    ViewBag.Title = "HelpDeskReport";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+        $("#txtfromdate")
+         .datepicker({
+             changeMonth: true,
+             changeYear: true,
+             dateFormat: "dd/mm/yy"
+         });
+        $("#txttodate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy"
+        });
+
+    });
+    function Getthereport() {
+        $.get("/Home/GettheCountReport", {
+            fromdate: $("#txtfromdate").val(),
+            todate: $("#txttodate").val()
+        }, function (data) {
+
+            var html = "<tr><td>Name</td><td>Count</td></tr>";
+            for (var key in data) {
+                var value = data[key];
+                html += "<tr><td>" + key + "</td><td>" + value + "</td></tr>";
+            }
+            $("#tblticketsreport").html(html);
+            //$("#lblavgticketsperday").html(data.AverageTicketsPerday);
+            //$("#lblavgticketsclosedperday").html(data.AverageTicketsClosedPerday);
+            //$("#lblavgticketsresponsetime").html(data.AverageResponseTime);
+
+        });
+    }
+</script>
+<div class="row">
+    <div class="col-md-2">
+        &nbsp;
+    </div>
+    <div class="col-md-8">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"> Date Wise Check</h3>
+            </div>
+            <div class="panel-body">
+                <div class="rows">
+                    <table class="table">
+                        <tr>
+                            <td>
+                                <input type="text" id="txtfromdate" placeholder="From Date" />
+                            </td>
+                            <td>
+                                <input type="text" id="txttodate" placeholder="To Date" />
+                            </td>
+                            <td>
+                                <input type="button" id="btngo" value="Go" class="btn btn-primary" onclick="Getthereport();" />
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <table class="table table-bordered table-hover table-striped" id="tblticketsreport"></table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        &nbsp;
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-2">
+        &nbsp;
+    </div>
+    <div class="col-md-8">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"> Help Desk Report <a href="~/Home/MyTask" class="pull-right"> Go Back</a></h3>
+            </div>
+            <div class="panel-body">
+                <table class="table table-bordered table-hover table-striped">
+                    <tr>
+                        <td><b>Name</b> </td>
+                        <td><b>Count</b> </td>
+                    </tr>
+                    <tr>
+                        <td>No of Issue Raised </td>
+                        <td>@Model.TotalIssues</td>
+                    </tr>
+                    <tr>
+                        <td>No of Issues Closed</td>
+                        <td>@Model.TotalIssuesClosed</td>
+                    </tr>
+                    <tr>
+                        <td>No of Shivam Issues</td>
+                        <td>@Model.NoOfShivamIssues</td>
+                    </tr>
+
+                    <tr>
+                        <td>No of Hardware Issues/ others</td>
+                        <td>@Model.NoOfHardwareandOtherIssues</td>
+                    </tr>
+                    <tr>
+                        <td>No of Issues closed with in 24 hours.</td>
+                        <td>@Model.NoOfIssuesclosedWithin24Hours</td>
+                    </tr>
+                    <tr>
+                        <td>No of issues closed after 24 hours</td>
+                        <td>@Model.NoOfIssuesclosedAfter24Hours</td>
+                    </tr>
+                    <tr>
+                        <td>No of Tickets open</td>
+                        <td>@Model.NoOfTicketsOpen</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2">
+        &nbsp;
+    </div>
+</div>
+
+<br />
+

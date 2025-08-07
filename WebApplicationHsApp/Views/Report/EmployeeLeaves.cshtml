@@ -1,0 +1,197 @@
+﻿@{
+    ViewBag.Title = "EmployeeLeaves";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+        LoadLocations();
+        $(".btdate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy"
+        });
+    });
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#ddlLocation").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadDepartment() {
+        if ($("#ddlLocation").val() != null && $("#ddlLocation").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Common/GetDepartmentByLocation",
+                data: "id=" + $("#ddlLocation").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- Select Department -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                    }
+                    $("#ddlDepartment").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        } else {
+            var options = [];
+            options.push('<option value="">- Select Department -</option>');
+
+            $("#ddlDepartment").html(options.join(''));
+        }
+    }
+    function ViewEmployeesWithLeavesCount() {
+        var LocationID = $("#ddlLocation").val();
+        var DeptID = $("#ddlDepartment").val();
+        var FromDate = $("#fromdate").val();
+        var ToDate = $("#todate").val();
+        if (DeptID == "") {
+            DeptID = 0;
+        }
+        if (LocationID == "") {
+            LocationID = 0;
+        }
+
+        if ($.isNumeric(LocationID) && $.isNumeric(DeptID) && FromDate != null && FromDate != "" && ToDate != "" && ToDate != null) {
+            var task = {
+                LocationId: LocationID,
+                DepartmentId: DeptID,
+                FromDate: FromDate,
+                ToDate: ToDate
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Report/GetLeavesCountWithEmployees",
+                data: task,
+                success: function (data) {
+                    var html = "";
+                    var count = 1;
+                    $("#apppendtable").html("");
+                    for (var i in data) {
+                        html += "<tr>";
+                        html += "<td>" + count + "</td>";
+                        html += "<td>" + data[i].LocationName + "</td>";
+                        html += "<td>" + data[i].DepartmentName + "</td>";
+                      
+                        html += "<td>" + data[i].UserId + "</td>";
+                        html += "<td>" + data[i].UserNameWithEmpID + "</td>";
+                        html += "<td>" + data[i].CasualLeaveCount + "</td>";
+                        html += "<td>" + data[i].SickLeaveCount + "</td>";
+                        html += "<td>" + data[i].EarnedleaveCount + "</td>";
+                        html += "<td>" + data[i].CompOffCount + "</td>";
+                        html += "<td>" + data[i].MaternityLeaveCount + "</td>";
+                        html += "<td>" + data[i].PaternityLeaveCount + "</td>";
+                        html += "<td>" + data[i].LossofpayCount + "</td>";
+                        html += "<td>" + data[i].TotalLeaveCount + "</td>";
+                        html += "</tr>";
+                        count++;
+                    }
+                    $("#apppendtable").html(html);
+                    BingExportToExcelLink_PageLevel(LocationID, DeptID, FromDate, ToDate);
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        } else {
+            alert("Please select required fields?");
+        }
+    }
+    function ExporttoExcelLeaves() {
+        var LocationID = $("#ddlLocation").val();
+        var DeptID = $("#ddlDepartment").val();
+        var FromDate = $("#fromdate").val();
+        var ToDate = $("#todate").val();
+        if (DeptID == "") {
+            DeptID = 0;
+        }
+        if (LocationID == "") {
+            LocationID = 0;
+        }
+        if ($.isNumeric(LocationID) && $.isNumeric(DeptID) && FromDate != null && FromDate != "" && ToDate != "" && ToDate != null) {
+            window.location = "/Report/ExpoertGetLeavesCountWithEmployees?LocationId=" + LocationID + "&DepartmentId=" + DeptID + "&FromDate=" + FromDate + "&ToDate=" + ToDate;
+        }
+    }
+    function BingExportToExcelLink_PageLevel(LocationID, DeptID, FromDate, ToDate) {
+        while (FromDate.includes("/")) {
+            FromDate = FromDate.replace("/", "-");
+        }
+        while (ToDate.includes("/")) {
+            ToDate = ToDate.replace("/", "-");
+        }
+        $("#ExportToExcelID").attr("href", "/Hr/EmployeeLeaveReports_ExportToExcel/" + LocationID + "_" + DeptID + "_" + FromDate + "_" + ToDate + "");
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading">Employees Leaves</div>
+    <div class="panel-body">
+        <div class="row" style="padding-bottom:5px;">
+            <div class="col-md-12" style="padding-bottom:5px;">
+                <div class="col-md-2">
+                    <select id="ddlLocation" class="form-control" style="max-width:200px;" onchange="LoadDepartment();">
+                        <option value="">Select Location</option>
+                    </select>
+
+                </div>
+                <div class="col-md-2">
+                    <select id="ddlDepartment" class="form-control" style="max-width:200px;">
+                        <option value="">Select Department</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <input type='text' class="form-control btdate" id='fromdate' placeholder="From Date" style="max-width:200px;" />
+                </div>
+                <div class="col-md-2">
+
+                    <input type='text' class="form-control btdate" id='todate' placeholder="To Date" style="max-width:200px;" />
+
+
+                </div>
+                <div class="col-md-2"><input type="button" class="btn btn-sm btn-success" value="Go" onclick="ViewEmployeesWithLeavesCount();" /> </div>
+                <div class="col-md-2"><input type="button" class="btn btn-sm btn-danger" value="Export To Excel" onclick="ExporttoExcelLeaves();" /> </div>
+            </div>
+
+
+        </div>
+
+        <div class="row">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>S.NO</th>
+                        <th>Location</th>
+                        <th>Department</th>
+                        <th>Emp Id</th>
+                        <th>Name</th>
+                        <th>CL</th>
+                        <th>SL</th>
+                        <th>EL</th>
+
+                        <th>C Off</th>
+                        <th>ML</th>
+                        <th>PL</th>
+                        <th>LOP</th>
+                        <th>Total Leaves</th>
+                    </tr>
+                </thead>
+                <tbody id="apppendtable"></tbody>
+            </table>
+        </div>
+    </div>
+</div>

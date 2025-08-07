@@ -1,0 +1,271 @@
+﻿
+@{
+    ViewBag.Title = "ManageVideos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<script>
+    var validate = true;
+    $(document).ready(function () {
+        LoadData();
+    });
+    function LoadData() {
+        $('#tblCategory').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Academics/AjaxGetVideos",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "CategoryId" },
+                { "sName": "Name" },
+                { "sName": "CategoryName" },
+                { "sName": "Description" },
+                { "sName": "VideoUrl" },
+                { "sName": "VideoType" },
+                { "sName": "VideoLocation" },
+                { "sName": "TotalNoOfViews" },
+                { "sName": "IsActive" },
+                {
+                    "sName": "CategoryId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<span class="glyphicon glyphicon-edit" id="' + data + '" onclick="Edit(this.id);" style="cursor:pointer;color:green;"></span> &nbsp;<span class="glyphicon glyphicon-trash" id="' + data + '" onclick="Delete(this.id);" style="cursor:pointer;color:red;"></span> ';
+                    }
+                }
+            ]
+        });
+        $("#tblCategory_length").addClass("col-md-6");
+        $("#tblCategory_length").addClass("col-md-6");
+    }
+    function OnclickSaveCategory() {
+        validateCategory();
+        if (validate) {
+            var task = {
+                Name: $("#Name").val(),
+                Description: $("#Description").val(),
+                CategoryName: $("#CategoryName").val(),
+                VideoUrl: $("#VideoUrl").val(),
+                VideoType: $("#VideoType").val(),
+                VideoLocation: $("#VideoLocation").val(),
+                IsActive: true
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Academics/SaveNewVideo",
+                data: task,
+                success: function (data) {
+                    $("#myModalCategoryType").modal('hide');
+                    //alert(data);
+                    clearAll(); LoadData();
+                    console.log("category added successfully")
+                }
+            });
+        }
+        else {
+            alert("Fields Required");
+        }
+    }
+    function validateCategory() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#Name").val() == "") {
+            $("#Name").addClass('css-error');
+            validate = false;
+        }
+        if ($("#CategoryName").val() == "") {
+            $("#CategoryName").addClass('css-error');
+            validate = false;
+        }
+        if ($("#Description").val() == "") {
+            $("#Description").addClass('css-error');
+            validate = false;
+        }
+        if ($("#VideoUrl").val() == "") {
+            $("#VideoUrl").addClass('css-error');
+            validate = false;
+        }
+        if ($("#VideoType").val() == "") {
+            $("#VideoType").addClass('css-error');
+            validate = false;
+        }
+    }
+    var editvideoid;
+    function Edit(id) {
+        editvideoid = id;
+        $.get("/Academics/GetVideoDetails?id=" + id, function (data) {
+            $("#EditName").val(data.Name);
+            $("#EditCategoryName").val(data.CategoryName);
+            $("#EditDescription").val(data.Description);
+            $("#myModalCategoryTypeEdit").modal('show');
+        });
+    }
+    function UpdateVideoDetails() {
+        var task = {
+            Name: $("#EditName").val(),
+            Description: $("#EditDescription").val(),
+            CategoryName: $("#EditCategoryName").val(),
+            AcademicsVideoId: editvideoid
+        };
+        $.ajax({
+            type: "POST",
+            url: "/Academics/UpdateVideoDetials",
+            data: task,
+            success: function (data) {
+                $("#myModalCategoryTypeEdit").modal('hide');
+                //alert(data);
+                clearAll(); LoadData();
+                console.log("category added successfully")
+            }
+        });
+    }
+    function clearAll() {
+        $("#Name").val("");
+        $("#Description").val("");
+    }
+    function Delete(id) {
+        if (confirm("Are you sure you want to delete?")) {
+            $.get("/Academics/DeleteVideo?id=" + id, function (data) {
+                alert(data);
+                LoadData();
+            });
+        }
+    }
+</script>
+<div class="panel panel-primary">
+    <div class="panel-heading">Manage Videos<a href="#" data-toggle="modal" class="pull-right" style="color:white;" data-target="#myModalCategoryType">New Video</a></div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered dt-responsive" style="width:100%;" id="tblCategory">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Category Name</th>
+                    <th>Description</th>
+                    <th>Video Url</th>
+                    <th>Video Type</th>
+                    <th>Video Location</th>
+                    <th>Total NoOf Views</th>
+                    <th>Is Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="myModalCategoryType" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Add New</h4>
+            </div>
+
+            @using (Html.BeginForm("SaveNewVideo", "Academics", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                <div class="modal-body">
+
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name"> Name<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <textarea type="text" class="form-control" id="Name" name="Name"></textarea>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Category <span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="CategoryName" name="CategoryName" />
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Video Url <span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="file" id="ExcelFileData" accept="video/mp4" name="ExcelFileData" />
+                        </div>
+                    </div>
+                    @*<div class="row" style="padding:5px;">
+                            <div class="col-md-4">
+                                <label for="name">Video Type <span style="color:red;">*</span></label>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="text" class="form-control" id="VideoType" />
+                            </div>
+                        </div>*@
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name"> Description<span style="color:red;">*</span></label></div>
+                        <div class="col-md-8">
+                            <textarea type="text" class="form-control" id="Description" name="Description"></textarea>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name"> Video Location<span style="color:red;">*</span></label></div>
+                        <div class="col-md-8">
+                            <select class="form-control" id="VideoLocation" name="VideoLocation">
+                                <option value="Academics">Academics</option>
+                                <option value="Midwife_Training">Midwife Training</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <input type="submit" id="btnasigntask" value="Save" class="btn btn-primary" />
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div id="myModalCategoryTypeEdit" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Edit</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name"> Name<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <textarea type="text" class="form-control" id="EditName" name="EditName"></textarea>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Category <span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="EditCategoryName" name="EditCategoryName" />
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name"> Description<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <textarea type="text" class="form-control" id="EditDescription" name="EditDescription"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask1" value="Update" class="btn btn-primary" onclick="UpdateVideoDetails();" />
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

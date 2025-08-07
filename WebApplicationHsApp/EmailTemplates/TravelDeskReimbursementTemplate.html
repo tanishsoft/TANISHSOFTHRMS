@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Travel Request</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            margin: 2rem auto 5rem auto;
+            width: 75%;
+            border: 1px solid lightgray;
+            padding: 1.25rem;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+
+        .header {
+            font-size: 1.25rem; /* Decreased font size */
+            margin-top: 1rem;
+            font-weight: bold;
+            color: #ff8c00;
+            text-align:center;
+        }
+
+        .content {
+            margin-top: 2rem;
+            font-size: 0.875rem; /* Decreased font size */
+            font-weight: bold;
+        }
+
+            .content p {
+                font-weight: normal;
+                line-height: 1.6;
+                margin-top: 0.5rem;
+            }
+
+        .approval-box {
+            border: 1px solid #ffcc99;
+            padding: 1rem;
+            margin-top: 2rem;
+            background-color: #ffebcc;
+            border-radius: 8px;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 2rem;
+        }
+
+            .buttons a {
+                width: 45%;
+                text-align: center;
+                padding: 0.5rem 1rem;
+                border-radius: 4px;
+                text-decoration: none;
+                font-size: 0.875rem;
+                font-weight: bold;
+            }
+
+            .buttons .reject {
+                border: 1px solid red;
+                color: red;
+            }
+
+            .buttons .approve {
+                border: none;
+                background-color: red;
+                color: white;
+            }
+
+        .details-box {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: #f9f9f9;
+        }
+
+            .details-box table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            .details-box th,
+            .details-box td {
+                padding: 0.75rem;
+                text-align: left;
+                border-bottom: 1px solid #e0e0e0;
+            }
+
+            .details-box tr:nth-child(even) {
+                background-color: #f2f2f2;
+            }
+
+            .details-box th {
+                background-color: #ff8c00;
+                color: white;
+                font-weight: bold;
+            }
+
+            .details-box .label {
+                font-weight: bold;
+            }
+
+        .view-details {
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+            .view-details a {
+                text-decoration: none;
+                color: #007bff;
+            }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            Reimbursement Request
+        </div>
+
+        <div class="content">
+            Dear [[ApproverName]],
+            <p>
+                [[TravelUser]] has requested a <b>Reimbursement request</b>, which needs your approval.
+            </p>
+        </div>
+
+        <div class="approval-box">
+            <p>
+                On approval, <b>the Reimbursement will be automatically confirmed</b> & the details will be sent to the Accounts Department.
+            </p>
+        </div>
+
+        <div class="buttons">
+            <a href="[[RejectUrl]]" target="_blank" class="reject">REJECT</a>
+            <a href="[[ApproveUrl]]" target="_blank" class="approve">APPROVE</a>
+        </div>
+
+        <div class="details-box">
+            <table>
+                <tr>
+                    <th>Label</th>
+                    <th>Details</th>
+                </tr>
+                <tr>
+                    <td class="label">Conference Name</td>
+                    <td>[[ConferenceName]]</td>
+                </tr>
+                <tr>
+                    <td class="label">Venue</td>
+                    <td>[[Venue]]</td>
+                </tr>
+                <tr>
+                    <td class="label">Conference Date</td>
+                    <td>[[ConferenceDate]]</td>
+                </tr>
+                <tr>
+                    <td class="label">Total Amount</td>
+                    <td>[[TotalAmount]]</td>
+                </tr>
+                <tr>
+                    <td class="label">Sponsored by</td>
+                    <td>[[Sponsoredby]]</td>
+                </tr>
+                <tr>
+                    <td class="label">Accommodation</td>
+                    <td>[[Accommodation]]</td>
+                </tr>
+                <tr>
+                    <td class="label">Registration Fee</td>
+                    <td>[[RegistrationFee]]</td>
+                </tr>
+                <tr>
+                    <td class="label">Miscellaneous</td>
+                    <td>[[Miscellaneous]]</td>
+                </tr>
+                <tr>
+                    <td class="label">Travel Expense</td>
+                    <td>[[TravelExpense]]</td>
+                </tr>
+                <tr>
+                    <td class="label">Notes</td>
+                    <td>[[Notes]]</td>
+                </tr>
+                <tr>
+                    <td class="label">Traveller Details</td>
+                    <td>[[TravellerDetails]]</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="view-details">
+            <a href="https://infonet.fernandezhospital.com/" target="_blank">VIEW REQUEST DETAILS</a>
+        </div>
+    </div>
+</body>
+
+</html>

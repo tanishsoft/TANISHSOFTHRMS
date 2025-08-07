@@ -1,0 +1,172 @@
+﻿
+@{
+    ViewBag.Title = "InWardReturnableUpdate";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+</style>
+
+<script src="~/Scripts/jSignature.min.js"></script>
+<!--[if lt IE 9]>
+<script  type="text/javascript" src="~/Scripts/flashcanvas.js"></script>
+    <![endif]-->
+<script>
+    var $sigdiv, $sigdiv2, id = 0;
+    $(document).ready(function () {
+         $sigdiv = $("#captureSignature").jSignature({ 'UndoButton': true });
+        $sigdiv2 = $("#captureSignatureSecurity").jSignature({ 'UndoButton': true });
+
+        $("#txtReturnPerson").change(function () {
+            $.get("/Custom/GetUserDetailsByEmpId?id=" + $("#txtReturnPerson").val(), function (data) {
+                if (data != "Enter Valid Request ID") {
+                    $("#personname").html(data.FirstName + " " + data.PhoneNumber);
+                    //$("#txtstaffContactNumber").val(data.PhoneNumber);
+                    //$("#dllstafdepartment").val(data.DepartmentName);
+                }
+            });
+        });
+        ViewDetails();
+    });
+    function Cancel() {
+        window.location.replace("/Register/Demo");
+    }
+    function SaveUserSignoff() {
+        var model = {
+            Id: $("#hidBreakdownid").val(),
+            //signature: "data:" + $sigdiv.jSignature('getData', 'image').toString(),
+            InSecuritySign: "data:" + $sigdiv2.jSignature('getData', 'image').toString(),
+            InPersonSign: "data:" + $sigdiv.jSignature('getData', 'image').toString(),
+            InSecurity: $("#txtReturnSecurity").val(),
+            
+            InPerson: $("#personname").html(),
+            Remarks: $("#txtremarks").val()
+        }
+        $.post('/Register/SaveInWardReturnableUpdate', model, function (data) {
+            alert("Successfully updated");
+            window.location.replace("/Register/InWardReturnable");
+        });
+    }
+    function OnLocationchng(id) {
+        //LoadDepartments(id);
+        $.get("/Register/GetSecurityDetails?locationId=" + id, function (data) {
+            var options = [];
+            options.push('<option value="">- Select Security -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].FirstName + '">' + data[i].FirstName + '</option>');
+            }
+            $("#txtReturnSecurity").html(options.join(''));
+        });
+    }
+    function GetDatestr(date) {
+        var d = new Date(parseInt(date.substr(6)));
+        return d.toLocaleString("en-GB");
+    }
+    function ViewDetails() {
+        $.get("/Register/GetRegister_InWardReturnable?id=" + $("#hidBreakdownid").val(), function (data) {
+            OnLocationchng(data.LocationId);
+            var html = "<table class='table table-bordered'>";
+            //html += "<tr><td>Location</td><td>" + getlocationame(data.LocationId) + "</td></tr>";
+            html += "<tr><td>Department</td><td>" + data.Department + "</td></tr>";
+            html += "<tr><td>Product Name</td><td>" + data.ProductName + "</td></tr>";
+            html += "<tr><td>Qty</td><td>" + data.Qty + "</td></tr>";
+            html += "<tr><td>Gate Pass No</td><td>" + data.GatePassNo + "</td></tr>";
+            html += "<tr><td>Supplier Name</td><td>" + data.SupplierName + "</td></tr>";
+            html += "<tr><td>Security</td><td>" + data.Security + "</td></tr>";
+            html += "<tr><td>Authorize By</td><td>" + data.AuthorizeBy + "</td></tr>";
+            html += "<tr><td>Out Date </td><td>" + GetDatestr(data.OutDate) + "</td></tr>";
+            if (data.ExceptedDate != null && data.ExceptedDate != "") {
+                html += "<tr><td>Excepted Date </td><td>" + GetDatestr(data.ExceptedDate) + "</td></tr>";
+            }
+            if (data.ModifiedOn != null && data.ModifiedOn != "") {
+                html += "<tr><td>In Date </td><td>" + GetDatestr(data.ModifiedOn) + "</td></tr>";
+            }
+            if (data.Reason != null && data.Reason != "") {
+                html += "<tr><td>Reason </td><td>" + (data.Reason) + "</td></tr>";
+            }
+            if (data.Remarks != null && data.Remarks != "") {
+                html += "<tr><td>Remarks</td><td>" + data.Remarks + "</td></tr>";
+            }
+            if (data.SecuritySign != null && data.SecuritySign != "") {
+                html += "<tr><td>Security Sign</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.SecuritySign + "' /></td></tr>";
+            }
+            html += "</table>";
+            $("#tableview").html(html);
+        });
+    }
+</script>
+
+<style>
+    #captureSignature {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+</style>
+<input type="hidden" id="hidBreakdownid" value="@ViewBag.Id" />
+<div class="panel panel-default">
+    <div class="panel-heading">In Ward Returnable Register Update</div>
+    <div class="panel-body">
+        <div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="tableview">
+
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    Return Security
+                </div>
+                <div class="col-md-4">
+                    <select id="txtReturnSecurity" class="form-control">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    Return Person (empid)
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtReturnPerson" class="form-control" />
+                    <span id="personname"></span>
+                </div>
+
+                <div class="col-md-2">
+                    Remarks
+                </div>
+                <div class="col-md-4">
+                    <textarea id="txtremarks" rows="2" class="form-control" style="width:100%"></textarea>
+                </div>
+            </div>
+
+            <div class="row" style="padding:15px;">
+               
+                <div class="form-group col-md-6">
+                    <label style="margin-bottom:5px;">Return Security Signature</label><br />
+                    <div id="captureSignatureSecurity">
+                    </div>
+
+                </div>
+                
+                <div class="form-group col-md-6">
+                    <label style="margin-bottom:5px;">Return Person Signature</label><br />
+                    <div id="captureSignature">
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div>
+            <input type="button" id="btnasigntask" value="Save" onclick="SaveUserSignoff();" class="btn btn-primary">
+            <button type="button" class="btn btn-default" onclick="Cancel();">Cancel</button>
+        </div>
+    </div>
+</div>
+

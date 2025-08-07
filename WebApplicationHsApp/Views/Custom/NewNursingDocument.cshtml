@@ -1,0 +1,483 @@
+﻿
+@{
+    ViewBag.Title = "NewNursingDocument";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    var validate = true;
+    $(document).ready(function () {
+        $(".txtDate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-80:+50"
+        });
+        $("#txtReligionOthers").hide();
+        $("#txtQualificationOthers").hide();
+        var valueid = parseInt($("#NursingDetailsId").val());
+        if (valueid > 0) {
+            LoadData(valueid);
+        }
+    });
+    function validateCategory() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#txtNameOfStudent").val() == "") {
+            $("#txtNameOfStudent").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtHallTicketNo").val() == "") {
+            $("#txtHallTicketNo").addClass('css-error');
+            validate = false;
+        }
+    }
+    function regligonchange() {
+        if ($("#ddlReligion").val() == "Others") {
+            $("#txtReligionOthers").show();
+        } else {
+            $("#txtReligionOthers").hide();
+        }
+    }
+    function Educationqualificationcng() {
+        if ($("#txtQualification").val() == "Others") {
+            $("#txtQualificationOthers").show();
+        } else {
+            $("#txtQualificationOthers").hide();
+        }
+    }
+    function SaveData() {
+        validateCategory();
+        if (validate) {
+
+            // Create FormData object
+            var fileData = new FormData();
+
+            var fileUpload = $("#Markmemo1file").get(0);
+            var files = fileUpload.files;
+
+            // Looping over all files and add it to FormData object
+            for (var i = 0; i < files.length; i++) {
+                fileData.append("Markmemo1file", files[i]);
+            }
+
+            var fileUpload = $("#Markmemo2file").get(0);
+            files = fileUpload.files;
+
+            // Looping over all files and add it to FormData object
+            for (var i = 0; i < files.length; i++) {
+                fileData.append("Markmemo2file", files[i]);
+            }
+
+            var fileUpload = $("#Markmemo3file").get(0);
+            var files = fileUpload.files;
+
+            // Looping over all files and add it to FormData object
+            for (var i = 0; i < files.length; i++) {
+                fileData.append("Markmemo3file", files[i]);
+            }
+
+            var fileUpload = $("#OrginalCertificatefile").get(0);
+            var files = fileUpload.files;
+
+            // Looping over all files and add it to FormData object
+            for (var i = 0; i < files.length; i++) {
+                fileData.append("OrginalCertificatefile", files[i]);
+            }
+
+            var fileUpload = $("#StateRegistrationCertificatefile").get(0);
+            var files = fileUpload.files;
+
+            // Looping over all files and add it to FormData object
+            for (var i = 0; i < files.length; i++) {
+                fileData.append("StateRegistrationCertificatefile", files[i]);
+            }
+            var fileUpload = $("#Transcriptfile").get(0);
+            var files = fileUpload.files;
+
+            // Looping over all files and add it to FormData object
+            for (var i = 0; i < files.length; i++) {
+                fileData.append("Transcriptfile", files[i]);
+            }
+
+            var fileUpload = $("#CourseCompletionfile").get(0);
+            var files = fileUpload.files;
+
+            // Looping over all files and add it to FormData object
+            for (var i = 0; i < files.length; i++) {
+                fileData.append("CourseCompletionfile", files[i]);
+            }
+            var fileUpload = $("#TransferCertificatefile").get(0);
+            var files = fileUpload.files;
+
+            // Looping over all files and add it to FormData object
+            for (var i = 0; i < files.length; i++) {
+                fileData.append("TransferCertificatefile", files[i]);
+            }
+
+            fileData.append('NursingDetailsId', $("#NursingDetailsId").val());
+            fileData.append('Course', $("#ddlCourse").val());
+            fileData.append('NameOfStudent', $("#txtNameOfStudent").val());
+            fileData.append('FatherName', $("#txtFatherName").val());
+            fileData.append('DateOfBirth', $("#txtDateOfBirth").val());
+            if ($("#ddlReligion").val() != "Others") {
+                fileData.append('Religion', $("#ddlReligion").val());
+            } else {
+                fileData.append('Religion', $("#txtReligionOthers").val());
+            }
+
+            fileData.append('IndentificationMarks', $("#txtIdentificationMarks").val());
+            if ($("#txtQualification").val() != "Others") {
+                fileData.append('Qualification', $("#txtQualification").val());
+            } else {
+                fileData.append('Qualification', $("#txtQualificationOthers").val());
+            }
+
+            fileData.append('AdmissionNo', $("#txtAdmissionNo").val());
+            fileData.append('RegistrationNo', $("#ddlRegistration").val() + $("#txtRegistrationNo").val());
+            fileData.append('HallTicketNo', $("#txtHallTicketNo").val());
+            fileData.append('DateOfJoining', $("#txtDateOfJoining").val());
+            fileData.append('DateOfRelieving', $("#txtDateOfRelieving").val());
+
+            fileData.append('ResultsParticulars_PTS_date', $("#txtPTSdate").val());
+            fileData.append('ResultsParticulars_PTS_remarks', $("#txtPTSRemarks").val());
+
+            fileData.append('ResultsParticulars_1styear_date', $("#txt1styeardate").val());
+            fileData.append('ResultsParticulars_1styear_remarks', $("#txt1styearRemarks").val());
+
+            fileData.append('ResultsParticulars_2ndyear_date', $("#txt2ndyeardate").val());
+            fileData.append('ResultsParticulars_2ndyear_remarks', $("#txt2ndyearRemarks").val());
+
+            fileData.append('ResultsParticulars_3rdyear_date', $("#txt3rdyeardate").val());
+            fileData.append('ResultsParticulars_3rdyear_remarks', $("#txt3rdyearRemarks").val());
+
+            fileData.append('ResultsParticulars_Internship_date', $("#txtInternshipdate").val());
+            fileData.append('ResultsParticulars_Internship_remarks', $("#txtInternshipRemarks").val());
+
+            $.ajax({
+                type: "POST",
+                url: "/Custom/SaveNursingDocuments",
+                contentType: false,
+                processData: false,
+                data: fileData,
+                success: function (data) {
+                    window.location = "/Custom/ManageNursingDocuments";
+                }
+            });
+        }
+    }
+    function clearAll() {
+        window.location = "/Custom/ManageNursingDocuments";
+    }
+    function LoadData(id) {
+        $.get("/Custom/GetNursingDetailsbyId?id=" + id, function (data) {
+            $("#ddlCourse").val(data.Course);
+            $("#txtNameOfStudent").val(data.NameOfStudent);
+            $("#txtFatherName").val(data.FatherName);
+            $("#txtDateOfBirth").val(data.DateOfBirth);
+            if (data.Religion != "Others") {
+                $("#ddlReligion").val(data.Religion);
+            } else {
+                $("#txtReligionOthers").val(data.Religion);
+            }
+
+            $("#txtIdentificationMarks").val(data.IndentificationMarks);
+            if (data.Qualification != "Others") {
+                $("#txtQualification").val(data.Qualification);
+            } else {
+                $("#txtQualificationOthers").val(data.Qualification);
+            }
+
+            $("#txtAdmissionNo").val(data.AdmissionNo);
+            $("#txtRegistrationNo").val(data.RegistrationNo);
+            $("#txtHallTicketNo").val(data.HallTicketNo);
+            $("#txtDateOfJoining").val(data.DateOfJoining);
+            $("#txtDateOfRelieving").val(data.DateOfRelieving);
+
+            $("#txtPTSdate").val(data.ResultsParticulars_PTS_date);
+            $("#txtPTSRemarks").val(data.ResultsParticulars_PTS_remarks);
+
+            $("#txt1styeardate").val(data.ResultsParticulars_1styear_date);
+            $("#txt1styearRemarks").val(data.ResultsParticulars_1styear_remarks);
+
+            $("#txt2ndyeardate").val(data.ResultsParticulars_2ndyear_date);
+            $("#txt2ndyearRemarks").val(data.ResultsParticulars_2ndyear_remarks);
+
+            $("#txt3rdyeardate").val(data.ResultsParticulars_3rdyear_date);
+            $("#txt3rdyearRemarks").val(data.ResultsParticulars_3rdyear_remarks);
+
+            $("#txtInternshipdate").val(data.ResultsParticulars_Internship_date);
+            $("#txtInternshipRemarks").val(data.ResultsParticulars_Internship_remarks);
+        });
+    }
+</script>
+<input type="hidden" id="NursingDetailsId" value="@ViewBag.id" />
+<div class="panel panel-default">
+    <div class="panel-heading" style="height:35px;">New Nursing Document</div>
+    <div class="panel-body">
+        <div class="modal-body">
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Course<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-control" id="ddlCourse">
+                        <option value="">Select</option>
+                        <option value="GNM">GNM</option>
+                        <option value="PBDNN">PBDNN</option>
+                        <option value="PBDNPM">PBDNPM</option>
+                        <option value="PBDNPME">PBDNPME</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="name">Student Name<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="txtNameOfStudent" autocomplete="off" />
+                </div>
+
+            </div>
+            <div class="row" style="padding:5px;">
+
+                <div class="col-md-2">
+                    <label for="name">Father Name</label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="txtFatherName" autocomplete="off" />
+                </div>
+                <div class="col-md-2">
+                    <label for="name">Date Of Birth</label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control txtDate" readonly="readonly" id="txtDateOfBirth" autocomplete="off" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Religion<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-control" id="ddlReligion" onchange="regligonchange();">
+                        <option value="">Select</option>
+                        <option value="Hindu">Hindu</option>
+                        <option value="Muslim">Muslim</option>
+                        <option value="Christian">Christian</option>
+                        <option value="Others">Others</option>
+                    </select>
+                    <input type="text" class="form-control" id="txtReligionOthers" placeholder="enter here" autocomplete="off" />
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Identification Marks </label>
+                </div>
+                <div class="col-md-4">
+                    <textarea class="form-control" rows="2" id="txtIdentificationMarks"></textarea>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Education Qualifications </label>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-control" id="txtQualification" onchange="Educationqualificationcng();">
+                        <option value="">Select</option>
+                        <option value="B.Sc(N) or degree">B.Sc(N) or degree</option>
+                        <option value="Intermediate">Intermediate</option>
+                        <option value="MPHW">MPHW</option>
+                        <option value="Others">Others</option>
+                    </select>
+                    <input type="text" class="form-control" id="txtQualificationOthers" placeholder="enter here" autocomplete="off" />
+                </div>
+                <div class="col-md-2">
+                    <label for="name">Admission No<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="txtAdmissionNo" autocomplete="off" />
+                </div>
+
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Date Of Joining</label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control txtDate" readonly="readonly" id="txtDateOfJoining" autocomplete="off" />
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Date Of Relieving</label>
+                </div>
+                <div class="col-md-4">
+
+                    <input type="text" class="form-control txtDate" readonly="readonly" id="txtDateOfRelieving" autocomplete="off" />
+                </div>
+            </div>
+
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Hall Ticket No<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="txtHallTicketNo" autocomplete="off" />
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Registration No</label>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-control" id="ddlRegistration">
+                        <option value="">Select</option>
+                        <option value="RN/RM">RN/RM</option>
+                        <option value="RN">RN</option>
+                        <option value="RM">RM</option>
+                        <option value="RPHN">RPHN</option>
+                        <option value="Others">Others</option>
+                    </select>
+                    <input type="text" class="form-control" id="txtRegistrationNo" placeholder="registration number" autocomplete="off" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-12" style="text-align:center;">
+                    <p style="color:crimson;font-size:16px;font-weight:bold;">Results Particulars</p>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">PTS Date</label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control txtDate" readonly="readonly" id="txtPTSdate" autocomplete="off" />
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">PTS Remarks</label>
+                </div>
+                <div class="col-md-4">
+                    <textarea class="form-control" rows="2" id="txtPTSRemarks"></textarea>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">1st Year Date</label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control txtDate" readonly="readonly" id="txt1styeardate" autocomplete="off" />
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">1st Year Remarks</label>
+                </div>
+                <div class="col-md-4">
+                    <textarea class="form-control" rows="2" id="txt1styearRemarks"></textarea>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">2nd Year Date</label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control txtDate" readonly="readonly" id="txt2ndyeardate" autocomplete="off" />
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">2nd Year Remarks</label>
+                </div>
+                <div class="col-md-4">
+                    <textarea class="form-control" rows="2" id="txt2ndyearRemarks"></textarea>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">3rd Year Date</label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control txtDate" readonly="readonly" id="txt3rdyeardate" autocomplete="off" />
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">3rd Year Remarks</label>
+                </div>
+                <div class="col-md-4">
+                    <textarea class="form-control" rows="2" id="txt3rdyearRemarks"></textarea>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Internship Date</label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control txtDate" readonly="readonly" id="txtInternshipdate" autocomplete="off" />
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Internship Remarks</label>
+                </div>
+                <div class="col-md-4">
+                    <textarea class="form-control" rows="2" id="txtInternshipRemarks"></textarea>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Mark memo-1</label>
+                </div>
+                <div class="col-md-4">
+                    <input type="file" id="Markmemo1file" />
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Mark memo-2</label>
+                </div>
+                <div class="col-md-4">
+                    <input type="file" id="Markmemo2file" />
+                </div>
+            </div>
+
+
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Mark memo-3</label>
+                </div>
+                <div class="col-md-4">
+                    <input type="file" id="Markmemo3file" />
+                </div>
+                <div class="col-md-2">
+                    <label for="name">Orginal Certificate</label>
+                </div>
+                <div class="col-md-4">
+                    <input type="file" id="OrginalCertificatefile" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">State Registration Certificate</label>
+                </div>
+                <div class="col-md-4">
+                    <input type="file" id="StateRegistrationCertificatefile" />
+                </div>
+                <div class="col-md-2">
+                    <label for="name">Transcript</label>
+                </div>
+                <div class="col-md-4">
+                    <input type="file" id="Transcriptfile" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Course Completion</label>
+                </div>
+                <div class="col-md-4">
+                    <input type="file" id="CourseCompletionfile" />
+                </div>
+                <div class="col-md-2">
+                    <label for="name">Transfer Certificate</label>
+                </div>
+                <div class="col-md-4">
+                    <input type="file" id="TransferCertificatefile" />
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <input type="button" id="btnasigntask" value="Save" onclick="SaveData();" class="btn btn-primary" />
+            <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearAll();">Cancel</button>
+        </div>
+    </div>
+</div>

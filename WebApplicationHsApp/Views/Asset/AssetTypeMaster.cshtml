@@ -1,0 +1,376 @@
+﻿
+@{
+    ViewBag.Title = "AssetTypeMaster";
+}
+<style>
+    .modal .modal-dialog {
+        width: 900px !important;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+
+        LoadData();
+    });
+    function LoadData() {
+        $('#tblAssetMaster').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Asset/AjaxGetAssetTypeDetails",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+
+                { "sName": "AssetTypeId" },
+                { "sName": "Name" },
+                { "sName": "Description" },
+                { "sName": "ShortCode" },
+                // { "sName": "Components" },
+                //{ "sName": "AssetCount" },
+                //{ "sName": "AssignuserCount" },
+                //{ "sName": "balanceAsset" },
+                //{ "sName": "IsActive" },
+                {
+                    "sName": "AssetTypeId",
+                    "bSortable": false,
+                    "render": function (data) {
+
+                        return '<a href="javascript:void(0);" class="btn btn-success" id="' + data + '" onclick="EditAssetType(this.id);"><span class="glyphicon glyphicon-edit"></span></a>&nbsp; &nbsp; &nbsp;' +
+                            '<a href="javascript:void(0);" id="' + data + '" class="btn btn-danger" onclick="Delete(this.id);"><span class="glyphicon glyphicon-trash"></span></a>';
+                    }
+                }
+            ]
+            //"fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+
+            //    //  $('td:eq(4)', nRow).html('<a href="javascript:void(0);" id="' + aData[0] + '" onclick="ViewComponents(this.id);">View</a>');
+            //    //<a href="javascript:void(0);" id="' + data + '" onclick="StartTask(this.id);">Pick Up</a>
+            //    if (aData[5] != 0)
+            //        $('td:eq(5)', nRow).html('<span>' + aData[5] + '  Asset<span>&nbsp;<a href="javascript:void(0);" id="' + aData[0] + '" onclick="ViewTotalAssets(this.id);">To View</a>');
+            //    else
+            //        $('td:eq(5)', nRow).html('<span>' + aData[5] + '  Asset<span>');
+
+            //    $('td:eq(5)', nRow).css('color', 'blue').css('font-weight', 'bold');
+            //    if (aData[6] != 0)
+            //        $('td:eq(6)', nRow).html('<span>' + aData[6] + '  User <span>&nbsp;<a href="javascript:void(0);" id="' + aData[0] + '" onclick="ViewAssignUserDetails(this.id);">To View</a>');
+            //    else
+            //        $('td:eq(5)', nRow).html('<span>' + aData[6] + '  Asset<span>');
+            //    $('td:eq(6)', nRow).css('color', 'orange').css('font-weight', 'bold');
+            //    $('td:eq(7)', nRow).css('color', 'green').css('font-weight', 'bold');
+            //}
+        });
+        $("#tblAssetMaster_length").addClass("col-md-6");
+        $("#tblAssetMaster_length").addClass("col-md-6");
+    }
+    function Delete(id) {
+        if (confirm("Are you sure you want to delete?")) {
+            $.get("/Asset/DeleteAssetType?AssetTypeId=" + id, function (data) {
+                alert("Success");
+                LoadData();
+            });
+        }
+    }
+    var AssetTypeId = 0;
+    function EditAssetType(id) {
+        AssetTypeId = id;
+
+        $.get("/Asset/GetAssetTypeById?id=" + id, function (data) {
+            $('#EditName').val(data.Name);
+            $('#EditDescription').val(data.Description);
+            $("#EditAssettypemodel").modal("show");
+        });
+
+    }
+    function ViewTotalAssets(id) {
+        if (id != 0) {
+            $('#tblAssets tbody').html("");
+            $.get("/Asset/GetAssetbyAssetType", { id: id }, function (data) {
+                $("#AssetModel").modal('show');
+                var html = "";
+                for (var i = 0; i < data.length; i++) {
+                    html += "<tr><td>" + data[i].AssetId + "</td><td>" + data[i].Name + "</td><td>" + data[i].Vendor + "</td><td>" + data[i].Price + "</td><td>" + data[i].Quantity + "</td><td>" + data[i].Warranty + "</td><td>" + data[i].PurchaseDate + "</td><td>" + data[i].SerialNumber + "</td></tr>";
+                }
+                $('#tblAssets tbody').html(html);
+
+            });
+        }
+    }
+    function ViewAssignUserDetails(id) {
+        if (id != 0) {
+            $('#tblAssignUser tbody').html("");
+            $.get("/Asset/GetAssignUserbyAssetType", { id: id }, function (data) {
+
+
+                $("#AssignUserModel").modal('show');
+                var html = "";
+                for (var i = 0; i < data.length; i++) {
+                    html += "<tr><td>" + data[i].Location + "</td><td>" + data[i].Department + "</td><td>" + data[i].UserId + "</td><td>" + data[i].UserName + "</td><td>" + data[i].AssetName + "</td><td>" + data[i].DTDateOfAssign + "</td><td>" + data[i].AllocationRequestId + "</td><td>" + data[i].AllocationStatus + "</td>";
+                    html += "<td>" + data[i].Remarks + "</td><td>" + data[i].IsActive + "</td><td>" + data[i].DTDeAllocateDate + "</td><td>" + data[i].DeAllocateComments + "</td></tr>"
+                }
+                $('#tblAssignUser tbody').html(html);
+
+            });
+        }
+    }
+    function ViewComponents(id) {
+        if (id != 0) {
+            $('#tblComponents tbody').html("");
+            $.get("/Asset/GetComponentsbyassettype", { id: id }, function (data) {
+
+                if (data.length == 0) {
+                    alert("No components for selected Asset Type");
+                }
+                else {
+                    $("#ComponentsModel").modal('show');
+                    var html = "";
+                    for (var i = 0; i < data.length; i++) {
+                        html += "<tr><td>" + data[i].AssetTypeComponentId + "</td><td>" + data[i].Name + "</td></tr>";
+                    }
+                    $('#tblComponents tbody').html(html);
+                }
+
+            });
+        }
+    }
+    function SaveAssetType() {
+        var AssetType = {
+            AssetTypeId: $('#AssetTypeId').val(),
+            Name: $('#Name').val(),
+            Description: $("#Description").val(),
+            ShortCode: "",
+            IsActive: true
+        };
+        $.ajax({
+            type: "POST",
+            url: "/Asset/SaveAssetType",
+            data: {
+                Asset: AssetType
+            },
+            success: function (data) {
+                $("#NewAssettypemodel").modal("hide");
+                //alert("Success");
+                LoadData();
+                ClearAll();
+            }
+        });
+    }
+    function OpenNewAssettype() {
+        $("#NewAssettypemodel").modal("show");
+    }
+    function UdpateAssetType() {
+
+        var AssetType = {
+            AssetTypeId: AssetTypeId,
+            Name: $('#EditName').val(),
+            Description: $("#EditDescription").val(),
+            ShortCode: "",
+            IsActive: true
+        };
+        $.ajax({
+            type: "POST",
+            url: "/Asset/SaveAssetType",
+            data: {
+                Asset: AssetType
+            },
+            success: function (data) {
+                $("#EditAssettypemodel").modal("hide");
+                //alert("Success");
+                LoadData();
+            }
+        });
+    }
+    function ClearAll() {
+        $('#Name').val("");
+        $("#Description").val("");
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading">Manage Asset Types<span style="cursor:pointer;" onclick="OpenNewAssettype();" class="pull-right">New Asset Type</span></div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblAssetMaster">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Short Code</th>
+                    @*<th>Components</th>*@
+                    @*<th>Total Asset</th>
+                        <th>Total Asset assign user</th>
+                        <th>Balance Assets</th>*@
+                    @*<th>Is Active</th>*@
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div class="modal fade" id="NewAssettypemodel">
+    <div class="modal-dialog" style="padding-top:10%;">
+        <div class="modal-content" style="width:400px;margin:auto;">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal" onclick="ClearAll();">&times;</a>
+                <h4 style="color: #c4122f;" id="ourvaluestitle">New Asset Type</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="AssetTypeId" value="0" />
+                <div style="width:99%;margin:auto;">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <span class="form-label">Name</span>
+                                <input type="text" class="form-control" id="Name" placeholder="Enter Name" />
+                            </div>
+                        </div>
+
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <span class="form-label">Description</span>
+                                <textarea class="form-control" placeholder="Enter Description" id="Description"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="SaveAssetType();">Save</button>
+                <button type="button" class="btn btn-secondary" placeholder="Please enter here" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="EditAssettypemodel">
+    <div class="modal-dialog" style="padding-top:10%;">
+        <div class="modal-content" style="width:400px;margin:auto;">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4 style="color: #c4122f;" id="ourvaluestitle">Edit Asset Type</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="AssetTypeId" value="0" />
+                <div style="width:99%;margin:auto;">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <span class="form-label">Name</span>
+                                <input type="text" class="form-control" id="EditName" placeholder="Enter Name" />
+                            </div>
+                        </div>
+
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <span class="form-label">Description</span>
+                                <textarea class="form-control" placeholder="Enter Description" id="EditDescription"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="UdpateAssetType();">Save</button>
+                <button type="button" class="btn btn-secondary" placeholder="Please enter here" data-dismiss="modal" onclick="ClearAll();">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="AssetModel" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Asset Details</h4>
+            </div>
+            <div class="modal-body">
+                <table id="tblAssets" class="table table-bordered text-center">
+                    <thead>
+                        <tr>
+                            <th style="width:50px">ID</th>
+                            <th style="width:50px">Name</th>
+                            <th style="width:50px">vendor</th>
+                            <th style="width:50px">price</th>
+                            <th style="width:50px">Quantity</th>
+                            <th style="width:50px">warranty</th>
+                            <th style="width:50px">PurchaseDate</th>
+                            <th style="width:50px">SerialNumber</th>
+
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="AssignUserModel" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Asset Details</h4>
+            </div>
+            <div class="modal-body">
+                <table id="tblAssignUser" class="table table-bordered text-center">
+                    <thead>
+                        <tr>
+                            <th>Location</th>
+                            <th>Department</th>
+                            <th>Emp Id</th>
+                            <th>Emp</th>
+                            <th>Asset</th>
+                            <th>Date Assign</th>
+                            <th>Allocate RequestID</th>
+                            <th>Allocate Status</th>
+                            <th>Remarks</th>
+                            <th>Status</th>
+                            <th>Deallocate Date</th>
+                            <th>Deallocate Comments</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>

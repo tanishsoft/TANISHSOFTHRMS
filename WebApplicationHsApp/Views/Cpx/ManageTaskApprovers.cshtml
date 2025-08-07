@@ -1,0 +1,544 @@
+﻿
+@{
+    ViewBag.Title = "ManageTaskApprovers";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+        LoadLocations();
+        LoadData();
+        $("#ddlApproveredit").select2({
+            ajax: {
+                url: "/Home/GetCustomIdEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 4
+        });
+        $("#ddlApprover").select2({
+            ajax: {
+                url: "/Home/GetCustomIdEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 4
+        });
+    });
+    function SaveApproverMaster() {
+        var model = {
+            LocationId: $("#ddlassignlocation").val(),
+            DepartmentId: $("#ddldepartmentrelatedto").val(),
+            UserId: $("#ddlApprover").val(),
+            Amount: $("#txtAmount").val(),
+            Operator: $("#ddlOperator").val(),
+            ApproverLevel: $("#ddlApproverLevel").val()
+        };
+        $.post("/Cpx/SaveApproverMaster/", model, function (data) {
+            $("#exampleModalCenter").modal("show");
+            alert(data);
+            window.location.reload();
+        });
+    }
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#ddllocation").html(options.join(''));
+                $("#ddlassignlocation").html(options.join(''));
+                $("#ddlassignlocationedit").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadDepartment() {
+        if ($("#ddllocation").val() != null && $("#ddllocation").val() != " ") {
+            $.ajax({
+                type: "POST",
+                url: "/Common/GetDepartmentByLocation",
+                data: "id=" + $("#ddllocation").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- Select Department -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                    }
+                    $("#ddlDepartment").html(options.join(''));
+
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        } else {
+            var options = [];
+            options.push('<option value="">- Select Department -</option>');
+            $("#ddlDepartment").html(options.join(''));
+        }
+    }
+
+    function LoadEmployeesReporting() {
+        if ($("#ddlDepartment").val() != null && $("#ddlDepartment").val() != " ") {
+            $.ajax({
+                type: "POST",
+                url: "/Common/GetEmployeesByDepartment",
+                data: "id=" + $("#ddlDepartment").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- Select Employee -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].CustomUserId + '">' + data[i].FirstName + " " + data[i].LastName + '</option>');
+                    }
+                    $("#ddlApprover").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        } else {
+            var options = [];
+            options.push('<option value="">-  Select Employee -</option>');
+            $("#ddlApprover").html(options.join(''));
+        }
+    }
+    function LoadData() {
+        $('#tblManageTaskApprovers').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Cpx/AjaxbyTaskApproverMaster",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "ApproveListId" },
+                { "sName": "LocationName" },
+                { "sName": "UserName" },
+                { "sName": "Operator" },
+                { "sName": "Amount" },
+                {
+                    "sName": "RelatedDepartment",
+                    "bSortable": false,
+                    "render": function (data) {
+                        var name = '';
+                        switch (data) {
+                            case "0":
+                                name = 'All';
+                                break;
+                            case "1":
+                                name = 'IT';
+                                break;
+                            case "2":
+                                name = 'Biomedical';
+                                break;
+                            case "3":
+                                name = 'Maintenance';
+                                break;
+                            case "11":
+                                name = 'Maintenance Renovation';
+                                break;                                
+                            case "4":
+                                name = 'Pharmacy';
+                                break;
+                            case "6":
+                                name = 'Food & Beverage';
+                                break;
+                            case "7":
+                                name = 'Brand & Communication';
+                                break;
+                            case "8":
+                                name = 'OT';
+                                break;
+                            case "9":
+                                name = 'Security and Transport';
+                                break;
+                            case "10":
+                                name = 'House Keeping';
+                                break;                                
+                            case "5":
+                                name = 'Others';
+                                break;
+                            case "12":
+                                name = 'HICC';
+                                break;
+                            case "13":
+                                name = 'Purchase';
+                                break;
+                            case "14":
+                                name = 'OT-OBS';
+                                break;
+                            case "15":
+                                name = 'OT-GYN';
+                                break;
+                            case "16":
+                                name = 'OT-Others';
+                                break;
+                            case "17":
+                                name = "OT-Neonatal-and-Pediatric";
+                                break;
+                            case "18":
+                                name = "HR";
+                                break;
+                            case "19":
+                                name = "Vehicle";
+                                break;
+                            case "20":
+                                name = "Finance";
+                                break;
+                        }
+                        return name;
+                    }
+                },
+                {
+                    "sName": "ApproverLevel",
+                    "bSortable": false,
+                    "render": function (data) {
+                        var name = '';
+                        switch (data) {
+                            case "-1":
+                                name = 'Incharge';
+                                break;
+                            case "1":
+                                name = 'Technical Admin';
+                                break;
+                            case "2":
+                                name = 'Unit Admin';
+                                break;
+                            case "3":
+                                name = 'Medial Director';
+                                break;
+                            case "4":
+                                name = 'Final Approver 1';
+                                break;
+                            case "5":
+                                name = 'Finance Approve';
+                                break;
+                            case "6":
+                                name = 'Final Approver 2';
+                                break;
+                            case "7":
+                                name = 'Final Approver 3';
+                                break;
+                            case "8":
+                                name = 'Purchase Approver 1';
+                                break;
+                            case "9":
+                                name = 'Purchase Approver 2';
+                                break;
+                        }
+                        return name;
+                    }
+                },
+
+                {
+                    "sName": "ApproveListId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<a href="javascript:void(0);" id="' + data + '" onclick="Edit(this.id);"><span class="glyphicon glyphicon-edit"></span></a><a href="javascript:void(0);" id="' + data + '" title="Delete" class="btn btn-danger" onclick="DeleteTask(this.id);"><span class="glyphicon glyphicon-trash"></span></a>&nbsp;';
+                        //'<a href="javascript:void(0);" id="' + data + '" title="Cancel" class="btn btn-danger" onclick="CancelRequest(this.id);"><span class="glyphicon glyphicon-trash"></span></a>&nbsp;';
+
+                    }
+                }
+            ]
+        });
+        $("#tblManageTaskApprovers_length").addClass("col-md-6");
+    }
+    var eid = 0;
+    function Edit(id) {
+        eid = id;
+        $("#ddlApproveredit").val("");
+        $.get("/Cpx/GetApproverMasterDetails?id=" + id, function (data) {           
+            $("#ddlassignlocationedit").val(data.LocationId);
+            $("#ddldepartmentrelatedtoedit").val(data.DepartmentId);
+            $("#txtAmountedit").val(data.Amount);
+            $("#ddlOperatoredit").val(data.Operator);
+            $("#ddlApproverLeveledit").val(data.ApproverLevel);
+            $("#exampleModalCenterUpdate").modal('show');
+        });
+    }
+    function DeleteTask(id) {
+        if (confirm("Please confirm to delete?")) {
+            $.get("/Cpx/DeleteApproverMaster?id=" + id, function (data) {
+                alert(data);
+                LoadData();
+            });
+        }
+    }
+    function SaveApproverMasterUpdate() {
+        var model = {
+            ApproveListId:eid,
+            LocationId: $("#ddlassignlocationedit").val(),
+            DepartmentId: $("#ddldepartmentrelatedtoedit").val(),
+            UserId: $("#ddlApproveredit").val(),
+            Amount: $("#txtAmountedit").val(),
+            Operator: $("#ddlOperatoredit").val(),
+            ApproverLevel: $("#ddlApproverLeveledit").val()
+        };
+        $.post("/Cpx/UpdateApproverMaster/", model, function (data) {
+            $("#exampleModalCenterUpdate").modal("hide");
+            alert(data);
+            LoadData();
+        });
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading" style="font-weight:normal;">
+        <span class="glyphicon glyphicon-arrow-right"></span>&nbsp;Manage Task Approvers   <span class="glyphicon glyphicon-plus-sign" style="cursor:pointer;float:right;" data-toggle="modal" data-target="#exampleModalCenter">New </span>
+    </div>
+    <div class="panel-body" style="min-height:600px;">
+        <table class="table table-bordered" id="tblManageTaskApprovers">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <td>Id</td>
+                    <td>Location</td>
+                    <td>Approver</td>
+                    <td>Operator</td>
+                    <td>Amount</td>
+                    <td>Related Department</td>
+                    <td>Approver Level</td>
+                    <td>
+                        Action
+                    </td>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="exampleModalCenter">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4>New Approver </h4>
+            </div>
+            <div class="modal-body">
+                <table class="table table-striped">
+                 
+                    <tr>
+                        <td>Approver </td>
+                        <td>
+                            <select id="ddlApprover" class="form-control typeahead" style="width:100%;">
+                                <option value="">Select User</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Assign Location</td>
+                        <td>
+                            <select id="ddlassignlocation" class="form-control">
+                                <option value="">Select Location</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Department Related TO</td>
+                        <td>
+                            <select id="ddldepartmentrelatedto" class="form-control">
+                                <option value="">Select Department</option>
+                                <option value="0">All</option>
+                                <option value="1">IT</option>
+                                <option value="2">Biomedical</option>
+                                <option value="3">Maintenance</option>
+                                <option value="11">Maintenance Renovation</option>
+                                <option value="4">Pharmacy</option>
+                               <option value="20">Finance</option>
+                                <option value="6">Food & Beverage</option>
+                                <option value="7">Brand & Communication</option>
+                                @*<option value="8">OT</option>*@
+                                <option value="9">Security and Transport</option>
+                                <option value="10">House Keeping</option>
+                                <option value="12">HICC</option>
+                                <option value="5">Others</option>
+                                <option value="18">HR</option>
+                                <option value="13">Purchase</option>
+                                <option value="14">OT-OBS</option>
+                                <option value="15">OT-GYN</option>
+                                <option value="16">OT-Others</option>
+                                <option value="17">OT-Neonatal-and-Pediatric</option>
+                                <option value="19">Vehicle</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Operator </td>
+                        <td>
+                            <select id="ddlOperator" class="form-control">
+                                <option value="">Select Operator</option>
+                                <option value="lessthan">Less Than</option>
+                                <option value="GraterThan">Grater Than</option>
+                                <option value="EqualTo">Equal To</option>
+                                <option value="Both">Both</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Amount </td>
+                        <td>
+                            <input type="number" id="txtAmount" class="form-control" />
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Approver Level </td>
+                        <td>
+                            <select id="ddlApproverLevel" class="form-control">
+                                <option value="">Select Approver Level</option>
+                                <option value="-1">Incharge</option>
+                                <option value="1">Technical Admin</option>
+                                <option value="2">Unit Admin</option>
+                                <option value="3">Medial Director</option>
+                                <option value="4">Finance Approve</option>
+                                <option value="5">Final Approver 1</option>
+                                <option value="6">Final Approver 2</option>
+                                <option value="7">Final Approver 3</option>
+                                <option value="8">Purchase Approver 1</option>
+                                <option value="9">Purchase Approver 2</option>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="SaveApproverMaster();">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="exampleModalCenterUpdate">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4>Update Approver </h4>
+            </div>
+            <div class="modal-body">
+                <table class="table table-striped">
+                   
+                    <tr>
+                        <td>Approver </td>
+                        <td>
+                            <select id="ddlApproveredit" class="form-control typeahead" style="width:100%;">
+                                <option value="">Select User</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Assign Location</td>
+                        <td>
+                            <select id="ddlassignlocationedit" class="form-control">
+                                <option value="">Select Location</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Department Related TO</td>
+                        <td>
+                            <select id="ddldepartmentrelatedtoedit" class="form-control">
+                                <option value="">Select Department</option>
+                                <option value="0">All</option>
+                                <option value="1">IT</option>
+                                <option value="2">Biomedical</option>
+                                <option value="3">Maintenance</option>
+                                <option value="11">Maintenance Renovation</option>
+                                <option value="4">Pharmacy</option>
+                                <option value="20">Finance</option>
+                                <option value="6">Food & Beverage</option>
+                                <option value="7">Brand & Communication</option>
+                                <option value="9">Security and Transport</option>
+                                <option value="10">House Keeping</option>
+                                <option value="12">HICC</option>
+                                <option value="5">Others</option>
+                                <option value="18">HR</option>
+                                <option value="13">Purchase</option>
+                                <option value="14">OT-OBS</option>
+                                <option value="15">OT-GYN</option>
+                                <option value="16">OT-Others</option>
+                                <option value="17">OT-Neonatal-and-Pediatric</option>
+                                <option value="19">Vehicle</option>
+
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Operator </td>
+                        <td>
+                            <select id="ddlOperatoredit" class="form-control">
+                                <option value="">Select Operator</option>
+                                <option value="lessthan">Less Than</option>
+                                <option value="GraterThan">Grater Than</option>
+                                <option value="EqualTo">Equal To</option>
+                                <option value="Both">Both</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Amount </td>
+                        <td>
+                            <input type="number" id="txtAmountedit" class="form-control" />
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>Approver Level </td>
+                        <td>
+                            <select id="ddlApproverLeveledit" class="form-control">
+                                <option value="">Select Approver Level</option>
+                                <option value="-1">Incharge</option>
+                                <option value="1">Technical Admin</option>
+                                <option value="2">Unit Admin</option>
+                                <option value="3">Medial Director</option>
+                                <option value="4">Finance Approve</option>
+                                <option value="5">Final Approver 1</option>
+                                <option value="6">Final Approver 2</option>
+                                <option value="7">Final Approver 3</option>
+                                <option value="8">Purchase Approver 1</option>
+                                <option value="9">Purchase Approver 2</option>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="SaveApproverMasterUpdate();">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>

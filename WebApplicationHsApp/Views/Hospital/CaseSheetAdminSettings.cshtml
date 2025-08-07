@@ -1,0 +1,76 @@
+﻿
+@{
+    ViewBag.Title = "CaseSheetAdminSettings";
+}
+<style type="text/css">
+    .inlineTable {
+        display: inline-block;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+    $("#btnSubmit").click(function () {
+        debugger;
+        if ( $("#AdminEmail").val()!="") {
+            $.ajax({
+                traditional: true,
+                url: "/Hospital/UpdateAdminsettings",
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(
+                    [
+                        { SettingKey: 'CaseSheetAdminEmail', SettingValue: $("#AdminEmail").val() },
+                    ]),
+                success: function (data) {
+                   alert("Success");
+                }
+            });
+        }
+        else {
+            alert("please enter Emails,with ',' separate.");
+        }
+        });
+        Load();
+    });
+    function Load() {
+        var Url = "/Hospital/GetAdminSettingsDetails";
+        $.ajax({
+            type: "GET",
+            url: Url,
+            success: function (data) {
+                debugger;
+                if (data != "") {
+                    $("#AdminEmail").val(data.SettingValue);
+                } else {
+                    $("#AdminEmail").val("");
+                }
+            }
+        })
+    }
+</script>
+<h2>Settings for Casesheet</h2>
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+
+        </div>
+        <div class="col-md-6">
+            <table style="width:100%;">
+                <tr>
+                    <td> <label for="name" class="lbl">Email ids to send</label> </td>
+                    <td style="padding:5px"><textarea class="form-control" placeholder="Enter Email" id="AdminEmail"></textarea></td>
+                    <td><input type="button" id="btnSubmit" value="save" class="btn btn-primary" /></td>
+                </tr>
+                <tr>
+                    <td> <label for="name" class="lbl"></label> </td>
+                    <td style="padding:5px"> <font color="red">      Please Enter Emails with "," separate!</font></td>
+                </tr>
+            </table>
+        </div>
+        <div class="col-md-3">
+
+        </div>
+
+    </div>
+</div>
+

@@ -1,0 +1,94 @@
+﻿
+@{
+    ViewBag.Title = "Parking Status";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+
+    .card {
+        margin-bottom: 1.875rem;
+        border: none;
+        border-radius: 0;
+        -webkit-box-shadow: 0 10px 40px 0 rgba(62,57,107,.07),0 2px 9px 0 rgba(62,57,107,.06);
+        box-shadow: 0 10px 40px 0 rgba(62,57,107,.07),0 2px 9px 0 rgba(62,57,107,.06)
+    }
+
+
+    .card-moved .card, .card-moved .card-header {
+        background-color: #FFA87D;
+        color: #FFF
+    }
+
+    .textheader {
+        color: teal;
+        font-weight: bold;
+        font-size: 40px;
+    }
+    .textsubheader {
+        font-size: 40px;
+        font-weight: bold;
+    }
+</style>
+
+<script>
+    $(document).ready(function () {
+
+        LoadParkingStatus();
+
+    });
+    function LoadParkingStatus() {
+        
+        $.get("/Register/GetParkingStatusLive", function (data) {
+            var html = '';
+            var html4 = '';
+            for (var i = 0; i < data.length; i++) {
+                var shtml = "";
+                shtml += '<div class="card col-md-3">';
+                shtml += '<div class="card-content">';
+
+                shtml += '<div class="p-2 media-body text-center">';
+                shtml += ' <h5 class="textheader">' + data[i].ParkingLocation + '</h5>';
+                var pav = parseInt(data[i].Avaliable);
+                if (pav > 2) { 
+                    shtml += ' <h5 class="text-bold-400 mb-0 textsubheader" style="color:green;">&nbsp;' + data[i].Avaliable + '</h5>';
+                } else if (pav >=0) {
+                    shtml += ' <h5 class="text-bold-400 mb-0 textsubheader" style="color:orange;">&nbsp;' + data[i].Avaliable + '</h5>';
+                }
+                else {
+                    shtml += ' <h5 class="text-bold-400 mb-0 textsubheader" style="color:red;">&nbsp;' + data[i].Avaliable + '</h5>';
+                }
+                shtml += ' </div>';
+                shtml += '  </div>';
+                shtml += ' </div>';
+                if (data[i].Type == "2 Wheeler") {
+                    html += shtml;
+                } else {
+                    html4 += shtml;
+                }
+            }
+            $("#ParkingLocations").html(html);
+            $("#ParkingLocations4").html(html4);
+        });
+        setTimeout(LoadParkingStatus, 2 * 60 * 1000);
+    }
+</script>
+
+<div class="panel panel-default">
+    <div class="panel-heading" style="height:35px;"><a href="~/Register/Index">Go Back</a> &nbsp;&nbsp;  Parking Status </div>
+    <div class="panel-body">
+        <h4>4 Wheeler Parking</h4>
+        <div class="row" style="padding:5px;" id="ParkingLocations4">
+
+
+        </div>
+        <h4>2 Wheeler Parking</h4>
+        <div class="row" style="padding:5px;" id="ParkingLocations">
+
+
+        </div>
+
+    </div>
+</div>
+
+

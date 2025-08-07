@@ -1,0 +1,161 @@
+﻿
+@{
+    ViewBag.Title = "ViewReportingEmployees";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+
+    $(document).ready(function () {
+        LoadLocation();
+    });
+    function LoadLocation() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- All Locations -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#ddlLocationForFilter").html(options.join(''));                
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadDepartmentForFilter() {
+        if ($("#ddlLocationForFilter").val() != null && $("#ddlLocationForFilter").val() != " ") {
+            $.ajax({
+                type: "POST",
+                url: "/Common/GetDepartmentByLocation",
+                data: "id=" + $("#ddlLocationForFilter").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- Select Department -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                    }
+                    $("#ddlDepartmentForFilter").html(options.join(''));
+
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        } else {
+            var options = [];
+            options.push('<option value="">- Select Department -</option>');
+            $("#ddlDepartmentForFilter").html(options.join(''));
+        }
+    }
+    function LoadEmployees() {
+        if ($("#ddlDepartmentForFilter").val() != null && $("#ddlDepartmentForFilter").val() != " ") {
+
+            $.ajax({
+                type: "POST",
+                url: "/Common/GetEmployeesByDepartment",
+                data: "id=" + $("#ddlDepartmentForFilter").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- Select Employee -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].CustomUserId + '">' + data[i].FirstName + " " + data[i].LastName + '</option>');
+                    }
+                    $("#ddlEmployeesForFilter").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        } else {
+            var options = [];
+            options.push('<option value="">-  Select Employee -</option>');
+
+            $("#ddlEmployeesForFilter").html(options.join(''));
+        }
+
+    }
+    function LoadData() {
+        $('#tbltable').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/HrAdmin/AjaxGetReprotingEmployees",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            //"aaSorting": [[0, "desc"]],
+            "aoColumns": [
+                      
+                       { "sName": "LocationName" },
+                       { "sName": "FirstName" },
+                       { "sName": "CustomUserId" },
+                       { "sName": "EmailId" },
+                    
+                       { "sName": "PhoneNumber" },
+                    
+                       { "sName": "DepartmentName" },
+                       { "sName": "SubDepartmentName" },
+                       { "sName": "Designation" },
+
+            ],
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "locationid", "value": $("#ddlLocationForFilter").val() },
+                    { "name": "departmentid", "value": $("#ddlDepartmentForFilter").val() },
+                    { "name": "Emp", "value": $("#ddlEmployeesForFilter").val() }
+                );
+            }
+
+
+        });
+        $("#tbltable_length").addClass("col-md-6");
+        $("#tbltable_length").addClass("col-md-6");
+    }
+</script>
+
+<div class="panel panel-primary">
+    <div class="panel-heading">View Reporting Employees</div>
+    <div class="panel-body">
+        <div class="col-md-12" style="padding-bottom:5px;">
+            <div class="col-md-2">
+                <select id="ddlLocationForFilter" class="form-control" style="max-width:200px;" onchange="LoadDepartmentForFilter();">
+                    <option value="">Select Location</option>
+                </select>
+
+            </div>
+            <div class="col-md-2">
+                <select id="ddlDepartmentForFilter" class="form-control" style="max-width:200px;" onchange="LoadEmployees();">
+                    <option value="">Select Department</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select id="ddlEmployeesForFilter" onchange="LoadData()" class="form-control" style="max-width:200px;">
+                    <option value="">Select Employee</option>
+                </select>
+            </div>
+
+
+        </div>
+        <table id="tbltable" class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;">
+            <thead>
+                <tr>
+                    <th>Location</th>
+                    <th>Name</th>
+                    <th>Emp Id</th>
+                    <th>Email Id</th>
+
+                    <th>Mobile</th>
+
+                    <th>Department</th>
+                    <th>Sub Department</th>
+                    <th>Designation</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>

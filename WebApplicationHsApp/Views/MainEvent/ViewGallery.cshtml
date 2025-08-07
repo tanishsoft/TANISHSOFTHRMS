@@ -1,0 +1,105 @@
+﻿@model IEnumerable<WebApplicationHsApp.Models.ListMainEventModel>
+@{
+    ViewBag.Title = "ViewGallery";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="~/Content/baguetteBox.min.css" rel="stylesheet" />
+<script src="~/Scripts/baguetteBox.min.js"></script>
+<div style="margin:20px;">
+    @foreach (var v in Model)
+    {
+        <h2 style=" color: #94C4AC; font-weight: 600; line-height: 1.2em; ">@v.Year</h2>
+        <div class="row">
+            @foreach (var ev in v.MainEventModels)
+            {
+                <div class="col-md-4" style="margin:15px;">
+                    <div class="block" style="height: 320px !important; border-color: #94C4AC;">
+                        <h2 style="text-transform:none;">@ev.EventTitle</h2>
+                        <br />
+                        <div class="block-middle" style="">
+                            <div id="baguetteBoxThree_@ev.EventId">
+                                @foreach (var im in ev.MainEventModelImages)
+                                {
+                                    if (im.isMainBanner)
+                                    {
+                                        <a href="/Documents/Images/@im.ImagePath">
+                                            <img src="/Documents/Images/@im.ImagePath" alt=""  style='max-width:350px;'>
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="/Documents/Images/@im.ImagePath" style="display: none;">
+                                            <img src="/Documents/Images/@im.ImagePath" alt=""  style='max-width: 350px; '>
+                                        </a>
+                                    }
+                                }
+                                <script>baguetteBox.run('#baguetteBoxThree_@ev.EventId');</script>
+                            </div>
+                        </div>
+                        <br />
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+<br />
+<br />
+
+
+<style>
+
+
+    .tz-gallery {
+        padding: 20px;
+    }
+
+        /* Override bootstrap column paddings */
+        .tz-gallery .row > div {
+            padding: 2px;
+        }
+
+        .tz-gallery .lightbox img {
+            width: 100%;
+            border-radius: 0;
+            position: relative;
+        }
+
+        .tz-gallery .lightbox:before {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -13px;
+            margin-left: -13px;
+            opacity: 0;
+            color: #fff;
+            font-size: 26px;
+            font-family: 'Glyphicons Halflings';
+            content: '\e003';
+            pointer-events: none;
+            z-index: 9000;
+            transition: 0.4s;
+        }
+
+
+        .tz-gallery .lightbox:after {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            background-color: rgba(46, 132, 206, 0.7);
+            content: '';
+            transition: 0.4s;
+        }
+
+        .tz-gallery .lightbox:hover:after,
+        .tz-gallery .lightbox:hover:before {
+            opacity: 1;
+        }
+
+    .baguetteBox-button {
+        background-color: transparent !important;
+    }
+</style>

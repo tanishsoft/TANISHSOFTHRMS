@@ -1,0 +1,1038 @@
+
+@using WebApplicationHsApp.Models
+@model LoginViewModel
+@{
+    ViewBag.Title = "Home Page";
+}
+<script>
+    $(document).ready(function () {
+        //$("#myModalNotification").modal('show');
+
+        checkImage($("#NotificationUlrcheck").attr('src'), function () {
+            $("#mymodalnotification11").modal('show');
+        }, function () {
+          
+        });
+    });
+</script>
+<div id="myModalNotification" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" style="padding:1px;">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" style="padding:1px;">
+                <input type="button" value="Close" class="btn btn-primary" style="float:left;" data-dismiss="modal" />
+                <p style="text-align:center;max-height: 600px;    overflow-y: scroll;">
+                    <img src="~/ExcelUplodes/@ViewBag.Nofication" id="NotificationUlrcheck" class="img-responsive" />
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="mymodalnotification11" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="padding:1px;">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body" style="padding:1px;">
+                <input type="button" value="Close" class="btn btn-primary" style="float:left;" data-dismiss="modal" />
+                <p style="text-align:center;max-height: 700px;overflow-y: scroll;">
+                    <a href="https://bit.ly/WHD_DrTara">  <img src="~/Images/Infonet_Message_from_the_CEO_01_07.jpg" class="img-responsive" /></a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="row cards-section">
+    <ul>
+        <li class="col-xs-12 col-md-6 col-lg-4">
+            <div class="block">
+                <h2 style="text-transform:none;">A message from Dr. Evita Fernandez</h2>
+                <div class="block-middle" style="height:220px;">
+                    <div class="icons-left">
+                        <a href="javascript:void(0);" onclick="LikeThePage();" title="Like"><label style="font-size:20px; font-weight:bold;" id="TotalLikes"></label><i style="color: #FEC20E; font-size: 25px; padding-left: 2px; vertical-align: middle;" class="fa fa-thumbs-up" aria-hidden="true"></i></a>
+                        <a href="javascript:void(0);" data-toggle="modal" data-target="#exampleModalCenter" title="Comment"><label style="font-size:20px; font-weight:bold;" id="TotalComments"></label><i style="color: #FEC20E; font-size: 25px; padding-left: 2px; vertical-align: middle; " class="fa fa-comments" aria-hidden="true"></i></a>
+                        <a href="javascript:void(0);" data-toggle="modal" data-target="#ShareMDmessage" title="Share"><label style="font-size:20px; font-weight:bold;" id="TotalShares"></label><i style="color: #FEC20E; font-size: 25px; padding-left: 2px; vertical-align: middle; " class="fa fa-share-alt" aria-hidden="true"></i></a>
+                    </div>
+                    <br>
+                    <a href="https://youtube.com/playlist?list=PLSqdknHc6kSxehdU-ECUFLkdoyPcJdEU4" target="_blank">
+                        <img src="/images/Dr_Evita_Fernandez_2025.jpg" style="border-radius:82px;" alt="director" />
+                        <span>Dr Evita Speaks</span>
+                    </a>
+                </div>
+                <div class="bottom-block">
+                    <p id="HrMdMessage" style="font-size:14px;">
+                        Dr. Evita shares her thoughts and perspectives on the happenings from around Fernandez. <a style="float:right;" href="/Home/MdMessageMore">Read more...</a>
+                    </p>
+                    <div class="clearfix"></div>
+                </div>
+            </div>
+        </li>
+        <li class="col-xs-12 col-md-6 col-lg-4">
+            <div class="block">
+                <h2 style="text-transform:none;font-size:14px;">@ViewBag.VideoName <a style="float:right;color:#FEC20E;" href="/Home/MoreVideos">More...</a></h2>
+                <div class="block-middle block-middle2" style="height:220px;">
+                    <div class="icons-left" style="top:35px !important;">
+                        <a href="javascript:void(0);" onclick="LikeTheVideo();" title="Like"><label style="font-size:20px; font-weight:bold;" id="TotalLikesVideo"></label><i style="color: #FEC20E; font-size: 25px; padding-left: 2px; vertical-align: middle;" class="fa fa-thumbs-up" aria-hidden="true"></i></a>
+                        <a href="javascript:void(0);" data-toggle="modal" data-target="#exampleModalCenter2" title="Comment"><label style="font-size:20px; font-weight:bold;" id="TotalCommentsVideo"></label><i style="color: #FEC20E; font-size: 25px; padding-left: 2px; vertical-align: middle; " class="fa fa-comments" aria-hidden="true"></i></a>
+                        <a href="javascript:void(0);" data-toggle="modal" data-target="#ShareTheVideo" title="Share"><label style="font-size:20px; font-weight:bold;" id="TotalSharesVideo"></label><i style="color: #FEC20E; font-size: 25px; padding-left: 2px; vertical-align: middle; " class="fa fa-share-alt" aria-hidden="true"></i></a>
+                    </div>
+                    <video controls controlslist="nodownload" id="12" class="videoplay" style="width:100%; height:253px;">
+                        <source src="/Videos/@ViewBag.VideoUrl" type="video/mp4">
+                    </video>
+                </div>
+                <div class="bottom-block">
+                    <input type="hidden" id="hidVideoId" value="@ViewBag.VideoId" />
+                    @if (ViewBag.VideoDescription.Length > 298)
+                    {
+                        <p style="padding:1px;font-size:11px !important;line-height:20px;" title="@ViewBag.VideoDescription">
+                            @ViewBag.VideoDescription.Substring(0, 299)
+                            - @ViewBag.VideoDate
+                        </p>
+                    }
+                    else
+                    {
+                        <p style="padding:1px;font-size:11px !important;line-height:20px;">
+                            @ViewBag.VideoDescription
+                            - @ViewBag.VideoDate
+                        </p>
+                    }
+                </div>
+            </div>
+        </li>
+
+        <li class="col-xs-12 col-md-6 col-lg-4">
+            <div class="block">
+                <h2 style="text-transform:none;">News & Views from Around Fernandez</h2>
+                <div class="block-middle" style="height:220px;">
+                    <div class="btns">
+                        <table style="width:100%;">
+                            <tr>
+                                <td> <a href="https://www.fernandezhospital.com/bogulkunta/news" target="_blank"><span>Fernandez in the News</span></a></td>
+                                <td> <a href="/Academics/ViewGallery"><span>Fernandez Gallery</span></a></td>
+                                <td><a href="https://www.fhfoundation.co.in" target="_blank"><span>Academic Workshops</span> </a></td>
+                            </tr>
+                            <tr>
+                                <td colspan="3">
+                                    <br />
+                                    <span style="margin:0px;font-size:16px;">Whats trending on Social media</span>
+                                    <a style=" padding: 10px !important; background: none !important; color: gray !important; border-radius: 30px; width: 44px;  border: solid 1px #FEC20E; margin: 2px !important;" href="https://www.facebook.com/fernandez.hospital/timeline" target="_blank"><i class="fa fa-facebook" aria-hidden="true"></i></a>
+                                    <a style=" padding: 10px !important; background: none !important; color: gray !important; border-radius: 30px; width: 44px; border: solid 1px #FEC20E; margin: 2px !important;" href="https://www.instagram.com/fernandez.hospital" target="_blank"><i class="fa fa-instagram" aria-hidden="true"></i></a>
+                                    <a style=" padding: 10px !important; background: none !important; color: gray !important; border-radius: 30px; width: 44px;  border: solid 1px #FEC20E; margin: 2px !important;" href="https://twitter.com/fernandezhospit" target="_blank"><i class="fa fa-twitter" aria-hidden="true"></i></a>
+                                    <a style=" padding: 10px !important; background: none !important; color: gray !important; border-radius: 30px; width: 44px;  border: solid 1px #FEC20E; margin: 2px !important;" href="https://www.youtube.com/c/FernandezFoundation/playlists" target="_blank"><i class="fa fa-youtube-play" aria-hidden="true"></i></a>
+                                </td>
+                            </tr>
+                        </table>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+                <div class="bottom-block">
+                    <p>All current events, happenings and announcements from around the organisation.</p>
+                </div>
+            </div>
+        </li>
+    </ul>
+</div>
+
+<div class="row cards-section" style="display:none">
+    <ul>
+        <li class="col-xs-12 col-md-6 col-lg-4">
+            <div class="block">
+                <h2 style="text-transform: none;  font-weight: bold; ">
+                    AHD 2024 | Event Schedule
+                    @if (Request.IsAuthenticated && (User.IsInRole("Admin") || User.IsInRole("HrAdmin") || User.IsInRole("HrEmployee")))
+                    {
+                        <a href="~/ContentManage/HomeEventsAll" style="text-align:center;float:right;">Edit</a>
+                    }
+                </h2>
+
+                <div class="row" style="margin:5px; height:400px;overflow:scroll;" id="divviewalleventsbind">
+
+
+                </div>
+
+            </div>
+
+        </li>
+        <li class="col-xs-12 col-md-6 col-lg-4">
+            <div class="block">
+                <h2 style="text-transform: none;  font-weight: bold; ">
+                    AHD 2024 | Upcoming Events
+                    @if (Request.IsAuthenticated && (User.IsInRole("Admin") || User.IsInRole("HrAdmin") || User.IsInRole("HrEmployee")))
+                    {
+                        <a href="~/ContentManage/TodayTomorrowEventsAll" style="text-align: center;  float: right;">Edit</a>
+                    }
+                </h2>
+
+                <div class="row" style="margin: 5px; height: 400px; overflow: scroll;" id="divviewalltodaytomorroweventsbind">
+
+                </div>
+
+            </div>
+
+        </li>
+        <li class="col-xs-12 col-md-6 col-lg-4">
+            <div class="block">
+                <h2 style="text-transform: none;  font-weight:bold; ">
+                    AHD 2024 | Event Results
+                    @if (Request.IsAuthenticated && (User.IsInRole("Admin") || User.IsInRole("HrAdmin") || User.IsInRole("HrEmployee")))
+                    {
+                        <a href="~/ContentManage/ResultsEventsAll" style="text-align: center; float: right;">Edit</a>
+                    }
+                </h2>
+
+                <div class="row" style="margin: 5px; height: 400px; overflow: scroll;" id="diveventresultbind">
+
+                </div>
+
+            </div>
+
+        </li>
+    </ul>
+</div>
+<div class="row cards-section">
+    <ul>
+        <li class="col-xs-12 col-md-6 col-lg-4">
+            <div class="block">
+                <h2 style="text-transform:none;"> Our Values</h2>
+                <div class="block-middle values">
+                    @*<img src="/images/values-img.png" alt="values-img">*@
+                    <div class="row">
+                        <div class="col-md-4">
+                            <img src="~/Images/ourvalues-respect.png" onclick="ourvaluesmodel('Respect');" style="width:120px;height:120px; cursor:pointer;" />
+                            <h4 style="color: #786C67; cursor:pointer;margin-top:0px;" onclick="ourvaluesmodel('Respect');">Respect </h4>
+                        </div>
+                        <div class="col-md-4">
+                            <img src="~/Images/ourvalues-Service.png" onclick="ourvaluesmodel('Service');" style="width:120px;height:120px; cursor:pointer;" />
+                            <h4 style="color: #786C67; cursor: pointer; margin-top: 0px;" onclick="ourvaluesmodel('Service');">Service  </h4>
+                        </div>
+                        <div class="col-md-4">
+                            <img src="~/Images/ourvalues-compassion.png" onclick="ourvaluesmodel('Compassion');" style="width:120px;height:120px; cursor:pointer;" />
+                            <h4 style="color: #786C67; cursor: pointer; margin-top: 0px;" onclick="ourvaluesmodel('Compassion');">Compassion  </h4>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <img src="~/Images/ourvalues-integrity.png" onclick="ourvaluesmodel('Integrity');" style="width:120px;height:120px; cursor:pointer;" />
+                            <h4 style="color: #786C67; cursor: pointer; margin-top: 0px;" onclick="ourvaluesmodel('Integrity');">Integrity </h4>
+                        </div>
+                        <div class="col-md-6">
+                            <img src="~/Images/ourvalues-Responsibility.png" onclick="ourvaluesmodel('Responsibility');" style="width:120px;height:120px; cursor:pointer;" />
+                            <h4 style="color: #786C67; cursor: pointer; margin-top: 0px;" onclick="ourvaluesmodel('Responsibility');">Responsibility  </h4>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </li>
+        <li class="col-xs-12 col-md-6 col-lg-4">
+            <div class="block">
+
+                <h2 style="text-transform:none;">Our Vision</h2>
+                <div class="bottom-block" style="min-height:0;">
+                    <p style="text-align: justify; font-size: 17px;">
+                        A world in which every woman and newborn has access to high-quality, compassionate care that enables a life of respect and dignity.
+
+                    </p>
+                </div>
+                <h2 style="text-transform:none;">Our Mission</h2>
+
+                <div class="bottom-block">
+                    <p style="text-align:justify;font-size:17px;">To make pregnancy and childbirth safe for every woman and her newborn.</p>
+                </div>
+                <div class="bottom-block">
+                    <p><a href="/Academics/OurMission" style="float:left;">Click here </a>&nbsp;for stories on how we are delivering on our mission and vision each day.</p>
+                </div>
+            </div>
+
+        </li>
+        <li class="col-xs-12 col-md-6 col-lg-4">
+            <div class="block">
+                <h2 style="text-transform:none;">Our Foundation</h2>
+                <div class="block-middle">
+                    <div class="block-middle brand">
+                        <br />
+
+                        <a href="https://fernandez.foundation/" target="_blank">
+                            <img src="/images/F_FF.jpg" alt="Fernandez">
+
+                        </a>
+                    </div>
+                    <div class="bottom-block">
+                        <p>
+                            Fernandez started as a two-bed maternity clinic in 1948. From the very beginning, Dr Leslie and Dr Lourdes Fernandez were guided by ethical values and the mission of equitable care. <a target="_blank" href="https://fernandez.foundation/">Know more about</a>
+                        </p>
+                    </div>
+                    @*<div class="institutions">
+                            <ul style="float:left;width:49%;">
+
+
+                                <li>
+                                    <a href="https://fernandezcdc.org/" target="_blank">
+                                        <img src="/Images/BranchLogos/FCDC.jpg" style="width:150px;" alt="institutions-logo" />
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="https://www.fernandezhospital.com/" target="_blank">
+                                        <img src="~/Images/BranchLogos/Fernandez_Hospital.jpg" style="width:150px;" alt="institutions-logo" />
+                                    </a>
+                                </li>
+
+                            </ul>
+                            <ul style="float:right;width:49%;">
+                                <li><a href="https://storkhome.in/" target="_blank"><img src="/Images/BranchLogos/Stork_Home.jpg" alt="institutions-logo" style="width:150px;" /></a></li>
+                                <li>
+                                    <a href="https://www.fernandezhospital.com/FHOPClinic-Miyapur/Default" target="_blank">
+                                        <img src="/Images/BranchLogos/FH_Outpatient.jpg" style="width:150px;" alt="institutions-logo" />
+                                    </a>
+                                </li>
+
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>*@
+                </div>
+            </div>
+        </li>
+    </ul>
+</div>
+<div class="row cards-section">
+    <ul>
+        <li class="col-xs-12 col-md-6 col-lg-4">
+            <div class="block">
+                <h2 style="text-transform:none;">Wish your colleagues a very Happy Birthday</h2>
+                <div class="block-middle birthday">
+                    <div class="birthday-text" id="todayemployeebirthday" style="text-align:center;height:260px;    overflow-y: auto;    padding-top: 100px;">
+                        @*<img src="/images/Birthday_text.jpg" alt="Birthday_text">*@
+                    </div>
+                </div>
+            </div>
+        </li>
+
+
+        <li class="col-xs-12 col-md-6 col-lg-4">
+            <div class="block">
+                <h2 style="text-transform:none;">Our Brand</h2>
+                <div class="block-middle brand">
+                    <a href="/Hospital/OurBrand">
+                        <img src="/images/F_buit.png" alt="Fernandez" style="width: 300px;">
+                        <span style="margin:0px !important;">Built for Birthing</span>
+                    </a>
+
+                </div>
+                <div class="bottom-block">
+                    <p>
+
+                        Making Birthing a Blissful Experience for every Mother.
+                        The reason, inspiration and focus of our work - 'Mothers and newborns' - forms the backbone of our logo. <a target="_blank" href="~/Documents/Fernandez_Built_For_Birthing_Brand_Brochure.pdf">Read more</a>
+                    </p>
+                </div>
+            </div>
+        </li>
+        <li class="col-xs-12 col-md-6 col-lg-4">
+            <div class="block">
+                <h2 style="text-transform:none;">Welcome to the Fernandez Family</h2>
+                <div class="block-middle family" style="min-height:0;">
+                    <table class="table table-striped">
+                        <tbody id="Newjoineess"></tbody>
+                    </table>
+                </div>
+            </div>
+        </li>
+    </ul>
+</div>
+<div class="row cards-section">
+    <ul>
+
+        <li class="col-xs-12 col-md-6 col-lg-4">
+            <div class="block">
+                <h2 style="text-transform:none;">Human Relations Portal (Akrivia HCM)</h2>
+                <div class="block-middle portal" style="min-height:0;">
+                    <a href="https://myfernandez.akriviahcm.com/login" target="_blank">
+
+                        <img src="/images/form-img.png" alt="form-img" style="margin:0px !important;width:465px;" />
+                    </a>
+                </div>
+                <div class="bottom-block">
+                    <p>Your one stop shop for all employee related information and needs</p>
+                </div>
+            </div>
+        </li>
+        <li class="col-xs-12 col-md-6 col-lg-4">
+            <div class="block" style="overflow-y:auto;">
+
+                <div class="top">
+                    <h2 style="text-transform:none;">Employee Search  <select id="selUser" onchange="Onchangeloadprofile();" class="form-control typeahead border-primary" name="query" data-provide="typeahead" autocomplete="off"></select></h2>
+
+                </div>
+                <div class="block-middle contact2">
+
+                    <div style="width:100%;">
+
+                        <div class="user">
+                            <span style="color: #333333">employee</span>
+                            <span class="active" style="color: #333333">ACTIVE</span>
+                            <div class="clearfix"></div>
+                            <img id="profp_img" src="/Images/Fernandez.png" style="width:100px; height:100px;" alt="uesr-img" />
+                            <h5 id="profp_empname"></h5>
+                            <small id="profp_designation"></small>
+                            <table class="table table-bordered table-striped" style="width:100%;">
+                                <tr>
+                                    <td>
+                                        Location <br>
+                                        <strong style="color: #786C67;" id="profp_location"></strong>
+                                    </td>
+                                    <td>
+                                        Department <br>
+                                        <strong style="color: #786C67;" id="profp_dept"></strong>
+                                    </td>
+                                    <td>
+                                        CUG number <br>
+                                        <strong style="color: #786C67;" id="profp_phone"></strong>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Extenstion <br>
+                                        <strong style="color: #786C67;" id="profp_Extenstion"></strong>
+                                    </td>
+                                    <td colspan="2">
+                                        Email <br>
+                                        <strong style="color: #786C67;" id="profp_Email"></strong>
+                                    </td>
+
+                                </tr>
+                                @if (User.Identity.IsAuthenticated && (User.IsInRole("Admin") || User.IsInRole("HrAdmin")))
+                                {
+                                    <tr>
+                                        <td>
+                                            Employee Name <br>
+                                            <input type="text" id="txtbuddEmployeeName" class="form-control" />
+                                        </td>
+                                        <td>
+                                            Mobile <br>
+                                            <input type="text" id="txtbuddMobile" class="form-control" />
+                                        </td>
+                                        <td>
+                                            Email <br>
+                                            <input type="text" id="txtbuddEmail" class="form-control" />
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            Notes<br>
+                                            <input type="text" id="txtbuddNotes" class="form-control" />
+                                        </td>
+                                        <td>
+                                            Date Of Joining<br>
+                                            <input type="text" id="txtbuddDateOfjoing" class="form-control" />
+                                        </td>
+                                        <td>
+                                            <br>
+                                            <input type="button" id="btnbuddEmail" value="Send" onclick="SendEmailsmstobuddy();" class="btn btn-primary" />
+                                        </td>
+                                    </tr>
+                                }
+                            </table>
+
+
+                            <div class="clearfix"></div>
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+            </div>
+        </li>
+
+        <li class="col-xs-12 col-md-6 col-lg-4">
+            <div class="block">
+                <h2 style="text-transform:none;">Current Openings</h2>
+                <div class="block-middle openings" style="min-height:0;padding:10px;">
+                    <div id="HrOpening">
+
+                    </div>
+                    @if (Request.IsAuthenticated && (User.IsInRole("Admin") || User.IsInRole("HrAdmin") || User.IsInRole("HrEmployee")))
+                    {
+                        <a href="~/ContentManage/HrOpenings" style="text-align:center;color:teal;">Edit CurrentOpenings</a>
+                    }
+
+                </div>
+
+
+            </div>
+        </li>
+    </ul>
+</div>
+<div id="snackbar" class="snackbar" style="background:linear-gradient(to bottom,  rgba(217,39,64,1) 35%,rgba(146,0,0,1) 77%) ;color: white; border:solid 1px #eee;">
+    <img src="~/ckeditor/plugins/smiley/images/thumbs_up.png" />&nbsp; Successfully Submitted.
+    <img src="~/ckeditor/plugins/smiley/images/regular_smile.png" />
+</div>
+<div class="modal fade" id="exampleModalCenter">
+    <div class="modal-dialog" style="padding-top:10%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4>Enter your comments</h4>
+
+            </div>
+            <div class="modal-body">
+                @if (Request.IsAuthenticated)
+                {
+                    <textarea id="txtcommentondrevita" class="form-control" placeholder="Please enter here" rows="4" style="width:100%;min-width:100%;"></textarea>
+                }
+                else
+                {
+                    <p> To comment on Dr.Evita's message please <a href="/Account/Login">click here</a> to login </p>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                @if (Request.IsAuthenticated)
+                {
+                    <button type="button" class="btn btn-primary" onclick="SubmitCommentOnDrEvita();">Submit</button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="exampleModalCenter2">
+    <div class="modal-dialog" style="padding-top:10%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4>Comment on Video </h4>
+
+            </div>
+            <div class="modal-body">
+                @if (Request.IsAuthenticated)
+                {
+                    <textarea id="txtcommentOnVideo" class="form-control" rows="4" style="width:100%;min-width:100%;"></textarea>
+                }
+                else
+                {
+                    <p> Please login to comment <a href="/Account/Login">Click Here.</a></p>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" placeholder="Please enter here" data-dismiss="modal">Close</button>
+                @if (Request.IsAuthenticated)
+                {
+                    <button type="button" class="btn btn-primary" onclick="SubmitCommentOnVideo();">Submit</button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ShareMDmessage">
+    <div class="modal-dialog" style="padding-top:10%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4>Share MD Message</h4>
+            </div>
+            <div class="modal-body">
+                <label>Enter E-Mail id(s) to send </label>
+                <textarea id="txtemailidforshareMd" class="form-control" rows="4" style="width:100%;min-width:100%;"></textarea>
+                <p style="font-size:10px;">If you want to send multiple pursons enter with comma(,) saparate</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" placeholder="Please enter here" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="ShareMDmessagetoemail();">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="ShareTheVideo">
+    <div class="modal-dialog" style="padding-top:10%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4>Share The Video</h4>
+            </div>
+            <div class="modal-body">
+                <label>Enter E-Mail id(s) to send </label>
+                <textarea id="txtemailidforshareMd" class="form-control" rows="4" style="width:100%;min-width:100%;"></textarea>
+                <p style="font-size:10px;">If you want to send multiple pursons enter with comma(,) saparate</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" placeholder="Please enter here" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="ShareVideotoemail();">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="ShareVideo">
+    <div class="modal-dialog" style="padding-top:10%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4>Share Video </h4>
+
+            </div>
+            <div class="modal-body">
+                <label>Enter E-Mail id(s) to send </label>
+                <textarea id="txtemailidforshareVideo" class="form-control" rows="4" style="width:100%;min-width:100%;"></textarea>
+                <p style="font-size:10px;">If you want to send multiple pursons enter with comma(,) saparate</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" placeholder="Please enter here" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="ShareVideoToemail();">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="ourvaluesmodel">
+    <div class="modal-dialog model-bg" style="padding-top:10%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4 style="color: #786C67;" id="ourvaluestitle"></h4>
+            </div>
+            <div class="modal-body" style="padding:2px;">
+                <p id="ourvaluesbody" style="padding:1px;"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" placeholder="Please enter here" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="AlertModel">
+    <div class="modal-dialog" style="padding-top:10%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4 style="color: #786C67;" id="ourvaluestitle">Alert</h4>
+            </div>
+            <div class="modal-body" style="padding:2px;">
+                @if (Request.IsAuthenticated)
+                {
+                    <textarea id="txtcomment" class="form-control" rows="4" style="width:100%;min-width:100%;"></textarea>
+                }
+                else
+                {
+                    <p style="padding:20px;text-align:center;"> Please  <a href="/Account/Login">login </a> to like.</p>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" placeholder="Please enter here" data-dismiss="modal">Close</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    $(document).ready(function () {
+        $("[data-toggle=popover]").popover();
+        GetTodayJoines();
+        GetTodayBirthdays();
+        //GetMdMessage();
+        LoadExtenstionNumbers();
+        LoadLikesCount();
+        LoadComments();
+        LoadCommentsbyKey($("#hidVideoId").val() + "_HomePageVideo", "TotalCommentsVideo", "TotalCommentsVideoData");
+        LoadSharesCount();
+        LoadSharesCountByKey($("#hidVideoId").val() + "_HomePageVideo", "TotalSharesVideo");
+        LoadLikesCountByKey($("#hidVideoId").val() + "_HomePageVideo", "TotalLikesVideo");
+        GetHrOpening();
+    });
+    function ourvaluesmodel(typeofour) {
+        $("#ourvaluestitle").html(typeofour);
+        switch (typeofour) {
+            case "Service":
+                $("#ourvaluesbody").html('<img src="/Images/OurValues/Service.jpg" style="width:100%;" />');
+                break;
+            case "Respect":
+                $("#ourvaluesbody").html('<img src="/Images/OurValues/Respect.jpg" style="width:100%;" />');
+                break;
+            case "Compassion":
+                $("#ourvaluesbody").html('<img src="/Images/OurValues/Compassion.jpg" style="width:100%;" />');
+                break;
+            case "Responsibility":
+                $("#ourvaluesbody").html('<img src="/Images/OurValues/Responsibility.jpg" style="width:100%;" />');
+                break;
+            case "Integrity":
+                $("#ourvaluesbody").html('<img src="/Images/OurValues/Integrity.jpg" style="width:100%;" />');
+                break;
+        }
+        $("#ourvaluesmodel").modal('show');
+    }
+    function LoadLikesCountByKey(key, id) {
+        $.ajax({
+            type: "GET",
+            url: "/Home/GetTotalLikes",
+            data: "key=" + key,
+            success: function (data) {
+                $("#" + id).html(parseInt(data));
+            },
+            error: function () {
+                // alert("error")
+            }
+        });
+    }
+    function LoadLikesCount() {
+        var key = "MdMessage";
+        //TotalLikes
+        LoadLikesCountByKey("MdMessage", "TotalLikes");
+    }
+    function LoadSharesCount() {
+        var key = "MdMessage";
+        LoadSharesCountByKey(key, "TotalShares");
+    }
+    function LoadSharesCountByKey(key, id) {
+        $.ajax({
+            type: "GET",
+            url: "/Home/GetTotalShare",
+            data: "key=" + key,
+            success: function (data) {
+                $("#" + id).html(data);
+            },
+            error: function () {
+                // alert("error")
+            }
+        });
+    }
+    function ShareVideotoemail() {
+        var key = $("#hidVideoId").val() + "_HomePageVideo";
+        $.ajax({
+            type: "GET",
+            url: "/Home/SendTheVideoEmail",
+            data: "key=" + key + "&emailids=" + $("#txtemailidforshareVideo").val(),
+            success: function (data) {
+                $("#txtemailidforshareVideo").val("");
+                $("#ShareTheVideo").modal("hide");
+                alert(data);
+                LoadSharesCountByKey(key, "TotalSharesVideo");
+            },
+            error: function () {
+                // alert("error")
+            }
+        });
+    }
+    function ShareMDmessagetoemail() {
+        $.ajax({
+            type: "GET",
+            url: "/Home/SendMDPostThoughEmail",
+            data: "emailids=" + $("#txtemailidforshareMd").val(),
+            success: function (data) {
+                $("#ShareMDmessage").modal("hide");
+                alert("Success"); LoadSharesCount();
+            },
+            error: function () {
+                // alert("error")
+            }
+        });
+    }
+    function LoadExtenstionNumbers() {
+        $('#tblextenstionnumbers').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Home/AjaxGetExtensionNumbersWithoutFloor",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[5, 10, 20, 30, 50, 100, 150, 200, -1], [5, 10, 20, 30, 50, 100, 150, 200, "All"]],
+            //"aaSorting": [[0, "desc"]],
+            "aoColumns": [
+                { "sName": "Name" },
+                { "sName": "Extension" },
+                { "sName": "Location" }
+            ]
+        });
+        $("#tblextenstionnumbers_length").css("display", "none");
+        $("#tblextenstionnumbers_paginate").css("display", "none");
+    }
+    function GetTodayJoines() {
+        $.ajax({
+            type: "GET",
+            url: "/Home/GetTodayJoines",
+            success: function (data) {
+                var html = "";
+                var month = new Array();
+                month[0] = "Jan";
+                month[1] = "Feb";
+                month[2] = "Mar";
+                month[3] = "Apr";
+                month[4] = "May";
+                month[5] = "Jun";
+                month[6] = "Jul";
+                month[7] = "Aug";
+                month[8] = "Sep";
+                month[9] = "Oct";
+                month[10] = "Nov";
+                month[11] = "Dec";
+                if (data != "No Joines") {
+                    for (var i = 0; i < data.length; i++) {
+                        var date = new Date(parseInt(data[i].DateOfJoining.replace(/[^0-9 +]/g, '')));
+                        //var date = new Date(Date.parse(data[i].DateOfJoining));
+                        html += '<tr><td style="text-align:center"><img  src="/Images/Employees/' + data[i].EmpId + '.jpg" style="width:40px;height:50px;border-radius:0px;" alt="img"></td><td><span>' + data[i].FirstName + ' ' + data[i].LastName + '</span> <br>' + data[i].Designation + '</td>';
+                        html += '<td><span>' + (date.getDate()) + '</span><br>' + (month[date.getMonth()]) + ' ' + date.getFullYear() + '</td></tr>';
+                        //html += "<div style='font-size: 22px;font-style: italic;font-family: cambria;color:teal;padding:5px;'>" + data[i].FirstName + " " + data[i].LastName + " -  " + data[i].DepartmentName + "</div>";
+                    }
+                    $("#Newjoineess").html(html);
+                    $('#Newjoineess img').error(function () {
+                        $(this).attr('src', '/images/Fernandez-Symbol_Colour.png');
+                    });
+                }
+                else {
+                    $("#Newjoineess").html("No Joiners");
+                }
+            },
+            error: function () {
+
+            }
+        });
+    }
+    function GetTodayBirthdays() {
+
+        $.ajax({
+            type: "GET",
+            url: "/Home/GetTodayBirthdays",
+            //data: "key=" + key,
+            success: function (data) {
+                //var html = "<table class='table table-bordered'><thead><tr><td> Emp Id</td><td>Emp Name</td><td> Location</td><td> Department</td><td> DOB</td><td> Mobile</td><td> Extenstion</td></tr></thead>";
+                var html = "";
+                if (data != "No Birth Days") {
+                    //html += "<tbody>";
+                    for (var i = 0; i < data.length; i++) {
+
+                        html += "<div style='font-size: 22px;/*font-family: Swiss721 Cn BT;*/color:teal;padding:5px;'>" + data[i].FirstName + " " + data[i].LastName + " -  " + data[i].DepartmentName + "</div>";
+                    }
+                    //html += "</tbody></table>";
+                    $("#todayemployeebirthday").html(html);
+                }
+                else {
+                    $("#todayemployeebirthday").html("No Birth Days");
+                }
+            },
+            error: function () {
+                // alert("error")
+            }
+        });
+    }
+    function LikeThePage() {
+        var key = "MdMessage";
+        LikeBasedOnKey(key);
+    }
+    function LikeTheVideo() {
+        var key = $("#hidVideoId").val() + "_HomePageVideo";
+        LikeBasedOnKey(key);
+    }
+    function LikeBasedOnKey(key) {
+        $.ajax({
+            type: "GET",
+            url: "/Home/SaveLikes",
+            data: "key=" + key,
+            success: function (data) {
+                if (data == "Success") {
+                    $("#snackbar").addClass("show");
+                    $("#snackbar").css("visibility", "visible");
+                    setTimeout(function () { $("#snackbar").removeClass("show"); $("#snackbar").css("visibility", "hidden"); }, 5000);
+                } else {
+                    if (data == "" || data == null) {
+                        $("#AlertModel").modal("show");
+                    } else
+                        alert(data);
+                }
+                LoadLikesCountByKey(key, "TotalLikesVideo");
+            },
+            error: function () {
+                // alert("error")
+            }
+        });
+    }
+    function SubmitCommentOnDrEvita() {
+        if (confirm("Are you sure you want to submit?")) {
+            var key = "MdMessage";
+            $.ajax({
+                type: "GET",
+                url: "/Home/SaveComment",
+                data: "key=" + key + "&Message=" + $("#txtcommentondrevita").val(),
+                success: function (data) {
+                    $("#txtcommentondrevita").val("");
+                    $("#exampleModalCenter").modal("hide");
+                    alert("Comment updated Successfully");
+
+                },
+                error: function () {
+                    // alert("error")
+                }
+            });
+        }
+    }
+    function SubmitCommentOnVideo() {
+        if (confirm("Are you sure you want to submit?")) {
+            //var key = "HomePageVideo";
+            var key = $("#hidVideoId").val() + "_HomePageVideo";
+            $.ajax({
+                type: "GET",
+                url: "/Home/SaveComment",
+                data: "key=" + key + "&Message=" + $("#txtcommentOnVideo").val(),
+                success: function (data) {
+                    $("#txtcommentOnVideo").val("");
+                    $("#exampleModalCenter2").modal("hide");
+                    alert("Comment updated Successfully");
+                    LoadCommentsbyKey(key, "TotalCommentsVideo", "TotalCommentsVideoData");
+                },
+                error: function () {
+                    // alert("error")
+                }
+            });
+        }
+    }
+    function GetMdMessage() {
+        var key = "MdMessage";
+        $.ajax({
+            type: "GET",
+            url: "/Home/GetSettings",
+            data: "key=" + key,
+            success: function (data) {
+                $("#HrMdMessage").html(data.substring(0, 250) + '<a href="/Home/MdMessageMore">Read more...</a>');
+            },
+            error: function () {
+                // alert("error")
+            }
+        });
+    }
+ function GetHrOpening() {
+        var key = "HrOpening";
+        loadContentManagesettings(key, "HrOpening");
+        //$.ajax({
+        //    type: "GET",
+        //    url: "/Home/GetSettings",
+        //    data: "key=" + key,
+        //    success: function (data) {
+        //        $("#HrOpening").html(data);
+        //    },
+        //    error: function () {
+        //        // alert("error")
+        //    }
+        //});
+    }
+    function loadContentManagesettings(key, divid) {
+        $.get("/Home/GetSettings?key=" + key, function (data) {
+            $("#" + divid).html(data);
+        });
+    }
+    function LoadCommentsbyKey(key, id, subid) {
+
+        $.ajax({
+            type: "GET",
+            url: "/Home/GetCommentsbyPostId",
+            data: "key=" + key,
+            success: function (data) {
+                $("#" + id).html(data.length);
+
+                var htmlupdate = "";
+                for (var j = 0; j < data.length; j++) {
+                    htmlupdate += "<div class='col-md-6'><div class='list-group'>";
+                    htmlupdate += "<div  class='list-group-item list-group-item-action flex-column align-items-start'>";
+                    htmlupdate += "<div class='d-flex w-100 justify-content-between'>";
+                    htmlupdate += "<h5 class='mb-1' style='color:crimson;font-weight:bold;'> <span class='glyphicon glyphicon-user'></span> " + data[j].CommentedBy + "<span style='float:right;color:green;'> <span class='glyphicon glyphicon-calendar'></span> " + data[j].CommentedOn + "</span></h5>";
+                    //htmlupdate += "<small class='text-muted'>" + data[i].Comments[j].CreatedOn + "</small>";
+                    htmlupdate += "</div>";
+
+                    htmlupdate += "<p class='mb-1'><span class='glyphicon glyphicon-comment'></span> " + data[j].Message + "</p>";
+
+                    htmlupdate += "</div>";
+                    htmlupdate += "</div>";
+                    htmlupdate += "</div>";
+                }
+                $("#" + subid).html(htmlupdate);
+            },
+            error: function () {
+                // alert("error")
+            }
+        });
+    }
+    function LoadComments() {
+        LoadCommentsbyKey("MdMessage", "TotalComments", "TotalCommentsData");
+    }
+
+    $(document).ready(function () {
+ loadContentManagesettings("HomeEventsAll", "divviewalleventsbind");
+        loadContentManagesettings("TodayTomorrowEventsAll", "divviewalltodaytomorroweventsbind");
+        loadContentManagesettings("ResultsEventsAll", "diveventresultbind");
+        $("#selUser").select2({
+            ajax: {
+                url: "/Home/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 4
+        });
+    });
+    function Onchangeloadprofile() {
+        $.get("/Home/GetEmployeeById?Userid=" + $("#selUser").val(), function (data) {
+            $("#profp_empname").html(data.FirstName + " " + data.LastName);
+            checkImage("/Images/Employees/" + data.EmpId + ".jpg", function () {
+                $("#profp_img").attr("src", "/Images/Employees/" + data.EmpId + ".jpg");
+            }, function () {
+                $("#profp_img").attr("src", "/Images/Employees/" + data.EmpId + ".png");
+            });
+
+            $("#profp_designation").html(data.Designation);
+            $("#profp_location").html(data.LocationName);
+
+            $("#profp_dept").html(data.DepartmentName);
+            $("#profp_Email").html(data.EmailId);
+
+            $("#profp_Extenstion").html(data.Extenstion);
+            $("#profp_phone").html(data.CugNumber);
+            $("#moreabout").html("About");
+            $("#profp_DOJ").html(moment(data.DateOfJoining).format("DD/MM/YYYY"));
+        });
+
+    }
+
+    function checkImage(src, good, bad) {
+        var img = new Image();
+        img.onload = good;
+        img.onerror = bad;
+        img.src = src;
+    }
+    function SendEmailsmstobuddy() {
+        if (confirm("Are you sure you want to send an email?")) {
+            if ($("#txtbuddEmployeeName").val() != null && $("#txtbuddEmployeeName").val() != "" &&
+                $("#txtbuddMobile").val() != null && $("#txtbuddMobile").val() != "" &&
+                $("#txtbuddEmail").val() != null && $("#txtbuddEmail").val() != "" &&
+                $("#selUser").val() != null && $("#selUser").val() != "") {
+                $.get("/Home/SendemailtoNewEmployee?EmployeeName=" + $("#txtbuddEmployeeName").val() + "&Mobile=" + $("#txtbuddMobile").val()
+                    + "&Email=" + $("#txtbuddEmail").val() + "&dateofjoining=" + $("#txtbuddDateOfjoing").val() + "&Notes=" + $("#txtbuddNotes").val() + "&empid=" + $("#selUser").val(), function (data) {
+                        if (data == "Sent Success") {
+                            $("#txtbuddEmployeeName").val("");
+                            $("#txtbuddNotes").val("");
+                            $("#txtbuddMobile").val("");
+                            $("#txtbuddEmail").val("");
+                            $("#txtbuddDateOfjoing").val("");
+                        }
+                        alert(data);
+                    });
+            } else {
+                alert("Please enter all the required fields.")
+            }
+        }
+    }
+</script>

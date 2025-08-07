@@ -1,0 +1,183 @@
+﻿
+@{
+    ViewBag.Title = "ManageSupervisorOrders";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+        LoadData();
+        LoadLocations();
+        LoadMealType();
+    });
+    function LoadMealType() {
+        $.ajax({
+            type: "GET",
+            url: "/CMS/GetMealType",
+            //data: "id=",
+            success: function (data) {
+
+                var options = [];
+                options.push('<option value="0">- Select MealType -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].MealTypeId + '">' + data[i].MealTypeName + '</option>');
+                }
+                $(".MealTypeId").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadLocations() {
+        $.ajax({
+            type: "GET",
+            url: "/InPatientCms/GetCMSP_Location",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">Select</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $(".LocationId").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadTodayFloorByLocations() {
+        var id = $("#TodayLocationId").val();
+        if (id != "") {
+            $.ajax({
+                type: "GET",
+                url: "/InPatientCms/GetCMSP_FloorByLocation?id=" + id,
+                //data: "id=",
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">Select</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].FloorId + '">' + data[i].FloorNo + '</option>');
+                    }
+                    $("#TodayFloorId").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#TodayFloorId").html('<option value="">Select</option>');
+        }
+    }
+    function LoadData() {
+        $('#tblCategory').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/InPatientCms/AjaxGetCMpSupervisorOrderRequest",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "Id" },
+                { "sName": "DateOfOrder" },
+                { "sName": "MealTypeId" },
+                { "sName": "LocationId" },
+                { "sName": "FloorId" },
+                { "sName": "RequestUserId" },
+                { "sName": "RequestNotes" },
+                { "sName": "CurrentStatus" },
+                       {
+                           "sName": "CategoryId",
+                           "bSortable": false,
+                           "render": function (data, row, r) {
+                               //console.log(r);
+                               return '<div class="btn-group">' +
+                                   '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                                   '<ul class="dropdown-menu dropdown-menu-right">' +
+                                   '<li><a href="javascript:void(0);"  onclick="Edit(' + data + ')">Edit</a></li>' +
+                                 //  '<li><a href="javascript:void(0);"  onclick="onDelete(' + data + ')">Delete</a></li>' +
+                                   '</ul></div>';
+                           }
+                       }
+            ]
+            ,
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "locationname", "value": $("#TodayLocationId option:selected").text() },
+                    { "name": "floor", "value": $("#TodayFloorId option:selected").text() },
+                    { "name": "MealType", "value": $("#TodayMealTypeId").val() }
+                );
+            }
+        });
+        $("#tblCategory_length").addClass("col-md-6");
+        $("#tblCategory_length").addClass("col-md-6");
+    }
+    function Edit(id) {
+        window.location.href = "/InPatientCms/EditOrderRequest?id=" + id +"&status=InSupervisor";
+    }
+
+
+
+    function onDelete(id) {
+        if (confirm('Are you sure you want to delete?')) {
+            $.getJSON("@Url.Action("DeleteCMStock", "CMS")", { id: id }, function (data) {
+                clearAll();
+                LoadData();
+            });
+        } return false;
+    }
+    function New()
+    {
+        window.location.href = '/InPatientCms/CreateOrderRequest';
+    }
+
+
+</script>
+<div style="min-height:500px;">
+    <div class="panel panel-default">
+        <div class="panel-heading" style="height:35px;background: #FEC20E; color:white;">Manage Supervisor Orders@*<a href="#" class="pull-right" style="color:white;" onclick="New();">New</a>*@</div>
+        <div class="panel-body">
+            <div class="form-row">
+                <div class="col-md-1">
+                    &nbsp;
+                </div>
+                <div class="form-group col-md-2">
+                    <label>Meal Type :</label>
+                    <select class="form-control MealTypeId" id="TodayMealTypeId">
+                    </select>
+                </div>
+                <div class="form-group col-md-2">
+                    <label>Location :</label>
+                    <select class="form-control LocationId" id="TodayLocationId" onchange="LoadTodayFloorByLocations();"></select>
+                </div>
+                <div class="form-group col-md-2">
+                    <label>Floor :</label>
+                    <select class="form-control FloorId" id="TodayFloorId"></select>
+                </div>
+                <div class="form-group col-md-1">
+                    <br />
+                    <input type="button" class="btn sm btn-danger form-control" onclick="LoadData();" value="go" />
+                </div>
+
+            </div>
+            <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblCategory">
+                <thead>
+                    <tr style="background-color:chocolate;color:white;">
+                        <th>Id</th>
+                        <th>Date</th>
+                        <th>Location</th>
+                        <th>Floor</th>
+                        <th>MealType</th>
+                        <th>Requested User</th>
+                        <th>Notes</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+

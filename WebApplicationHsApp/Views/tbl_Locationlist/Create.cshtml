@@ -1,0 +1,102 @@
+﻿@model WebApplicationHsApp.DataModel.tbl_locationlist
+
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Create</h2>
+
+
+@using (Html.BeginForm()) 
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        @*<h4>tbl_locationlist</h4>*@
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.Name, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Extension, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Extension, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Extension, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Location, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @*@Html.EditorFor(model => model.Location, new { htmlAttributes = new { @class = "form-control" } })*@
+                @*@Html.DropDownListFor(model => model.Location, new SelectList(
+
+    new List<object>
+    {
+                   new {value=0,text="Select Location"},
+                   new {value=1,text= "Unit 1" },
+                   new {value=2,text="Unit 2"},
+                   new {value=3, text="Unit 3"},
+                   new {value=4,text="Unit 4"},
+    new {value=5,text="Unit 5"},
+    new {value=8,text="Fernandez School Of Nursing"}}, "text", "text", 0),new { @class= "form-control" })*@
+                @Html.DropDownListFor(model=>model.Location, ViewBag.LocationList as SelectList,"Select Location",new { @class = "form-control" })
+
+                @Html.ValidationMessageFor(model => model.Location, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Floor, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.Floor, new SelectList(
+
+    new List<object>
+    {
+                   new {value=0,text="Select Floor"},
+                   new {value=1,text= " " },
+                   new {value=2,text="Lower Celler"},
+                   new {value=3,text="Upper Celler"},
+                   new {value=4,text="Ground Floor"},
+                   new {value=5, text="First Floor"},
+                   new {value=6,text="Second Floor"},
+    new { value = 7, text = "Third Floor" },
+                new { value = 8, text = "Fourth Floor" },
+       new { value=9,text="Majestic Apts" },
+
+    new { value=10,text="ROOM ON DG ROOM" },
+    new { value=11,text="DR.LJF BLOCK- ADMIN" },
+    new {value=12,text="AMIDYALAY BLOCK-ACCOUNT"},
+    new {value=13,text="TERRACE"},
+     new {value=14,text=" FIFTH FLOOR"}
+   
+
+    },
+
+    "text", "text", 0), new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Floor, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

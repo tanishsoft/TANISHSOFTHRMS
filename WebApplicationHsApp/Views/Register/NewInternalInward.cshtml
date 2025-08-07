@@ -1,0 +1,380 @@
+﻿
+@{
+    ViewBag.Title = "NewInternalInward";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+
+    #captureSignature {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+
+    #captureSignature2 {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+
+    #captureSignatureStaff {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+</style>
+<script src="~/Scripts/jSignature.min.js"></script>
+<!--[if lt IE 9]>
+<script  type="text/javascript" src="~/Scripts/flashcanvas.js"></script>
+    <![endif]-->
+<script>
+    var validate;
+    var eId = 0;
+
+    var $sigdiv, $sigdiv2, $sigdiv1;
+    $(document).ready(function () {
+
+        $sigdiv2 = $("#captureSignatureSecurity").jSignature({ 'UndoButton': true });
+        $sigdiv = $("#captureSignatureHandOverTo").jSignature({ 'UndoButton': true });
+        $sigdiv1 = $("#captureSignatureTakenBy").jSignature({ 'UndoButton': true });
+        LoadLocations();
+        $("#txtAuthorizeByName").change(function () {
+            onchngauthorizeemp();
+        });
+        $("#txtFromPersonName").change(function () {
+            $.get("/Custom/GetUserDetailsByEmpId?id=" + $("#txtFromPersonName").val(), function (data) {
+                if (data != "Enter Valid Request ID") {
+                    $("#FromPersonname").html(data.FirstName + " " + data.PhoneNumber);
+                    //$("#txtstaffContactNumber").val(data.PhoneNumber);
+                    //$("#dllstafdepartment").val(data.DepartmentName);
+                }
+            });
+        });
+        $("#txtGatePassNo").change(function () {
+            $.get("/Custom/Get_GatePass_ById?id=" + $("#txtGatePassNo").val(), function (data) {
+                console.log(data);
+                $("#txtRemarks").val(data.Comments);
+                $("#txtAuthorizeByName").val(data.AuthorizedByEmpId);
+                onchngauthorizeemp();
+                var date = data.ExpectedDateOfReturn.replace("-", "/");
+                date = date.replace("-", "/");
+                $("#txtOutDate").val(date);
+                var ahtml = "";
+                var qty = 0;
+                var assets = data.assets;
+                for (var i = 0; i < assets.length; i++) {
+                    ahtml += assets[i].AssetLabel + ",";
+                    qty += parseInt(assets[i].Quantity);
+                }
+                $("#txtQty").val(qty);
+                $("#txtProductDetails").val(ahtml);
+            });
+        });
+        //$("#othervendorname").hide();
+        //LoadVendors();
+        //$('#txtOutTime').timepicker();
+        //$("#txtOutDate").datepicker({
+        //    changeMonth: true,
+        //    changeYear: true,
+        //    dateFormat: "dd/mm/yy",
+        //    yearRange: "-30:+30",
+        //    Edit: true
+        //});
+        //$("#txtExceptedDate").datepicker({
+        //    changeMonth: true,
+        //    changeYear: true,
+        //    dateFormat: "dd/mm/yy",
+        //    yearRange: "-30:+30",
+        //    Edit: true
+        //});
+
+    });
+    function onchngauthorizeemp() {
+        $.get("/Custom/GetUserDetailsByEmpId?id=" + $("#txtAuthorizeByName").val(), function (data) {
+            if (data != "Enter Valid Request ID") {
+                $("#personname").html(data.FirstName + " " + data.PhoneNumber);
+                //$("#txtstaffContactNumber").val(data.PhoneNumber);
+                //$("#dllstafdepartment").val(data.DepartmentName);
+            }
+        });
+    }
+    function LoadVendors() {
+        $.get("/Common/GetVendorlist", function (data) {
+            var options = [];
+            options.push('<option value="">- Select Vendor -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].Name + '">' + data[i].Name + '</option>');
+            }
+            options.push('<option value="Others">Others</option>');
+            $("#txtVendorName").html(options.join(''));
+        });
+    }
+    function showothertextbox() {
+        $("#othervendorname").hide();
+        if ($("#txtVendorName").val() == "Others") {
+            $("#othervendorname").show();
+        }
+    }
+    function LoadDepartments() {
+        $.get("/Common/GetDepartmentByLocation?id=" + $("#LocationId").val(), function (data) {
+            var options = [];
+            options.push('<option value="">- Select Department -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].DepartmentName + '">' + data[i].DepartmentName + '</option>');
+            }
+            $("#txtDepartment").html(options.join(''));
+        });
+    }
+
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Locations -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#LocationId").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function OnLocationchng() {
+        LoadDepartments();
+        $.get("/Register/GetSecurityDetails?locationId=" + $("#LocationId").val(), function (data) {
+            var options = [];
+            options.push('<option value="">- Select Security -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].FirstName + '">' + data[i].FirstName + '</option>');
+            }
+            $("#txtTakingSecurity").html(options.join(''));
+        });
+    }
+    function SaveRegister() {
+        ValidateDetails();
+
+        var takingSecuritySign = $sigdiv2.jSignature('getData', 'image').toString();
+        var HandOverToSign = $sigdiv.jSignature('getData', 'image').toString();
+        var TakenBySign = $sigdiv1.jSignature('getData', 'image').toString();
+
+
+        if (takingSecuritySign == null || takingSecuritySign == "") {
+            validate = false;
+        }
+        var vendorname = $("#txtVendorName").val();
+        if (vendorname == "Others") {
+            vendorname = $("#othervendorname").val();
+        }
+
+        if (validate) {
+            var task = {
+                Id: eId,
+                LocationId: $("#LocationId").val(),
+                ProductName: $("#txtProductDetails").val(),
+               /* SendingTo: vendorname,*/
+                Qty: $("#txtQty").val(),
+                GatePassNo: $("#txtGatePassNo").val(),
+                IsActive: true,
+                Department: $("#txtDepartment").val(),
+                Security: $("#txtTakingSecurity").val(),
+                AuthorizeBy: $("#personname").html(),
+                FromPerson: $("#FromPersonname").html(),
+                Remarks: $("#txtRemarks").val(),
+                Reason: $("#txtReason").val(),
+                //OutTime: $("#txtOutDate").val() + "$" + $("#txtOutTime").val(),
+
+                SecuritySign: "data:" + takingSecuritySign,
+                HandOverSign: "data:" + HandOverToSign,
+                TakenBySign: "data:" + TakenBySign
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Register/SaveNewInternalInward",
+                data: task,
+                success: function (data) {
+                    alert(data);
+                    clearAll();
+                }
+            });
+        } else {
+            alert("Please enter all the required fields");
+        }
+    }
+    function ValidateDetails() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+
+        if ($("#LocationId").val() == "") {
+            $("#LocationId").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtProductDetails").val() == "") {
+            $("#txtProductDetails").addClass('css-error');
+            validate = false;
+        }
+        //if ($("#txtVendorName").val() == "") {
+        //    $("#txtVendorName").addClass('css-error');
+        //    validate = false;
+        //}
+        //if ($("#txtKeyNumber").val() == "") {
+        //    $("#txtKeyNumber").addClass('css-error');
+        //    validate = false;
+        //}
+        if ($("#txtQty").val() == "") {
+            $("#txtQty").addClass('css-error');
+            validate = false;
+        }
+    }
+    function clearAll() {
+        window.location.href = "/Register/InternalInWard";
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading" style="height:35px;"><a href="~/Register/InternalInWard">Go Back</a> &nbsp;&nbsp;New Internal InWard Register </div>
+    <div class="panel-body">
+        <div class="modal-body">
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Location<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <select id="LocationId" class="form-control" onchange="OnLocationchng();">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Department<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <select id="txtDepartment" class="form-control">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Gate Pass No</label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtGatePassNo" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <label for="name">From Person (empid)<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtFromPersonName" class="form-control" />
+                    <span id="FromPersonname"></span>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+
+                <div class="col-md-2">
+                    <label for="name">Product Details<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <textarea rows="3" id="txtProductDetails" class="form-control"></textarea>
+                </div>
+                <div class="col-md-2">
+                    <label for="name">Qty<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="number" id="txtQty" class="form-control" />
+                </div>
+            </div>
+
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Security<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <select id="txtTakingSecurity" class="form-control">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="name">AuthorizeBy (empid)<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtAuthorizeByName" class="form-control" />
+                    <span id="personname"></span>
+                </div>
+
+            </div>
+            @*<div class="row" style="padding:5px;">
+
+            <div class="col-md-2">
+                <label for="name">Out Date<span style="color:red;">*</span></label>
+            </div>
+            <div class="col-md-4">
+                <input type="text" id="txtOutDate" class="form-control" />
+            </div>
+            <div class="col-md-2">
+                <label for="name">Out Time<span style="color:red;">*</span></label>
+            </div>
+            <div class="col-md-4 bootstrap-timepicker timepicker">
+                <input type="text" id="txtOutTime" class="form-control" />
+            </div>
+        </div>*@
+
+
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Reason</label>
+                </div>
+                <div class="col-md-4">
+                    <textarea rows="2" id="txtReason" class="form-control"></textarea>
+                </div>
+                <div class="col-md-2">
+                    <label for="name">Remarks</label>
+                </div>
+                <div class="col-md-4">
+                    <textarea rows="2" id="txtRemarks" class="form-control"></textarea>
+                </div>
+            </div>
+
+            <div class="row" style="padding:5px;">
+                <div class="col-md-1">
+                    <label for="name">Security Sign<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-5">
+                    <div id="captureSignatureSecurity">
+                    </div>
+                </div>
+                <div class="col-md-1">
+                    <label for="name">HandOver To Sign<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-5">
+                    <div id="captureSignatureHandOverTo">
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-1">
+                    <label for="name">Taken By Sign<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-5">
+                    <div id="captureSignatureTakenBy">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <input type="button" id="btnasigntask" value="Save" onclick="SaveRegister();" class="btn btn-primary" />
+            <button type="button" class="btn btn-default" onclick="clearAll();">Cancel</button>
+        </div>
+    </div>
+</div>
+
+
+

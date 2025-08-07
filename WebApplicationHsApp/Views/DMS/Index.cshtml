@@ -1,0 +1,640 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+        //LoadCategories();
+        //LoadAllDocuments();
+
+    });
+    function LoadAllDocuments() {
+        $('#tblManageAlldocuments').dataTable({
+            "bServerSide": true,
+            //responsive: true,
+            "sAjaxSource": "/DMS/AjaxbyEmployeeDocumentsAll",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "DocNo" },
+                { "sName": "Department" },
+                { "sName": "EmpId" },
+                { "sName": "EmpName" },
+                { "sName": "DocName" },
+                { "sName": "DocUrl" },
+                { "sName": "Category" },
+                { "sName": "Color" },
+                { "sName": "Comments" },
+                { "sName": "IsApproved" },
+                { "sName": "CreatedOn" },
+                { "sName": "Created By" },
+                { "sName": "Status" },
+                {
+                    "sName": "DocumentId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return "";
+                    }
+                }
+            ],
+            "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                var iconhtml = '';
+                if (aData[5].includes(".xls")) {
+                    iconhtml += '<i class="fa fa-file-excel-o text-success"></i>';
+                } else if (aData[5].includes(".doc")) {
+                    iconhtml += '<i class="fa fa-file-word-o text-warning"></i>';
+                } else if (aData[5].includes(".pdf")) {
+                    iconhtml += '<i class="fa fa-file-pdf-o text-primary"></i>';
+                }
+                else if (aData[5].includes(".png") || aData[5].includes(".jpg") || aData[5].includes(".jpeg")) {
+                    iconhtml += '<i class="fa fa-file-image-o text-info"></i>';
+                } else {
+                    iconhtml += '<i class="fa fa-file-o text-danger" aria-hidden="true"></i>'
+                }
+                $('td:eq(6)', nRow).css('color', aData[7]);
+
+                $('td:eq(4)', nRow).html('<a style="margin:0px;float: inherit;" target="_blank" href="/DMS/Download?id=' + aData[0] + '"> ' + iconhtml + ' ' + aData[4] + '</a>')
+
+            }
+        });
+    }
+    function LoadCategories() {
+        $.get("/Dms/GetAllCategorys", function (data) {
+            var html = "<option value=''>Select</option>";
+            for (var i = 0; i < data.length; i++) {
+                html += "<option value='" + data[i].Id + "'>" + data[i].Name + "</option>";
+            }
+            $("#CategoryName").html(html);
+        });
+    }
+
+    function Onchangeloadprofile() {
+        if ($("#selUser").val() != null) {
+            $.get("/Home/GetEmployeeById?Userid=" + $("#selUser").val(), function (data) {
+                $("#profp_empname").html(data.FirstName + " " + data.LastName + "   " + data.EmpId);
+                $("#hidempid").val(data.EmpId);
+                //LoadDocuments(data.EmpId);
+                //checkImage("/Images/Employees/" + data.EmpId + ".jpg", function () {
+                //    $("#profp_img").attr("src", "/Images/Employees/" + data.EmpId + ".jpg");
+                //}, function () {
+                //    $("#profp_img").attr("src", "/Images/Employees/" + data.EmpId + ".png");
+                //});
+                $("#profp_designation").html(data.Designation);
+                $("#profp_location").html(data.LocationName);
+                $("#profp_dept").html(data.DepartmentName);
+                $("#profp_Email").html(data.EmailId);
+                $("#profp_Extenstion").html(data.Extenstion);
+                $("#profp_phone").html(data.CugNumber);
+                $("#moreabout").html("About");
+                $("#profp_DOJ").html(moment(data.DateOfJoining).format("DD/MM/YYYY"));
+            });
+        }
+        else {
+            alert("Please Select Employee");
+        }
+    }
+    function LoadDocuments(id) {
+        if ($("#selUser").val() != null) {
+            $.get("/DMS/GetEmployeeDocuments?empid=" + id, function (data) {
+                $("#tblbodydocuments").html("");
+                $('#tbldatatabledocuments').DataTable().clear().destroy();
+                var html = '';
+                for (var i = 0; i < data.length; i++) {
+                    //html += "<option value='" + data[i].Id + "'>" + data[i].Name + "</option>";
+                    html += '<tr>';
+                    html += '<td class="width45">';
+                    if (data[i].DocumentUrl.includes(".xls")) {
+                        html += '<i class="fa fa-file-excel-o text-success"></i>';
+                    } else if (data[i].DocumentUrl.includes(".doc")) {
+                        html += '<i class="fa fa-file-word-o text-warning"></i>';
+                    } else if (data[i].DocumentUrl.includes(".pdf")) {
+                        html += '<i class="fa fa-file-pdf-o text-primary"></i>';
+                    }
+                    else if (data[i].DocumentUrl.includes(".png") || data[i].DocumentUrl.includes(".jpg") || data[i].DocumentUrl.includes(".jpeg")) {
+                        html += '<i class="fa fa-file-image-o text-info"></i>';
+                    } else {
+                        html += '<i class="fa fa-file-o text-danger" aria-hidden="true"></i>'
+                    }
+                    html += '</td>';
+                    html += '<td>';
+                    html += '<span class="folder-name"><a style="margin:0px;float: inherit; color:' + data[i].CategoryColor + ' !important;" target="_blank" href="/DMS/Download?id=' + data[i].DocumentId + '">' + data[i].DocumentName + '</a></span>';
+
+                    html += '</td>';
+                    html += '<td>';
+                    html += '<span>' + data[i].Remarks + '</span>';
+                    html += '</td>';
+                    html += ' <td class="width100">';
+                    html += '<span>Me</span>';
+                    html += '</td>';
+                    html += '<td class="width100">';
+                    html += '<span>' + data[i].Createdon + '</span>';
+                    html += '</td>';
+                    //html += '<td class="width100 text-center">';
+                    //html += '<span class="size"> 52KB </span>';
+                    //html += '</td>';
+                    html += '<td>';
+                    html += '<span class="folder-name" style="color:' + data[i].CategoryColor + ' !important;">' + data[i].CategoryName + '</span>';
+                    html += '</td>';
+
+                    html += '<td><a style="margin:0px;float: inherit;" target="_blank" href="/DMS/Download?id=' + data[i].DocumentId + '"><i class="fa fa-cloud-download" aria-hidden="true"></i></a></td>';
+
+                    html += '</tr>';
+                }
+                $("#tblbodydocuments").html(html);
+
+                $("#tbldatatabledocuments").dataTable({
+                    "bDestroy": true
+                });
+            });
+        }
+            else {
+            alert("please Select Employee");
+            }
+    }
+    var currentfileid = 0;
+    function Onclicknametochange(id) {
+        currentfileid = id;
+        var text = $('#atext_' + id).text();
+        var input = $('<input id="attribute_' + id + '" type="text" value="' + text + '" />')
+        $('#atext_' + id).text('').append(input);
+        input.select();
+
+        input.blur(function () {
+            var text = $('#attribute_' + id).val();
+            $('#attribute_' + id).parent().text(text);
+            //alert(text);
+            updatefilename(id, text);
+        });
+        //$("#myModalRenamefile").modal('show');
+    }
+    function updatefilename(id, name) {
+        $.get("/DMS/ChangeNameOfdocument?id=" + id + "&name=" + name, function (data) {
+            console.log(data);
+        });
+    }
+    function ShowFiles(catname) {
+        if ($("#selUser").val() != null) {
+            var categoryname = '';
+            $("#lbltextcategory").html(catname);
+            switch (catname) {
+                case "Annual Health Check":
+                    categoryname = "AnnualHealthCheck";
+                    break;
+                case "Pre-Employment Health Check":
+                    categoryname = "PreEmploymentHealthCheck";
+                    break;
+                case "Background Verification":
+                    categoryname = "BackgroundVerification";
+                    break;
+                case "Training Records":
+                    categoryname = "TrainingRecords";
+                    break;
+                case "Miscellaneous":
+                    categoryname = "Miscellaneous";
+                    break;
+                case "Probation & Confirmation":
+                    categoryname = "ProbationandConfirmation";
+                    break;
+                case "Privileges":
+                    categoryname = "Privileges";
+                    break;
+                case "Performance Appraisals":
+                    categoryname = "PerformanceAppraisals";
+                    break;
+                case "Appointment Letter":
+                    categoryname = "AppointmentLetter";
+                    break;
+
+                case "Job Description":
+                    categoryname = "JobDescription";
+                    break;
+                case "Joining Report":
+                    categoryname = "JoiningReport";
+                    break;
+                case "Resume":
+                    categoryname = "Resume";
+                    break;
+
+                case "Registrations":
+                    categoryname = "Registrations";
+                    break;
+                case "Qualification Certificates":
+                    categoryname = "QualificationCertificates";
+                    break;
+                case "Experience Letters":
+                    categoryname = "ExperienceLetters";
+                    break;
+
+                case "Address Proof":
+                    categoryname = "AddressProof";
+                    break;
+                case "PhotoGraph":
+                    categoryname = "PhotoGraph";
+                    break;
+
+            }
+            $.get("/DMS/GetEmployeeDocuments?empid=" + $("#hidempid").val(), function (data) {
+                $("#Categoriesdiv").hide(); $("#showfiles").show();
+                var html = '';
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].CategoryName != null && data[i].CategoryName == categoryname) {
+                        //html += "<option value='" + data[i].Id + "'>" + data[i].Name + "</option>";
+                        html += '<tr>';
+                        html += '<td class="width45">';
+                        if (data[i].DocumentUrl.includes(".xls")) {
+                            html += '<i class="fa fa-file-excel-o text-success"></i>';
+                        } else if (data[i].DocumentUrl.includes(".doc")) {
+                            html += '<i class="fa fa-file-word-o text-warning"></i>';
+                        } else if (data[i].DocumentUrl.includes(".pdf")) {
+                            html += '<i class="fa fa-file-pdf-o text-primary"></i>';
+                        }
+                        else if (data[i].DocumentUrl.includes(".png") || data[i].DocumentUrl.includes(".jpg") || data[i].DocumentUrl.includes(".jpeg")) {
+                            html += '<i class="fa fa-file-image-o text-info"></i>';
+                        } else {
+                            html += '<i class="fa fa-file-o text-danger" aria-hidden="true"></i>'
+                        }
+                        html += '</td>';
+                        html += '<td>';
+                        html += '<span class="folder-name"><label id="atext_' + data[i].DocumentId + '" style="margin:0px;float: inherit; color:' + data[i].CategoryColor + ' !important;" >' + data[i].DocumentName + '</label> <i id="' + data[i].DocumentId + '" style="cursor:pointer;" onclick="Onclicknametochange(this.id)" class="fa fa-edit"></i></span>';
+
+                        html += '</td>';
+                        html += '<td><a style="margin:0px;float: inherit;" href="javascript:void(0);" id="' + data[i].DocumentId + '" onclick="openfile(this.id)"><i class="fa fa-cloud-download" aria-hidden="true"></i></a></td>';
+                        html += '<td>';
+                        html += '<span>' + data[i].Remarks + '</span>';
+                        html += '</td>';
+                        html += ' <td class="width100">';
+                        html += '<span>' + data[i].Createdby + '</span>';
+                        html += '</td>';
+                        html += '<td class="width100">';
+                        html += '<span>' + data[i].Createdon + '</span>';
+                        html += '</td>';
+                        //html += '<td class="width100 text-center">';
+                        //html += '<span class="size"> 52KB </span>';
+                        //html += '</td>';
+                        html += '<td>';
+                        html += '<span class="folder-name" style="color:' + data[i].CategoryColor + ' !important;">' + data[i].CategoryName + '</span>';
+                        html += '</td>';
+
+
+
+                        html += '</tr>';
+                    }
+                }
+                $("#tblbodydocuments").html(html);
+            });
+        }
+        else {
+            alert("Please select Employee");
+        }
+    }
+    function openfile(id) {
+        var url = '/DMS/Preview?id=' + id;
+        window.open(url);
+    }
+    function backtohome() {
+        $("#lbltextcategory").html("");
+        $("#Categoriesdiv").show();
+        $("#showfiles").hide();
+    }
+    $(document).ready(function () {
+        $("#selUser").select2({
+            ajax: {
+                url: "/Home/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 4
+        });
+    });
+    function onclickshowthemployee() {
+        $.get("/DMS/GetEmployeesDocumentUploaded", function (data) {
+            console.log(data);
+            var html = "";
+            for (var i = 0; i < data.length; i++) {
+                html += "<tr>";
+                html += "<td>" + data[i].EmpId + "</td>";
+                html += "<td>" + data[i].FirstName + "</td>";
+                html += "<td>" + data[i].LocationName + "</td>";
+                html += "<td>" + data[i].DepartmentName + "</td>";
+                html += "<td>" + data[i].Designation + "</td>";
+                html += "<td>" + data[i].count + "</td>";
+                html += "</tr>";
+            }
+            $("#divhtmlemployeebody").html(html);
+            $("#divhtmlemployee").css("display", "block");
+        });
+    }
+</script>
+<style>
+    .documentview .glyphicon {
+        font-size: 100px !important;
+    }
+</style>
+<input type="hidden" id="hidempid" />
+
+<div class="block" style="height:100%; border:solid 1px #eee;">
+    <h2 style="text-transform:none;">Manage Documents</h2>
+    <div class="row" style="padding:5px;">
+        <div class="col-12 col-sm-3 col-xl d-flex">
+            <div class="card flex-fill" style="background-color:#3598dc; color:white; text-align:center;border-radius:20px;">
+                <div class="card-body py-4">
+                    <div class="media">
+                        <div class="d-inline-block mt-2 mr-3 col-md-3">
+                            <h3><i class="glyphicon glyphicon-file"></i></h3>
+                        </div>
+                        <div class="media-body">
+                            <h3 class="mb-2" style="margin-top:5px;">
+                                @if (ViewBag.TotalDocuments != null)
+                                {
+                                    @ViewBag.TotalDocuments;
+                                }
+                            </h3>
+                            <div class="mb-0">Total Documents</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-3 col-xl d-flex">
+            <div class="card flex-fill" style="background-color:#E67D21; color:white;text-align:center;border-radius:20px;">
+                <div class="card-body py-4">
+                    <div class="media">
+                        <div class="d-inline-block mt-2 mr-3 col-md-3">
+                            <h3 style="cursor:pointer;" onclick="onclickshowthemployee();"><i class="glyphicon glyphicon-cloud"></i></h3>
+                        </div>
+                        <div class="media-body">
+                            <h3 class="mb-2" style="margin-top:5px; cursor:pointer;" onclick="onclickshowthemployee();">
+                                @if (ViewBag.TotalEmployeeDocuments != null)
+                                {
+                                    @ViewBag.TotalEmployeeDocuments;
+                                }
+                            </h3>
+                            <div class="mb-0" style="cursor:pointer;" onclick="onclickshowthemployee();">Employees Document Uploaded</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-3 col-xl d-flex">
+            <div class="card flex-fill" style="background-color:#5FC29D; color:white;text-align:center;border-radius:20px;">
+                <div class="card-body py-4">
+                    <div class="media">
+                        <div class="d-inline-block mt-2 mr-3  col-md-3">
+                            <h3><i class="glyphicon glyphicon-user"></i></h3>
+                        </div>
+                        <div class="media-body">
+                            <h3 class="mb-2" style="margin-top:5px;">
+                                @if (ViewBag.TotalEmployees != null)
+                                {
+                                    @ViewBag.TotalEmployees;
+                                }
+                            </h3>
+                            <div class="mb-0">Total Employees</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-3 col-xl d-flex">
+            <div class="card flex-fill" style="background-color:#8E44AD; color:white;text-align:center;border-radius:20px;">
+                <div class="card-body py-4">
+                    <div class="media">
+                        <div class="d-inline-block mt-2 mr-3 col-md-3">
+                            <h3><i class="glyphicon glyphicon-th"></i></h3>
+                        </div>
+                        <div class="media-body">
+                            <h3 class="mb-2" style="margin-top:5px;">
+                                17
+                            </h3>
+                            <div class="mb-0">Total Categories</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12" id="divhtmlemployee" style="display:none; max-height:400px;overflow-y:scroll;">
+            <table class="table table-bordered">
+                <thead>
+                    <tr style="background-color:lightgray;">
+                        <th>Emp Id</th>
+                        <th>Name</th>
+                        <th>Location</th>
+                        <th>Department</th>
+                        <th>Designation</th>
+                        <th>Count</th>
+                    </tr>
+                </thead>
+                <tbody id="divhtmlemployeebody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="top">
+        <h2 style="text-transform:none; text-align:center; background:white;color:steelblue;">Search <i class="fa fa-user" style="color:#2bbbad;" aria-hidden="true"></i> <select id="selUser" onchange="Onchangeloadprofile();" class="form-control typeahead border-primary" name="query" data-provide="typeahead" autocomplete="off"></select><a href="/HrAdmin/AddEmployee"><i class="fa fa-plus" style="cursor:pointer; color:#1A5089;font-size:20px;"></i></a></h2>
+    </div>
+    <div class="block-middle contact2" style="height:100%;">
+
+        <div style="width:100%;">
+
+            <div class="user">
+                <table class="table table-bordered table-striped" style="width:100%;">
+                    <tr>
+                        <td>
+                            <span id="profp_empname" style="color:#1A5089; text-align:center;float:inherit;"></span> <br>
+                            <strong style="color: #c4122f;" id="profp_designation"></strong>
+                        </td>
+                        <td>
+                            Location <br>
+                            <strong style="color: #c4122f;" id="profp_location"></strong>
+                        </td>
+                        <td>
+                            Department <br>
+                            <strong style="color: #c4122f;" id="profp_dept"></strong>
+                        </td>
+                        <td>
+                            CUG number <br>
+                            <strong style="color: #c4122f;" id="profp_phone"></strong>
+                        </td>
+
+                        <td>
+                            Extenstion <br>
+                            <strong style="color: #c4122f;" id="profp_Extenstion"></strong>
+                        </td>
+                        <td>
+                            Email <br>
+                            <strong style="color: #c4122f;" id="profp_Email"></strong>
+                        </td>
+                        <td>
+                            DOJ<br />
+                            <strong style="color: #c4122f;" id="profp_DOJ"></strong>
+                        </td>
+                    </tr>
+                </table>
+                <div class="clearfix"></div>
+                <br />
+            </div>
+            <div class="card">
+                <div class="card-body pt-0 documentview" style="width:99%;margin:auto;">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb">
+                                    <li class="breadcrumb-item" style="cursor:pointer;" onclick="backtohome();" aria-current="page">Home</li>
+                                    <li class="breadcrumb-item" aria-current="page" id="lbltextcategory"></li>
+                                </ol>
+                            </nav>
+                        </div>
+                        <div class="col-md-6" style="font-size:20px;color:#1A5089;">
+                            @*<p data-toggle="modal" data-target="#myModalCategoryType" style="cursor:pointer;"><i class="fa fa-cloud-upload" style="cursor:pointer; font-size:23px;" aria-hidden="true"></i>&nbsp;Upload</p>*@
+                        </div>
+                    </div>
+                    <div id="Categoriesdiv">
+                        <div class="row">
+                            <div class="col-md-2" style="text-align:center;">
+                                <i style="color:#2BBBAD; cursor:pointer;" onclick="ShowFiles('Annual Health Check');" class="glyphicon glyphicon-folder-close"></i><br /><br />
+                                <p style="color:#2BBBAD; cursor:pointer;" onclick="ShowFiles('Annual Health Check');">Annual Health Check</p>
+                            </div>
+                            <div class="col-md-2" style="text-align:center;">
+                                <i style="color:#0099CC;cursor:pointer;" onclick="ShowFiles('Pre-Employment Health Check');" class="glyphicon glyphicon-folder-close"></i><br /><br />
+                                <p style="color:#0099CC;cursor:pointer;" onclick="ShowFiles('Pre-Employment Health Check');">Pre-Employment Health Check</p>
+                            </div>
+                            <div class="col-md-2" style="text-align:center;">
+                                <i style="color:#aa66cc;cursor:pointer;" onclick="ShowFiles('Background Verification');" class="glyphicon glyphicon-folder-close"></i><br /><br />
+                                <p style="color:#aa66cc;cursor:pointer;" onclick="ShowFiles('Background Verification');">Background Verification</p>
+                            </div>
+                            <div class="col-md-2" style="text-align:center;">
+                                <i style="color:#00695c;cursor:pointer;" onclick="ShowFiles('Training Records');" class="glyphicon glyphicon-folder-close"></i><br /><br />
+                                <p style="color:#00695c;cursor:pointer;" onclick="ShowFiles('Training Records');">Training Records</p>
+                            </div>
+                            <div class="col-md-2" style="text-align:center;">
+                                <i style="color:#0d47a1;cursor:pointer;" onclick="ShowFiles('Miscellaneous');" class="glyphicon glyphicon-folder-close"></i><br /><br />
+                                <p style="color:#0d47a1;cursor:pointer;" onclick="ShowFiles('Miscellaneous');">Miscellaneous</p>
+                            </div>
+                            <div class="col-md-2" style="text-align:center;">
+                                <i style="color:#bf360c;cursor:pointer;" onclick="ShowFiles('Probation & Confirmation');" class="glyphicon glyphicon-folder-close"></i><br /><br />
+                                <p style="color:#bf360c;cursor:pointer;" onclick="ShowFiles('Probation & Confirmation');">Probation & Confirmation</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2" style="text-align:center;">
+                                <i style="color:#c51162;cursor:pointer;" onclick="ShowFiles('Privileges');" class="glyphicon glyphicon-folder-close"></i><br /><br />
+                                <p style="color:#c51162;cursor:pointer;" onclick="ShowFiles('Privileges');">Privileges</p>
+                            </div>
+                            <div class="col-md-2" style="text-align:center;">
+                                <i style="color:#64dd17;cursor:pointer;" onclick="ShowFiles('Performance Appraisals');" class="glyphicon glyphicon-folder-close"></i><br /><br />
+                                <p style="color:#64dd17;cursor:pointer;" onclick="ShowFiles('Performance Appraisals');">Performance Appraisals</p>
+                            </div>
+                            <div class="col-md-2" style="text-align:center;">
+                                <i style="color:#ff6f00;cursor:pointer;" onclick="ShowFiles('Appointment Letter');" class="glyphicon glyphicon-folder-close"></i><br /><br />
+                                <p style="color:#ff6f00;cursor:pointer;" onclick="ShowFiles('Appointment Letter');">Appointment Letter</p>
+                            </div>
+                            <div class="col-md-2" style="text-align:center;">
+                                <i style="color:#00c853;cursor:pointer;" onclick="ShowFiles('Job Description');" class="glyphicon glyphicon-folder-close"></i><br /><br />
+                                <p style="color:#00c853;cursor:pointer;" onclick="ShowFiles('Job Description');">Job Description</p>
+                            </div>
+                            <div class="col-md-2" style="text-align:center;">
+                                <i style="color:#1b5e20;cursor:pointer;" onclick="ShowFiles('Joining Report');" class="glyphicon glyphicon-folder-close"></i><br /><br />
+                                <p style="color:#1b5e20;cursor:pointer;" onclick="ShowFiles('Joining Report');">
+                                    Joining Report
+                                </p>
+                            </div>
+                            <div class="col-md-2" style="text-align:center;">
+                                <i style="color:#00b8d4;cursor:pointer;" onclick="ShowFiles('Resume');" class="glyphicon glyphicon-folder-close"></i><br /><br />
+                                <p style="color:#00b8d4;cursor:pointer;" onclick="ShowFiles('Resume');">Resume</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2" style="text-align:center;">
+                                <i style="color:#827717;cursor:pointer;" onclick="ShowFiles('Registrations');" class="glyphicon glyphicon-folder-close"></i><br /><br />
+                                <p style="color:#827717;cursor:pointer;" onclick="ShowFiles('Registrations');">Registrations</p>
+                            </div>
+                            <div class="col-md-2" style="text-align:center;">
+                                <i style="color:#aa00ff;cursor:pointer;" onclick="ShowFiles('Qualification Certificates');" class="glyphicon glyphicon-folder-close"></i><br /><br />
+                                <p style="color:#aa00ff;cursor:pointer;" onclick="ShowFiles('Qualification Certificates');">Qualification Certificates</p>
+                            </div>
+                            <div class="col-md-2" style="text-align:center;">
+                                <i style="color:#01579b;cursor:pointer;" onclick="ShowFiles('Experience Letters');" class="glyphicon glyphicon-folder-close"></i><br /><br />
+                                <p style="color:#01579b;cursor:pointer;" onclick="ShowFiles('Experience Letters');">Experience Letters</p>
+                            </div>
+                            <div class="col-md-2" style="text-align:center;">
+                                <i style="color:#64ffda;cursor:pointer;" onclick="ShowFiles('Address Proof');" class="glyphicon glyphicon-folder-close"></i><br /><br />
+                                <p style="color:#64ffda;cursor:pointer;" onclick="ShowFiles('Address Proof');">Address Proof</p>
+                            </div>
+                            <div class="col-md-2" style="text-align:center;">
+                                <i style="color:crimson;cursor:pointer;" onclick="ShowFiles('Photograph');" class="glyphicon glyphicon-folder-close"></i><br /><br />
+                                <p style="color:crimson;cursor:pointer;" onclick="ShowFiles('Photograph');">Photograph</p>
+                            </div>
+                            <div class="col-md-2" style="text-align:center;">
+                                &nbsp;
+                            </div>
+                        </div>
+                    </div>
+                    <div id="showfiles" style="display:none;">
+                        <div class="table-responsive" style="width:95%;margin:auto;">
+                            <table class="table table-hover table-vcenter table_custom text-nowrap spacing5 text-nowrap mb-0" id="tbldatatabledocuments">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th style="color:#1A5089;">Name</th>
+                                        <th></th>
+                                        <th style="color:#1A5089;">Comments</th>
+                                        <th style="color:#1A5089;">Owner</th>
+                                        <th style="color:#1A5089;">Last Update</th>
+                                        <th style="color:#1A5089;">Category</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody id="tblbodydocuments">
+                                </tbody>
+                            </table>
+                            <br />
+                        </div>
+                    </div>
+                    <br /><br /><br />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<br />
+<style>
+    .card span {
+        color: black !important;
+        font-weight: normal;
+        font-size: 12px;
+        float: inherit;
+    }
+    /* The "show" class is added to the filtered elements */
+    .show {
+        display: block;
+    }
+
+    .contact2 .table th, .contact2 .table td {
+        padding: 5px !important;
+    }
+
+    .block-middle span {
+        margin: 5px !important;
+    }
+
+    .contact2 a {
+        margin: 0px;
+    }
+</style>

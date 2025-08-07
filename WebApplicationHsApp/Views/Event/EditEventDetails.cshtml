@@ -1,0 +1,519 @@
+﻿
+@{
+    ViewBag.Title = "EditEventDetails";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <input type="hidden" id="eEventId" />
+                <input type="hidden" id="EventMealTypeId" />
+                <label for="eName">Name<span style="color:red;">&nbsp;*</span></label>
+                <input type="text" class="form-control" id="eName">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label for="eDescription">Description<span style="color:red;">&nbsp;*</span></label>
+                <input type="text" class="form-control" id="eDescription">
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="form-group">
+                <label for="eStartDate">start date<span style="color:red;">&nbsp;*</span></label>
+                <input type="text" class="form-control" style="background-color: #fff;" readonly id="eStartDate" />
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="form-group">
+                <label for="eEndDate">End date<span style="color:red;">&nbsp;*</span></label>
+                <input type="text" class="form-control" style="background-color: #fff;" readonly id="eEndDate">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label for="eComments">Comments<span style="color:red;">&nbsp;*</span></label>
+                <input type="text" class="form-control" id="eComments">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label for="eLocation">Location<span style="color:red;">&nbsp;*</span></label>
+                <input type="text" class="form-control" id="eLocation">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label for="eStatus">Status<span style="color:red;">&nbsp;*</span></label>
+                <input type="text" class="form-control" id="eStatus">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label for="eStatus">No of Seats<span style="color:red;">&nbsp;*</span></label>
+                <input type="text" class="form-control" onKeyPress="return isNumber(event);" id="eNoofSeats">
+            </div>
+        </div>
+        <div class="col-md-3">
+
+            <label for="eworkshop">Conference/Workshop<span style="color:red;">&nbsp;*</span></label>
+
+            <div class="form-group">
+
+                <label class="btn btn-primary">
+                    <input type="checkbox" id="eWorkshop" autocomplete="off">
+                    <span>Workshop</span>
+                </label>
+                <label class="btn btn-primary">
+                    <input type="checkbox" id="eConference" autocomplete="off">
+                    <span>Conference</span>
+                </label>
+
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label for="eDocument1">Document1</label>
+                <input type="file" class="form-control" id="eDocument1">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label for="eDocument2">Document2</label>
+                <input type="file" class="form-control" id="eDocument2">
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label for="eDocument3">Document3</label>
+                <input type="file" class="form-control" id="eDocument3">
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label for="eEventDate">Event Date<span style="color:red;">&nbsp;*</span></label>
+                <input type="text" class="form-control" style="background-color: #fff;" readonly id="eEventDate" />
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label for="eName">Select Meal<span style="color:red;">&nbsp;*</span></label>
+                <select class="form-control" id="mMealType"></select>
+            </div>
+        </div>
+        @*<div class="col-md-3">
+                <div class="form-group">
+                    <label for="mComments">Meal Comments<span style="color:red;">&nbsp;*</span></label>
+                    <input class="form-control" type="text" id="mComments" />
+                </div>
+            </div>*@
+        <div class="col-md-3">
+            <div class="form-group" style="margin-top:25px;">
+                <input type="button" class="btn btn-primary" value="ADD Meal" onclick="validateMeal();" />
+            </div>
+        </div>
+        <table class="table" id="tblMealTypes">
+            <thead>
+                <tr>
+                    <th>Event Date</th>
+                    <th>Meal</th>
+                    @*<th>Comments</th>*@
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+    <div class="row">
+        <div class="form-group">
+            <div class="col-sm-2" style="float: right;">
+                <input type="button" class="btn btn-primary" value="Update" id="btnSave" onclick="validateEvent();" />&nbsp;&nbsp;
+                <input type="button" class="btn btn-primary" value="Clear" id="btnClear" onclick="clearData();" />
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="DeleteConfirmation">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4>Delete  Record</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" class="form-control" id="Cid">
+                <h4>Are You Sure? You Want To Delete This Record.</h4>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-primary" data-dismiss="modal" id="r">Cancel</a>
+                <a href="#" class="btn btn-danger" onclick="ConfirmDelete()">Confirm</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var validate = true;
+    $(document).ready(function () {
+        BindMealTypes();
+        var eventId = window.location.search;
+        eventId = eventId.split("?")[1].split("=")[1];
+        if (parseInt(eventId)) {
+            EditEventDetails(eventId);
+        }
+        var rowCount = $('#tblMealTypes tr').length;
+        if (rowCount < 2) {
+            $('#tblMealTypes').hide();
+        }
+
+        var dtToday = new Date();
+        showDate(dtToday, "eStartDate");
+        showDate(dtToday, "eEndDate");
+        showDate(dtToday, "eEventDate");
+        $("#eStartDate").change(function () {
+            var dtToday = new Date($('#eStartDate').val());
+            showDate(dtToday, "eEndDate");
+            showDate(dtToday, "eEventDate");
+            $('#eEndDate').val('');
+            $('#eEventDate').val('');
+        });
+        function showDate(date, dID) {
+            var dtToday = new Date(date);
+            var month = dtToday.getMonth();
+            var day = dtToday.getDate();
+            var year = dtToday.getFullYear();
+            if (month < 10)
+                month = '0' + month.toString();
+            if (day < 10)
+                day = '0' + day.toString();
+            var maxDate = day + '/' + month + '/' + year;
+            $("#" + dID).datepicker({
+                changeYear: true,
+                changeMonth: true,
+                minDate: maxDate,
+                yearRange: "0:+1",
+                dateFormat: "dd-M-yy",
+            }).val();
+            $("#" + dID).datepicker("option", "minDate", new Date(year, month, day, 1));
+        }
+    });
+
+    function validateEvent() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#eName").val() == "") {
+            $("#eName").addClass('css-error');
+            validate = false;
+        }
+        if ($("#eDescription").val() == "") {
+            $("#eDescription").addClass('css-error');
+            validate = false;
+        }
+        if ($("#eStartDate").val() == "") {
+            $("#eStartDate").addClass('css-error');
+            validate = false;
+        }
+        if ($("#eEndDate").val() == "") {
+            $("#eEndDate").addClass('css-error');
+            validate = false;
+        }
+        if ($("#eComments").val() == "") {
+            $("#eComments").addClass('css-error');
+            validate = false;
+        }
+        if ($("#eStatus").val() == "") {
+            $("#eStatus").addClass('css-error');
+            validate = false;
+        }
+        if ($("#eNoofSeats").val() == "") {
+            $("#eNoofSeats").addClass('css-error');
+            validate = false;
+        }
+        else if (parseInt($("#eNoofSeats").val()) <= 0) {
+            alert("No of seat greater than 0");
+            return false;
+        }
+        if (validate) {
+            UpdateEventDetails();
+        }
+    }
+    function validateMeal() {
+        var valid = true;
+        $(".css-error").removeClass('css-error');
+
+        if ($("#eStartDate").val() == "") {
+            $("#eStartDate").addClass('css-error');
+            valid = false;
+        }
+        if ($("#eEndDate").val() == "") {
+            $("#eEndDate").addClass('css-error');
+            valid = false;
+        }
+        if ($("#eEventDate").val() == "") {
+            $("#eEventDate").addClass('css-error');
+            valid = false;
+        }
+        if ($("#mMealType").val() == "-1") {
+            $("#mMealType").addClass('css-error');
+            valid = false;
+        }
+
+        if (valid) {
+            var startDate = new Date($("#eStartDate").val());
+            var endDate = new Date($("#eEndDate").val());
+            var eventDate = new Date($("#eEventDate").val());
+            if (eventDate > endDate) {
+                $("#eEventDate").addClass('css-error');
+                alert('select event date must be lesserthan event end date.');
+                valid = false;
+            } else if (eventDate < startDate) {
+                $("#eEventDate").addClass('css-error');
+                alert('select event date must be greateerthan event start date.');
+                valid = false;
+            }
+        }
+        if (valid) {
+            var meals = document.getElementById("mMealType");
+            var selMeal = meals.options[meals.selectedIndex].text;
+            var rowCount = $('#tblMealTypes tr').length;
+            $('#tblMealTypes tbody').append('<tr><td>' + $("#eEventDate").val() + '</td><td><input id="EventMealTypeId" type="hidden" value="0" /><input id="mealTypeId" type="hidden" value="' + $('#mMealType').val() + '" /><span>' + selMeal + '</span></td><td><button type="button" class="btn btn-primary" value="Delete" onclick="DeleteMeal()"<span class="glyphicon glyphicon-trash"></span>&nbsp;Delete</button></td> </tr > ');
+            $("#eEventDate").val('');
+            //$("#mComments").val('');
+
+            $('#tblMealTypes').show();
+            BindMealTypes();
+        }
+    }
+    function UpdateEventDetails() {
+        if (validate) {
+            var fileData = new FormData();
+            var files = new Array();
+            files.push($("#eDocument1").get(0).files != undefined && $("#eDocument1").get(0).files.length > 0 ? $("#eDocument1").get(0).files[0] : null);
+            files.push($("#eDocument2").get(0).files != undefined && $("#eDocument2").get(0).files.length > 0 ? $("#eDocument2").get(0).files[0] : null);
+            files.push($("#eDocument3").get(0).files != undefined && $("#eDocument3").get(0).files.length > 0 ? $("#eDocument3").get(0).files[0] : null);
+            for (var i = 0; i < files.length; i++) {
+                if (files[i] != null) {
+                    fileData.append("httpPostedFileBase", files[i]);
+                }
+                fileData.append("Document" + (i + 1), files[i] == null ? '' : files[i].name);
+            }
+            // Event Details
+            fileData.append('EventId', $("#eEventId").val());
+            fileData.append('Name', $("#eName").val());
+            fileData.append('Description', $("#eDescription").val());
+            fileData.append('EventStartDate', $("#eStartDate").val());
+            fileData.append('EventEndDate', $("#eEndDate").val());
+            fileData.append('EventComments', $("#eComments").val());
+            fileData.append('EventLocation', $("#eLocation").val());
+            fileData.append('NumberOfSeats', $("#eNoofSeats").val());
+            fileData.append('Workshop', $("#eWorkshop").is(":checked"));
+            fileData.append('Conference', $("#eConference").is(":checked"));
+            fileData.append('IsActive', true);
+            fileData.append('EventStatus', $("#eStatus").val());
+            //MealDetails.
+            var mealTypes = new Array();
+            $("#tblMealTypes tbody tr").each(function () {
+                var meal = {};
+                meal.EventId = "1";
+                meal.EventMealTypeId = $(this).find("input").eq(0).val();
+                meal.MealTypeId = $(this).find("input").eq(1).val();
+                meal.EventDate = $(this).find("TD").eq(0).html();
+                meal.IsActive = true;
+                meal.CreatedBy = "";
+                meal.Comments = "";
+                mealTypes.push(meal);
+
+            });
+            $.ajax({
+                type: "POST",
+                url: "/Event/SaveEventDetails",
+                contentType: false, // Not to set any content header
+                processData: false, // Not to process data
+                data: fileData,
+                success: function (result) {
+                    if (parseInt(result) > 0) {
+                        for (var i = 0; i < mealTypes.length; i++) {
+                            var formData = new FormData();
+                            formData.append("EventId", result)
+                            formData.append("EventMealTypeId", mealTypes[i].EventMealTypeId);
+                            formData.append("MealTypeId", mealTypes[i].MealTypeId);
+                            formData.append("EventDate", mealTypes[i].EventDate);
+                            formData.append("IsActive", mealTypes[i].IsActive);
+                            formData.append("CreatedBy", mealTypes[i].CreatedBy);
+                            //formData.append("Comments", mealTypes[i].Comments);
+
+                            $.ajax({
+                                type: "POST",
+                                url: "/Event/SaveMealTypes",
+                                datatype: 'json',
+                                contentType: false, // Not to set any content header
+                                processData: false, // Not to process data
+                                data: formData,
+                                success: function (result) {
+                                },
+                                error: function (err) {
+                                    alert(err.statusText);
+                                    clearData();
+                                }
+                            });
+                        }
+                    }
+                    alert("Updated Successfully.");
+                    clearData();
+                    window.location = "EventDetails";
+                },
+                error: function (err) {
+                    alert(err.statusText);
+                    clearData();
+                }
+            });
+        }
+    }
+    function clearData() {
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        $("#eEventId").val("");
+        $("#eName").val("");
+        $("#eDescription").val("");
+        $("#eStartDate").val("");
+        $("#eEndDate").val("");
+        $("#eComments").val("");
+        $("#eLocation").val("");
+        $("#eNoofSeats").val("");
+        $("#eStatus").val("");
+        $("#eWorkshop").prop('checked', false);
+        $("#eConference").prop('checked', false);
+        $("#eDocument1").val(null);
+        $("#eDocument2").val(null);
+        $("#eDocument3").val(null);
+        $('#tblMealTypes').html('');
+        $('#tblMealTypes').hide();
+
+    }
+
+    function EditEventDetails(eventId) {
+        var Url = "/Event/GetEventDetails?eventId=" + eventId;
+        $.ajax({
+            type: "GET",
+            url: Url,
+            success: function (data) {
+                var obj = data;
+                $("#eEventId").val(obj.EventId);
+                $("#eName").val(obj.Name);
+                $("#eDescription").val(obj.Description);
+                $("#eStartDate").val(dateFormat(obj.EventStartDate.replace('/Date(', '').replace(')/', '')));
+                $("#eEndDate").val(dateFormat(obj.EventEndDate.replace('/Date(', '').replace(')/', '')));
+                $("#eComments").val(obj.EventComments);
+                $("#eLocation").val(obj.EventLocation);
+                $("#eStatus").val(obj.EventStatus);
+                $("#eNoofSeats").val(obj.NumberOfSeats);
+                $("#eWorkshop").prop("checked", obj.Workshop);
+                $("#eConference").prop("checked", obj.Conference);
+                BindMealTypes();
+                var Url = "/Event/GetMealTypeDetails?eventId=" + eventId;
+                $.ajax({
+                    type: "GET",
+                    url: Url,
+                    success: function (data) {
+
+                        var obj = data;
+                        for (var i = 0; i < obj.length; i++) {
+                            $('#tblMealTypes').show();
+                            $('#mMealType').val(obj[i].MealTypeId);
+                            var meals = document.getElementById("mMealType");
+                            var selMeal = meals.options[document.getElementById("mMealType").selectedIndex].text;
+                            $('#tblMealTypes tbody').append('<tr><td>' + dateFormat(obj[i].EventDate.replace('/Date(', '').replace(')/', '')) + '</td><td><input id="EventMealTypeId" type="hidden" value="' + obj[i].EventMealTypeId + '" /><input id="mealTypeId" type="hidden" value="' + obj[i].MealTypeId + '" /><span>' + selMeal + '</span></td><td>' + obj[i].Comments + '</td><td> <button type="button" class="btn btn-primary" value="Delete" onclick="DeleteMeal()"<span class="glyphicon glyphicon-trash"></span>&nbsp;Delete</button></td> </tr > ');
+                            $('#mMealType').val("-1");
+                        }
+                    }
+                });
+                BindMealTypes();
+            }
+        });
+        var dtToday = new Date($('#eStartDate').val());
+        //  showDate(dtToday, "eStartDate");
+        //showDate(dtToday, "eEndDate");
+    }
+    function dateFormat(date) {
+        var dtToday = new Date(parseInt(date));
+        var monthNames = ["Jan", "Feb", "Mar", "April", "May", "Jun", "July", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        var day = dtToday.getDate();
+        var monthIndex = dtToday.getMonth();
+        var year = dtToday.getFullYear();
+        var index = parseInt(monthIndex) + 1;
+        if (day <= 9)
+            day = '0' + day;
+        if (index <= 9)
+            index = '0' + index;
+
+        return day + '-' + monthNames[monthIndex] + '-' + year;
+    }
+
+    function BindMealTypes() {
+        $.ajax({
+            type: "POST",
+            url: "/Event/GetMealTypes?eventId=0",
+            dataType: "json",
+            contentType: "application/json",
+            success: function (data) {
+                $("#mMealType").html('');
+                var optionhtml = '<option value="-1">' + "-- Select Meal --" + '</option>';
+                $.each(data, function (i) {
+                    optionhtml += '<option value="' + data[i].Value + '">' + data[i].Text + '</option>';
+
+                });
+                $("#mMealType").append(optionhtml);
+            }
+
+        });
+
+    }
+    function DeleteMeal() {
+        $('#tblMealTypes tbody tr').click(function (event) {
+            var id = $(this).find("input").eq(0).val();
+            if (id > 0) {
+                $('#EventMealTypeId').val(id);
+                $("#DeleteConfirmation").modal("show");
+            }
+            $(this).addClass('selected').siblings().removeClass('selected');
+            $(this).remove();
+        });
+    }
+
+    //Number Validation
+    function isNumber(evt) {
+        evt = (evt) ? evt : window.event;
+        var charCode = (evt.which) ? evt.which : evt.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode != 46) {
+            return false;
+        }
+        return true;
+    }
+    function DeleteEventDetails(EventMealTypeId) {
+        var Url = "/Event/DeleteMealType?EventMealTypeId=" + $('#EventMealTypeId').val();
+        $.ajax({
+            type: "GET",
+            url: Url,
+            success: function (data) {
+                $("#DeleteConfirmation").modal("hide");
+            }
+        });
+    }
+    var ConfirmDelete = function () {
+        $.ajax({
+            type: "POST",
+            url: "/Event/DeleteMealType?EventMealTypeId=" + $('#EventMealTypeId').val(),
+            success: function (result) {
+                $("#DeleteConfirmation").modal("hide");
+            }
+        })
+
+    }
+</script>

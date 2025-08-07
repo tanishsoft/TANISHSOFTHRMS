@@ -1,0 +1,148 @@
+﻿
+@{
+    ViewBag.Title = "PatientTransferUpdate";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+</style>
+
+<script src="~/Scripts/jSignature.min.js"></script>
+<!--[if lt IE 9]>
+<script  type="text/javascript" src="~/Scripts/flashcanvas.js"></script>
+    <![endif]-->
+<script>
+    var $sigdiv, $sigdiv2, id = 0;
+    $(document).ready(function () {
+        $sigdiv = $("#captureSignature").jSignature({ 'UndoButton': true });
+        ViewDetails();
+        LoadLocations();
+    });
+    function Cancel() {
+        window.location.replace("/Register/PatientTransfer");
+    }
+    function SaveUserSignoff() {
+        var model = {
+            id: $("#hidBreakdownid").val(),
+            signature: "data:" + $sigdiv.jSignature('getData', 'image').toString(),
+            userempId: $("#LocationId option:selected").text(),
+            remarks: $("#txtremarks").val()
+        }
+        $.post('/Register/SavePatientTransferUpdate', model, function (data) {
+            alert("Successfully updated");
+            window.location.replace("/Register/PatientTransfer");
+        });
+    }
+    function GetDatestr(date) {
+        if (date != null && date != "") {
+            var d = new Date(parseInt(date.substr(6)));
+            return d.toLocaleString("en-GB");
+        } else {
+            return '';
+        }
+    }
+    function ViewDetails() {
+        $.get("/Register/GetRegister_PatientTransfer?id=" + $("#hidBreakdownid").val(), function (data) {
+            html += "<tr><td>Patient Mr No</td><td>" + data.PatientMRNo + "</td></tr>";
+            html += "<tr><td>Patient Name</td><td>" + data.NameOfPatient + "</td></tr>";
+            html += "<tr><td>From Location</td><td>" + data.FromLocation + "</td></tr>";
+            html += "<tr><td>To Location</td><td>" + data.ToLocation + "</td></tr>";
+            html += "<tr><td>Out Date</td><td>" + GetDatestr(data.OutDateTime) + "</td></tr>";
+            html += "<tr><td>Nurse Incharge</td><td>" + data.NurseIncharge + "</td></tr>";
+            html += "<tr><td>Security Supervisor</td><td>" + data.SecuritySupervisor + "</td></tr>";
+            html += "<tr><td>Security</td><td>" + data.Security + "</td></tr>";
+            html += "<tr><td>Out Remarks</td><td>" + data.OutRemarks + "</td></tr>";
+            if (data.SecuritySign != null && data.SecuritySign != "") {
+                html += "<tr><td>Security Sign</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.SecuritySign + "' /></td></tr>";
+            }
+            if (data.NurseInchargeSign != null && data.NurseInchargeSign != "") {
+                html += "<tr><td>Nurse InCharge Sign</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.NurseInchargeSign + "' /></td></tr>";
+            }
+            if (data.SecuritySupervisorSign != null && data.SecuritySupervisorSign != "") {
+                html += "<tr><td>Security Supervisor Sign</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.SecuritySupervisorSign + "' /></td></tr>";
+            }
+            html += "</table>";
+            $("#tableview").html(html);
+        });
+    }
+
+    var locations;
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                locations = data;
+                var options = [];
+                options.push('<option value="">- All Locations -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#LocationId").html(options.join(''));
+
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+</script>
+
+<style>
+    #captureSignature {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+</style>
+<input type="hidden" id="hidBreakdownid" value="@ViewBag.Id" />
+<div class="panel panel-default">
+    <div class="panel-heading">Patient Transfer Update</div>
+    <div class="panel-body">
+        <div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="tableview">
+
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    In Location
+                </div>
+                <div class="col-md-10">
+                    <select id="LocationId" class="form-control"></select>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    Remarks
+                </div>
+                <div class="col-md-10">
+                    <textarea id="txtremarks" rows="2" class="form-control" style="width:100%"></textarea>
+                </div>
+            </div>
+            <div class="row" style="padding:15px;">
+
+                <div class="form-group col-md-12">
+                    <label style="margin-bottom:5px;">IN Signature</label><br />
+                    <div id="captureSignature">
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+        <div>
+            <input type="button" id="btnasigntask" value="Save" onclick="SaveUserSignoff();" class="btn btn-primary">
+            <button type="button" class="btn btn-default" onclick="Cancel();">Cancel</button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,189 @@
+﻿
+@{
+    ViewBag.Title = "ManageCategory";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    var eId = 0;
+    var validate = true;
+    $(document).ready(function () {
+        LoadData();
+    });
+    function LoadData() {
+        $('#tblCategory').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Admin/AjaxGetCategory",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "CategoryId" },
+                { "sName": "Name" },
+                { "sName": "Description" },
+                { "sName": "SLAHours" },
+                { "sName": "Priority" },
+                { "sName": "IsActive" },
+                {
+                    "sName": "CategoryId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="Edit(this.id);">Edit</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="Delete(this.id);">Delete</a></li>' +
+                            '</ul></div>';
+                    }
+                }
+            ]
+        });
+        $("#tblCategory_length").addClass("col-md-6");
+        $("#tblCategory_length").addClass("col-md-6");
+    }
+    function OnclickSaveCategory() {
+        validateCategory();
+        var url = "/Admin/SaveNewCategory";
+        if (eId != 0) {
+            url = "/Admin/UpdateCategory";
+        }
+        if (validate) {
+            var task = {
+                CategoryId:eId,
+                Name: $("#Name").val(),
+                Description: $("#Description").val(),
+                SLAHours: $("#SLAHours").val(),
+                Priority: $("#Priority").val(),
+                IsActive: true
+            };
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: task,
+                success: function (data) {
+                    $("#myModalCategoryType").modal('hide');
+                    //alert(data);
+                    clearAll(); LoadData();
+                    console.log("category added successfully")
+                }
+            });
+        }
+        else {
+            alert("Fields Required");
+        }
+    }
+    function validateCategory() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#Name").val() == "") {
+            $("#Name").addClass('css-error');
+            validate = false;
+        }
+        if ($("#Description").val() == "") {
+            $("#Description").addClass('css-error');
+            validate = false;
+        }
+    }
+    function Delete(id) {
+        if (confirm("Are you sure you want to delete?")) {
+            $.get("/Admin/DeleteCategory?id=" + id, function (data) {
+                alert("Success");
+                LoadData();
+            });
+        }
+    }
+    function Edit(id) {
+        eId = id;
+        debugger;
+        $.get("/Admin/GetCategoryById?id=" + id, function (data) {
+            debugger;
+            $('#Name').val(data[0].Name);
+            $('#Description').val(data[0].Description);
+            $('#SLAHours').val(data[0].SLAHours);
+            $('#Priority').val(data[0].Priority);
+            $("#myModalCategoryType").modal("show");
+        });
+    }
+    function clearAll() {
+        $("#Name").val("");
+        $("#Description").val("");
+        $('#SLAHours').val("");
+        $('#Priority').val("");
+    }
+
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading">Manage Category<a href="#" data-toggle="modal" class="pull-right" data-target="#myModalCategoryType">New Category Type</a></div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblCategory">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>SLA Hours</th>
+                    <th>Priority</th>
+                    <th>Is Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="myModalCategoryType" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Add New</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="name">Category Name<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="Name">
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Category Description<span style="color:red;">*</span></label></div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="Description">
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="SLAHours">SLA Hours</label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="SLAHours">
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="Priority">Priority</label>
+                    </div>
+                    <div class="col-md-8">
+                        <select id="Priority" name="Priority" class="form-control">
+                            <option value="">Select</option>
+                            <option value="Critical">Critical</option>
+                            <option value="High">High</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="Low">Low</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" onclick="OnclickSaveCategory();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>

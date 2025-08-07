@@ -1,0 +1,1157 @@
+﻿@{
+    ViewBag.Title = "AppraiserView";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="callout callout-warning">
+    <h4>Perfomance Review for the Period April @{int value = DateTime.Now.Year - 1;} @value to March- @DateTime.Now.Year</h4>
+    <a href="" data-toggle="modal" data-target="#myModal">Procedural Guidelines</a>
+</div>
+<input type="hidden" id="PerfomanceReviewId" value="@ViewBag.PerfomanceReview_Id" />
+
+<div class="nav-tabs-custom">
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="#Krasheet" data-toggle="tab">Kra Review Sheet</a></li>
+        <li><a href="#Assessment" data-toggle="tab">Assessment Of Overall Competencies </a></li>
+        <li><a href="#Part3" data-toggle="tab">Part 3</a></li>
+        <li><a href="#Development" data-toggle="tab">Development Plan Or Training Needs</a></li>
+        <li><a href="#Comments" data-toggle="tab">Over All Comments</a></li>
+    </ul>
+    <div id="myTabContent" class="tab-content">
+        <div class="tab-pane fade active in" id="Krasheet" style="padding:10px;">
+            <table class="table" id="krareviewGrid">
+                <tr>
+                    <th>KRA category A/B/C</th>
+                    <th>Details of KRA</th>
+                    <th>Measure of Performance</th>
+                    <th>Weightage (A) <small>(Importance of the KRA as a percentage)</small> </th>
+                    <th>Details of Accomplishment</th>
+                    <th>Mitigating reasons, <small>if any, for non-achievement of KRA</small></th>
+                    <th>Start date of the activity</th>
+                    <th>End date of the activity</th>
+                    <th>Self-rating <small>(1-5)</small></th>
+                    <th>Appraiser’s -rating <small>(1-5)</small></th>
+
+                </tr>
+                @*<tr>
+                        <td>@Html.TextBox("kracategory1", "", new { @class = "form-control" })</td>
+                        <td>@Html.TextBox("kra1", "", new { @class = "form-control" })</td>
+                        <td>@Html.TextBox("perf1", "", new { @class = "form-control" })</td>
+                        <td>@Html.TextBox("weightage1", "", new { @class = "form-control" })</td>
+                        <td>@Html.TextBox("accomp1", "", new { @class = "form-control" })</td>
+                        <td>@Html.TextBox("reasons1", "", new { @class = "form-control" })</td>
+                        <td>@Html.TextBox("startdate1", "", new { @class = "form-control txtdate" })</td>
+                        <td>@Html.TextBox("enddate1", "", new { @class = "form-control txtdate" })</td>
+                        <td>
+                            <select id="appraisee1" class="form-control">
+                                <option value="">--Select--</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>@Html.TextBox("kracategory2", "", new { @class = "form-control" })</td>
+                        <td>@Html.TextBox("kra2", "", new { @class = "form-control" })</td>
+                        <td>@Html.TextBox("perf2", "", new { @class = "form-control" })</td>
+                        <td>@Html.TextBox("weightage2", "", new { @class = "form-control" })</td>
+                        <td>@Html.TextBox("accomp2", "", new { @class = "form-control" })</td>
+                        <td>@Html.TextBox("reasons2", "", new { @class = "form-control" })</td>
+                        <td>@Html.TextBox("startdate2", "", new { @class = "form-control txtdate" })</td>
+                        <td>@Html.TextBox("enddate2", "", new { @class = "form-control txtdate" })</td>
+                        <td>
+                            <select id="appraisee2" class="form-control">
+                                <option value="">--Select--</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </td>
+                    </tr>*@
+            </table>
+            @*<div class="form-group" style="text-align:right;">
+                    <span class="btn btn-info glyphicon glyphicon-plus-sign" style="cursor:pointer;" onclick="addRow()"></span>
+                </div>*@
+            <div class="row">
+                <div class="wall small">
+                    Others
+                </div>
+            </div>
+            <table class="table " id="krareviewOthersGrid">
+
+                @*<tr>
+                        <td>@Html.TextBox("kracategoryO1", "", new { @class = "form-control" })</td>
+                        <td>@Html.TextBox("kraO1", "", new { @class = "form-control" })</td>
+                        <td>@Html.TextBox("perfO1", "", new { @class = "form-control" })</td>
+                        <td>@Html.TextBox("weightageO1", "", new { @class = "form-control" })</td>
+                        <td>@Html.TextBox("accompO1", "", new { @class = "form-control" })</td>
+                        <td>@Html.TextBox("reasonsO1", "", new { @class = "form-control" })</td>
+                        <td>@Html.TextBox("startdateO1", "", new { @class = "form-control txtdate" })</td>
+                        <td>@Html.TextBox("enddateO1", "", new { @class = "form-control txtdate" })</td>
+                        <td>
+                            <select id="appraiseeO1" class="form-control">
+                                <option value="">--Select--</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>@Html.TextBox("kracategoryO2", "", new { @class = "form-control" })</td>
+                        <td>@Html.TextBox("kraO2", "", new { @class = "form-control" })</td>
+                        <td>@Html.TextBox("perfO2", "", new { @class = "form-control" })</td>
+                        <td>@Html.TextBox("weightageO2", "", new { @class = "form-control" })</td>
+                        <td>@Html.TextBox("accompO2", "", new { @class = "form-control" })</td>
+                        <td>@Html.TextBox("reasonsO2", "", new { @class = "form-control" })</td>
+                        <td>@Html.TextBox("startdateO2", "", new { @class = "form-control txtdate" })</td>
+                        <td>@Html.TextBox("enddateO2", "", new { @class = "form-control txtdate" })</td>
+                        <td>
+                            <select id="appraiseeO2" class="form-control">
+                                <option value="">--Select--</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                            </select>
+                        </td>
+                    </tr>*@
+            </table>
+            @*<div class="form-group" style="text-align:right;">
+                    <span class="btn btn-info glyphicon glyphicon-plus-sign" style="cursor:pointer;" onclick="addOtherRow()"></span>
+                </div>*@
+            @*<br />
+                <div class="form-group" style="text-align:right;">
+                    <input type="button" class="btn btn-primary" value="Save and Continue" id="Save" onclick="Save()" />
+                </div>*@
+            <div class="alert alert-success" id="part1div" style="display:none;">
+                <strong>Details Submitted Successfully!</strong>.
+            </div>
+
+        </div>
+        <div class="tab-pane fade" id="Assessment" style="padding:10px;">
+            <table class="table">
+                <tr>
+                    <th style="text-align:center">Competencies</th>
+                    <th>Rating (1-5)</th>
+                    <th>Pls provide examples of  demonstration of such </th>
+                </tr>
+                <tr>
+                    <td class="col-md-6">
+                        <b>Service Orientation:</b>
+                        <small>
+                            Responds promptly and proactively to internal and external customers.
+                            Strives to understand others’ needs and acts on servicing them within
+                            the defined time frame as per their expectations.
+                        </small>
+                    </td>
+                    <td>
+                        <select class="form-control" id="ddlSORatng">
+                            <option value="">--Select--</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </td>
+                    <td><textarea class="form-control" id="txtSODemonstration"></textarea></td>
+                </tr>
+                <tr>
+                    <td class="col-md-6">
+                        <b>Quality Of Work Output</b>
+                        <small>
+                            Ensures thoroughness and avoids trivial mistakes. Is careful and alert
+                            while undertaking any activity. Focuses on details of work.
+                        </small>
+
+                    </td>
+                    <td>
+                        <select class="form-control" id="ddlWorkOutputRating">
+                            <option value="">--Select--</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </td>
+                    <td><textarea class="form-control" id="txtWorkOutputDemonstration"></textarea></td>
+                </tr>
+                <tr>
+                    <td class="col-md-6">
+                        <b>Compliance To Procedures & Processes :</b><small>
+                            Respects and follows procedures/ systems set so as to perform his/ her
+                            role. Adheres rigorously to the rules and procedures set by the
+                            organization.
+                        </small>
+                    </td>
+                    <td>
+                        <select class="form-control" id="ddlComplianceRating">
+                            <option value="">--Select--</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </td>
+                    <td><textarea class="form-control" id="txtComplianceDemonstration"></textarea></td>
+                </tr>
+                <tr>
+                    <td class="col-md-6">
+                        <b>Dependability And Reliability : </b>
+                        <small>
+                            Is aware of the demands made and is prepared to deliver under various
+                            conditions consistently and efficiently. Can be relied upon to deliver
+                            results even under pressure.
+                        </small>
+                    </td>
+                    <td>
+                        <select class="form-control" id="ddlDRRating">
+                            <option value="">--Select--</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </td>
+                    <td><textarea class="form-control" id="txtDRDemonstration"></textarea></td>
+                </tr>
+                <tr>
+                    <td class="col-md-6">
+                        <b>Willingness To Learn</b>
+                        <small>
+                            Is eager to learn new skills / implement new solutions.
+                            Undertakes activities to update self-knowledge and seeks clarifications
+                            from superiors when in doubt.
+                        </small>
+                    </td>
+                    <td>
+                        <select class="form-control" id="ddlWLRating">
+                            <option value="">--Select--</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </td>
+                    <td><textarea class="form-control" id="txtWLDemonstration"></textarea></td>
+                </tr>
+                <tr>
+                    <td class="col-md-6">
+                        <b>Job Knowledge :</b>
+                        <small>
+                            Knows everything about the task/ project assigned and understands
+                            inter-linkages with other activities. Possesses in-depth knowledge of
+                            various skills and is able to apply them in day-to-day functioning.
+                        </small>
+                    </td>
+                    <td>
+                        <select class="form-control" id="ddlJobRating">
+                            <option value="">--Select--</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </td>
+                    <td><textarea class="form-control" id="txtJobDemonstration"></textarea></td>
+                </tr>
+                <tr>
+                    <td class="col-md-6">
+                        <b>Accomplishment Of Task : </b>
+                        <small>
+                            Having achievement orientation. Focuses on results, not activities.
+                            Delivers results effectively within stipulated time period
+                        </small>
+                    </td>
+                    <td>
+                        <select class="form-control" id="ddlAccomplishmentRating">
+                            <option value="">--Select--</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </td>
+                    <td><textarea class="form-control" id="txtAccomplishmentDemonstration"></textarea></td>
+                </tr>
+                <tr>
+                    <td class="col-md-6">
+                        <b>Team orientation : </b>
+                        <small>
+                            Understands his/ her role in a team and undertakes steps to co-ordinate
+                            with team members, openly shares information with others, focuses on
+                            improving team performance, Works across department lines to solve
+                            problems.
+                        </small>
+                    </td>
+                    <td>
+                        <select class="form-control" id="ddlTeamOrientationRating">
+                            <option value="">--Select--</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </td>
+                    <td><textarea class="form-control" id="txtTeamOrientationDemonstration"></textarea></td>
+                </tr>
+                <tr>
+                    <td class="col-md-6">
+                        <b>Attendance & Punctuality :</b>
+                        <small> This parameter reflects the employees performance in reporting to work   in time and when scheduled.  This includes taking authorized leave obtained well in advance as per company norms so as to not upset work.</small>
+                    </td>
+                    <td>
+                        <select class="form-control" id="ddlAPRating">
+                            <option value="">--Select--</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </td>
+                    <td><textarea class="form-control" id="txtAPDemonstration"></textarea></td>
+                </tr>
+                <tr>
+                    <td class="col-md-6">
+                        <b>Communication SKills : </b>
+                        <small>This consists of responsive listening and assertive persuasion; clarity of thought and originality of communication.</small>
+                    </td>
+                    <td>
+                        <select class="form-control" id="ddlCommunicationRating">
+                            <option value="">--Select--</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                        </select>
+                    </td>
+                    <td><textarea class="form-control" id="txtCommunicationDemonstration"></textarea></td>
+                </tr>
+                <tr>
+                    <td>Overall Rating for PART II:</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+            <br />
+
+        </div>
+        <div class="tab-pane fade" id="Part3" style="padding:10px;">
+
+            <p> 1. What in your opinion were the facilitating and inhibiting factors that impacted your performance? </p>
+            <div class="row">
+                <div class="col-md-3">
+                    <b>Facilitating Factors</b>
+                    <textarea class="form-control" id="txtfacilitating" style="width:100%;"></textarea>
+                </div>
+                <div class="col-md-3">
+                    <b>Inhibiting Factors</b>
+                    <textarea class="form-control" id="txtinhibiting" style="width:100%;"></textarea>
+                </div>
+            </div>
+            <p>
+                2. What were the New Skills / Learnings / Competencies acquired by the Appraisee during the review period? Specifically mention the progress on the Development Plan consolidated at the beginning of the financial year 2010-2011.
+            </p>
+            <div class="row">
+                <div class="col-md-3">
+                    <textarea class="form-control" id="txtSkills" style="width:100%;"></textarea>
+                </div>
+            </div>
+            <p>3. Identify specific areas of Strength as well as Improvement</p>
+            <div class="row">
+                <div class="col-md-3">
+                    <b>Strengths</b>
+                    <textarea class="form-control" id="txtstrengths" style="width:100%;"></textarea>
+                </div>
+                <div class="col-md-3">
+                    <b>Possible Areas Of Improvement</b>
+                    <textarea class="form-control" id="txtpossible" style="width:100%;"></textarea>
+                </div>
+            </div>
+            <p> 4. Final Rating: To be filled by the Appraiser in consultation with the Reviewer (Rating to be given after considering the average of ratings given for Part I & II) Please Tick.</p>
+            <div class="row">
+                <div class="col-md-2">
+                    <b>
+                        Consistently surpasses
+                    </b>
+                    <textarea class="form-control" id="txtConsistently"></textarea>
+                </div>
+                <div class="col-md-2">
+                    <b>Exceeds expectations</b>
+                    <textarea class="form-control" id="txtExceeds"></textarea>
+                </div>
+                <div class="col-md-2">
+                    <b>Always Meets Expectations</b>
+                    <textarea class="form-control" id="txtExpectations"></textarea>
+                </div>
+                <div class="col-md-2">
+                    <b> Occasionally does not</b>
+                    <textarea class="form-control" id="txtOccasionally"></textarea>
+                </div>
+                <div class="col-md-2">
+                    <b>Frequently does not meet</b>
+                    <textarea class="form-control" id="txtFrequently"></textarea>
+                </div>
+            </div>
+            <br />
+
+        </div>
+        <div class="tab-pane fade" id="Development" style="padding:10px;">
+
+
+            <table class="table" id="DevelopmentGrid">
+                <tr>
+                    <th> Sr. No   </th>
+                    <th> Areas of Improvement / Competencies to be developed</th>
+                    <th>Actions the Appraisee committed to address the same</th>
+                    <th>Additional developmental actions recommended by the Appraiser</th>
+                </tr>
+                <tr>
+
+                    <td>1</td>
+                    <td>@Html.TextBox("Improvement1", "", new { @class = "form-control" })</td>
+                    <td>@Html.TextBox("Actions1", "", new { @class = "form-control" })</td>
+                    <td>@Html.TextBox("Additional1", "", new { @class = "form-control" })</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>@Html.TextBox("Improvement2", "", new { @class = "form-control" })</td>
+                    <td>@Html.TextBox("Actions2", "", new { @class = "form-control" })</td>
+                    <td>@Html.TextBox("Additional2", "", new { @class = "form-control" })</td>
+                </tr>
+            </table>
+
+            <div class="form-group" style="text-align:right;">
+                <input type="button" class="btn btn-info" value="Add" id="addRowDevelopment" onclick="addDevelopmentRow()" />
+            </div>
+            <br />
+
+        </div>
+        <div class="tab-pane fade" id="Comments" style="padding:10px;">
+            <p>(please specify and underline if change in designation is recommended)</p>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title"> Comments of the Appraiser:</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                                    <i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <textarea class="form-control" id="txtAppraiser" style="width:100%;height:120px;"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="box box-info">
+                        <div class="box-header with-border">
+                            <h3 class="box-title"> Comments of the Reviewer:</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                                    <i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <textarea disabled class="form-control" id="txtReviewer" style="width:100%;height:120px;"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="box box-success">
+                        <div class="box-header with-border">
+                            <h3 class="box-title"> Comments of the Appraisee</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                                    <i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <small> after completion of the performance review discussion:</small>
+                            <textarea disabled class="form-control" id="txtAppraisee" style="width:100%;height:99px;"></textarea>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+<div class="row">
+    <div class="pull-left" style="width:50%;">
+        <input type="button" id="btnFinalSave" value="Return " class="btn btn-block btn-success" onclick="ReturnToAppraisee();" style="text-align:center;" />
+    </div>
+    <div class="pull-right" style="width:50%;">
+        <input type="button" id="btnFinalSave" value="Save" class="btn btn-block btn-success" onclick="SaveAppraiserData();" style="text-align:center;" />
+    </div>
+</div>
+
+
+
+<script type="text/javascript">
+
+    var arrReviews = [];
+    var arrOthersReviews = [];
+    var arrDevel = [];
+    $(document).ready(function () {
+        $(".txtdate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            yearRange: "c-60:c+60",
+            showAnim: 'slideDown'
+        });
+    });
+    function SaveAppraiserData() {
+        savefinalReview();
+    }
+
+    function savefinalReview() {
+        // kra sheet
+
+        $("#krareviewGrid tr").each(function (i) {
+           
+            if (i != 0) {
+                arrReviews.push({
+                    EmpId: 1,
+                    KRASheetID: $("#KRASheetID" + i).val(),
+                    KRACategory: $("#kracategory" + i).val(),
+                    DetailsOfKRA: $("#kra" + i).val(),
+                    MeasureOfPerformance: $("#perf" + i).val(),
+                    Weightage: $("#weightage" + i).val(),
+                    DetailsOfAccomplishment: $("#accomp" + i).val(),
+                    MitigatingReasons: $("#reasons" + i).val(),
+                    StartDate: $("#startdate" + i).val(),
+                    EndDate: $("#enddate" + i).val(),
+                    SelfRatingByAppraisee: $("#appraisee" + i).val(),
+                    AppraiserRating: $("#appraiser" + i).val(),
+                    WeightedRating: $("#weightedrating" + i).val()
+                });
+            }
+        });
+        //kra sheet
+
+        //kra sheet other
+   
+        $("#krareviewOthersGrid tr").each(function (i) {
+
+          // if (i != 0) {
+                arrOthersReviews.push({
+                    KRACategory: $("#kracategoryO" + i).val(),
+                    DetailsOfKRA: $("#kraO" + i).val(),
+                    MeasureOfPerformance: $("#perfO" + i).val(),
+                    Weightage: $("#weightageO" + i).val(),
+                    DetailsOfAccomplishment: $("#accompO" + i).val(),
+                    MitigatingReasons: $("#reasonsO" + i).val(),
+                    StartDate: $("#startdateO" + i).val(),
+                    EndDate: $("#enddateO" + i).val(),
+                    SelfRatingByAppraisee: $("#appraiseeO" + i).val(),
+                    AppraiserRating: $("#appraiserO" + i).val(),
+                    KRASheetOthersID: $("#KRASheetOthersID" + i).val()
+
+                });
+          //  }
+        });
+
+        //kra sheet
+
+
+        // for Development plan
+        $("#DevelopmentGrid tr").each(function (i) {
+            if (i != 0) {
+                arrDevel.push({
+                    Development_TrainingId: $("#Development_TrainingId" + i).val(),
+                    Area_Of_Improvement: $("#Improvement" + i).val(),
+                    Actions_The_Appraisee: $("#Actions" + i).val(),
+                    Additional_Developmental: $("#Additional" + i).val()
+                });
+            }
+        });
+
+        // for Development plan
+
+
+        var finalrating = "";// need to get data from any one ot the 4th ans append with the name
+
+        var data = {
+            // tab 2
+            PerfomanceReview_Id: $("#PerfomanceReviewId").val(),
+            SORatng: $("#ddlSORatng").val(),
+            SODemonstration: $("#txtSODemonstration").val(),
+            WorkOutputRating: $("#ddlWorkOutputRating").val(),
+            WorkOutputDemonstration: $("#txtWorkOutputDemonstration").val(),
+            ComplianceRating: $("#ddlComplianceRating").val(),
+            ComplianceDemonstration: $("#txtComplianceDemonstration").val(),
+            DRRating: $("#ddlDRRating").val(),
+            DRDemonstration: $("#txtDRDemonstration").val(),
+            WLRating: $("#ddlWLRating").val(),
+            WLDemonstration: $("#txtWLDemonstration").val(),
+            JobRating: $("#ddlJobRating").val(),
+            JobDemonstration: $("#txtJobDemonstration").val(),
+            AccomplishmentRating: $("#ddlAccomplishmentRating").val(),
+            AccomplishmentDemonstration: $("#txtAccomplishmentDemonstration").val(),
+            TeamOrientationRating: $("#ddlTeamOrientationRating").val(),
+            TeamOrientationDemonstration: $("#txtTeamOrientationDemonstration").val(),
+            APRating: $("#ddlAPRating").val(),
+            APDemonstration: $("#txtAPDemonstration").val(),
+            CommunicationRating: $("#ddlCommunicationRating").val(),
+            CommunicationDemonstration: $("#txtCommunicationDemonstration").val(),
+
+            //tab 2
+            //tab 3
+            Facilitating_Factors: $("#txtfacilitating").val(),
+            Inhibiting_Factors: $("#txtinhibiting").val(),
+            NewSkills_Competencies: $("#txtSkills").val(),
+            Strengths: $("#txtstrengths").val(),
+            Improvement: $("#txtpossible").val(),
+            Final_Rating: finalrating,
+            //tab 3
+
+            // for over all comments
+            Comments_Of_The_Appraiser: $("#txtAppraiser").val(),
+            Comments_Of_The_Reviewer: $("#txtReviewer").val(),
+            Comments_Of_The_Appraisee: $("#txtAppraisee").val()
+            // for over all comments
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/Appraisal/SaveAppraiserReview",
+            data: { kraData: JSON.stringify(arrReviews), kradataOthers: JSON.stringify(arrOthersReviews), arrDevel: JSON.stringify(arrDevel), data: JSON.stringify(data) },
+            dataType: "json",
+            success: function (d) {
+                alert(d);
+                var index_url = '@Url.Action("Index", "Appraisal")';
+
+                window.location.href = index_url;
+
+            }
+        });
+
+
+
+        arrReviews = []; arrOthersReviews = []; arrDevel = [];
+
+    }
+
+    function addRow() {
+        if ($("#krareviewGrid tr").length < 20) {
+            var ID = $("#krareviewGrid tr").length;
+            var html = '<tr>' +
+                '<td><input type="text" name="kracategory' + ID + '" id="kra' + ID + '" class = "form-control" /></td>' +
+                '<td><input type="text" name="kra' + ID + '" id="kra' + ID + '" class = "form-control" /></td>' +
+                '<td><input type="text" name="perf' + ID + '" id="perf' + ID + '" class = "form-control" /></td>' +
+               ' <td><input type="text" name="weightage' + ID + '" id="weightage' + ID + '" class = "form-control" /></td>' +
+                '<td><input type="text" name="accomp' + ID + '" id="accomp' + ID + '" class = "form-control" /></td>' +
+               ' <td><input type="text" name="reasons' + ID + '" id="reasons' + ID + '" class = "form-control" /></td>' +
+                '<td><input type="text" name="startdate' + ID + '" id="startdate' + ID + '" class = "form-control txtdate" /></td>' +
+                '<td><input type="text" name="enddate' + ID + '" id="enddate' + ID + '" class = "form-control txtdate" /></td>' +
+                '<td><select id="appraisee' + ID + '" class="form-control"><option value="">--Select--</option>' +
+                        '<option value="1">1</option><option value="2">2</option><option value="3">3</option>' +
+                        '<option value="4">4</option><option value="5">5</option></select></td>' +
+                //        '<td><select id="appraiser' + ID + '" class="form-control"><option value="">--Select--</option>' +
+                //        '<option value="1">1</option><option value="2">2</option><option value="3">3</option>' +
+                //        '<option value="4">4</option><option value="5">5</option></select></td>' +
+                //'<td><input type="text" name="weightedrating' + ID + '" id="weightedrating' + ID + '" class = "form-control" />' +
+                //'<input type="button" class="BtnRemove" value="Remove" onclick="deleteRow()" /></td>' +
+            '</tr>';
+            $("#krareviewGrid").append(html);
+        }
+    }
+
+    function deleteRow() {
+        if ($("#krareviewGrid tr").length != 3) {
+            $("#krareviewGrid tr:last-child").remove();
+        }
+    }
+
+    function addOtherRow() {
+        if ($("#krareviewOthersGrid tr").length < 20) {
+            var ID = $("#krareviewOthersGrid tr").length;
+            var html = '<tr>' +
+                '<td><input type="text" name="kracategoryO' + ID + '" id="kra' + ID + '" class = "form-control" /></td>' +
+                '<td><input type="text" name="kraO' + ID + '" id="kraO' + ID + '" class = "form-control" /></td>' +
+                '<td><input type="text" name="perfO' + ID + '" id="perfO' + ID + '" class = "form-control" /></td>' +
+               ' <td><input type="text" name="weightageO' + ID + '" id="weightageO' + ID + '" class = "form-control" /></td>' +
+                '<td><input type="text" name="accompO' + ID + '" id="accompO' + ID + '" class = "form-control" /></td>' +
+               ' <td><input type="text" name="reasonsO' + ID + '" id="reasonsO' + ID + '" class = "form-control" /></td>' +
+                '<td><input type="text" name="startdateO' + ID + '" id="startdateO' + ID + '" class = "form-control txtdate" /></td>' +
+                '<td><input type="text" name="enddateO' + ID + '" id="enddateO' + ID + '" class = "form-control txtdate" /></td>' +
+                '<td><select id="appraiseeO' + ID + '" class="form-control"><option value="">--Select--</option>' +
+                        '<option value="1">1</option><option value="2">2</option><option value="3">3</option>' +
+                        '<option value="4">4</option><option value="5">5</option></select></td>' +
+                //        '<td><select id="appraiserO' + ID + '" class="form-control"><option value="">--Select--</option>' +
+                //        '<option value="1">1</option><option value="2">2</option><option value="3">3</option>' +
+                //        '<option value="4">4</option><option value="5">5</option></select></td>' +
+                //'<td><input type="text" name="weightedratingO' + ID + '" id="weightedratingO' + ID + '" class = "form-control" />' +
+                //'<input type="button" class="BtnRemove" value="Remove" onclick="deleteOtherRow()" /></td>' +
+            '</tr>';
+            $("#krareviewOthersGrid").append(html);
+        }
+    }
+
+    function deleteOtherRow() {
+        if ($("#krareviewOthersGrid tr").length != 3) {
+            $("#krareviewOthersGrid tr:last-child").remove();
+        }
+    }
+
+
+    function addDevelopmentRow() {
+        if ($("#DevelopmentGrid tr").length < 20) {
+            var ID = $("#DevelopmentGrid tr").length;
+            var html = '<tr>' +
+                '<td>' + ID + '</td>' +
+                '<td><input type="text" name="Improvement' + ID + '" id="Improvement' + ID + '" class = "form-control" /></td>' +
+                '<td><input type="text" name="Actions' + ID + '" id="Actions' + ID + '" class = "form-control" /></td>' +
+               ' <td><input type="text" name="Additional' + ID + '" id="Additional' + ID + '" class = "form-control" /></td>' +
+            '</tr>';
+            $("#DevelopmentGrid").append(html);
+        }
+    }
+    GetPerfomanceData();
+    function GetPerfomanceData() {
+        var id = '@ViewBag.PerfomanceReview_Id';
+        $.ajax({
+            type: "POST",
+            url: "/Appraisal/GetPerfomanceReview/" + id,
+            dataType: "json",
+            success: function (d) {
+
+                $("#ddlSORatng").val(d.SORatng);
+                $("#txtSODemonstration").val(d.SODemonstration);
+                $("#ddlWorkOutputRating").val(d.WorkOutputRating);
+                $("#txtWorkOutputDemonstration").val(d.WorkOutputDemonstration);
+                $("#ddlComplianceRating").val(d.ComplianceRating);
+                $("#txtComplianceDemonstration").val(d.ComplianceDemonstration);
+                $("#ddlDRRating").val(d.DRRating);
+                $("#txtDRDemonstration").val(d.DRDemonstration);
+                $("#ddlWLRating").val(d.WLRating);
+                $("#txtWLDemonstration").val(d.WLDemonstration);
+                $("#ddlJobRating").val(d.JobRating);
+                $("#txtJobDemonstration").val(d.JobDemonstration);
+                $("#ddlAccomplishmentRating").val(d.AccomplishmentRating);
+                $("#txtAccomplishmentDemonstration").val(d.AccomplishmentDemonstration);
+                $("#ddlTeamOrientationRating").val(d.TeamOrientationRating);
+                $("#txtTeamOrientationDemonstration").val(d.TeamOrientationDemonstration);
+                $("#ddlAPRating").val(d.APRating);
+                $("#txtAPDemonstration").val(d.APDemonstration);
+                $("#ddlCommunicationRating").val(d.CommunicationRating);
+                $("#txtCommunicationDemonstration").val(d.CommunicationDemonstration);
+
+                //tab 2
+                //tab 3
+                $("#txtfacilitating").val(d.Facilitating_Factors);
+                $("#txtinhibiting").val(d.Inhibiting_Factors);
+                $("#txtSkills").val(d.NewSkills_Competencies);
+                $("#txtstrengths").val(d.Strengths);
+                $("#txtpossible").val(d.Improvement);
+                //   Final_Rating: finalrating,
+                //tab 3
+
+                // for over all comments
+                $("#txtAppraiser").val(d.Comments_Of_The_Appraiser);
+                $("#txtReviewer").val(d.Comments_Of_The_Reviewer);
+                $("#txtAppraisee").val(d.Comments_Of_The_Appraisee);
+            }
+        });
+
+    }
+    // GetDevelopmentTraning();
+    function GetDevelopmentTraning() {
+        var id = '@ViewBag.PerfomanceReview_Id';
+        $.ajax({
+            type: "POST",
+            url: "/Appraisal/GetDevelopmentTraning/" + id,
+            dataType: "json",
+            success: function (dta) {
+
+                //var dta = JSON.stringify(d);
+                var ID = 1;
+                $.each(dta, function (key, item) {
+                    var html = '<tr>' +
+                 '<td><input type="hidden" name="Development_TrainingId' + ID + '" id="Development_TrainingId' + ID + '" value="' + item.Development_TrainingId + '"  />' + ID + '</td>' +
+                 '<td><input type="text" name="Improvement' + ID + '" id="Improvement' + ID + '" value="' + item.Area_Of_Improvement + '" class = "form-control" /></td>' +
+                 '<td><input type="text" name="Actions' + ID + '" id="Actions' + ID + '"  value="' + item.Actions_The_Appraisee + '" class = "form-control" /></td>' +
+                ' <td><input type="text" name="Additional' + ID + '" id="Additional' + ID + '" value="' + item.Additional_Developmental + '" class = "form-control" /></td>' +
+             '</tr>';
+                    $("#DevelopmentGrid").append(html);
+                    ID++;
+                });
+
+
+
+            }
+        });
+    }
+    GetKraReviewSheet()
+    function GetKraReviewSheet() {
+        var id = '@ViewBag.PerfomanceReview_Id';
+        $.ajax({
+            type: "POST",
+            url: "/Appraisal/GetKraReviewSheet/" + id,
+            dataType: "json",
+            success: function (dta) {
+
+                //var dta = JSON.stringify(d);
+                var ID = 1;
+                $.each(dta, function (key, item) {
+                    var html = '<tr>' +
+                 '<td><input type="hidden" name="KRASheetID' + ID + '" id="KRASheetID' + ID + '" value="' + item.KRASheetID + '"  /> <input type="text" disabled name="kracategory' + ID + '" id="kra' + ID + '" class = "form-control" value="' + item.KRACategory + '"/></td>' +
+                 '<td><input type="text" disabled name="kra' + ID + '" id="kra' + ID + '" class = "form-control" value="' + item.DetailsOfKRA + '"/></td>' +
+                 '<td><input type="text" disabled name="perf' + ID + '" id="perf' + ID + '" class = "form-control" value="' + item.MeasureOfPerformance + '"/></td>' +
+                ' <td><input type="text"  disabled name="weightage' + ID + '" id="weightage' + ID + '" class = "form-control" value="' + item.Weightage + '"/></td>' +
+                 '<td><input type="text" disabled name="accomp' + ID + '" id="accomp' + ID + '" class = "form-control" value="' + item.DetailsOfAccomplishment + '"/></td>' +
+                ' <td><input type="text" disabled name="reasons' + ID + '" id="reasons' + ID + '" class = "form-control" value="' + item.MitigatingReasons + '" /></td>' +
+                 '<td><input type="text" disabled name="startdate' + ID + '" id="startdate' + ID + '" class = "form-control txtdate" value="' + ConvertJsonDate(item.StartDate) + '"/></td>' +
+                 '<td><input type="text" disabled name="enddate' + ID + '" id="enddate' + ID + '" class = "form-control txtdate" value="' + ConvertJsonDate(item.EndDate) + '"/></td>' +
+                 '<td><select disabled id="appraisee' + ID + '" class="form-control"><option value="">--Select--</option>' +
+                         '<option value="1">1</option><option value="2">2</option><option value="3">3</option>' +
+                         '<option value="4">4</option><option value="5">5</option></select></td>' +
+                         '<td><select id="appraiser' + ID + '" class="form-control"><option value="">--Select--</option>' +
+                         '<option value="1">1</option><option value="2">2</option><option value="3">3</option>' +
+                         '<option value="4">4</option><option value="5">5</option></select></td>' +
+   //              '<td><input type="text" name="weightedrating' + ID + '" id="weightedrating' + ID + '" class = "form-control" />' +
+
+             '</tr>';
+                    $("#krareviewGrid").append(html);
+                    $("#appraisee" + ID).val(item.SelfRatingByAppraisee);
+                    ID++;
+                });
+
+
+
+            }
+        });
+    }
+
+    GetKraReviewSheetOther()
+    function GetKraReviewSheetOther() {
+        var id = '@ViewBag.PerfomanceReview_Id';
+        $.ajax({
+            type: "POST",
+            url: "/Appraisal/GetKraReviewSheetOther/" + id,
+            dataType: "json",
+            success: function (dta) {
+                var ID = 0;
+                $.each(dta, function (key, item) {
+                    var html = '<tr>' +
+               '<td><input type="text" disabled name="kracategoryO' + ID + '" id="kra' + ID + '" class = "form-control" value="' + item.KRACategory + '"/></td>' +
+               '<td><input type="hidden" name="KRASheetOthersID' + ID + '" id="KRASheetOthersID' + ID + '" value="' + item.KRASheetOthersID + '"  /><input type="text" disabled name="kraO' + ID + '" id="kraO' + ID + '" class = "form-control" value="' + item.DetailsOfKRA + '"/></td>' +
+               '<td><input type="text" disabled name="perfO' + ID + '" id="perfO' + ID + '" class = "form-control" value="' + item.MeasureOfPerformance + '"/></td>' +
+              ' <td><input type="text" disabled name="weightageO' + ID + '" id="weightageO' + ID + '" class = "form-control" value="' + item.Weightage + '"/></td>' +
+               '<td><input type="text" disabled name="accompO' + ID + '" id="accompO' + ID + '" class = "form-control" value="' + item.DetailsOfAccomplishment + '"/></td>' +
+              ' <td><input type="text" disabled name="reasonsO' + ID + '" id="reasonsO' + ID + '" class = "form-control" value="' + item.MitigatingReasons + '"/></td>' +
+               '<td><input type="text" disabled name="startdateO' + ID + '" id="startdateO' + ID + '" class = "form-control txtdate" value="' + ConvertJsonDate(item.StartDate) + '" /></td>' +
+               '<td><input type="text" disabled name="enddateO' + ID + '" id="enddateO' + ID + '" class = "form-control txtdate" value="' + ConvertJsonDate(item.EndDate) + '" /></td>' +
+               '<td><select disabled id="appraiseeO' + ID + '" class="form-control"><option value="">--Select--</option>' +
+                       '<option value="1">1</option><option value="2">2</option><option value="3">3</option>' +
+                       '<option value="4">4</option><option value="5">5</option></select></td>' +
+                       '<td><select id="appraiserO' + ID + '" class="form-control"><option value="">--Select--</option>' +
+                       '<option value="1">1</option><option value="2">2</option><option value="3">3</option>' +
+                       '<option value="4">4</option><option value="5">5</option></select></td>' +
+               //'<td><input type="text" name="weightedratingO' + ID + '" id="weightedratingO' + ID + '" class = "form-control" />' +
+               //'<input type="button" class="BtnRemove" value="Remove" onclick="deleteOtherRow()" /></td>' +
+           '</tr>';
+                    $("#krareviewOthersGrid").append(html);
+                    $("#appraiseeO" + ID).val(item.SelfRatingByAppraisee);
+                    ID++;
+                });
+
+
+
+            }
+        });
+    }
+
+    function ConvertJsonDate(dt) {
+        return "04/04/2017";
+    }
+    var index_url = '@Url.Action("Index", "Appraisal")';
+    function ReturnToAppraisee() {
+        var id = '@ViewBag.PerfomanceReview_Id';
+        $.ajax({
+            type: "POST",
+            url: "/Appraisal/ReturnToAppraisee/" + id,
+
+            dataType: "json",
+            success: function (d) {
+                alert(d);
+                window.location.href = index_url;
+            }
+        });
+    }
+</script>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document" style="width:700px; ">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Procedural Guidelines</h4>
+            </div>
+            <div class="modal-body" style="height:400px; overflow-y:scroll;">
+                <div>
+                    <ol>
+                        <li value="1">
+                            The Appraises completes the Self Assessment and forwards it to the Appraiser.
+                        </li>
+                        <li>
+                            The Appraises records his/her assessment on the Key achievements/performance against KRAs(Key Result Areas) set and the competencies <b>(Part I & II )</b>.
+                        </li>
+                        <li>
+                            The Appraises discusses the appraise and mutually discusses performance of the latter for the period of review. The Appraiser, in consultation with the Appraisee and the Reviewer fills up <b>PART III & IV</b>, which details out the Appraisee's areas of improvement and the action plan to address them.
+                        </li>
+                        <li>
+                            The Appraiser forwards form to the Reviewer and after consulting the Reviewer arrives at the Final Rating.
+                        </li>
+                        <li>
+                            The Appraiser communicates the Fianl Rating and additional feedback, if any , to the Appraisee and also obtains feedback from the Appraisee with respect to the quality of the appraisal process. The respective comments / feedback are recorded on the last sheet of the form and signed off.
+                        </li>
+                        <li>
+                            The completed forms are sent back to HR.
+                        </li>
+                    </ol>
+                    <br />
+                    <div class="text-center" style="background-color:darkgray">
+                        <h5><b><u> Guidelines for the Appraisee</u></b></h5>
+                    </div>
+                    <ol>
+                        <li value="1">
+                            Before the discussion, prepare the points you would like to discuss with your Appraiser during the discussion.
+                        </li>
+                        <li>
+                            Be objective during the discussion and opportunity for development / improvement of your performance for future effectiveness.
+                        </li>
+                        <li>
+                            Surface the points on which you desire specific action / help from the Appraiser.
+                        </li>
+                        <li>
+                            Discuss your training and develoment needs with the Appraiser.
+                        </li>
+                        <li>
+                            Discuss your training and devlopment needs with the Appraiser.
+                        </li>
+                    </ol>
+
+                </div>
+                <br />
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>
+
+                            </th>
+                            <th>
+                                Name
+                            </th>
+                            <th>
+                                Signature
+                            </th>
+                            <th>
+                                Date
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <label>Apparisee :</label>
+                            </td>
+                            <td>
+                                <input type="text" id="apparise" class="form-control" />
+                            </td>
+                            <td>
+                                <input type="text" id="sign" class="form-control" />
+                            </td>
+                            <td>
+                                <input type="date" id="date1" class="form-control" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Appraiser :
+                            </td>
+                            <td>
+                                <input type="text" id="appraiser" class="form-control" />
+                            </td>
+                            <td>
+                                <input type="text" id="appraiser_sign" class="form-control" />
+
+                            </td>
+                            <td>
+                                <input type="date" id="date2" class="form-control" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Reviewer :
+                            </td>
+                            <td>
+                                <input type="text" id="reviewer" class="form-control" />
+                            </td>
+                            <td>
+                                <input type="text" id="reviewer_sign" class="form-control" />
+
+                            </td>
+                            <td>
+                                <input type="date" id="date3" class="form-control" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Head-HR
+                            </td>
+                            <td>
+                                <input type="text" id="head" class="form-control" />
+
+                            </td>
+                            <td>
+                                <input type="text" id="head_sign" class="form-control" />
+                            </td>
+                            <td>
+                                <input type="date" id="date4" class="form-control" />
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <br />
+
+                <div class="text-center" style="background-color:darkgray"><b>RATING SCALE</b></div>
+                <br />
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th class="text-center">
+                                Consistently <br /> does surpasses expectations
+                            </th>
+                            <th>
+                                Exceeds expectations
+                            </th>
+                            <th>
+                                Always Meets Expectations
+                            </th>
+                            <th>
+                                Occasionally does not expectation
+                            </th>
+                            <th>
+                                Frequently not meet expectation
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-center">5</td>
+                            <td class="text-center">4</td>
+                            <td class="text-center">3</td>
+                            <td class="text-center">2</td>
+                            <td class="text-center">1</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <br />
+                <div><b>Description of the scale:</b></div>
+                <br />
+
+                <div><b>Consistently surpasses expectation</b></div>
+                <div>
+                    <p>
+                        Describes performance where exceptional result have been consistently achieved with a high stretch under adverse conditions. Has made a considerable positive impact in this function & to the organization. The
+                        appraisee has demonstrated significant mastery of the job & is respected as being an exceptional professional. Additionally, the appraisee inspires team effort putting organizational interest ahead of self.
+                        The individual requries little or no supervision in the dischange of his responsibilities and is considered to be hightly dependable and self-motivated. Generally, less than 3% of the employees will qualify
+                        for this rare grading.
+                    </p>
+                </div>
+
+                <br />
+                <div><b>Exceeds expectations:</b></div>
+                <div>
+                    <p>
+                        Describes excellent performance where results surpass set expectations with a good degree of stretch. The Appraisee displays commendable grasp of the job together with initiative & leadship, requiring minimal supervision.
+                    </p>
+                </div>
+                <br />
+                <div><b>Always Meets Expectations:</b></div>
+                <div>
+                    <p>
+                        Describes acceptable performance wherein targets and KROs are consistently met. The Appraisee is able to met the
+                        requirements of the job, carries out normal duties with a measure of initiative & occasional supervision.
+                    </p>
+                </div>
+
+                <div>
+                    <b>Occasionally does not meet expectations:</b>
+                </div>
+                <div>
+                    <p>
+                        Describes mediocre performance with occasional failure to meet targets and achieve KROs. Requires frequent Supervision is
+                        hesitant to take initiative &  does not display adequate knowledge of the job.
+                    </p>
+                </div>
+
+                <br />
+                <div>
+                    <b> Frequently does not meet expectations:</b>
+                </div>
+                <div>
+                    <p>
+                        Describes unacceptable performance with frequent failures to meet expected result, without mitigating reasons to ameliorate the same.
+                    </p>
+                </div>
+                <br />
+                <div class="text-center" style="background-color:darkgray"><b>KEY DEFINITIONS</b></div>
+                <br />
+                <div><b>APPRAISEE:</b></div>
+                <div>
+                    <p> Individual employees who are being appraised</p>
+                </div>
+                <br />
+                <div><b>APPRAISER:</b></div>
+                <div>
+                    <p>
+                        Immediate Superior to whom the Appraisee reports. He/She is the one who sets the KROs and targets of the Appraisee
+                        and provides guidance in work related matters.
+                    </p>
+                </div>
+                <br />
+                <div>
+                    <b>REVIEWER</b>
+                </div>
+                <div>
+                    <p>
+                        Usually this person is the supervior of the Appraiser. The reviewer would be required to review the appraisal of the
+                        individual and supplement it with additional input, if any.
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Ok</button>
+            </div>
+        </div>
+    </div>
+</div>
+

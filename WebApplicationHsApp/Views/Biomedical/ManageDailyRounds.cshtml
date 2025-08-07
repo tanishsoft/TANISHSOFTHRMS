@@ -1,0 +1,619 @@
+﻿
+@{
+    ViewBag.Title = "ManageDailyRounds";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@*<script src="~/Scripts/jquery.signature.js"></script>*@
+<script src="~/Scripts/jSignature.min.js"></script>
+<!--[if lt IE 9]>
+<script  type="text/javascript" src="~/Scripts/flashcanvas.js"></script>
+    <![endif]-->
+<script>
+    var eId = 0;
+    $(document).ready(function () {
+        LoadData();
+        EmployeeSearch();
+        LoadLocations();
+        $(".date").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            minDate: -100,
+            Edit: true
+        });
+        $('.time').timepicker({
+            minuteStep: 5
+        });
+        $("#Ftxtfromdate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            Edit: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            onSelect: function (dateText, inst) {
+                $("#Ftxttodate").datepicker("option", "minDate",
+                    $("#Ftxtfromdate").datepicker("getDate"));
+            }
+        });
+        $("#Ftxttodate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            Edit: true
+        });
+    });
+    function LoadData() {
+        $('#tbl_DailyRound').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Biomedical/AjaxGetDailyRounds",
+            "bProcessing": true,
+            "scrollX": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "id" },
+                { "sName": "locationId" },
+                { "sName": "departmentId" },
+                //{ "sName": "subDepartmentId" },
+                { "sName": "CreatedBy" },
+                { "sName": "callStatus" },
+                { "sName": "startDate" },
+                { "sName": "endDate" },
+                //{ "sName": "workDone" },
+                //{
+                //    "sName": "View Document",
+                //    //"bSortable": false,
+                //    "render": function (data) {
+                //
+                //        if (data != "")
+                //            return "<a target='_blank' href='/Documents/" + data + "'>View Document</a> <br />";
+                //        else
+                //            return "NA";
+                //    }
+                //},
+                { "sName": "UserSignOff" },
+
+                {
+                    "sName": "Id",
+                    "bSortable": false,
+                    "render": function (data) {
+                        if ($("#BioMedicalTeam").val() == "Yes") {
+                            var Status = data.split('-')[1];
+                            var UserSignOff = data.split('-')[2];
+                            var id = data.split('-')[0];
+                            var html = '<div class="btn-group">' +
+                                '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                                '<ul class="dropdown-menu dropdown-menu-right">';
+                            html += '<li><a href="javascript:void(0);" id="' + id + '" onclick="Edit(this.id);">Edit</a></li>';
+                            html += '<li><a href="javascript:void(0);" id="' + id + '" onclick="ViewDailyRounds(this.id);">View</a></li>';
+                            html += '<li><a href="javascript:void(0);" id="' + id + '" onclick="ViewFiles(this.id);">Documents</a></li>';
+
+                            if (Status != "Completed") {
+                                html += '<li><a href="javascript:void(0);" id="' + id + '" onclick="MarkComplete(this.id);">Mark Complete</a></li>';
+                            }
+                            if (UserSignOff != "Done") {
+                                html += '<li><a href="javascript:void(0);" id="' + id + '" onclick="TakeUserConfirmation(this.id);">User SignOff</a></li>';
+                            }
+                            html += '</ul></div>';
+                            return html;
+                        } else {
+                            var Status = data.split('-')[1];
+                            var UserSignOff = data.split('-')[2];
+                            var id = data.split('-')[0];
+                            var html = '<div class="btn-group">' +
+                                '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                                '<ul class="dropdown-menu dropdown-menu-right">';
+                            html += '<li><a href="javascript:void(0);" id="' + id + '" onclick="ViewDailyRounds(this.id);">View</a></li>';
+                            if (UserSignOff != "Done") {
+                                html += '<li><a href="javascript:void(0);" id="' + id + '" onclick="TakeUserConfirmation(this.id);">User SignOff</a></li>';
+                            }
+                            html += '</ul></div>';
+                            return html;
+                        }
+                    }
+                }
+            ],
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "category", "value": $("#FddlCategoryTypeForFilter").val() },
+                    { "name": "fromdate", "value": $("#Ftxtfromdate").val() },
+                    { "name": "todate", "value": $("#Ftxttodate").val() },
+                    { "name": "Emp", "value": $("#FAssignTo").val() },
+                    { "name": "locationid", "value": $("#LocationIdfilter").val() },
+                    { "name": "departmentid", "value": $("#DepartmentIdfilter").val() },
+                    { "name": "subdepartmentid", "value": $("#SubDepartmentIdfliter").val() }
+                );
+            }
+        });
+        $("#tbl_DailyRound_length").addClass("col-md-6");
+        $("#tbl_DailyRound_length").addClass("col-md-6");
+    }
+    function Uploaddataclick() {
+
+        // Checking whether FormData is available in browser
+        if (window.FormData !== undefined) {
+
+            var fileUpload = $("#selectfiletoupload").get(0);
+            var files = fileUpload.files;
+
+            // Create FormData object
+            var fileData = new FormData();
+
+            // Looping over all files and add it to FormData object
+            for (var i = 0; i < files.length; i++) {
+                fileData.append(files[i].name, files[i]);
+            }
+
+            // Adding one more key to FormData object
+            fileData.append('id', currentid);
+            fileData.append('public', $("#documentisprivate").val());
+            $.ajax({
+                url: '/Biomedical/GetListOfFilesforDailyRounds',
+                type: "POST",
+                contentType: false, // Not to set any content header
+                processData: false, // Not to process data
+                data: fileData,
+                success: function (result) {
+                    alert(result);
+                    BindListoffiles(currentid);
+                },
+                error: function (err) {
+                    alert(err.statusText);
+                }
+            });
+        } else {
+            alert("FormData is not supported.");
+        }
+    }
+
+    function BindListoffiles(id) {
+        $.get("/Biomedical/GetListOfFilesforBM", { id: id }, function (data) {
+            var html = "<table class='table  table-bordered'><tr style='background-color:teal;color:white;'><td>Name</td><td> Action</td></tr>";
+            for (var i = 0; i < data.length; i++) {
+                html += "<tr><td>" + data[i].DocumentName + "</td><td><a  target='_blank' href='/Documents/" + data[i].DocumentPath + "'>View</a> </td></tr>";
+            }
+            html + "</table>";
+            $("#Divdocumentshistory").html(html);
+        });
+    }
+
+    var currentid = 0;
+    function ViewFiles(id) {
+        currentid = id;
+        //alert(id);
+        BindListoffiles(id);
+        $("#divManageDocuments").modal("show");
+    }
+    function New() {
+        window.location.replace("/Biomedical/CreateDailyRounds");
+    }
+    function Edit(id) {
+        window.location.replace("/Biomedical/CreateDailyRounds?id=" + id);
+    }
+    function MarkComplete(id) {
+        eId = id;
+        $("#myModalMarkasComplete").modal("show");
+    }
+
+    function TakeUserConfirmation(id) {
+        eId = id;
+        eId = id;
+        window.location.replace("/Biomedical/DailyRoundUserSignOff?id=" + id);
+        //$("#captureSignature").jSignature();
+        //$('#captureSignature').signature({ syncField: '#signatureJSON' });
+        //$('#captureSignature').signature('option', 'syncFormat', 'PNG');
+        //$('#clear2Button').click(function () {
+        //    $('#captureSignature').signature('clear');
+        //});
+        /*  $("#myModalUserSignoff").modal("show");*/
+    }
+    function EmployeeSearch() {
+        $(".EmpId").select2({
+            ajax: {
+                url: "/Biomedical/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term,
+                        id: eId,
+                        table: "DailyRounds"// search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            width: 'element',
+            minimumInputLength: 2
+        });
+        $("#FAssignTo").select2({
+            ajax: {
+                url: "/Home/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            width: 'element',
+            minimumInputLength: 2
+        });
+    }
+    function ExportToExcel() {
+
+    }
+    function SaveUserSignoff() {
+        alert($obj.jSignature("getData"));
+
+        //var model = {
+        //    id: eId,
+        //    signature: $("#signatureJSON").val(),
+        //    userempId: $("#signoffUser").val()
+        //}
+        //$.post('/Biomedical/SaveUsersignDailyRound', model, function (data) {
+        //    alert("Successfully mark as completed");
+        //    $("#myModalUserSignoff").modal("hide");
+        //    LoadData();
+        //});
+
+
+    }
+    function MValidation() {
+        var MValidate = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#MEndDate").val() == "") {
+            $("#MEndDate").after('<span class="error" style="color:Red;">Select EndDate</span>');
+            $("#MEndDate").addClass('css-error');
+            MValidate = false;
+        }
+        if ($("#MEndTime").val() == "") {
+            $("#MEndTime").after('<span class="error" style="color:Red;">Select EndTime</span>');
+            $("#MEndTime").addClass('css-error');
+            validate = false;
+        }
+        return MValidate;
+    }
+    function SaveMarkComplete() {
+        var valid = MValidation();
+        if (valid) {
+            $.get('/Biomedical/CompletedDailyRounds?endDate=' + $("#MEndDate").val() + '&endTime=' + $("#MEndTime").val() + '&id=' + eId, function (data) {
+                $("#myModalMarkasComplete").modal("hide");
+                LoadData();
+            });
+        } else {
+            alert("FormData is not supported.");
+        }
+    }
+    function ClearMarkComplete() {
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        $("#MEndTime").val("");
+        $("#MEndDate").val("");
+    }
+    function ExportExcel() {
+        validateDate();
+
+        if (validate) {
+            var id = 0;
+            debugger;
+            FromDate = $("#Ftxtfromdate").val();
+            ToDate = $("#Ftxttodate").val();
+            var url = '/Biomedical/ExportExcelDailyRounds?FromDate=' + FromDate + '&ToDate=' + ToDate;
+            if ($("#FddlCategoryTypeForFilter").val() != null && $("#FddlCategoryTypeForFilter").val() != "")
+                url += '&callStatus=' + $("#FddlCategoryTypeForFilter").val();
+            if ($("#LocationIdfilter").val() != null && $("#LocationIdfilter").val() != "")
+                url += '&locationId=' + $("#LocationIdfilter").val();
+            if ($("#DepartmentIdfilter").val() != null && $("#DepartmentIdfilter").val() != "")
+                url += '&departmentId=' + $("#DepartmentIdfilter").val();
+            if ($("#SubDepartmentIdfliter").val() != null && $("#SubDepartmentIdfliter").val() != "")
+                url += '&subdepartmentId=' + $("#SubDepartmentIdfliter").val();
+            if ($("#FAssignTo").val() != null && $("#FAssignTo").val() != "") {
+                url += '&id=' + $("#FAssignTo").val();
+            }
+
+            window.location = url;
+            $("#Ftxtfromdate").val("");
+            $("#Ftxttodate").val("");
+        }
+    }
+    function validateDate() {
+
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#Ftxtfromdate").val() == "") {
+            $("#Ftxtfromdate").addClass('css-error');
+            validate = false;
+        }
+        if ($("#Ftxttodate").val() == "") {
+            $("#Ftxttodate").addClass('css-error');
+            validate = false;
+        }
+    }
+    function ViewDailyRounds(id) {
+        var html = "";
+        $.get("/Biomedical/GetDailyRounds?id=" + id, function (data) {
+
+            html = "<table class='table table-bordered'>";
+            html += "<tr><td style='color:darkgoldenrod;'>Id</td><td>" + data.DailyRoundId + "</td></tr><tr><td style='color:darkgoldenrod;'>Location</td><td>" + data.LocationName + "</td></tr>";
+            html += "<tr><td style='color:darkgoldenrod;'>Department</td><td>" + data.DepartmentName + "</td></tr><tr><td style='color:darkgoldenrod;'>Sub Department</td><td>" + data.SubDepartmentName + "</td></tr>";
+            html += "<tr><td style='color:darkgoldenrod;'>Work Done</td><td>" + data.WorkDone + "</td></tr><tr><td style='color:darkgoldenrod;'>Call Status</td><td>" + data.CallStatus + "</td></tr>";
+            html += "<tr><td style='color:darkgoldenrod;'>Start Date & Time</td><td>" + data.StartDate + "</td></tr><tr><td style='color:darkgoldenrod;'>End Date & Time</td><td>" + data.EndDate + "</td></tr>";
+            html += "<tr><td style='color:darkgoldenrod;'>Admin Comments</td><td>" + data.AdminComments + "</td></tr><tr><td style='color:darkgoldenrod;'>User Status</td><td>" + data.UserStatus + "</td></tr>";
+            html += "<tr><td style='color:darkgoldenrod;'>Document</td> <td><a target='_blank' href='/Documents/" + data.Document1 + "'>View Document</a></td></tr><tr><td style='color:darkgoldenrod;'>User Emp Name</td><td>" + data.UserEmpName + "</td></tr>";
+            html += "<tr><td style='color:darkgoldenrod;'>User Signature</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.UserSignature + "' /></td></tr>";
+
+            html += "</table>";
+            $("#divfullrequestdetails").html(html);
+            $("#myModalFullrequest").modal("show");
+        });
+    }
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#LocationId").html(options.join(''));
+                $("#LocationIdfilter").html(options.join(''));
+                $("#LocationIdPM").html(options.join(''));
+                $("#ddltLocation").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadDepartment() {
+        var options = [];
+        options.push('<option value="">- Select Department -</option>');
+        if ($("#LocationIdfilter").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Biomedical/GetDepartmentByLocation",
+                data: "id=" + $("#LocationIdfilter").val(),
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                    }
+                    $("#DepartmentIdfilter").html(options.join(''));
+                },
+                error: function () {
+                    alert("error");
+                }
+            });
+        }
+        else {
+            $("#DepartmentIdfilter").html(options.join(''));
+        }
+    }
+    function DepartmentChange() {
+        var options = [];
+        options.push('<option value="">- Select Sub Department -</option>');
+        if ($("#DepartmentIdfilter").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Biomedical/GetSubDepartmentByDepartment",
+                data: "id=" + $("#DepartmentIdfilter").val(),
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].SubDepartmentId + '">' + data[i].Name + '</option>');
+                    }
+                    $("#SubDepartmentIdfliter").html(options.join(''));
+                },
+                error: function () {
+                    alert("error");
+                }
+            });
+        }
+        else {
+            $("#SubDepartmentIdfliter").html(options.join(''));
+        }
+    }
+</script>
+<style>
+    #captureSignature {
+        width: 100%;
+        height: auto;
+        min-height: 300px;
+        border: 1px solid black;
+    }
+</style>
+<input type="hidden" id="BioMedicalTeam" value="@ViewBag.BioMedicalTeam" />
+<div class="panel panel-default" style="min-height:500px;">
+    <div class="panel-heading">Manage Daily Rounds<a href="#" data-toggle="modal" class="pull-right" onclick="New();">New </a></div>
+    <div class="panel-body">
+        <div class="form-row">
+            <div class="col-md-2">
+                <select class="form-control maxwidth" id="LocationIdfilter" onchange="LoadDepartment();"></select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-control maxwidth" id="DepartmentIdfilter" onchange="DepartmentChange(); ">
+                    <option value="">- Select Department -</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select class="form-control maxwidth" id="SubDepartmentIdfliter" onchange="LoadEquipment();">
+                    <option value="">- Select Sub Department -</option>
+                </select>
+            </div>
+            <div class="form-group col-md-1">
+                <input type="text" class="form-control" name="FromDate" autocomplete="off" placeholder="From Date" id="Ftxtfromdate" style="max-width:200px;" />
+            </div>
+            <div class="form-group col-md-1">
+                <input type="text" class="form-control" name="ToDate" autocomplete="off" placeholder="To Date" id="Ftxttodate" style="max-width:200px;" />
+            </div>
+            <div class="form-group col-md-1">
+                <select id="FddlCategoryTypeForFilter" class="form-control" style="max-width:200px;">
+                    <option value="">Select Status</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Completed">Completed</option>
+                </select>
+            </div>
+            <div class="form-group col-md-1">
+                <select id="FAssignTo" style="width: 100%" class="form-control typeahead" name="query" data-provide="typeahead" autocomplete="off">
+                    <option value="">Select Engineer</option>
+                </select>
+            </div>
+            <div class="form-group col-md-2">
+                <button type="button" class="btn btn-sm btn-default" value="Export To Excel" onclick="ExportExcel();"><span class="glyphicon glyphicon-download" style="vertical-align:middle;"></span>&nbsp;Export To Excel</button>
+                <button type="button" class="btn btn-sm btn-success" value="Go" onclick="LoadData();"><span class="glyphicon glyphicon-search" style="vertical-align:middle;"></span>&nbsp;Go</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped table-bordered nowrap" style="width:100%;" id="tbl_DailyRound">
+                    <thead>
+                        <tr style="background-color: #786C67;color: white;">
+                            <th>Id</th>
+                            <th>Location</th>
+                            <th>Department</th>
+                            @*<th>Sub Department</th>*@
+                            <th>Engineer</th>
+                            <th>Round Status</th>
+                            <th>Start Time</th>
+                            <th>End Time</th>
+                            @*<th>Work Done</th>
+                                <th>Document</th>*@
+                            <th>Verified By</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="myModalMarkasComplete" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog" style="width:750px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" id="header">Mark as Complete</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:15px;">
+                    <div class="form-group col-md-3">
+                        <label>End Date<span style="color:red;">*</span></label>
+                        <input type="text" name="EndDate" class="form-control date" id="MEndDate" />
+                    </div>
+                    <div class="form-group col-md-3  bootstrap-timepicker timepicker">
+                        <label>End Time<span style="color:red;">*</span></label>
+                        <input type="text" name="EndTIme" class="form-control time" id="MEndTime" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" onclick="SaveMarkComplete();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" onclick="ClearMarkComplete();" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalUserSignoff" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog" style="width:750px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>User SignOff<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:15px;">
+                    <div class="form-group col-md-12">
+                        <div style="margin-bottom:5px;">
+                            <label>Employee</label><br />
+                            <select id="signoffUser" style="width:150px" class="form-control typeahead EmpId" name="query" data-provide="typeahead" autocomplete="off"></select>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-12" style="height:250px;">
+                        <label style="margin-bottom:5px;">Signature</label><br />
+                        <div id="captureSignature">
+                        </div>
+                        <div class="form-group col-md-6" style="margin-left:0 !important;">
+                            <button type="button" id="clear2Button" class="btn btn-primary" style="width: 100px;margin-left:10% !important;">Clear</button>
+                        </div>
+                        <input type="hidden" id="signatureJSON" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" onclick="SaveUserSignoff();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="myModalFullrequest" role="dialog">
+    <div class="form-block">
+        <h3>View Daily Rounds<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <div id="divfullrequestdetails">
+        </div>
+    </div>
+</div>
+
+<div id="divManageDocuments" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Manage Documents</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <tr>
+                        <td>
+                            Is It Private :
+                        </td>
+                        <td>
+                            <input type="checkbox" id="documentisprivate" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Select File  :
+                        </td>
+                        <td>
+                            <input type="file" name="file" id="selectfiletoupload" multiple />
+                        </td>
+                        <td>
+                            <input type="button" id="btnUploadfile" class="btn btn-primary" value="Upload" onclick="Uploaddataclick();" />
+                        </td>
+                    </tr>
+
+                </table>
+                <div class="row" style="padding:5px;" id="Divdocumentshistory">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>

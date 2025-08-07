@@ -1,0 +1,692 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    var validate;
+    $(document).ready(function () {
+        LoadAllEvents();
+        BindDelegates();
+        var dtToday = new Date();
+        showDate(dtToday, "BookingFromDate");
+        showDate(dtToday, "BookingToDate");
+        showDate(dtToday, "pDateOfPayment");
+        showDate(dtToday, "mEventDate");
+        showDate(dtToday, "epDateOfPayment");
+
+        function showDate(date, dID) {
+            var dtToday = new Date(date);
+            var month = dtToday.getMonth();
+            var day = dtToday.getDate();
+            var year = dtToday.getFullYear();
+            if (month < 10)
+                month = '0' + month.toString();
+            if (day < 10)
+                day = '0' + day.toString();
+            var maxDate = day + '/' + month + '/' + year;
+            $("#" + dID).datepicker({
+                changeYear: true,
+                changeMonth: true,
+                minDate: maxDate,
+                yearRange: "0:+1",
+                dateFormat: "dd-M-yy",
+            }).val();
+            $("#" + dID).datepicker("option", "minDate", new Date(year, month, day, 1));
+        }
+    });
+    function LoadAllEvents() {
+        $.get("/Event/GetAllEvents", function (data) {
+            var html = "<option value=''>Select</option>";
+            for (var i = 0; i < data.length; i++) {
+                html += "<option value='" + data[i].EventId + "'>" + data[i].Name + "</option>"
+            }
+            $("#ddlselectEvents").html(html);
+        });
+    }
+    function GetEventDelegateDetails() {
+        var eventId = $("#ddlselectEvents").val();
+        $("#hdnEventId").val(eventId);
+        $('#tblEventDelegates').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Event/GetEventDelegateDetails?eventId=" + eventId,
+            "bSortable": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "DelegateId" },
+                { "sName": "Name" },
+                { "sName": "Name" },
+                { "sName": "BookingFromDate" },
+                { "sName": "BookingToDate" },
+                { "sName": "Comments" },
+                { "sName": "Workshop" },
+                { "sName": "Conference" },
+                { "sName": "IsActive" },
+                {
+                    "sName": "EventDelegateId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="Barcode(this.id);">Barcode</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="DelegatePayment(this.id);">View Delegate Payment</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="DelegateMealType(this.id);">View Delegate Meal</a></li>' +
+                            '</ul></div>';
+                    }
+                }
+            ],
+            "fnRowCallback": function (nRow, aData, iDisplayIndex) {
+                $("td:nth-child(1)", nRow).html(iDisplayIndex + 1);
+                return nRow;
+            }
+        });
+        $("#tblEventDelegates_length").addClass("col-md-6");
+        $("#tblEventDelegates_length").addClass("col-md-6");
+    }
+    function BindDelegates() {
+        $.ajax({
+            type: "POST",
+            url: "/EventMaster/GetDelegateAllDetails",
+            dataType: "json",
+            contentType: "application/json",
+            success: function (data) {
+                $("#dDelegateId").html('');
+                $("#mDelegateId").html('');
+                $("#pDelegateId").html('');
+                var optionhtml = '<option value="-1">' + "-- Select Delegate --" + '</option>';
+                $.each(data, function (i) {
+                    optionhtml += '<option value="' + data[i].Value + '">' + data[i].Text + '</option>';
+                });
+                $("#dDelegateId").append(optionhtml);
+                $("#mDelegateId").append(optionhtml);
+                $("#pDelegateId").append(optionhtml);
+            }
+        });
+    }
+    function validateEventDelegate() {
+        validate = true;
+        if (parseInt($('#hdnEventId').val()) > 0) {
+            $(".css-error").removeClass('css-error');
+            //if ($("#dEventId").val() != $('#hdnEventId').val()) {
+            //    $("#dEventId").addClass('css-error');
+            //    validate = false;
+            //}
+            if ($("#dDelegateId").val() == "-1") {
+                $("#dDelegateId").addClass('css-error');
+                validate = false;
+            }
+            if ($("#BookingFromDate").val() == "") {
+                $("#BookingFromDate").addClass('css-error');
+                validate = false;
+            } if ($("#BookingToDate").val() == "") {
+                $("#BookingToDate").addClass('css-error');
+                validate = false;
+            }
+            if ($("#Comments").val() == "") {
+                $("#Comments").addClass('css-error');
+                validate = false;
+            }
+            if (validate) {
+                return  saveEventDelegate();
+            }
+        }
+        return validate;
+    }
+    function clearData() {
+        $('#eventDelegateId').val();
+        // $('#EventId').val("-1");
+        $('#DelegateId').val("-1");
+        $('#BookingFromDate').val('');
+        $('#BookingToDate').val('');
+        $('#Comments').val('');
+        $('#Document1').val(null);
+        $('#Document2').val(null);
+        $("#Workshop").prop('checked', false);
+        $("#Conference").prop('checked', false);
+
+        $('#EventDelegatePaymentId').val();
+        //   $('#pEventId').val("-1");
+        $('#pDelegateId').val("-1");
+        $('#pPaymentId').val("-1");
+        $('#pAmount').val('');
+        $('#pDateOfPayment').val('');
+        $('#pRemarks').val('');
+        $('#pDocument1').val(null);
+        $('#pDocument2').val(null);
+
+        $('#mEventDelegateMealTypeId').val();
+        //  $('#mEventId').val("-1");
+        $('#mMealTypeId').val("-1");
+        $('#mDelegateId').val("-1");
+        $('#mEventDate').val('');
+        $('#mComments').val('');
+        $('#mQty').val('');
+
+        $('#EventPaymentId').val();
+        //  $('#epEventId').val("-1");
+        $('#epPaymentId').val("-1");
+        $('#epAmount').val('');
+        $('#epDateOfPayment').val('');
+        $('#epRemarks').val('');
+        $('#epDocument1').val(null);
+        $('#epDocument2').val(null);
+
+        $('#myModalEventPayment').modal('hide');
+        $('#myModalEventDelegateMealTypes').modal('hide');
+        $('#myModalEventDelegatePayment').modal('hide');
+        $('#myModalEventDelegate').modal('hide');
+
+        // GetEventDelegatePayments($('#hdnEventId').val());
+        //   window.location.href = window.location.href;
+        window.location.reload();
+    }
+    function saveEventDelegate() {
+        if (validate) {
+            var fileData = new FormData();
+            var files = new Array();
+            files.push($("#Document1").get(0).files != undefined && $("#Document1").get(0).files.length > 0 ? $("#Document1").get(0).files[0] : null);
+            files.push($("#Document2").get(0).files != undefined && $("#Document2").get(0).files.length > 0 ? $("#Document2").get(0).files[0] : null);
+            for (var i = 0; i < files.length; i++) {
+                if (files[i] != null) {
+                    fileData.append("httpPostedFileBase", files[i]);
+                }
+                fileData.append("Document" + (i + 1), files[i] == null ? '' : files[i].name);
+            }
+            // Event Details
+            fileData.append('EventDelegateId', $("#eventDelegateId").val());
+            fileData.append('EventId', $("#hdnEventId").val());
+            fileData.append('DelegateId', $("#dDelegateId").val());
+            fileData.append('BookingFromDate', $("#BookingFromDate").val());
+            fileData.append('BookingToDate', $("#BookingToDate").val());
+            fileData.append('Comments', $("#Comments").val());
+            fileData.append('Workshop', $("#Workshop").is(":checked"));
+            fileData.append('Conference', $("#Conference").is(":checked"));
+            if (parseInt($("#eventPaymentId").val()) < 0)
+                fileData.append('IsActive', true);
+            fileData.append('CreatedBy', '');
+
+            $.ajax({
+                type: "POST",
+                url: "/EventDelegate/SaveEventDelegateDetails",
+                contentType: false, // Not to set any content header
+                processData: false, // Not to process data
+                data: fileData,
+                success: function (result) {
+                    alert(result);
+                    clearData();
+                },
+                error: function (err) {
+                    alert(err.statusText);
+                    clearData();
+                }
+            });
+        }
+    }
+    function validateEventDelegatePayment() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#pEventId").val() != $('#hdnEventId').val()) {
+            $("#pEventId").addClass('css-error');
+            validate = false;
+        }
+        if ($("#pDelegateId").val() == "-1") {
+            $("#pDelegateId").addClass('css-error');
+            validate = false;
+        }
+        if ($("#pPaymentId").val() == "-1") {
+            $("#pPaymentId").addClass('css-error');
+            validate = false;
+        }
+        if (parseInt($("#pAmount").val()) < 0) {
+            $("#pAmount").addClass('css-error');
+            validate = false;
+        }
+        if ($("#pDateOfPayment").val() == "") {
+            $("#pDateOfPayment").addClass('css-error');
+            validate = false;
+        }
+        if ($("#pRemarks").val() == "") {
+            $("#pRemarks").addClass('css-error');
+            validate = false;
+        }
+        if (validate) {
+            saveEventDelegatePayment();
+        }
+    }
+    function saveEventDelegatePayment() {
+        if (validate) {
+            var fileData = new FormData();
+            var files = new Array();
+            files.push($("#pDocument1").get(0).files != undefined && $("#pDocument1").get(0).files.length > 0 ? $("#pDocument1").get(0).files[0] : null);
+            files.push($("#pDocument2").get(0).files != undefined && $("#pDocument2").get(0).files.length > 0 ? $("#pDocument2").get(0).files[0] : null);
+            for (var i = 0; i < files.length; i++) {
+                if (files[i] != null) {
+                    fileData.append("httpPostedFileBase", files[i]);
+                }
+                fileData.append("Document" + (i + 1), files[i] == null ? '' : files[i].name);
+            }
+            // Event Details
+            fileData.append('EventDelegatePaymentId', $("#EventDelegatePaymentId").val());
+            fileData.append('EventId', $("#hdnEventId").val());
+            fileData.append('DelegateId', $("#pDelegateId").val());
+            fileData.append('PaymentId', $("#pPaymentId").val());
+            fileData.append('Amount', $("#pAmount").val());
+            fileData.append('DateOfPayment', $("#pDateOfPayment").val());
+            fileData.append('Remarks', $("#pRemarks").val());
+            if (parseInt($("#EventDelegatePaymentId").val()) < 0)
+                fileData.append('IsActive', true);
+            fileData.append('CreatedBy', '');
+
+            $.ajax({
+                type: "POST",
+                url: "/EventDelegate/SaveEventDelegatePaymentDetails",
+                contentType: false, // Not to set any content header
+                processData: false, // Not to process data
+                data: fileData,
+                success: function (result) {
+                    alert(result);
+                    clearData();
+                },
+                error: function (err) {
+                    alert(err.statusText);
+                    clearData();
+                }
+            });
+        }
+    }
+    function validateDelegateMealType() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#mEventId").val() != $('#hdnEventId').val()) {
+            $("#mEventId").addClass('css-error');
+            validate = false;
+        }
+        if ($("#mDelegateId").val() == "-1") {
+            $("#mDelegateId").addClass('css-error');
+            validate = false;
+        }
+        if ($("#mMealTypeId").val() == "-1") {
+            $("#mMealTypeId").addClass('css-error');
+            validate = false;
+        }
+        if (parseInt($("#mQty").val()) < 0) {
+            $("#mQty").addClass('css-error');
+            validate = false;
+        }
+        if ($("#mEventDate").val() == "") {
+            $("#mEventDate").addClass('css-error');
+            validate = false;
+        }
+        if ($("#mComments").val() == "") {
+            $("#mComments").addClass('css-error');
+            validate = false;
+        }
+        if (validate) {
+            saveDelegateMealType();
+        }
+    }
+    function saveDelegateMealType() {
+        if (validate) {
+            var fileData = new FormData();
+            fileData.append('EventDelegateMealTypeId', $("#EventDelegateMealTypeId").val());
+            fileData.append('EventId', $("#hdnEventId").val());
+            fileData.append('MealTypeId', $("#mMealTypeId").val());
+            fileData.append('DelegateId', $("#mDelegateId").val());
+            fileData.append('EventDate', $("#mEventDate").val());
+            fileData.append('Qty', $("#mQty").val());
+            fileData.append('Comments', $("#mComments").val());
+            if (parseInt($("#EventDelegateMealTypeId").val()) < 0)
+                fileData.append('IsActive', true);
+            fileData.append('CreatedBy', '');
+
+            $.ajax({
+                type: "POST",
+                url: "/EventDelegate/SaveDelegateMealType",
+                contentType: false, // Not to set any content header
+                processData: false, // Not to process data
+                data: fileData,
+                success: function (result) {
+                    alert(result);
+                    clearData();
+                },
+                error: function (err) {
+                    alert(err.statusText);
+                    clearData();
+                }
+            });
+        }
+    }
+</script>
+<input type="hidden" id="hdnEventId" />
+<div class="row">
+    <div class="col-md-4">
+        &nbsp;
+    </div>
+    <div class="col-md-4">
+        <br />
+        <select id="ddlselectEvents" class="form-control" onchange="GetEventDelegateDetails();">
+            <option value="">Select</option>
+        </select><br />
+    </div>
+    <div class="col-md-4">
+        &nbsp;
+    </div>
+</div>
+<div class="well well-sm" style="margin-bottom:2px !important; background-color:lightcyan;">
+    Manage Event vs Delegate  <a href="javascript:void(0);" style="float:right;margin-right:10px;margin-top:-7px;color:teal;cursor:pointer;" data-toggle="modal" data-target="#myModalEventDelegate">Add Event Delegate</a>
+    <a href="javascript:void(0);" style="float:right;margin-right:10px;margin-top:-7px;color:teal;cursor:pointer;" id="btnExport" value="Export Excel Delegate" onclick="ExportExcelEventDelegate()">Export To Excel</a>
+</div>
+<table class="table table-striped" id="tblEventDelegates" style="width:100%;">
+    <thead>
+        <tr>
+            <th>SL.No</th>
+            <th>Event Name</th>
+            <th>Delegate Name</th>
+            <th>StartDate</th>
+            <th>End Date</th>
+            <th>Comments</th>
+            <th>Workshop</th>
+            <th>Conference</th>
+            <th>Active</th>
+            <th>Action</th>
+
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+<br />
+
+<div id="myModalEventDelegate" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Event Delegate</h4>
+            </div>
+            <div class="modal-body">
+                <form id="Documents" method="post" enctype="multipart/form-data">
+                    <input type="hidden" id="EventPaymentId" />
+                    <div class="row" style="padding:5px; display:none;">
+                        <div class="col-md-4">
+                            <label for="EventId">Event<span style="color:red;">&nbsp;*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <select class="form-control" disabled style="background-color: #fff;" id="dEventId"></select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="DelegateId">Delegate<span style="color:red;">&nbsp;*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <select class="form-control" id="dDelegateId">
+                                <option value="-1">-- Select Delegate --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="BookingFromDate">Start Date<span style="color:red;">&nbsp;*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" style="background-color: #fff;" readonly id="BookingFromDate">
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="BookingToDate">End Date<span style="color:red;">&nbsp;*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" style="background-color: #fff;" readonly id="BookingToDate">
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="Comments">Workshop/Conference<span style="color:red;">&nbsp;</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <label class="btn btn-primary">
+                                <input type="checkbox" id="Workshop" autocomplete="off">
+                                <span>Workshop</span>
+                            </label>
+                            <label class="btn btn-primary">
+                                <input type="checkbox" id="Conference" autocomplete="off">
+                                <span>Conference</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="Comments">Comments<span style="color:red;">&nbsp;*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <textarea type="text" class="form-control" id="Comments"></textarea>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="Document1">Document </label>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="file" class="form-control" id="Document1">
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="Document2">Document</label>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="file" class="form-control" id="Document2">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="button" id="btnSave" value="Save" onclick="return validateEventDelegate();" class="btn btn-primary">
+                        <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearData();">Close</button>
+                    </div>
+                </form>
+            </div>
+           
+        </div>
+
+    </div>
+</div>
+<div id="myModalEventDelegatePayment" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog  modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Delegate Payment</h4>
+            </div>
+            <div class="modal-body">
+
+                <input type="hidden" id="EventDelegatePaymentId" />
+                <div class="row" style="padding:5px;display:none">
+                    <div class="col-md-4">
+                        <label for="EventId">Event<span style="color:red;">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select class="form-control" disabled style="background-color: #fff;" id="pEventId"></select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;display:none;">
+                    <div class="col-md-4">
+                        <label for="DelegateId">Delegate<span style="color:red;">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select class="form-control" style="background-color: #fff;" disabled id="pDelegateId">
+                            <option value="-1">-- Select Delegate --</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-2">
+                        <label for="PaymentId">Payment Type<span style="color:red;">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-control" id="pPaymentId">
+                            <option value="-1">-- Select Payment --</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-2">
+                        <label for="Amount">Amount<span style="color:red;">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" onKeyPress="return isNumber(event);" id="pAmount">
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-2">
+                        <label for="DateOfPayment">Payment Date<span style="color:red;">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" style="background-color: #fff;" readonly id="pDateOfPayment">
+                    </div>
+
+                    <div class="col-md-2">
+                        <label for="Remarks">Remarks<span style="color:red;">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <textarea type="text" class="form-control" id="pRemarks"></textarea>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;display:none">
+                    <div class="col-md-4">
+                        <label for="Document1">Document <span style="color:red;">&nbsp;</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="file" class="form-control" id="pDocument1">
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;display:none;">
+                    <div class="col-md-4">
+                        <label for="Document2">Document<span style="color:red;">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="file" class="form-control" id="pDocument2">
+                    </div>
+                </div>
+
+            </div>
+            <div class="row" style="padding:5px; margin:0px !important; text-align:center;">
+                <input type="button" id="btnSave" value="Save" onclick="validateEventDelegatePayment();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearData();">Close</button>
+            </div>
+
+            <div class="row" style="padding:5px; margin:0px !important;">
+                <table class="table table-striped" id="tblEventDelegatePayments" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th>SL.No</th>
+                            <th>Event Name</th>
+                            <th>Delegate Name</th>
+                            <th>Payee Name</th>
+                            <th>Amount</th>
+                            <th>Payment Date</th>
+                            <th>Remarks</th>
+                            <th>Active</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModalEventDelegateMealTypes" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog  modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">Delegate Meal</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="EventDelegateMealTypeId" />
+                <div class="row" style="padding:5px;display:none">
+                    <div class="col-md-4">
+                        <label for="EventId">Event<span style="color:red;">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select class="form-control" disabled style="background-color: #fff;" id="mEventId"></select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;display:none">
+                    <div class="col-md-4">
+                        <label for="DelegateId">Delegate<span style="color:red;">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select class="form-control" style="background-color: #fff;" disabled id="mDelegateId">
+                            <option value="-1">-- Select Delegate --</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="MealTypeId">Meal Type<span style="color:red;">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <select class="form-control" id="mMealTypeId">
+                            <option value="-1">-- Select Meal --</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="EventDate">Event Date<span style="color:red;">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" style="background-color: #fff;" readonly class="form-control" id="mEventDate">
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="Qty">Quantity<span style="color:red;">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" onKeyPress="return isNumber(event);" id="mQty">
+                    </div>
+                </div>
+
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4">
+                        <label for="Comments">Comments<span style="color:red;">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" class="form-control" id="mComments">
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="padding:5px; margin:0px !important; text-align:center;">
+
+                <input type="button" id="btnSave" value="Save" onclick="validateDelegateMealType();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearData();">Close</button>
+            </div>
+
+
+            <div class="row" style="padding:5px; margin:0px !important;">
+                <table class="table table-striped" id="tblEventDelegateMealTypes">
+                    <thead>
+                        <tr>
+                            <th>SL.No</th>
+                            <th>Event Name</th>
+                            <th>Meal Name</th>
+                            <th>Delegate Name</th>
+                            <th>Event Date</th>
+                            <th>Amount</th>
+                            <th>Remarks</th>
+                            <th>Active</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,215 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+        $("#Date")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                Edit: true
+            })
+        $('#Date').datepicker('setDate', new Date());
+        EmployeeSearch();
+        LoadMealType();
+        LoadVendorStock();
+
+    });
+    function EmployeeSearch() {
+
+        $("#EmpId").select2({
+            ajax: {
+                url: "/Home/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            width: 'element',
+            minimumInputLength: 4
+        });
+    }
+
+    function LoadMealType() {
+        $.ajax({
+            type: "POST",
+            url: "/CMS/GetMealType",
+            //data: "id=",
+            success: function (data) {
+
+                var options = [];
+
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].MealTypeId + '">' + data[i].MealTypeName + '</option>');
+                }
+                $("#MealTypeId").html(options.join(''));
+
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadVendorStock() {
+        $.ajax({
+            type: "POST",
+            url: "/CMS/GetCMS_VendorMealType",
+            //data: "id=",
+            success: function (data) {
+
+                var options = [];
+                options.push('<option value="">- Select Vendor Stock -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].VendorStockRequestId + '">' + data[i].VendorName + '-' + data[i].LocationName + '</option>');
+                }
+                $("#VendorStockRequestId").html(options.join(''));
+
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function validatedetails() {
+        var validate = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if ($("#VendorStockRequestId").val() == "") {
+            $("#VendorStockRequestId").after('<span class="error" style="color:Red;">Select Vendor Stock</span>');
+            $("#VendorStockRequestId").addClass('css-error');
+            validate = false;
+        }
+        //alert($("#EmpId").val());
+        //if ($("#EmpId").val() == null ) {
+        //    $("#EmpId").before('<span class="error" style="color:Red;">Select Location</span>');
+        //    $("#EmpId").addClass('css-error');
+        //    validate = false;
+        //}
+        if ($("#MealTypeId").val() == "") {
+            $("#MealTypeId").after('<span class="error" style="color:Red;">select Meal Type</span>');
+            $("#MealTypeId").addClass('css-error');
+            validate = false;
+        }
+        if ($("#Qty").val() == "") {
+            $("#Qty").after('<span class="error" style="color:Red;">select Qty</span>');
+            $("#Qty").addClass('css-error');
+            validate = false;
+        }
+        return validate;
+    }
+    function SaveDetails() {
+
+        var valid = validatedetails();
+        if ($("#EmpId").val() == null) {
+            alert("Please Select Employee");
+            valid = false;
+        }
+        if (valid) {
+            var task = {
+                VendorStockRequestId: $('#VendorStockRequestId').val(),
+                EmpId: $("#EmpId").val(),
+                MealTypeId: $("#MealTypeId").val(),
+                Qty: parseInt($("#Qty").val()),
+                Notes: $("#Notes").val(),
+                IsActive: true
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "/CMS/SaveVendorMeal",
+                data: task,
+                success: function (data) {
+                    alert("Success");
+                    window.location.reload();
+                }
+            });
+        }
+    }
+    function cancel() {
+        window.location.href = '/CMS/ManageFood';
+    }
+</script>
+
+<div class="panel panel-default" style="width:80%;margin:auto;">
+    <div class="panel-heading" style="background: linear-gradient(to bottom, rgba(217,39,64,1) 35%,rgba(146,0,0,1) 77%);height:35px;">
+        Create Food
+    </div>
+    <div class="panel-body CpxNewRequest" style="min-height:400px;">
+        <div class="row" style="width:95%;margin:auto;">
+
+            <div class="col-md-12">
+                <table class="table table-stribbed">
+                    <tr>
+                        <td>
+                            <label>VendorStockRequest<span class="text-danger">*</span> </label>
+                        </td>
+                        <td>
+                            <select class="form-control" id="VendorStockRequestId"></select>
+                        </td>
+                        <td>&nbsp;</td>
+
+                        <td>
+                            <label>Employee<span class="text-danger">*</span> </label>
+                        </td>
+                        <td>
+                            <select id="EmpId" style="width: 100%" class="form-control typeahead" name="query" data-provide="typeahead" autocomplete="off"></select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>MealType<span class="text-danger">*</span></label>
+                        </td>
+                        <td>
+                            <select class="form-control" id="MealTypeId"></select>
+                        </td>
+                        <td>&nbsp;</td>
+                        <td>
+                            <label>Date<span class="text-danger">*</span></label>
+                        </td>
+                        <td>
+                            <input type="text" name="name" id="Date" style="width: 100%" class="form-control" disabled />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Qty<span class="text-danger">*</span></label>
+                        </td>
+                        <td>
+                            <input class="form-control" id="Qty" type="number" />
+                        </td>
+                        <td>&nbsp;</td>
+                        <td>
+                            <label>Comments</label>
+                        </td>
+                        <td>
+                            <textarea class="form-control" id="Notes"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                    </tr>
+                </table>
+
+            </div>
+            <br />
+            <div class="form-group col-md-6">
+                <br />
+                <button type="button" class="btn save" onclick="SaveDetails();">SAVE</button>
+                <button type="button" onclick="LoadPartialdivonclick('ManageFood','My Meal');" class="btn cancel">Cancel</button>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>

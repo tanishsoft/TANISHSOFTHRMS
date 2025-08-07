@@ -1,0 +1,992 @@
+﻿@{
+    ViewBag.Title = "BookRoom";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    var eventcurrentid = 0;
+    $(document).ready(function () {
+        $('#EventTime').timepicker({ timeFormat: 'hh:mm:ss tt' });
+        $('#endtime').timepicker({ timeFormat: 'hh:mm:ss tt' });
+        $('#tblfromdate').datepicker({ dateFormat: "dd/mm/yy", minDate: 0 });
+        $('#tbltodate').datepicker({ dateFormat: "dd/mm/yy", minDate: 0 });
+        $('#tblRepeatenddate').datepicker({ dateFormat: "dd/mm/yy", minDate: 0 });
+
+        $('#txtdateforprint').datepicker({ dateFormat: "dd/mm/yy", minDate: 0 });
+        $('#txttodateforprint').datepicker({ dateFormat: "dd/mm/yy", minDate: 0 });
+
+        GetLocList();
+        $(".showRepeat").css("display", "none");
+    });
+    function ViewFullCalendar() {
+        $('#calendar').fullCalendar({
+            theme: true,
+            header: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'month,agendaWeek,agendaDay,listWeek'
+            },
+            defaultView: 'agendaWeek',
+            minTime: "07:00:00", // Duration object that denotes the first visible time of any given day
+            maxTime: "21:00:00", // Duration object that denotes the exclusive visible end time of any given day
+
+            //defaultDate: '2016-06-12',
+            editable: true,
+            eventLimit: true, // allow "more" link when too many events
+            //events: '/Calender/GetBookingEvents/',
+            events: {
+                url: '/Calender/GetBookingEvents/',
+                data: function () { // a function that returns an object
+                    return {
+                        LocationId: $('#ddlLocation_Current').val(),
+                        BuildingId: $('#ddlbuilding_Current').val(),
+                    };
+
+                }
+            },
+            eventClick: function (calEvent, jsEvent, view) {
+                evetclikdeid = calEvent.id;
+                fullinfo(calEvent.id);
+            },
+            eventDrop: function (event, dayDelta, minuteDelta, allDay, revertFunc) {
+                if (confirm("Confirm move?")) {
+                    UpdateEvent(event.id, event.start._i, event.start._d);
+                }
+                else {
+                    revertFunc();
+                }
+            },
+
+            eventResize: function (event, dayDelta, minuteDelta, revertFunc) {
+
+                if (confirm("Confirm change appointment length?")) {
+                    UpdateEvent(event.id, event.start, event.end);
+                }
+                else {
+                    revertFunc();
+                }
+            },
+
+            dayClick: function (date, allDay, jsEvent, view) {
+                if (new Date(date) < new Date().addHours(-10)) {
+                    alert("Invalid Date - Book Conference Will Allow Only Future Dates");
+                }
+                else {
+                    var start = moment(date).format('DD/MM/YYYY');
+                    $('#tblfromdate').val(start);
+                    $("#tbltodate").val(start);
+                    ShowEventPopup();
+                }
+
+            }
+        });
+    }
+    Date.prototype.addHours = function (h) {
+        this.setHours(this.getHours() + h);
+        return this;
+    }
+    var currenteventdata;
+    function EditRoomDetails() {
+        $.get('/Calender/VerifyUserAbletoEdit/' + eventcurrentid, function (data) {
+            if (data == "True") {
+                $("#myModal2").modal('hide');
+                var data = currenteventdata;
+                $("#Edittbltitle").val(data.Titles);
+                $("#EditEventDescription").val(data.EventDescription);
+                $("#Edittblfromdate").val(data.FromDate);
+                $("#Edittbltodate").val(data.ToDate);
+                $("#EditEventTime").val(data.StartTime);
+                $("#Editendtime").val(data.EndTime);
+                $("#Editextension").val(data.UGC_Extension);
+                $("#Editnofchair").val(data.Chair);
+                $("#Editnoftable").val(data.Tables);
+                $("#Edititreq").val(data.ITReq);
+                $("#ditViph").val(data.video);
+                $("#lblseat").val(data.Arrangemnts);
+                $("#Editemailid").val(data.EmailID);
+                $('#EditEventTime').timepicker({ timeFormat: 'hh:mm:ss tt' });
+                $('#Editendtime').timepicker({ timeFormat: 'hh:mm:ss tt' });
+                $("#myModalEdit").modal('show');
+            } else {
+                alert("This Event Created by Different User Or Event is alredy done. You Dont Have Access to Edit");
+            }
+        });
+
+    }
+    function fullinfo(id) {
+        eventcurrentid = id;
+        $.get('/Calender/GetFullBookingEvent?EventId=' + id, function (data) {
+            if (data != "NA") {
+                currenteventdata = data;
+                $("#lblEventDescription").html(data.EventDescription);
+                $("#lblEventDate").html(data.FromDate);
+                $("#lblToDate").html(data.ToDate);
+                $("#lblEventDuration").html(data.StartTime);
+                $("#lblEven").html(data.EndTime);
+                $("#lblLocationName").html(data.LocationName);
+                $("#lblBuildingName").html(data.BuildingName);
+                $("#lblFloorName").html(data.FloorName);
+                $("#lblRoomName").html(data.UGC_Extension);
+                $("#nochair").html(data.Chair);
+                $("#notables").html(data.Tables);
+                $("#lblitreqs").html(data.ITReq);
+                $("#lblphto").html(data.video);
+                $("#lblseat").html(data.Arrangemnts);
+                $("#lblemailid").html(data.EmailID);
+                $("#lblloca").html(data.DepartLocation);
+                $("#lblEmp").html(data.NameEmpl);
+                $("#myModal2").modal('show');
+            } else {
+                alert("We are unable to find the Event");
+            }
+        });
+    }
+    function ShowEventPopup() {
+        $("#myModal").modal('show');
+    }
+    function ConvertDatefromoneddmmyyytommddyyy(date) {
+        if (date != null && date != "") {
+            var cdate = date.split('/');
+            return cdate[1] + "/" + cdate[0] + "/" + cdate[2];
+        } else {
+            return "";
+        }
+
+    }
+
+    function SaveNewEvent() {
+        if (ValdiateDetails('clsrequiredevent')) {
+
+            var event = {
+                Titles: $("#tbltitle").val(),
+                FromDate: $("#tblfromdate").val(),
+                ToDate: $("#tbltodate").val(),
+                // FromDate: $("#tblfromdate").val(),
+                // ToDate: $("#tbltodate").val(),
+                StartTime: $("#EventTime").val(),
+                EndTime: $("#endtime").val(),
+                EventDescription: $("#EventDescription").val(),
+                // EventDate: $('#EventDate').val(),
+                //   EventTime: $("#EventTime").val(),
+                //  EventDuration: $("#EventDuration").val(),
+                LocationId: $("#DDLLocation").val(),
+                BuildingId: $("#DDLBuilding").val(),
+                FloorId: $("#DDLFloor").val(),
+                RoomId: 1,//RoomId: $("#DDLRoom").val(),
+                LocationName: $("#DDLLocation option:selected").text(),
+                BuildingName: $("#DDLBuilding option:selected").text(),
+                FloorName: $("#DDLFloor option:selected").text(),
+                RoomName: "",// RoomName: $("#DDLRoom option:selected").text(),
+                Chair: $("#nofchair").val(),
+                Tables: $("#noftable").val(),
+                ITReq: $("#itreq").val(),
+                video: $("#videophoto").val(),
+                Arrangemnts: $("input[name='optradio']:checked").val(),
+                UGC_Extension: $("#extension").val(),
+                EmailID: $("#emailid").val(),
+                EventColor: $("#ddlEventColor").val(),
+                RepeatEndDate: $("#tblRepeatenddate").val(),
+                Weeklyleave: $("#ddlSelectWeeklyleave").val(),
+                RepeatChecked: document.getElementById("Repeat").checked,
+                Repeatsch: $("input[name='optradioRepeat']:checked").val()
+
+            };
+            $.ajax({
+                type: 'POST',
+                url: "/Calender/SaveBooking",
+                data: event,
+                dataType: 'json',
+                success: function (result) {
+                    if (result == "Success") {
+                        $("#myModal").modal("hide");
+                        alert('Room Booked Successfully');
+                        window.location.reload();
+                    } else {
+                        alert(result);
+                    }
+                }, error: function (result) {
+                    $("#myModal").modal("hide");
+                    alert('Error, could not Book the room!');
+                }
+            });
+        } else {
+            alert("please enter all required fields");
+
+        }
+    }
+
+    function UpdateEvent(id, start, end) {
+        alert(id + " " + start + " " + end);
+    }
+
+    function GetLocList() {
+        $.get('/Common/GetLocations', function (data) {
+            var options = [];
+            options.push('<option value="0">- Select Location -</option>');
+            for (var i = 0; i < data.length; i++) {
+                if (!data[i].ShowasSubLocation)
+                options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+            }
+            $("#DDLLocation").html(options.join(''));
+            $("#ddlLocation_Current").html(options.join(''));
+            if ($("#UserLocationId").val() != null && $("#UserLocationId").val() != "") {
+                $("#ddlLocation_Current").val($("#UserLocationId").val());
+                FunLoadBuilding_New();
+            }
+            ViewFullCalendar();
+        });
+    }
+    function FunLoadBuilding() {
+        var URL = "/Common/GetByLocation?Locationid=" + $("#DDLLocation").val();
+        $.get(URL, function (data) {
+            var options = [];
+            options.push('<option value="">- Select Building -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].BuildingId + '">' + data[i].BuildingName + '</option>');
+            }
+            $("#DDLBuilding").html(options.join(''));
+        });
+
+    }
+    function FunLoadBuilding_New() {
+        $('#calendar').fullCalendar('refetchEvents');
+        var Id = $("#ddlLocation_Current").val();
+        var URL = "/Common/GetByLocation?Locationid=" + Id;
+        $.get(URL, function (data) {
+            var options = [];
+            options.push('<option value="">- Select Building -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].BuildingId + '">' + data[i].BuildingName + '</option>');
+            }
+            $("#ddlbuilding_Current").html(options.join(''));
+
+
+        });
+    }
+    function onchangebuildingload() {
+        $('#calendar').fullCalendar('refetchEvents');
+    }
+    function FunLoadFloors() {
+        var Id = $("#DDLBuilding").val();
+        if (Id == "") {
+            $("#DDLBuilding").html("");
+        }
+        else {
+            var URL = "/Common/GetByFloor?ID=" + Id;
+            $.get(URL, function (data) {
+                var options = [];
+                options.push('<option value="">- Select Floor -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].FloorId + '">' + data[i].FloorName + '</option>');
+                }
+                $("#DDLFloor").html(options.join(''));
+                //if (flrID != null && flrID != "") {
+                //    $("#DDLFloor").val(flrID);
+                //    FunLoadRooms();
+                //}
+            });
+        }
+    }
+
+    function FunLoadRooms() {
+        var Id = $("#DDLFloor").val();
+        if (Id == "") {
+            $("#DDLFloor").html("");
+        }
+        else {
+            var URL = "/Common/GetByRoom?ID=" + Id;
+            $.get(URL, function (data) {
+                var options = [];
+                options.push('<option value="">- Select Room -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].RoomId + '">' + data[i].RoomName + '</option>');
+                }
+                $("#DDLRoom").html(options.join(''));
+            });
+        }
+    }
+    function CancelEvent() {
+        if (eventcurrentid != null && eventcurrentid != "") {
+            if (confirm("Are you sure you want to cancel booking?")) {
+                $.get('/Calender/CancelRoomBooking/' + eventcurrentid, function (data) {
+                    alert(data);
+                    if (data == "Success")
+                        location.reload();
+                });
+            }
+        }
+    }
+    function EnableDisableTextBox(chair) {
+
+        var nofchair = document.getElementById("nofchair");
+        nofchair.disabled = chair.checked ? false : true;
+        if (!nofchair.disabled) {
+            nofchair.focus();
+        }
+    }
+    function EnableDisabletablebox(tables) {
+        var noftable = document.getElementById("noftable");
+        noftable.disabled = tables.checked ? false : true;
+        if (!noftable.disabled) {
+            noftable.focus();
+        }
+    }
+    function EnableReqtextbox(Req) {
+        var itreq = document.getElementById("itreq");
+        itreq.disabled = Req.checked ? false : true;
+        if (!itreq.disabled) {
+            itreq.focus();
+        }
+
+    }
+    function Enablevidotextbox(Viph) {
+        var videophoto = document.getElementById("videophoto");
+        videophoto.disabled = Viph.checked ? false : true;
+        if (!videophoto.disabled) {
+            videophoto.focus();
+        }
+
+    }
+    function UpdateEventDetails() {
+        if (confirm("Are you sure you want to udpate?")) {
+            var event = {
+                BookingId: eventcurrentid,
+                Titles: $("#Edittbltitle").val(),
+                StartTime: $("#EditEventTime").val(),
+                EndTime: $("#Editendtime").val(),
+                EventDescription: $("#EditEventDescription").val(),
+                Chair: $("#Editnofchair").val(),
+                Tables: $("#Editnoftable").val(),
+                ITReq: $("#Edititreq").val(),
+                video: $("#Editvideophoto").val(),
+                UGC_Extension: $("#Editextension").val(),
+                EmailID: $("#Editemailid").val()
+
+            };
+            $.ajax({
+                type: 'POST',
+                url: "/Calender/UpdateBooking",
+                data: event,
+                dataType: 'json',
+                success: function (result) {
+                    if (result == "Success") {
+                        $("#myModalEdit").modal('show');
+                        alert('Booking details updated Successfully');
+                        window.location.reload();
+                    } else {
+                        alert(result);
+                    }
+                }, error: function (result) {
+                    $("#myModalEdit").modal('show');
+                    alert('Error, could not Book the room!');
+                }
+            });
+        }
+    }
+    function btnGenerateEvents() {
+
+    }
+    function PrintEventstoThis() {
+        if ($("#txtdateforprint").val() != null && $("#txtdateforprint").val() != "" && $("#txttodateforprint").val() != null && $("#txttodateforprint").val() != "") {
+            $.get('/Calender/GetEventsByParams/', {
+                date: $("#txtdateforprint").val(),
+                todate: $("#txttodateforprint").val(),
+                LocationId: $("#ddlLocation_Current").val(),
+                BuildingId: $("#ddlbuilding_Current").val()
+            }, function (data) {
+                var html = "";
+                $("#tblbodyEvents").html("");
+                $("#txtevntdatetodispaly").html($("#txtdateforprint").val());
+                var j = 1;
+                for (var i = 0; i < data.length; i++) {
+                    html += "<tr>";
+                    html += "<td style='border:solid 1px #eee;'>" + j + "</td>";
+                    html += "<td style='border:solid 1px #eee;'>" + data[i].LocationName + "</td>";
+                    html += "<td style='border:solid 1px #eee;'>" + data[i].BuildingName + "</td>";
+                    html += "<td style='border:solid 1px #eee;'>" + data[i].FloorName + "</td>";
+                    html += "<td style='border:solid 1px #eee;'>" + data[i].FromDate + "</td>";
+                    html += "<td style='border:solid 1px #eee;'>" + data[i].StartTime + "</td>";
+                    html += "<td style='border:solid 1px #eee;'>" + data[i].EndTime + "</td>";
+                    html += "<td style='border:solid 1px #eee;'>" + data[i].Titles + "</td>";
+                    html += "<td style='border:solid 1px #eee;'>" + data[i].CreatedBy + "</td>";
+                    j++;
+                }
+                $("#tblbodyEvents").html(html);
+                printDiv();
+            });
+        } else {
+            alert("Please select From Date and To Date");
+        }
+    }
+    function printDiv() {
+        var divToPrint = document.getElementById('DivIdToPrintCalnders');
+        var newWin = window.open('', 'Print-Window');
+        newWin.document.open();
+        newWin.document.write('<html><body onload="window.print()">' + divToPrint.innerHTML + '</body></html>');
+        newWin.document.close();
+        //setTimeout(function () { newWin.close(); }, 10);
+    }
+    function RepeatSelect(val) {
+        if (val) {
+            $(".showRepeat").css("display", "block");
+        } else
+            $(".showRepeat").css("display", "none");
+
+    }
+</script>
+<style>
+    td {
+        word-break: break-all;
+    }
+
+        td.fc-day.fc-past {
+            background-color: #EEEEEE;
+        }
+</style>
+
+<div style="display:none;">
+    <div id="DivIdToPrintCalnders">
+        <h4 style="text-align:center;" id="txtevntdatetodispaly"></h4>
+        <table style="width:100%;">
+            <thead style="border:solid 1px #eee;background-color:teal;">
+                <tr>
+                    <td style="color:white;border:solid 1px #eee;">S.No</td>
+                    <td style="color:white;border:solid 1px #eee;">Location</td>
+                    <td style="color:white;border:solid 1px #eee;">Building</td>
+                    <td style="color:white;border:solid 1px #eee;">Floor</td>
+                    <td style="color:white;border:solid 1px #eee;">Date</td>
+                    <td style="color:white;border:solid 1px #eee;">Start Time</td>
+                    <td style="color:white;border:solid 1px #eee;">End Time</td>
+                    <td style="color:white;border:solid 1px #eee;">Title</td>
+                    <td style="color:white;border:solid 1px #eee;">Created By</td>
+                </tr>
+            </thead>
+            <tbody id="tblbodyEvents"></tbody>
+        </table>
+    </div>
+</div>
+<br />
+<div class="row">
+
+    <div class="col-md-1">
+        <span>Location<span style="color:red;">*</span></span>
+    </div>
+    <div class="col-md-2">
+        <select class="form-control" id="ddlLocation_Current" onchange="FunLoadBuilding_New()">
+            <option value="0">Select</option>
+        </select>
+    </div>
+
+    <div class="col-md-1">
+        <span>Meeting Room<span style="color:red;">*</span></span>
+    </div>
+    <div class="col-md-2">
+        <select class="form-control" id="ddlbuilding_Current" onchange="onchangebuildingload();">
+            <option value="">Select</option>
+        </select>
+    </div>
+    <div class="col-md-2">
+        <input type="text" class="form-control" id="txtdateforprint" placeholder="From Date to Print" />
+    </div>
+    <div class="col-md-2">
+        <input type="text" class="form-control" id="txttodateforprint" placeholder="To Date to Print" />
+    </div>
+    <div class="col-md-2">
+        <button type="button" id="btnprintevents" value="Print" class="btn btn-warning" onclick="PrintEventstoThis();"><span class="glyphicon glyphicon-print"></span>&nbsp;Print</button>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div id='calendar'></div>
+</div>
+
+@if (ViewBag.CurrentUser != null)
+{
+    <input id="UserLocationId" type="hidden" value="@ViewBag.CurrentUser.LocationId" />
+}
+
+<!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:900px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"><span class="glyphicon glyphicon-plus"></span>&nbsp;New</h4>
+            </div>
+            <div class="modal-body" style="padding:10px;">
+                <div class="row form-group">
+                    <div class="col-md-2">
+                        <span>Location<span style="color:red;">*</span></span>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-control clsrequiredevent" id="DDLLocation" onchange="FunLoadBuilding()"></select>
+                    </div>
+                    <div class="col-md-2">
+                        <span>Meeting Start Date<span style="color:red;">*</span></span>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" id="tblfromdate" class="form-control clsrequiredevent" readonly="readonly" placeholder="From Date" />
+                    </div>
+                    <div class="col-md-2" style="display:none;">
+                        <span>To Date<span style="color:red;">*</span></span>
+                    </div>
+                    <div class="col-md-4" style="display:none;">
+                        <input type="text" id="tbltodate" class="form-control clsrequiredevent" readonly="readonly" placeholder="To Date" />
+                    </div>
+
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-2">
+                        <span>Meeting Title <span style="color:red;">*</span> </span>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" id="tbltitle" class="form-control clsrequiredevent" placeholder="Title" />
+                    </div>
+                    <div class="col-md-2">
+                        <span>Meeting Description<span style="color:red;">*</span></span>
+                    </div>
+                    <div class="col-md-4">
+                        <textarea type="text" id="EventDescription" class="form-control clsrequiredevent" placeholder="Event Description"></textarea>
+                    </div>
+                </div>
+
+
+                <div class="row form-group">
+                    <div class="col-md-2">
+                        <span>Start Time<span style="color:red;">*</span></span>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group bootstrap-timepicker timepicker">
+                            <input id="EventTime" type="text" class="form-control input-small clsrequiredevent">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <span>End Time<span style="color:red;">*</span></span>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group bootstrap-timepicker timepicker">
+                            <input id="endtime" type="text" class="form-control input-small clsrequiredevent">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row form-group">
+                    <div class="row form-group">
+                        <div class="col-md-2">
+                            <input type="checkbox" value="Repeat" id="Repeat" onclick="RepeatSelect(this.checked);" />
+                            Repeat
+                        </div>
+                        <div class="col-md-4 showRepeat">
+                            <span>Repeat End Date</span>
+                            <input type="text" id="tblRepeatenddate" class="form-control" readonly="readonly" placeholder="From Date" />
+                        </div>
+                        <div class="col-md-4 showRepeat">
+                            <span>Select Holiday</span>
+                            <select id="ddlSelectWeeklyleave" class="form-control">
+                                <option value=""> none</option>
+                                <option value="0"> Sunday</option>
+                                <option value="1"> Monday</option>
+                                <option value="2"> Tuesday</option>
+                                <option value="3"> wednesday</option>
+                                <option value="4"> Thursday</option>
+                                <option value="5"> Friday</option>
+                                <option value="6"> Saturday</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row form-group">
+                        <div class="col-md-2 showRepeat">
+                            <span>select Repeat <span style="color:red;">*</span></span>
+                        </div>
+                        <div class="col-md-4 showRepeat">
+                            <label>  <input type="radio" id="DailyRepeat" name="optradioRepeat" value="Daily" />Daily</label>
+                            <label><input type="radio" id="WeeklyRepeat" name="optradioRepeat" value="Weekly" />Weekly</label>
+                            <label><input type="radio" id="MonthlyRepeat" name="optradioRepeat" value="Monthly" />Monthly</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-2">
+                        <span>Meeting Room <span style="color:red;">*</span></span>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-control clsrequiredevent" id="DDLBuilding" onchange="FunLoadFloors()"></select>
+                    </div>
+                    <div class="col-md-2">
+                        <span>Floor <span style="color:red;">*</span></span>
+                    </div>
+                    <div class="col-md-4">
+                        <select class="form-control clsrequiredevent" id="DDLFloor" onchange="FunLoadRooms()"></select>
+                    </div>
+
+                </div>
+                <div class="row form-group">
+                    <div class="col-md-2">
+                        <span>  Email id<span style="color:red;">*</span></span>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="email" id="emailid" class="form-control " placeholder="Your Email ID" />
+                    </div>
+                    @*<div class="col-md-2">
+                <span>Room <span style="color:red;">*</span></span>
+            </div>
+            <div class="col-md-4">
+                <select class="form-control clsrequiredevent" id="DDLRoom"></select>
+            </div>*@
+                    <div class="col-md-2">
+                        Mobile No<span style="color:red;">*</span>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" id="extension" maxlength="10" class="form-control clsrequiredevent" placeholder="Mobile No" />
+                    </div>
+                </div>
+
+
+                <div class="row form-group">
+
+                    <div class="col-md-2">
+                        <span>Arrangements</span>
+                    </div>
+                    <div class="col-md-10">
+                        <div class="col-sm-3">
+                            <input type="checkbox" value="chair" id="chair" onclick="EnableDisableTextBox(this)" />
+                            No of Chairs
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="number" id="nofchair" min="1" class="form-control" disabled="disabled" placeholder="No of Chairs" />
+
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="checkbox" value="notable" id="chair" onclick="EnableDisabletablebox(this)" />
+                            No of Table
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="number" id="noftable" min="1" class="form-control" disabled="disabled" placeholder="No of Tables" />
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="row form-group">
+
+                    <div class="col-md-2">
+
+                    </div>
+                    <div class="col-md-10">
+                        <div class="col-sm-3">
+                            <input type="checkbox" value="" id="Req" onclick="EnableReqtextbox(this)" />
+                            IT Requriements
+                        </div>
+                        <div class="col-sm-3">
+                            <textarea type="text" id="itreq" class="form-control" disabled="disabled" placeholder="IT Requriement"></textarea>
+                        </div>
+                        <div class="col-sm-3">
+
+                            <input type="checkbox" value="" id="Viph" onclick="Enablevidotextbox(this)" />
+                            Video & Photos
+                        </div>
+                        <div class="col-sm-3">
+                            <input type="text" id="videophoto" class="form-control" disabled="disabled" placeholder="video & Photos " />
+                        </div>
+                    </div>
+
+                </div>
+
+
+                <div class="row form-group">
+                    <div class="col-md-2">
+                        <span>Seating Arrangemnts</span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label>  <input type="radio" id="theatre" name="optradio" value="Theatre Style" />Theatre Style</label>
+                        <label><input type="radio" id="round" name="optradio" value="Round Table" />Round Table</label>
+                        <label><input type="radio" id="board" name="optradio" value="Board Room" />Board Room</label>
+                    </div>
+                    <div class="col-md-2">
+                        <span>Color<span style="color:red;">*</span></span>
+                    </div>
+                    <div class="col-md-4">
+                        <select id="ddlEventColor" class="form-control">
+                            <option value="#3c8dbc"> Default</option>
+                            <option value="#00c0ef" class="text-blue">Blue</option>
+                            <option value="#39cccc" class="text-teal">Teal</option>
+                            <option value="#f39c12" class="text-yellow">Yellow</option>
+                            <option value="#ff851b" class="text-orange">Orange</option>
+                            <option value="#00a65a" class="text-green">Green</option>
+                            <option value="#01ff70" class="text-lime">Lime</option>
+                            <option value="#dd4b39" class="text-red">Red</option>
+                            <option value="#605ca8" class="text-purple">Purple</option>
+                            <option value="#f012be" class="text-funchsia">Funchsia</option>
+                            <option value="#777" class="text-muted">Muted</option>
+                            <option value="#001f3f" class="text-navy">Navy</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="padding:10px;">
+                <button type="button" class="btn btn-primary" onclick="SaveNewEvent();">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- Modal -->
+<div id="myModalEdit" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:900px;">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Edit</h4>
+            </div>
+            <div class="modal-body">
+
+
+                <div class="row form-group">
+                    <div class="col-md-2">
+                        <span>Meeting Title <span style="color:red;">*</span> </span>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" id="Edittbltitle" class="form-control editclsrequiredevent" placeholder="Title" />
+                    </div>
+                    <div class="col-md-2">
+                        <span>From Date<span style="color:red;">*</span></span>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" id="Edittblfromdate" disabled="disabled" readonly="readonly" class="form-control editclsrequiredevent" placeholder="From Date" />
+                    </div>
+                </div>
+
+
+                <div class="row form-group">
+                    <div class="col-md-2">
+                        <span>To Date<span style="color:red;">*</span></span>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" id="Edittbltodate" disabled="disabled" readonly="readonly" class="form-control editclsrequiredevent" placeholder="To Date" />
+                    </div>
+
+                    <div class="col-md-2">
+                        <span>Start Time<span style="color:red;">*</span></span>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group bootstrap-timepicker timepicker">
+                            <input id="EditEventTime" type="text" class="form-control input-small editclsrequiredevent">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row form-group">
+                    <div class="col-md-2">
+                        <span>End Time<span style="color:red;">*</span></span>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group bootstrap-timepicker timepicker">
+                            <input id="Editendtime" type="text" class="form-control input-small editclsrequiredevent">
+                        </div>
+                    </div>
+
+                    <div class="col-md-2">
+                        <span>Meeting Description<span style="color:red;">*</span></span>
+                    </div>
+                    <div class="col-md-4">
+                        <textarea type="text" id="EditEventDescription" class="form-control editclsrequiredevent" placeholder="Event Description"></textarea>
+                    </div>
+                </div>
+
+                <div class="row form-group">
+
+
+                    <div class="col-sm-2">
+
+                        No of Chairs
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="number" id="Editnofchair" class="form-control" placeholder="No of Chairs" />
+
+                    </div>
+                    <div class="col-sm-2">
+
+                        No of Table
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="number" id="Editnoftable" class="form-control" placeholder="No of Tables" />
+                    </div>
+
+
+                </div>
+
+                <div class="row form-group">
+
+
+                    <div class="col-sm-2">
+
+                        IT Requriements
+                    </div>
+                    <div class="col-sm-4">
+                        <textarea type="text" id="Edititreq" class="form-control" placeholder="IT Requriement"></textarea>
+                    </div>
+                    <div class="col-sm-2">
+
+
+                        Video & Photos
+                    </div>
+                    <div class="col-sm-4">
+                        <input type="text" id="Editvideophoto" class="form-control" placeholder="video & Photos " />
+                    </div>
+
+
+                </div>
+
+
+                <div class="row form-group">
+                    <div class="col-md-2">
+                        Mobile No<span style="color:red;">*</span>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" id="Editextension" class="form-control editclsrequiredevent" maxlength="10" placeholder="Mobile No" />
+                    </div>
+                    <div class="col-md-2">
+                        <span>  Email id<span style="color:red;">*</span></span>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="email" id="Editemailid" class="form-control editclsrequiredevent" placeholder="Your Email ID" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="UpdateEventDetails();">Update</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<div id="myModal2" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:900px;">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Booked Room Details</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered">
+                    <tr>
+                        <td>Meeting Description</td>
+                        <td colspan="3"><span id="lblEventDescription"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Meeting Start Date</td>
+                        <td><span id="lblEventDate"></span></td>
+                        <td>To Date</td>
+                        <td><span id="lblToDate"></span></td>
+                    </tr>
+
+
+                    <tr>
+                        <td>Strat Time</td>
+                        <td><span id="lblEventDuration"></span></td>
+                        <td>End Time</td>
+                        <td><span id="lblEven"></span></td>
+                    </tr>
+
+
+                    <tr>
+                        <td>Location</td>
+                        <td><span id="lblLocationName"></span></td>
+                        <td>Meeting Room</td>
+                        <td><span id="lblBuildingName"></span></td>
+                    </tr>
+
+                    <tr>
+                        <td>Floor</td>
+                        <td><span id="lblFloorName"></span></td>
+                        <td>Mobile No</td>
+                        <td><span id="lblRoomName"></span></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            No Chair
+                        </td>
+                        <td>
+                            <span id="nochair"></span>
+                        </td>
+                        <td>
+                            No Tables
+                        </td>
+                        <td><span id="notables"></span></td>
+                    </tr>
+
+                    <tr>
+                        <td>IT Requriements</td>
+                        <td><span id="lblitreqs"></span></td>
+                        <td>Video & Photos</td>
+                        <td><span id="lblphto"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Seating Arrangemnts</td>
+                        <td><span id="lblseat"></span></td>
+                        <td>Email ID</td>
+                        <td><span id="lblemailid"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Unit Location</td>
+                        <td><span id="lblloca"></span></td>
+                        <td>Employee</td>
+                        <td><span id="lblEmp"></span></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                @*<button type="button" class="btn btn-warning" onclick="EditRoomDetails();">Edit Booking</button>*@
+                <button type="button" class="btn btn-danger" onclick="CancelEvent();">Cancel Booking</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModel3" class="modal fade" role="dialog">
+    <div class="modal-dialog" style="width:900px;">
+        <!--Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Edit Book Room</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered">
+                    <tr>
+                        <td>Description</td>
+                        <td colspan="3"><textarea id="tbldesp" class="form-control"></textarea></td>
+                    </tr>
+                    <tr>
+                        <td>From Date</td>
+                        <td><input type="text" id="tblFD" class="form-control" /></td>
+                        <td>To Date</td>
+                        <td><input type="text" id="tblTD" class="form-control" /></td>
+                    </tr>
+
+                    <tr>
+                        <td>Start Time</td>
+                        <td>
+                            <input type="text" id="tblstime" class="form-control" />
+                        </td>
+                        <td>
+                            End Time
+                        </td>
+                        <td>
+                            <input type="text" id="tbletime" class="form-control" />
+                        </td>
+                    </tr>
+
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>

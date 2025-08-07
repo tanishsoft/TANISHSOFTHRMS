@@ -1,0 +1,201 @@
+﻿
+@{
+    ViewBag.Title = "FFYearlyStats";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<script src="~/Scripts/Commonimgpreview.js"></script>
+<style type="text/css" media="print">
+    * {
+        display: none;
+    }
+</style>
+<style>
+    .back-to-top {
+        cursor: pointer;
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        display: none;
+    }
+
+    .container2 {
+        /*border: 2px solid #dedede;*/
+        background-color: #f5f6f7;
+        border-radius: 3px;
+        padding: 6px 8px;
+        margin: 4px 0;
+    }
+
+    .darker {
+        border-color: #ccc;
+        background-color: #ddd;
+    }
+
+    .container2::after {
+        content: "";
+        clear: both;
+        display: table;
+    }
+
+    .container2 img {
+        float: left;
+        /*  max-width: 60px;
+        width: 100%;
+        margin-right: 20px;
+        border-radius: 50%;*/
+    }
+
+        .container2 img.right {
+            float: right;
+            margin-left: 20px;
+            margin-right: 0;
+        }
+
+    .time-right {
+        float: right;
+        color: #aaa;
+        font-size:10px;
+    }
+
+    .time-left {
+        float: left;
+        color: #999;
+    }
+
+    .publisher-input {
+        -webkit-box-flex: 1;
+        flex-grow: 1;
+        border: solid 1px #a1a2a3;
+        outline: none !important;
+        background-color: transparent;
+
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        LoadComments();
+    });
+    function SubmitMessages() {
+        if (confirm("Are you sure you want to submit?")) {
+            var key = "FFYearlyStats";
+            $.ajax({
+                type: "GET",
+                url: "/Home/SaveComment",
+                data: "key=" + key + "&Message=" + $("#txtcommentondrevita2").val() + "&commentedby=" + $("#nameofperson").val(),
+                success: function (data) {
+                    $("#txtcommentondrevita2").val("");
+                 
+                    LoadComments();
+                },
+                error: function () {
+                    // alert("error")
+                }
+            });
+        }
+    }
+
+    var comments;
+    function LoadComments() {
+        var key = "FFYearlyStats";
+        $.ajax({
+            type: "GET",
+            url: "/Home/GetCommentsbyPostId",
+            data: "key=" + key,
+            success: function (data) {
+              
+                comments = data;
+                var htmlupdate = "";
+                for (var j = 0; j < data.length; j++) {
+                        htmlupdate += "<div class='container2'>";
+                    htmlupdate += "<img class='avatar' src='https://img.icons8.com/color/36/000000/administrator-male.png' alt='' />";
+                    htmlupdate += " <span class='time-right'>" + data[j].CommentedOn + "</span> <p><span class='text-right'>" + data[j].CommentedBy + "&nbsp;- &nbsp;</span>" + data[j].Message + "</p>  </div>";
+                  
+                    
+                }
+                $("#allmessages").html(htmlupdate);
+            },
+            error: function () {
+                // alert("error")
+            }
+        });
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">FF Yearly Stats</h3>
+    </div>
+    <div class="panel-body" style="text-align:center;">
+        <div class="row">
+            <div class="col-md-8" style="text-align:center;">
+                @if (File.Exists(Server.MapPath("/Documents/Images/FFYearlyStats/1.jpg")))
+                {
+                    <img src="~/Documents/Images/FFYearlyStats/1.jpg" class="img-responsive"  style="width:900px;" /><br />
+                }
+                @if (File.Exists(Server.MapPath("/Documents/Images/FFYearlyStats/2.jpg")))
+                {
+                    <img src="~/Documents/Images/FFYearlyStats/2.jpg" class="img-responsive" style="width:900px;" /><br />
+                }
+                @if (File.Exists(Server.MapPath("/Documents/Images/FFYearlyStats/3.jpg")))
+                {
+                    <img src="~/Documents/Images/FFYearlyStats/3.jpg" class="img-responsive" style="width:900px;" /><br />
+                }
+                @if (File.Exists(Server.MapPath("/Documents/Images/FFYearlyStats/4.jpg")))
+                {
+                    <img src="~/Documents/Images/FFYearlyStats/4.jpg" class="img-responsive" style="width:900px;" /><br />
+                }
+                @if (File.Exists(Server.MapPath("/Documents/Images/FFYearlyStats/5.jpg")))
+                {
+                    <img src="~/Documents/Images/FFYearlyStats/5.jpg" class="img-responsive" style="width:900px;" /><br />
+                }
+                @if (File.Exists(Server.MapPath("/Documents/Images/FFYearlyStats/6.jpg")))
+                {
+                    <img src="~/Documents/Images/FFYearlyStats/6.jpg" class="img-responsive" style="width:900px;" /><br />
+                }
+                @if (File.Exists(Server.MapPath("/Documents/Images/FFYearlyStats/7.jpg")))
+                {
+                    <img src="~/Documents/Images/FFYearlyStats/7.jpg" class="img-responsive" style="width:900px;" /><br />
+                }
+                @if (File.Exists(Server.MapPath("/Documents/Images/FFYearlyStats/8.jpg")))
+                {
+                    <img src="~/Documents/Images/FFYearlyStats/8.jpg" class="img-responsive" style="width:900px;" /><br />
+                }
+                @if (File.Exists(Server.MapPath("/Documents/Images/FFYearlyStats/9.jpg")))
+                {
+                    <img src="~/Documents/Images/FFYearlyStats/9.jpg" class="img-responsive" style="width:900px;" /><br />
+                }
+                @for (var i = 10; i < 52; i++)
+                {
+                    string name = i + ".jpg";
+                    <img src="~/Documents/Images/FFYearlyStats/@name" class="img-responsive" style="width:900px;" /><br />
+                }
+            </div>
+            <div class="col-md-4">
+                <div style="height: 450px; background: honeydew;">
+                    <h4>Comments</h4>
+                    <div class="publisher bt-1 border-light">
+                        <table style="width:100%;">
+                            <tr>
+                                <td>
+                                    <input class="publisher-input" type="text" id="nameofperson" placeholder="Enter your Name" />
+                                </td>
+                                <td>  <input class="publisher-input" type="text" id="txtcommentondrevita2" placeholder="Write something" style="width:100%;"></td>
+                                <td>
+
+                                    <button type="button" class="publisher-btn text-info" onclick="SubmitMessages();"><i class="fa fa-paper-plane"></i>Submit</button>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div style="height:450px;overflow-y:auto;" id="allmessages">
+                        
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

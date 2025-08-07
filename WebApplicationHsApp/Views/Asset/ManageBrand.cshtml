@@ -1,0 +1,85 @@
+﻿
+@{
+    ViewBag.Title = "ManageBrand";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="~/Scripts/ManageAssetMaster.js"></script>
+<script>
+    var eId = 0;
+    $(document).ready(function () {
+        LoadData();
+        LoadAssetType();
+    });
+    function LoadData() {
+        $('#tblAssetBrand').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Asset/AjaxGetAssetBrandsDetails",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+
+                { "sName": "AssetBrandId" },
+                { "sName": "AssetType" },
+                { "sName": "Name" },
+                { "sName": "Description" },
+                { "sName": "ShortCode" },
+                { "sName": "IsActive" },
+                {
+                    "sName": "AssetBrandId",
+                    "bSortable": false,
+                    "render": function (data) {
+
+                        return '<a href="javascript:void(0);" class="btn btn-success" id="' + data + '"  onclick="Edit(this.id);"><span class="glyphicon glyphicon-edit"></span></a>&nbsp; &nbsp; &nbsp;' +
+                            '<a href="javascript:void(0);" id="' + data + '" class="btn btn-danger" onclick="Delete(this.id);"><span class="glyphicon glyphicon-trash"></span></a>';
+                    }
+                }
+            ]
+
+        });
+        $("#tblAssetMaster_length").addClass("col-md-6");
+        $("#tblAssetMaster_length").addClass("col-md-6");
+    }
+
+    function Delete(id) {
+        if (confirm("Are you sure you want to delete?")) {
+            $.get("/Asset/DeleteAssetBrand?id=" + id, function (data) {
+                alert(data);
+            });
+        }
+    }
+    function Edit(id) {
+        eId = id;
+        $.get("/Asset/GetBrandsById?id=" + id, function (res) {
+            debugger;
+            $("#AssetTypeId").val(res.AssetTypeId);
+            $("#Name").val(res.Name);
+            $("#Description").val(res.Description);
+           
+            $("#NewBrandmodel").modal('show');
+        });
+    }
+  
+
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading">Manage Brands<span style="cursor:pointer;" onclick="OpenNewBrand();" class="pull-right">New Asset Brand</span></div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblAssetBrand">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+
+                    <th>Id</th>
+                    <th>Asset Type</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Short Code</th>
+                    <th>Is Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+@Html.Partial("_CreateBrand")

@@ -1,0 +1,311 @@
+﻿
+@{
+    ViewBag.Title = "DashBoard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@*<link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+<script type="text/javascript" src="https://www.google.com/uds/api/visualization/1.0/40ff64b1d9d6b3213524485974f36cc0/format+en,default+en,ui+en,corechart+en.I.js"></script>*@
+<script>
+    //Global Variable
+    google.load("visualization", "1", { packages: ["corechart"] });
+
+    $(document).ready(function () {
+        TaskByLocation();
+        TaskByDepartment();
+        VehicleBooking();
+    });
+    //pie Chart
+      function TaskByLocation() {
+
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("GetCountOfTaskBasedonLocation", "Home")',
+                    success: function (response) {
+
+                        console.log(response);
+
+                        var data = new google.visualization.DataTable();
+
+                        data.addColumn('string', 'Location');
+                        data.addColumn('number', 'CountDetails');
+
+                        for (var i = 0; i < response.result.length; i++) {
+                            data.addRow([response.result[i].Location, response.result[i].CountDetails]);
+                        }
+
+
+                        var chart = new google.visualization.PieChart(document.getElementById('TaskbyLocation'));
+
+                        chart.draw(data,
+                          {
+                              title: "",
+                              position: "top",
+                              fontsize: "24px",
+                              chartArea: { width: '200%' },
+                          });
+                    },
+                    error: function () {
+                        alert("Error loading data!");
+                    }
+                });
+
+            }
+      function TaskByDepartment() {
+
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("GetCountOfTaskBasedonDepartment", "Home")',
+                    success: function (response) {
+
+                        console.log(response);
+
+                        var data = new google.visualization.DataTable();
+
+
+                        data.addColumn('string', 'Department');
+                        data.addColumn('number', 'CountDetails');
+
+                        for (var i = 0; i < response.result.length; i++) {
+                            data.addRow([response.result[i].Department, response.result[i].CountDetails]);
+                        }
+
+
+                        var chart = new google.visualization.ColumnChart(document.getElementById('TasksBYDepartment'));
+
+                        chart.draw(data,
+                          {
+                              title: "",
+                              position: "top",
+                              fontsize: "14px",
+                              chartArea: { width: '100%' },
+                              isStacked: true,
+
+                          });
+                    },
+                    error: function () {
+                        alert("Error loading data!");
+                    }
+                });
+
+    }
+     function VehicleBooking() {
+
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("GetCountOfVehicleBooking", "Home")',
+                    success: function (response) {
+
+                        console.log(response);
+
+                        var data = new google.visualization.DataTable();
+
+
+                        data.addColumn('number', 'NoofPersons');
+                        data.addColumn('number', 'CountDetails');
+
+                        for (var i = 0; i < response.result.length; i++) {
+                            data.addRow([response.result[i].NoofPersons, response.result[i].CountDetails]);
+                        }
+
+
+                        var chart = new google.visualization.ColumnChart(document.getElementById('VehicleBooking'));
+
+                        chart.draw(data,
+                          {
+                              title: "",
+                              position: "top",
+                              fontsize: "14px",
+                              chartArea: { width: '100%' },
+                              isStacked: true,
+                              bar: { groupWidth: "35%" },
+                              hAxis: {
+                                  viewWindow: {
+                                      min: 0,
+                                      max: 16
+                                  },
+                                  title: 'No Of Persons',
+                                  ticks: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+                              },
+                          });
+                    },
+                    error: function () {
+                        alert("Error loading data!");
+                    }
+                });
+
+            }
+</script>
+<div id="page-wrapper">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">Dashboard</h1>
+        </div>
+        <!-- /.col-lg-12 -->
+    </div>
+    <div class="col-md-12">
+        <div class="col-lg-3 col-md-2">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <i class="fa fa-tasks fa-5x"></i>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                            <div class="h1" id="NewTask">
+                                <span>
+                                    @if (ViewBag.New != null)
+                                    {
+                                        @ViewBag.New;
+                                    }
+                                </span>
+                            </div>
+                            <div>New Task!</div>
+                        </div>
+                    </div>
+                </div>
+                <a href="#" class="viewDetails" data-type="customers">
+                    <div class="panel-footer">
+                        <span class="pull-left">View Details</span>
+                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                        <div class="clearfix"></div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-2">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <i class="fa fa-spinner fa-spin fa-5x"></i>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                            <div class="h1" id="InprogessTask">
+                                <span>
+                                    @if (ViewBag.inprogess != null)
+                                    {
+                                        @ViewBag.inprogess;
+                                    }
+                                </span>
+                            </div>
+                            <div>Inprogess!</div>
+                        </div>
+                    </div>
+                </div>
+                <a href="#">
+                    <div class="panel-footer">
+                        <span class="pull-left">View Details</span>
+                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                        <div class="clearfix"></div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-2">
+            <div class="panel panel-danger">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <i class="fa fa-book fa-5x"></i>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                            <div class="h1" id="ReopenTask">
+                                <span>
+                                    @if (ViewBag.Reopen != null)
+                                    {
+                                        @ViewBag.Reopen;
+                                    }
+                                </span>
+                            </div>
+                            <div>Re open !</div>
+                        </div>
+                    </div>
+                </div>
+                <a href="#" class="viewDetails" data-type="products">
+                    <div class="panel-footer">
+                        <span class="pull-left">View Details</span>
+                        <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                        <div class="clearfix"></div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-2">
+            <div class="panel panel-success">
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-xs-3">
+                            <i class="fa fa-check-square fa-5x"></i>
+                        </div>
+                        <div class="col-xs-9 text-right">
+                            <div class="h1" id="CompletedTask">
+                                <span>
+                                    @if (ViewBag.Completed != null)
+                                    {
+                                        @ViewBag.Completed;
+                                    }
+                                </span>
+                            </div>
+                            <div>Completed!</div>
+                        </div>
+                    </div>
+                </div>
+                <a href="#" class="viewDetails" data-type="products">
+                    <div class="panel-footer">
+                        <span class="pull-left">View Details</span>
+                        <span class="pull-right"><i class="fa fa-arrow-circle-o-right"></i></span>
+                        <div class="clearfix"></div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <i class="fa fa-bar-chart-o fa-fw"></i> Tasks BY Department
+
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                    <div id="TasksBYDepartment"></div>
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+        </div>
+        <!-- /.col-lg-8 -->
+        <div class="col-lg-4">
+            <!-- /.panel -->
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <i class="fa fa-bar-chart-o fa-fw"></i> Tasks BY Location
+                </div>
+                <div class="panel-body">
+                    <div id="TaskbyLocation"></div>
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+        </div>
+        <!-- /.col-lg-4 -->
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <i class="fa fa-bar-chart-o fa-fw"></i> Vehicle Booking persons 
+
+                </div>
+                <!-- /.panel-heading -->
+                <div class="panel-body">
+                    <div id="VehicleBooking"></div>
+                </div>
+                <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+        </div>
+    </div>
+</div>

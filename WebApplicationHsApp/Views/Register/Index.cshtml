@@ -1,0 +1,97 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Security Registers</h2>
+<style>
+    .btn {
+        padding: 12px 20px;
+        cursor: pointer;
+        border-width: 1px;
+        border-radius: 0 40px 0 40px;
+        font-size: 14px;
+        font-weight: 500;
+        -webkit-box-shadow: 0px 10px 20px -6px rgba(0, 0, 0, 0.12);
+        -moz-box-shadow: 0px 10px 20px -6px rgba(0, 0, 0, 0.12);
+        box-shadow: 0px 10px 20px -6px rgba(0, 0, 0, 0.12);
+        float: none !important;
+    }
+
+        .btn:hover, .btn:active, .btn:focus {
+            outline: none !important;
+            -webkit-box-shadow: 0px 12px 20px -6px rgba(0, 0, 0, 0.21);
+            -moz-box-shadow: 0px 12px 20px -6px rgba(0, 0, 0, 0.21);
+            box-shadow: 0px 12px 20px -6px rgba(0, 0, 0, 0.21);
+        }
+
+            .btn:hover .icon-effect, .btn:active .icon-effect, .btn:focus .icon-effect {
+                opacity: 1;
+                margin-left: 10px;
+            }
+</style>
+<div class="row" style="margin-bottom:20px">
+
+
+    <div class="col-md-12" id="divregisterindex" style="text-align:center;">
+
+        <a href="~/Register/Key" class="btn btn-primary">Key Register</a>
+        <a href="~/Register/Fuel" class="btn btn-danger">Fuel Register</a>
+        <a href="~/Register/LifeCell" class="btn btn-warning">Life Cell Register</a>
+        <a href="~/Register/PatientTransfer" class="btn btn-info">Patient Transfer Register</a>
+        <a href="~/Custom/ManageValetParking" class="btn btn-default">Valet Parking</a>
+        @*<a href="~/Custom/ManageDailyVisiting" class="btn btn-primary">Daily Visits</a>*@
+        <a href="~/Register/PatientVisits" class="btn btn-primary">Patient Visits</a>
+        <a href="~/Register/VisitorRegister" class="btn btn-primary">Visitor Register</a>
+        <a href="~/Register/StaffMovementRegister" class="btn btn-primary">Staff Movement Register</a>
+
+    </div>
+
+    <div class="col-md-12" id="divregisterindex" style="text-align:center;margin-top:30px;">
+
+        <a href="~/Register/Demo" class="btn btn-primary">Demo Register</a>
+        <a href="~/Register/Daak" class="btn btn-danger">Daak Register</a>
+        <a href="~/Register/LostFound" class="btn btn-warning">Lost Found Register</a>
+        <a href="~/Register/PatientDischarge" class="btn btn-info">Patient Discharge Register</a>
+        <a href="~/Register/BiomedicalWaste" class="btn btn-default">Biomedical Waste Register</a>
+
+
+    </div>
+    <div class="col-md-12" id="divregisterindex" style="text-align:center;margin-top:30px;">
+
+        <a href="~/Register/InWardReturnable" class="btn btn-primary">In Ward Returnable Register</a>
+        <a href="~/Register/InWardNonReturnable" class="btn btn-danger">General Inward Non Returnable Register</a>
+        <a href="~/Register/OutWardReturnable" class="btn btn-warning">Out Ward Returnable Register</a>
+        <a href="~/Register/OutWardNonReturnable" class="btn btn-info">Out Ward Non Returnable Register</a>
+        <a href="~/Register/InternalInWard" class="btn btn-default">Internal In Ward Register</a>
+        <a href="~/Register/SecurityGatePass" class="btn btn-primary">Gate Pass</a>
+
+    </div>
+    <div class="col-md-12" id="divregisterindex" style="text-align:center;margin-top:30px;">
+
+        <a href="~/Register/VehicleParking" class="btn btn-primary">2/4 Wheel Vehicle Parking</a>
+        <a href="~/Register/VehicleMovement" class="btn btn-danger">2/4 Wheel Vehicle Movement</a>
+        <a href="~/Register/PatientMovement" class="btn btn-warning">Patient Movement</a>
+        <a href="~/Register/Posting" class="btn btn-info">Posting Register</a>
+        <a href="~/Register/Occurance" class="btn btn-default">Occurance Register</a>
+    </div>
+    <div class="col-md-12" id="divregisterindex" style="text-align:center;margin-top:30px;">
+        @*<a href="~/Learning/ManageCourse" class="btn btn-primary">Manage Course</a>*@
+        <a href="~/Learning/ManageCourse" class="btn btn-danger">Manage Trainings</a>
+        <a href="~/Learning/Index" class="btn btn-primary">Update Attendance For Training</a>
+        <a href="~/Register/MobileDepositing" class="btn btn-default">Mobile Depositing</a>
+        <a href="~/Register/NursingOuting" class="btn btn-warning">Hostel Register</a>
+    </div>
+    <div class="col-md-12" style="text-align:center;margin-top:30px;">
+
+        @if (User.IsInRole("Admin"))
+        {
+            <a href="~/Admin/ManageParkingLocation" class="btn btn-default">Manage Parking Location</a>
+        }
+        <a href="~/Register/ParkingStatus" class="btn btn-default">Live Parking Status</a>
+
+        
+    </div>
+    <br /><br /><br /><br /><br /><br />
+</div>

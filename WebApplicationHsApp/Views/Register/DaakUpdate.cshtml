@@ -1,0 +1,136 @@
+﻿
+@{
+    ViewBag.Title = "DaakUpdate";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+</style>
+
+<script src="~/Scripts/jSignature.min.js"></script>
+<!--[if lt IE 9]>
+<script  type="text/javascript" src="~/Scripts/flashcanvas.js"></script>
+    <![endif]-->
+<script>
+    var $sigdiv, $sigdiv2, id = 0;
+    $(document).ready(function () {
+        // $sigdiv = $("#captureSignature").jSignature({ 'UndoButton': true });
+        $sigdiv2 = $("#captureSignatureSecurity").jSignature({ 'UndoButton': true });
+
+        $("#txtHandOverto").change(function () {
+            $.get("/Custom/GetUserDetailsByEmpId?id=" + $("#txtHandOverto").val(), function (data) {
+                if (data != "Enter Valid Request ID") {
+                    $("#txtstaffName").html(data.FirstName + " " + data.PhoneNumber + " " + data.DepartmentName);
+                }
+            });
+        });
+        ViewDetails();
+    });
+    function Cancel() {
+        window.location.replace("/Register/Daak");
+    }
+    function SaveUserSignoff() {
+        var model = {
+            id: $("#hidBreakdownid").val(),
+            // signature: "data:" + $sigdiv.jSignature('getData', 'image').toString(),
+            signature2: "data:" + $sigdiv2.jSignature('getData', 'image').toString(),
+            userempId: $("#txtstaffName").html(),
+            remarks: $("#txtremarks").val()
+        }
+        $.post('/Register/SaveDaakUpdate', model, function (data) {
+            alert("Successfully updated");
+            window.location.replace("/Register/Daak");
+        });
+    }
+   
+    function GetDatestr(date) {
+        var d = new Date(parseInt(date.substr(6)));
+        return d.toLocaleString("en-GB");
+    }
+    function ViewDetails() {
+        $.get("/Register/GetRegister_Daak?id=" + $("#hidBreakdownid").val(), function (data) {
+            var html = "<table class='table table-bordered'>";
+            html += "<tr><td>Date Of Register</td><td>" + GetDatestr(data.DateOfRegister) + "</td></tr>";
+            html += "<tr><td>From Location</td><td>" + data.FromLocation + "</td></tr>";
+            html += "<tr><td>To Location</td><td>" + data.ToLocation + "</td></tr>";
+            html += "<tr><td>Description</td><td>" + data.Description + "</td></tr>";
+            html += "<tr><td>PODNo</td><td>" + data.PODNo + "</td></tr>";
+            html += "<tr><td>Driver</td><td>" + data.Driver + "</td></tr>";
+            html += "<tr><td>Courier Name</td><td>" + data.CourierName + "</td></tr>";
+            html += "<tr><td>Remarks </td><td>" + (data.Remarks) + "</td></tr>";
+
+
+            if (data.HandOverto != null && data.HandOverto != "") {
+                html += "<tr><td>Hand Overto</td><td>" + data.HandOverto + "</td></tr>";
+            }
+
+            if (data.DriverSign != null && data.DriverSign != "") {
+                html += "<tr><td>Driver Sign</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.DriverSign + "' /></td></tr>";
+            }
+            if (data.HandOverSign != null && data.HandOverSign != "") {
+                html += "<tr><td>HandOver Sign</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.HandOverSign + "' /></td></tr>";
+            }
+
+            html += "</table>";
+            $("#tableview").html(html);
+
+        });
+    }
+</script>
+
+<style>
+    #captureSignature {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+</style>
+<input type="hidden" id="hidBreakdownid" value="@ViewBag.Id" />
+<div class="panel panel-default">
+    <div class="panel-heading">Daak Update</div>
+    <div class="panel-body">
+        <div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="tableview">
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    HandOverto
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtHandOverto" class="form-control" />
+                    <span id="txtstaffName"></span>
+                </div>
+
+                <div class="col-md-2">
+                    Remarks
+                </div>
+                <div class="col-md-4">
+                    <textarea id="txtremarks" rows="2" class="form-control" style="width:100%"></textarea>
+                </div>
+            </div>
+
+            <div class="row" style="padding:15px;">
+
+                <div class="form-group col-md-12">
+                    <label style="margin-bottom:5px;">Hand Overto Signature</label><br />
+                    <div id="captureSignatureSecurity">
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div>
+            <input type="button" id="btnasigntask" value="Save" onclick="SaveUserSignoff();" class="btn btn-primary">
+            <button type="button" class="btn btn-default" onclick="Cancel();">Cancel</button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,36 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <p>
+        Dear Sir/Madam,<br /><br />
+        ({EmpName}) has submitted FMU Data
+        <br /><br />Please find the below details..<br /><br />
+        <table style='border:1px solid #a1a2a3;width: 60%;'>
+            <tr><td style='border:1px solid #a1a2a3;font-family:verdana'>Employee No</td><td style='border:1px solid #a1a2a3;font-family:verdana'>{EmpNo} </td></tr>
+            <tr><td style='border:1px solid #a1a2a3;font-family:verdana'>Employee Name</td><td style='border:1px solid #a1a2a3;font-family:verdana'>{EmpName} </td></tr>
+            <tr><td style='border:1px solid #a1a2a3;font-family:verdana'>Employee Department </td><td style='border:1px solid #a1a2a3;font-family:verdana'>{DepartmentName}</td></tr>
+            <!--<tr><td style='border:1px solid #a1a2a3;font-family:verdana'> Email</td><td style='border:1px solid #a1a2a3;font-family:verdana'>{Email}</td></tr>
+            <tr><td style='border:1px solid #a1a2a3;font-family:verdana'> Mobile</td><td style='border:1px solid #a1a2a3;font-family:verdana'>{ Mobile}</td></tr>-->
+            <tr><td style='border:1px solid #a1a2a3;font-family:verdana'>Requested by</td><td style='border:1px solid #a1a2a3;font-family:verdana'>{DataRequestedBy}</td></tr>
+            <tr><td style='border:1px solid #a1a2a3;font-family:verdana'>Requested Date</td><td style='border:1px solid #a1a2a3;font-family:verdana'>{DataRequestedDate}</td></tr>
+            <tr><td style='border:1px solid #a1a2a3;font-family:verdana'>Purpose of data </td><td style='border:1px solid #a1a2a3;font-family:verdana'>{PurposeOfTheData}</td></tr>
+            <tr><td style='border:1px solid #a1a2a3;font-family:verdana'>Specific Data</td><td style='border:1px solid #a1a2a3;font-family:verdana'>{SpecificData}</td></tr>
+            <tr><td style='border:1px solid #a1a2a3;font-family:verdana'>Specific Data value</td><td style='border:1px solid #a1a2a3;font-family:verdana'>{SpecificDataValue}</td></tr>
+            <tr><td style='border:1px solid #a1a2a3;font-family:verdana'>Comments</td><td style='border:1px solid #a1a2a3;font-family:verdana'> {Comments} </td></tr>
+        </table>
+
+    <p>
+        Please <a href="https://infonet.fernandezhospital.com/Hospital/ApproveFMUData/{Id}"> Approve</a> &nbsp; Or <a href="https://infonet.fernandezhospital.com/Hospital/RejectFMUData/{Id}"> Reject</a>
+
+    </p>
+    Thanking you.<br /><br />
+    Your's sincerely,
+    <br />{Name}.
+    <br />{DepartmentName}.
+    </p>
+</body>
+</html>

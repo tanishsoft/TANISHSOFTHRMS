@@ -1,0 +1,173 @@
+﻿
+@{
+    ViewBag.Title = "PatientMovementUpdate";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+</style>
+
+<script src="~/Scripts/jSignature.min.js"></script>
+<!--[if lt IE 9]>
+<script  type="text/javascript" src="~/Scripts/flashcanvas.js"></script>
+    <![endif]-->
+<script>
+    var $sigdiv, $sigdiv2, id = 0;
+    $(document).ready(function () {
+        $sigdiv = $("#captureSignature").jSignature({ 'UndoButton': true });
+        $sigdiv2 = $("#captureSecuritySignature").jSignature({ 'UndoButton': true });
+        ViewDetails();
+        $("#txtIpExecutive").change(function () {
+            $.get("/Custom/GetUserDetailsByEmpId?id=" + $("#txtIpExecutive").val(), function (data) {
+                if (data != "Enter Valid Request ID") {
+                    $("#txtIpExecutivename").html(data.FirstName + " " + data.PhoneNumber);                    
+                }
+            });
+        });
+    });
+    function Cancel() {
+        window.location.replace("/Register/PatientMovement");
+    }
+    function SaveUserSignoff() {
+        var model = {
+            Id: $("#hidBreakdownid").val(),
+            OutPersonSign: "data:" + $sigdiv.jSignature('getData', 'image').toString(),
+            OutSecuritySign: "data:" + $sigdiv2.jSignature('getData', 'image').toString(),
+            OutSecurity: $("#txtSecurity").val(),
+            OutPerson: $("#txtIpExecutivename").html(),
+            Ward: $("#txtWard").val(),
+        }
+        $.post('/Register/SavePatientMovementUpdate', model, function (data) {
+            alert("Successfully updated");
+            window.location.replace("/Register/PatientMovement");
+        });
+    }
+    function OnLocationchng(id) {
+        $.get("/Register/GetSecurityDetails?locationId=" + id, function (data) {
+            var options = [];
+            options.push('<option value="">- Select Security -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].FirstName + '">' + data[i].FirstName + '</option>');
+            }
+            $("#txtSecurity").html(options.join(''));
+        });
+    }
+    function GetDatestr(date) {
+        if (date != null && date != "") {
+            var d = new Date(parseInt(date.substr(6)));
+            return d.toLocaleString("en-GB");
+        } else {
+            return '';
+        }
+    }
+    function ViewDetails() {
+        $.get("/Register/GetRegister_PatientMovement?id=" + $("#hidBreakdownid").val(), function (data) {
+            OnLocationchng(data.LocationId);
+            var html = "<table class='table table-bordered'>";
+            html += "<tr><td>Patient MRNo</td><td>" + data.PatientMRNo + "</td></tr>";
+            html += "<tr><td>Name Of Patient</td><td>" + data.NameOfPatient + "</td></tr>";
+            html += "<tr><td>Mobile</td><td>" + data.Mobile + "</td></tr>";
+            html += "<tr><td>Ward</td><td>" + data.Ward + "</td></tr>";
+            html += "<tr><td>Room No</td><td>" + data.RoomNo + "</td></tr>";
+            if (data.OutTime != null && data.OutTime != "") {
+                html += "<tr><td>Out Date</td><td>" + GetDatestr(data.OutTime) + "</td></tr>";
+            }
+            if (data.InTime != null && data.InTime != "") {
+                html += "<tr><td>In Date</td><td>" + GetDatestr(data.InTime) + "</td></tr>";
+            }
+            html += "<tr><td>Consultant Name</td><td>" + data.ConsultantName + "</td></tr>";
+            html += "<tr><td>Out Person</td><td>" + data.OutPerson + "</td></tr>";
+            html += "<tr><td>Out Security </td><td>" + data.OutSecurity + "</td></tr>";
+            if (data.InPerson != null && data.InPerson != "") {
+                html += "<tr><td>In Person</td><td>" + data.InPerson + "</td></tr>";
+            }
+            if (data.InSecurity != null && data.InSecurity != "") {
+                html += "<tr><td>In Security </td><td>" + data.InSecurity + "</td></tr>";
+            }
+            html += "<tr><td>Remarks</td><td>" + data.Remarks + "</td></tr>";
+            if (data.OutPersonSign != null && data.OutPersonSign != "") {
+                html += "<tr><td>OutPerson Sign</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.OutPersonSign + "' /></td></tr>";
+            }
+            if (data.OutSecuritySign != null && data.OutSecuritySign != "") {
+                html += "<tr><td>Out Security Sign</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.OutSecuritySign + "' /></td></tr>";
+            }
+            if (data.InPersonSign != null && data.InPersonSign != "") {
+                html += "<tr><td>In Person Sign</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.InPersonSign + "' /></td></tr>";
+            }
+            if (data.InSecuritySign != null && data.InSecuritySign != "") {
+                html += "<tr><td>In Security Sign</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.InSecuritySign + "' /></td></tr>";
+            }
+            html += "</table>";
+            $("#tableview").html(html);
+        });
+    }
+</script>
+
+<style>
+    #captureSignature {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+</style>
+<input type="hidden" id="hidBreakdownid" value="@ViewBag.Id" />
+<div class="panel panel-default">
+    <div class="panel-heading"><a href="~/Register/PatientMovement">Go Back</a> &nbsp;&nbsp;Patient Movement Update</div>
+    <div class="panel-body">
+        <div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="tableview">
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    Out Person
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtIpExecutive" class="form-control" />
+                    <span id="txtIpExecutivename"></span>
+                </div>
+                <div class="col-md-2">
+                    Out Security
+                </div>
+                <div class="col-md-4">
+                    <select id="txtSecurity" class="form-control">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    Out Ward
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtWard" class="form-control" />                    
+                </div>              
+            </div>
+            <div class="row" style="padding:15px;">
+                <div class="form-group col-md-126">
+                    <label style="margin-bottom:5px;">Out Person Sign</label><br />
+                    <div id="captureSignature">
+                    </div>
+                </div>
+                <div class="form-group col-md-126">
+                    <label style="margin-bottom:5px;">Out Security Sign</label><br />
+                    <div id="captureSecuritySignature">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div>
+            <input type="button" id="btnasigntask" value="Save" onclick="SaveUserSignoff();" class="btn btn-primary">
+            <button type="button" class="btn btn-default" onclick="Cancel();">Cancel</button>
+        </div>
+    </div>
+</div>

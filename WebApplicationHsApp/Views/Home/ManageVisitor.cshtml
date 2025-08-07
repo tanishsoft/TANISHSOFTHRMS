@@ -1,0 +1,250 @@
+﻿@{
+    ViewBag.Title = "ManageVisitor";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="panel panel-default Permissions">
+    <div class="panel-heading">Manage Visitor <span class="pull-right" style="color:green;font-weight:bold;cursor:pointer;" onclick="newclick();">Create New</span></div>
+    <div class="panel-body">
+
+        <table class="table table-striped table-bordered  dt-responsive " style="width:100%;" id="tbltable">
+            <thead>
+                <tr>
+
+
+                    <th>Name</th>
+                    <th>Mobile</th>
+                    <th>Coming From</th>
+                    <th>Purpose</th>
+                    <th>ToMeet</th>
+                    <th>Location</th>
+                    <th>Comments</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+
+    </div>
+</div>
+
+
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Visitor</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-10">
+                        <table class="table" style="width:100%;">
+
+
+                            <tr>
+                                <td>Name<span style="color:red;">*</span></td>
+                                <td><input type="text" class="form-control TxtOnly Text_FirstLetterCapital" id="txtname" /></td>
+                            </tr>
+                            <tr>
+                                <td>Mobile<span style="color:red;">*</span></td>
+                                <td><input class="form-control MobileNumber MaxCharTextBox_10" id="txtmobile" type="text" placeholder="" /></td>
+                            </tr>
+                            <tr>
+                                <td>Coming from<span style="color:red;">*</span></td>
+                                <td><input class="form-control TxtOnly" id="txtcmingfrom" type="text" placeholder="" /></td>
+                            </tr>
+                            <tr>
+                                <td>Purpose<span style="color:red;">*</span></td>
+                                <td>
+                                    <textarea class="form-control" id="txtPurpose" type="text" placeholder=""></textarea>
+
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>To Meet<span style="color:red;">*</span></td>
+                                <td><input class="form-control " id="txtmeet" type="text" placeholder="" /></td>
+                            </tr>
+                            <tr>
+                                <td>Location<span style="color:red;">*</span></td>
+                                <td>
+                                    <select id="ddllocation" class="form-control">
+                                        <option value="">Select Location</option>
+                                    </select>
+
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>Comments<span style="color:red;">*</span></td>
+                                <td>
+                                    <textarea class="form-control" id="txtcomments" type="text" placeholder=""></textarea>
+
+                                </td>
+                            </tr>
+                        </table>
+
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <input class="btn btn-primary" type="button" value="Save" onclick="Saveform()" />
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+    function validateform() {
+
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#txtname").val() == "") {
+            $("#txtname").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtmobile").val() == "") {
+            $("#txtmobile").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtcmingfrom").val() == "") {
+            $("#txtcmingfrom").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtPurpose").val() == "") {
+            $("#txtPurpose").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtmeet").val() == "") {
+            $("#txtmeet").addClass('css-error');
+            validate = false;
+        }
+        if ($("#ddllocation").val() == "") {
+            $("#ddllocation").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtcomments").val() == "") {
+            $("#txtcomments").addClass('css-error');
+            validate = false;
+        }
+    }
+    function Saveform() {
+        $(".css-error").removeClass('css-error');
+        validateform();
+        if (validate) {
+            var task = {
+                Name: $("#txtname").val(),
+                Mobile: $("#txtmobile").val(),
+                ComingFrom: $("#txtcmingfrom").val(),
+                Purpose: $("#txtPurpose").val(),
+                ToMeet: $("#txtmeet").val(),
+                LocationId: $("#ddllocation").val(),
+                LocationName: $("#ddllocation option:selected").text(),
+                Comment: $("#txtcomments").val()
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Home/SaveVisitor",
+                data: task,
+                success: function (data) {
+                    alert(data);
+                    clearAll();
+                    $("#myModal").modal("hide");
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+
+            alert("Fields Required");
+        }
+    }
+    function clearAll() {
+
+        $("#txtname").val("");
+        $("#txtmobile").val("");
+        $("#txtcmingfrom").val("");
+        $("#txtPurpose").val("");
+        $("#txtmeet").val("");
+        $("#ddllocation").val("");
+        $("#txtcomments").val("");
+        LoadData();
+    }
+    function newclick() {
+        clearAll();
+        $("#myModal").modal("show");
+
+    }
+    function CancelVisitors(id) {
+        if (confirm("Are you sure you want to Cancel")) {
+            $.ajax({
+                'url': '/Home/DeleteVisitor?id=' + id,                
+                'type': 'POST',
+                success: function (result) {
+                    alert(result); LoadData();
+                },
+                error: function (response) {
+                    alert("error");
+                }
+            });
+        }
+    }
+    LoadData();
+    function LoadData() {
+        $('#tbltable').dataTable({
+
+            "bServerSide": true,
+            "sAjaxSource": "/Home/AjaxGetVisitor",
+            "bProcessing": true,
+
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            //"aaSorting": [[0, "desc"]],
+            "aoColumns": [
+
+
+
+                       { "sName": "Name" },
+                       { "sName": "Mobile" },
+                       { "sName": "ComingFrom" },
+                       { "sName": "Purpose" },
+                       { "sName": "ToMeet" },
+                       { "sName": "LocationName" },
+                       { "sName": "Comment" },
+                       {
+                           "sName": "VisitorId",
+                           "bSortable": false,
+                           "render": function (data) {
+
+                               return '  <a href="#" id="' + data + '" onclick="CancelVisitors(this.id);">Delete</a>';
+
+                           }
+                       }
+            ],
+
+        });
+        $("#tbltable_length").addClass("col-md-6");
+        $("#tbltable_length").addClass("col-md-6");
+    }
+    GetLocList()
+    function GetLocList() {
+        var URL = "@Url.Action("GetLocationView", "Admin")";
+        $.get(URL, function (Data) {
+            Data = Data.aaData;
+            $("#ddllocation").html("");
+            $("#ddllocation").append("<option  value=''>Select </option>");
+            $.each(Data, function (index, Data) {
+                $("#ddllocation").append("<option value='" + Data[1] + "'>" + Data[0] + "</option>");
+            });
+        });
+
+    }
+</script>

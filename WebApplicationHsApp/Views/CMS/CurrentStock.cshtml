@@ -1,0 +1,93 @@
+﻿
+
+<script>
+    $(document).ready(function () {
+        LoadStore();
+    });
+    function LoadStore() {
+        $.get("/CMS/GetCMS_Store", function (data) {
+            var options = [];
+            options.push('<option value="0">- Select Store -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].StoreId + '">' + data[i].StoreName + '</option>');
+            }
+            $("#ddlstore").html(options.join(''));
+            $("#ddlstore").prop("selectedIndex", 1);
+            LoadData();
+        });
+    }
+    function LoadData() {
+        $('#tblCategory').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/CMS/AjaxGetCMSCurrentStock",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "ItemId" },
+                { "sName": "ItemName" },
+                { "sName": "TotalReceived" },
+                { "sName": "TotalSales" },
+                { "sName": "Balance" }
+            ],
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "categoryid", "value": $("#ddlstore").val() }
+                );
+            },
+        });
+        $("#tblCategory_length").addClass("col-md-6");
+        $("#tblCategory_length").addClass("col-md-6");
+    }
+    function ExportPdf() {
+
+        if ($("#ddlstore").val() != "") {
+
+            window.location = '/CMS/ExportPDFCurrentStock?id=' + $("#ddlstore").val() ;
+
+        }
+        else {
+            alert("Select Store");
+        }
+    }
+    function ExportExcel() {
+
+        if ($("#ddlstore").val() != "") {
+
+            window.location = '/CMS/ExportExcelCurrentStock?id=' + $("#ddlstore").val();
+
+        }
+        else {
+            alert("Select Store");
+        }
+    }
+</script>
+<div class="row">
+    <div class="col-md-4">
+        &nbsp;
+    </div>
+    <div class="col-md-4">
+        <select id="ddlstore" class="form-control" onchange="LoadData();">
+            <option value="">Select</option>
+        </select>
+    </div>
+    <div class="col-md-4">
+        <a href="#" class="btn btn-success" onclick="ExportExcel();">
+            <i class="fa fa-download"></i>
+        </a>
+        <a href="#" class="btn btn-danger" onclick="ExportPdf();">
+            <i class="fa fa-file-pdf-o"></i></a>
+    </div>
+</div>
+<table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblCategory">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Total Received</th>
+            <th>Total Sales</th>
+            <th>Balance</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>

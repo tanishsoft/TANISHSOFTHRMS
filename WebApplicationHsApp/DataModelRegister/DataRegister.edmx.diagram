@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="8acc1e295ecd4e44bc158889725ce4ec" Name="Diagram1">
+        <EntityTypeShape EntityType="MyIntranetApp_RegisterModel.tbl_Register_Fuel" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetApp_RegisterModel.tbl_Register_Key" Width="1.5" PointX="2.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetApp_RegisterModel.tbl_Register_LifeCell" Width="1.5" PointX="4.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetApp_RegisterModel.tbl_Register_PatientTransfer" Width="1.5" PointX="6.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="MyIntranetApp_RegisterModel.tbl_Register_Daak" Width="1.5" PointX="0.75" PointY="7.75" />
+        <EntityTypeShape EntityType="MyIntranetApp_RegisterModel.tbl_Register_Demo" Width="1.5" PointX="2.75" PointY="7.75" />
+        <EntityTypeShape EntityType="MyIntranetApp_RegisterModel.tbl_Register_LostFound" Width="1.5" PointX="4.75" PointY="7.75" />
+        <EntityTypeShape EntityType="MyIntranetApp_RegisterModel.tbl_Register_PatientDischarge" Width="1.5" PointX="6.75" PointY="7.75" />
+        <EntityTypeShape EntityType="MyIntranetApp_RegisterModel.tbl_Register_BioMedicalWaste" Width="1.5" PointX="9.375" PointY="0.75" />
+        <EntityTypeShape EntityType="MyIntranetApp_RegisterModel.tbl_Register_InternalInward" Width="1.5" PointX="9.375" PointY="7.75" />
+        <EntityTypeShape EntityType="MyIntranetApp_RegisterModel.tbl_Register_InwardNonReturnable" Width="1.5" PointX="11.375" PointY="0.75" />
+        <EntityTypeShape EntityType="MyIntranetApp_RegisterModel.tbl_Register_InWardReturnable" Width="1.5" PointX="11.375" PointY="6.75" />
+        <EntityTypeShape EntityType="MyIntranetApp_RegisterModel.tbl_Register_OutWardNonReturnable" Width="1.5" PointX="11.375" PointY="12.75" />
+        <EntityTypeShape EntityType="MyIntranetApp_RegisterModel.tbl_Register_OutWardReturnable" Width="1.5" PointX="13.375" PointY="0.75" />
+        <EntityTypeShape EntityType="MyIntranetApp_RegisterModel.tbl_Register_VehicleMovement" Width="1.5" PointX="13.375" PointY="7.75" />
+        <EntityTypeShape EntityType="MyIntranetApp_RegisterModel.tbl_Register_VehicleParking" Width="1.5" PointX="13.375" PointY="13.75" />
+        <EntityTypeShape EntityType="MyIntranetApp_RegisterModel.tbl_ParkingLocation" Width="1.5" PointX="0.75" PointY="14.75" />
+        <EntityTypeShape EntityType="MyIntranetApp_RegisterModel.tbl_Patient_Movement_Register" Width="1.5" PointX="7.375" PointY="14.75" />
+        <EntityTypeShape EntityType="MyIntranetApp_RegisterModel.tbl_Lms_CourceTrainee" Width="1.5" PointX="15.375" PointY="0.75" />
+        <EntityTypeShape EntityType="MyIntranetApp_RegisterModel.tbl_Lms_Course" Width="1.5" PointX="3.375" PointY="15.75" />
+        <EntityTypeShape EntityType="MyIntranetApp_RegisterModel.tbl_Lms_CoursePage" Width="1.5" PointX="15.375" PointY="5.75" />
+        <EntityTypeShape EntityType="MyIntranetApp_RegisterModel.tbl_Lms_CourseQuiz" Width="1.5" PointX="15.375" PointY="10.75" />
+        <EntityTypeShape EntityType="MyIntranetApp_RegisterModel.tbl_Lms_CourseTrainer" Width="1.5" PointX="15.375" PointY="15.75" />
+        <EntityTypeShape EntityType="MyIntranetApp_RegisterModel.tbl_LMS_TraineeQuiz" Width="1.5" PointX="17.375" PointY="0.75" />
+        <EntityTypeShape EntityType="MyIntranetApp_RegisterModel.tbl_Register_Occurance" Width="1.5" PointX="17.375" PointY="4.75" />
+        <EntityTypeShape EntityType="MyIntranetApp_RegisterModel.tbl_Register_Posting" Width="1.5" PointX="17.375" PointY="9.75" />
+        <EntityTypeShape EntityType="MyIntranetApp_RegisterModel.tbl_Register_MobileDepositing" Width="1.5" PointX="17.375" PointY="16.75" />
+        <EntityTypeShape EntityType="MyIntranetApp_RegisterModel.tbl_Register_NursingOuting" Width="1.5" PointX="0.75" PointY="18.75" />
+        <EntityTypeShape EntityType="MyIntranetApp_RegisterModel.tbl_Register_Round" Width="1.5" PointX="9.375" PointY="18.75" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

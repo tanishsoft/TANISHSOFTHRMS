@@ -1,0 +1,1074 @@
+﻿
+@{
+    ViewBag.Title = "EmployeeProfile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model WebApplicationHsApp.DataModel.tbl_User
+<link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="~/Scripts/ManageEmployee.js"></script>
+<script src="~/Scripts/userAsset.js"></script>
+<style>
+    ul.timeline {
+        list-style-type: none;
+        position: relative;
+    }
+
+        ul.timeline:before {
+            content: ' ';
+            background: #d4d9df;
+            display: inline-block;
+            position: absolute;
+            left: 29px;
+            width: 2px;
+            height: 100%;
+            z-index: 400;
+        }
+
+        ul.timeline > li {
+            margin: 20px 0;
+            padding-left: 20px;
+        }
+
+            ul.timeline > li:before {
+                content: ' ';
+                background: white;
+                display: inline-block;
+                position: absolute;
+                border-radius: 50%;
+                border: 3px solid #22c0e8;
+                left: 20px;
+                width: 20px;
+                height: 20px;
+                z-index: 400;
+            }
+</style>
+<script>
+    $(document).ready(function () {
+        $(".panel-success").css("display", "none");
+        $(".employee").css("display", "block");
+        EditEmployeeData_PageLevel(@ViewBag.userid);
+        $("#btnAddnotes").click(function () {
+            $('.DivNotes').show();
+            $("#btnhidenotes").show();
+            $("#btnAddnotes").hide();
+        });
+        $("#btnhidenotes").click(function () {
+            $('.DivNotes').hide();
+            $("#btnAddnotes").show();
+            $("#btnhidenotes").hide();
+        });
+    });
+    function BindSubAsset(ID, type) {
+        debugger;
+        var Val = $('#' + ID).val();
+
+        $.get('/Asset/GetSubAssets?Id=' + Val, function (data) {
+            var options = [];
+            debugger;
+            options.push('<option value="0">- Select Asset -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].Asset_id + '">' + data[i].Asset_Name + '</option>');
+            }
+            if (type == "New") {
+                if (Val != 0) {
+                    $("#AssetName").empty();
+                    $("#divAssetName").show();
+                    $("#AssetName").html(options.join(''));
+                }
+                else {
+                    $("#divAssetName").hide();
+                    $("#AssetName").empty();
+                }
+            }
+            else if (type == "Edit") {
+                if (Val != 0) {
+                    $("#EditAssetName").empty();
+                    $("#divEditAssetName").show();
+                    $("#EditAssetName").html(options.join(''));
+                }
+                else {
+                    $("#divEditAssetName").hide();
+                    $("#EditAssetName").empty();
+                }
+            }
+
+
+        });
+    }
+    function GetNotes(customuserId, Userid) {
+        $("#userId").val(Userid);
+        $("#usercustomid").val(customuserId);
+        var Url = "/EmployeeProfile/GetNotes?Userid=" + Userid;
+        $.ajax({
+            type: "GET",
+            url: Url,
+            success: function (data) {
+                debugger;
+                var obj = data;
+                BindNotes(obj);
+
+            }
+        })
+    }
+    function BindNotes(obj) {
+        var Ulhtml = $('#templateNotes').html();
+        for (var i = 0; i < obj.length; i++) {
+            $('#listNote').append('<li class="item" id="list-' + i + '">' + Ulhtml + '</li>');
+            $('#head').attr("id", 'head' + i);
+            $('#date').attr("id", 'date' + i);
+            $('#Content').attr("id", 'Content' + i);
+            $('#head' + i).text(obj[i].Commentshead);
+            $('#date' + i).text(obj[i].Createdon);
+            $('#Content' + i).text(obj[i].Comments);
+        }
+    }
+    function SaveNotes() {
+        if ($('#Notes').val() != "") {
+            var task = {
+                Userid: $("#userId").val(),
+                UserCustomId: $("#usercustomid").val(),
+                Comments: $('#Notes').val(),
+                Commentshead: $('#Notesheader').val()
+
+            };
+            $.ajax({
+                type: "POST",
+                url: "/EmployeeProfile/SaveNotes",
+                data: task,
+                success: function (data) {
+
+                    alert("Notes Updated successfully")
+                }
+            });
+        }
+        else {
+            alert("please Enter Notes");
+        }
+
+    }
+
+</script>
+
+@*<div class="row" style="min-height:450px;">
+        <div class="col-md-2">
+            <div class="list-group">
+                <a href="javascript:void(0);" class="list-group-item active" id="employee" onclick="ClicklistItem('employee',@ViewBag.userid);">
+                    Employee
+                </a>
+                <a href="javascript:void(0);" class="list-group-item" id="notes" onclick="ClicklistItem('notes',@ViewBag.userid);GetNotes('@ViewBag.cumuserid',@ViewBag.userid);">
+                    Notes
+                </a>
+                <a href="javascript:void(0);" class="list-group-item" id="documents" onclick="ClicklistItem('documents',@ViewBag.userid);">
+                    Documents
+                </a>
+
+
+                <a href="javascript:void(0);" class="list-group-item" id="assets" onclick="ClicklistItem('assets',@ViewBag.userid); LoadUserData('@ViewBag.cumuserid');">
+                    Assets
+                </a>
+
+                <a href="javascript:void(0);" class="list-group-item" id="training" onclick="ClicklistItem('training',@ViewBag.userid);">
+                    Training
+                </a>
+
+                <a href="javascript:void(0);" class="list-group-item" id="Assignrole" onclick="ClicklistItem('Assignrole',@ViewBag.userid);">
+                    Assign Role
+                </a>
+                <a href="javascript:void(0);" class="list-group-item" id="DeleteEmployee" onclick="ClicklistItem('DeleteEmployee',@ViewBag.userid);">
+                    DeActivate Employee
+                </a>
+                <a href="javascript:void(0);" class="list-group-item" id="myTransfer" onclick="ClicklistItem('myTransfer',@ViewBag.userid);">
+                    Transfer Employee
+                </a>
+                <a href="javascript:void(0);" class="list-group-item" id="ResetPasswordEmployee" onclick="ClicklistItem('ResetPasswordEmployee',@ViewBag.userid);">
+                    Reset Password
+                </a>
+
+
+                <a href="javascript:void(0);" class="list-group-item" id="createlogin" onclick="ClicklistItem('createlogin',@ViewBag.userid);">
+                    Create Login Option
+                </a>
+
+                <a href="javascript:void(0);" class="list-group-item" id="removelogin" onclick="ClicklistItem('removelogin',@ViewBag.userid);">
+                    Remove Login Option
+                </a>
+                <a href="javascript:void(0);" class="list-group-item" id="EmployeeTransferHistory" onclick="ClicklistItem('EmployeeTransferHistory',@ViewBag.userid);">
+                    View Transfer History
+                </a>
+
+
+                <a href="javascript:void(0);" class="list-group-item" id="EmployeeUpdateRemarksnew" onclick="ClicklistItem('EmployeeUpdateRemarksnew',@ViewBag.userid);">
+                    Update Remarks
+                </a>
+
+                <a href="javascript:void(0);" class="list-group-item" id="Employeeactiveinactive" onclick="ClicklistItem('Employeeactiveinactive',@ViewBag.userid);">
+                    App Login
+                </a>
+            </div>
+        </div>
+        <div class="col-md-10">
+
+            <div class="panel panel-success employee">
+                <div class="panel-heading">Employee</div>
+                <div class="panel-body">
+                    <div class="row CustomRowPadding_5PX_CSS" style="padding:5px;">
+                        <div class="col-sm-2">
+                            <label class="required">Employee Name</label>
+                        </div>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control EditUserRequiredField" id="txtEditUserName" />
+                        </div>
+                        <div class="col-sm-2">
+                            <label class="required">Location</label>
+                        </div>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control ReadOnlyField_CSS" id="txtEditLocationName" readonly="readonly" />
+                        </div>
+                    </div>
+                    <div class="row CustomRowPadding_5PX_CSS" style="padding:5px;">
+                        <div class="col-sm-2">
+                            <label class="required">Department</label>
+                        </div>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control ReadOnlyField_CSS" id="txtEditDepartmentName" readonly="readonly" />
+                        </div>
+                        <div class="col-sm-2">
+                            <label class="">Sub-Department</label>
+                        </div>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control ReadOnlyField_CSS" id="txtEditSubDepartmentName" readonly="readonly" />
+                        </div>
+                    </div>
+                    <div class="row CustomRowPadding_5PX_CSS" style="padding:5px;">
+                        <div class="col-sm-2">
+                            <label class="">Mobile</label>
+                        </div>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" id="txtEditMobileNumber" />
+                        </div>
+                        <div class="col-sm-2">
+                            <label class="">Email ID</label>
+                        </div>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control" id="txtEditEmailID" onchange="ValidateEmailIDForEdit_PageLevel(this.id);" />
+                        </div>
+                    </div>
+                    <div class="row CustomRowPadding_5PX_CSS" style="padding:5px;">
+
+                        <div class="col-sm-2">
+                            <label class="required">Designation</label>
+                        </div>
+                        <div class="col-sm-4">
+                            <select class="form-control EditUserRequiredField" id="DDLEditDesignation"></select>
+                        </div>
+                        <div class="col-sm-2">
+                            <label class="">Date Of Joining</label>
+                        </div>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control datetotext" id="txtDateOfjoining" />
+                        </div>
+                    </div>
+                    <div class="row CustomRowPadding_5PX_CSS" style="padding:5px;">
+                        <div class="col-sm-2">
+                            <label class="required">Employee DOB</label>
+                        </div>
+                        <div class="col-sm-4">
+                            <input type="text" class="form-control EditUserRequiredField" id="txtDateOfBirth" />
+                        </div>
+                        <div class="col-sm-2">
+                            <label class="required">Gender</label>
+                        </div>
+                        <div class="col-sm-4">
+                            <select class="form-control" id="DDLGender">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row CustomRowPadding_5PX_CSS" style="padding:5px;">
+                        <div class="col-sm-2">
+                            <label class="">Employee Type</label>
+                        </div>
+                        <div class="col-sm-4">
+                            <select id="ddlemployeetype" class="form-control">
+                                <option value="">Select</option>
+                                <option value="Employee">Employee</option>
+                                <option value="HOD">HOD</option>
+                                <option value="HeadofHOD">Head of HOD</option>
+                                <option value="ManagerOfHod">Head of Manager</option>
+                                <option value="Director">Director</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-2">
+                            <label class="">Employee status</label>
+                        </div>
+                        <div class="col-sm-4">
+                            <select id="ddlemployeestatus" class="form-control">
+                                <option value="">Select</option>
+                                <option value="1">ACTIVE</option>
+                                <option value="0">IN ACTIVE</option>
+
+                            </select>
+                        </div>
+                    </div>
+                    <input class="btn btn-success pull-right" onclick="ProceedToEditEmployeeData_PageLevel();" value="Update" />
+                </div>
+
+
+            </div>
+
+
+
+            <div class="panel panel-success notes">
+                <div class="panel-heading">Notes</div>
+                <div class="panel-body">
+                    <input type="button" id="btnAddnotes" class="btn btn-success" value="Notes" />
+                    <input type="button" id="btnhidenotes" class="btn btn-success" value="Notes" style="display:none;" />
+                    <div class="row DivNotes" style="display:none;">
+                        <div class="col-md-6">
+                            <input type="hidden" id="userId" />
+                            <input type="hidden" id="usercustomid" />
+                            <label>Notes Header</label>
+                            <textarea class="form-control" id="Notesheader"></textarea>
+                            <label>Notes</label>
+                            <textarea class="form-control" id="Notes"></textarea>
+                        </div>
+                    </div>
+                    <div class="row DivNotes" style="display:none;">
+                        <div class="col-md-6">
+                            <input type="button" class="btn btn-success pull-right" id="btnnote" value="submit" onclick="SaveNotes();" />
+                        </div>
+                    </div>
+                    <div class="container mt-5 mb-5">
+                        <div class="row">
+                            <div class="col-md-6 offset-md-3">
+                                <h4>Latest News</h4>
+                                <ul class="timeline" id="listNote"></ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="templateNotes" style="display:none;">
+                        <div>
+                            <h4 id="head"></h4>
+                            <h4 id="date" class="pull-right"></h4>
+                        </div>
+                        <p id="Content"></p>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div class="panel panel-success training">
+                <div class="panel-heading">Training</div>
+                <div class="panel-body">
+
+
+
+                </div>
+            </div>
+
+
+
+            <div class="panel panel-success ResetPasswordEmployee">
+                <div class="panel-heading">Update Password</div>
+                <div class="panel-body">
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-10">
+                            <table class="table" style="width:100%;">
+                                <tr>
+                                    <td>New Password<span style="color:red;">*</span></td>
+                                    <td>
+                                        <input type="password" class="form-control" id="Password" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Confirm Password<span style="color:red;">*</span></td>
+                                    <td>
+                                        <input type="password" class="form-control" id="ConfirmPassword" />
+                                    </td>
+                                </tr>
+
+                            </table>
+                        </div>
+                    </div>
+                    <input class="btn btn-primary pull-right" type="button" value="Update Password" onclick="UpdatePasswordToEmployee();" />
+
+                </div>
+            </div>
+
+
+            <div class="panel panel-success Employeeactiveinactive">
+                <div class="panel-heading">App Login active</div>
+                <div class="panel-body">
+                    <div id="divapploginactivechange">
+                        <div class="row">
+                            <div class="col-md-3">
+
+                            </div>
+                            <div class="col-md-3">
+                                Select Status:
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-control" id="ddlselectstatusofapplogin">
+                                    <option value="">Select</option>
+                                    <option value="true">Yes</option>
+                                    <option value="false">No</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary pull-right" onclick="changetheappstatus();">Save</button>
+
+
+                </div>
+            </div>
+        </div>
+    </div>*@
+
+
+
+<div class="inside-nav">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggle nav2-menu">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+    </div>
+    <div class="clearfix"></div>
+    <ul class="nav nav-tabs nav2">
+        <li class="active"><a data-toggle="tab" href="#home">Profile</a></li>
+        <li><a data-toggle="tab" href="#Documents" onclick="ClicklistItem('documents',@ViewBag.userid);">Documents</a></li>
+        <li><a data-toggle="tab" href="#Assets" onclick="ClicklistItem('assets',@ViewBag.userid);">Assets</a></li>
+        <li><a data-toggle="tab" href="#AssignRole" onclick="ClicklistItem('Assignrole',@ViewBag.userid);">Assign Role</a></li>
+        <li><a data-toggle="tab" href="#DeActivateEmployee" onclick="ClicklistItem('DeleteEmployee',@ViewBag.userid);">DeActivate Employee</a></li>
+        <li><a data-toggle="tab" href="#TransferEmployee" onclick="ClicklistItem('myTransfer',@ViewBag.userid);">Transfer Employee</a></li>
+        <li><a data-toggle="tab" href="#CreateLoginOption" onclick="ClicklistItem('CreateLoginOption',@ViewBag.userid);">Create Login Option</a></li>
+        <li><a data-toggle="tab" href="#RemoveLoginOption" onclick="ClicklistItem('RemoveLoginOption',@ViewBag.userid);">Remove Login Option</a></li>
+        <li><a data-toggle="tab" href="#ViewTransferHistory" onclick="ClicklistItem('EmployeeTransferHistory',@ViewBag.userid);">View Transfer History</a></li>
+        <li><a data-toggle="tab" href="#UpdateRemarks" onclick="ClicklistItem('EmployeeUpdateRemarksnew',@ViewBag.userid);">Update Remarks</a></li>
+        <li><a data-toggle="tab" href="#AppLogin" onclick="ClicklistItem('AppLogin',@ViewBag.userid);">App Login</a></li>
+    </ul>
+    <div class="tab-content" style="background-color:white;">
+        <div id="home" class="tab-pane fade in active">
+            <div class="row section-profile">
+
+
+                <div class="user-block col-xs-12 col-md-4 col-lg-4">
+                    <div class="user-block-in">
+                        <div class="user">
+                            <span>employee</span>
+                            <span class="active">@Model.IsActive</span>
+                            <div class="clearfix"></div>
+                            <img src="/Images/uesr-img.png" alt="uesr-img">
+                            <h5>@Model.FirstName @Model.LastName</h5>
+                            <small>@Model.Designation</small>
+
+                            <ul>
+                                <li>
+                                    Location <br>
+                                    <strong>@Model.LocationName</strong>
+                                </li>
+                                <li>
+                                    Date of joining <br>
+                                    <strong>@Model.DateOfJoining.Value.ToString("dd/MM/yyyy")</strong>
+                                </li>
+                                <li class="no-bord">
+                                    BLOOD GROUP <br>
+                                    <strong>0+</strong>
+                                </li>
+                            </ul>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="informetion-block">
+                            <h6>DESIGNATION</h6>
+                            <p>@Model.Designation - @Model.LocationName</p>
+                        </div>
+                        <div class="informetion-block">
+                            <h6>PERSONAL PROFILE</h6>
+                            <p>High personal sales production. Eager to fill out call reports and expense reports. Excited about company sales quotas. Tactful, polite, and well- behaved at office parties. </p>
+                            <a href="#">read more</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="middle-bock col-xs-12 col-md-4 col-lg-4">
+                    <div class="notifications">
+                        <h5>Alerts & Notifications</h5>
+                        <ul>
+                            <li>
+                                <img src="/Images/icon1.png" alt="icon">
+                                <div class="cont">
+                                    <h6>Purushotham das</h6>
+                                    <span>Finished new customer joining process</span>
+                                </div>
+                                <small>9:30 PM</small>
+                            </li>
+                            <li>
+                                <img src="/Images/icon2.png" alt="icon">
+                                <div class="cont">
+                                    <h6>HR policiies new</h6>
+                                    <span>New policy added in hr process</span>
+                                </div>
+                                <small>9:30 PM</small>
+                            </li>
+                            <li>
+                                <img src="/Images/icon3.png" alt="icon">
+                                <div class="cont">
+                                    <h6>IT policy</h6>
+                                    <span>As per the new IT policy company upload new process</span>
+                                </div>
+                                <small>9:30 PM</small>
+                            </li>
+
+                        </ul>
+                        <a href="#">Show more</a>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="notifications password">
+                        <h5>reset password</h5>
+                        <ul>
+                            <li>
+                                <label>OLD PASWORD</label>
+                                <input type="password" value="password">
+                            </li>
+                            <li>
+                                <label>NEW PASWORD</label>
+                                <input type="password" value="password">
+                            </li>
+                            <li>
+                                <label>COMFIRM PASWORD</label>
+                                <input type="password" value="password">
+                            </li>
+                        </ul>
+                        <input type="submit" value="submit" class="btn btn3">
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+                <div class="middle-bock col-xs-12 col-md-4 col-lg-4">
+                    <div class="education">
+                        <h5>education & certifications</h5>
+                        <ul>
+                            <li>
+                                <div class="cont">
+                                    <h6>Business management & Administration</h6>
+                                    <span>
+                                        JNTU University, Hyderabad- Telangana- INDIA<br>
+                                        from 2008-2012
+                                    </span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="cont">
+                                    <h6>Business management & Administration</h6>
+                                    <span>
+                                        JNTU University, Hyderabad- Telangana- INDIA<br>
+                                        from 2008-2012
+                                    </span>
+                                </div>
+                            </li>
+                            <li class="no-bord">
+                                <div class="cont">
+                                    <h6>Business management & Administration</h6>
+                                    <span>
+                                        JNTU University, Hyderabad- Telangana- INDIA <br>
+                                        from 2008-2012
+                                    </span>
+                                </div>
+                            </li>
+
+                        </ul>
+                    </div>
+                    <div class="education">
+                        <h5>Notes (Latest news)</h5>
+                        <ul>
+                            <li>
+                                <div class="cont">
+                                    <h6>Business management & Administration</h6>
+                                    <span>
+                                        JNTU University, Hyderabad- Telangana- INDIA<br>
+                                        from 2008-2012
+                                    </span>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="cont">
+                                    <h6>Business management & Administration</h6>
+                                    <span>
+                                        JNTU University, Hyderabad- Telangana- INDIA <br>
+                                        from 2008-2012
+                                    </span>
+                                </div>
+                            </li>
+
+                        </ul>
+                        <a href="#">more notes</a>
+                        <div class="clearfix"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="Documents" class="tab-pane fade">
+            <div class="panel panel-success documents">
+                <div class="panel-heading">Documents</div>
+                <div class="panel-body">
+
+
+
+                </div>
+            </div>
+        </div>
+        <div id="Assets" class="tab-pane fade">
+            <div class="panel panel-success assets">
+                <div class="panel-heading">Assets</div>
+                <div class="panel-body">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">UserAsset<a href="#" data-toggle="modal" class="pull-right" data-target="#myModalNewUserAsset">New UserAsset</a></div>
+                        <div class="panel-body">
+                            <div class="row">
+
+                                @*<table class="table">
+                                    <tr>
+                                        <td>
+                                            <select id="ddllocation1" class="form-control" onchange="LoadDepartment123();">
+                                                <option value="">Select Location</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <select id="ddldepartment12" class="form-control" onchange="LoadDepartmentEmployees();">
+                                                <option value="">Select Department</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <select id="ddlEmployee123" class="form-control">
+                                                <option value="">Select Employee</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <select id="ddlAsset" class="form-control">
+                                                <option value="">Select Asset</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input class="date form-control" autocomplete="off" type="text" placeholder="From Date" id="FromDateExcel" />
+                                        </td>
+                                        <td>
+                                            <input class="date form-control" autocomplete="off" type="text" placeholder="To Date" id="ToDateExcel" />
+                                        </td>
+                                        <td>*@
+                                @*<input type="button" id="btnExport" value="Export Excel" class="btn btn-link" />*@
+                                @*<input type="button" class="btn btn-danger" id="btnGo" onclick="LoadData();" value="Go" />
+                                            </td>
+                                        </tr>
+                                    </table>*@
+
+
+
+                            </div>
+                            <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblmyUserAssetMaster">
+                                <thead>
+                                    <tr>
+                                        @*<th>Location</th>
+                                            <th>Department</th>
+                                            <th>Emp Id</th>
+                                            <th>Emp</th>*@
+                                        <th>Parrent Asset</th>
+                                        <th>Asset</th>
+                                        <th>Date Assign</th>
+                                        <th>Remarks</th>
+                                        <th>Status</th>
+                                        <th>Deallocate Date</th>
+                                        <th>Deallcote Comments</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div id="myModalNewUserAsset" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+                        <div class="modal-dialog">
+
+                            <!-- Modal content-->
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" onclick="clearAll();">×</button>
+                                    <h4 class="modal-title">Add New</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <input type="hidden" class="form-control" id="ID">
+                                    @*<div class="row" style="padding:5px;">
+                                            <div class="col-md-4"><label for="name">User Location<span style="color:red;">*</span></label></div>
+                                            <div class="col-md-8">
+                                                <select class="form-control" id="ddlLocation" onchange="LoadDepartment1();"></select>
+                                            </div>
+                                        </div>
+                                        <div class="row" style="padding:5px;">
+                                            <div class="col-md-4"><label for="name">User Department<span style="color:red;">*</span></label></div>
+                                            <div class="col-md-8">
+                                                <select class="form-control" id="ddlDepartment" onchange="LoadEmployees();"></select>
+                                            </div>
+                                        </div>*@
+                                    @*<div class="row" style="padding:5px;">
+                                            <div class="col-md-4"><label for="name">User Name<span style="color:red;">*</span></label></div>
+                                            <div class="col-md-8">
+                                                <input type="text" class="form-control" id="UserName" disabled="disabled"/>
+                                            </div>
+                                        </div>*@
+                                    <div class="row" style="padding:5px;">
+                                        <div class="col-md-4">
+                                            <label for="name">Parent Asset Name<span style="color:red;">*</span></label>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <select class="form-control" id="ParentAssetName" onchange="BindSubAsset(this.id,'New');"></select>
+                                        </div>
+                                    </div>
+                                    <div class="row" style="padding:5px; display:none;" id="divAssetName">
+                                        <div class="col-md-4">
+                                            <label for="name">Asset Name<span style="color:red;">*</span></label>
+                                        </div>
+                                        <div class="col-md-8">
+                                            <select class="form-control" id="AssetName"></select>
+                                        </div>
+                                    </div>
+                                    <div class="row" style="padding:5px;">
+                                        <div class="col-md-4"><label for="name">Date Assign<span style="color:red;">*</span></label></div>
+                                        <div class="col-md-8">
+                                            <input class="date form-control" type="text" placeholder="Select Date" id="Date" readonly="readonly" />
+                                        </div>
+                                    </div>
+                                    <div class="row" style="padding:5px;">
+                                        <div class="col-md-4"><label for="name">Remarks<span style="color:red;">*</span></label></div>
+                                        <div class="col-md-8">
+                                            <textarea class="form-control" id="Remarks"></textarea>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="modal-footer">
+                                    <input type="button" id="btnasigntask" value="Save" onclick="OnclickSaveUserAsset();" class="btn btn-primary">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearAll();">Close</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div id="myModalEdit" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+                        <div class="modal-dialog">
+
+                            <!-- Modal content-->
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">×</button>
+                                    <h4 class="modal-title">Update</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="modal-body">
+                                        <input type="hidden" class="form-control" id="EditID">
+                                        <div class="row" style="padding:5px;">
+                                            <div class="col-md-4"><label for="name">User Name<span style="color:red;">*</span></label></div>
+                                            <div class="col-md-8" id="userText">
+                                                <input class="form-control" type="text" id="EditUserName" disabled="disabled" />
+                                            </div>
+                                        </div>
+                                        <div class="row" style="padding:5px;">
+                                            <div class="col-md-4">
+                                                <label for="name"> Parent Asset Name<span style="color:red;">*</span></label>
+                                            </div>
+                                            <div class="col-md-8">
+                                                <select class="form-control" id="EditParentAssetName" onchange="BindSubAsset(this.id,'Edit');"></select>
+                                            </div>
+                                        </div>
+                                        <div class="row" style="padding:5px; display:none;" id="divEditAssetName">
+                                            <div class="col-md-4">
+                                                <label for="name">Asset Name<span style="color:red;">*</span></label>
+                                            </div>
+                                            <div class="col-md-8">
+                                                <select class="form-control" id="EditAssetName"></select>
+                                            </div>
+                                        </div>
+                                        <div class="row" style="padding:5px;">
+                                            <div class="col-md-4"><label for="name">Date Assign<span style="color:red;">*</span></label></div>
+                                            <div class="col-md-8">
+                                                <input class="date form-control" type="text" placeholder="Select Date" id="EditDate" readonly="readonly" />
+                                            </div>
+                                        </div>
+                                        <div class="row" style="padding:5px;">
+                                            <div class="col-md-4"><label for="name">Remarks<span style="color:red;">*</span></label></div>
+                                            <div class="col-md-8">
+                                                <textarea class="form-control" id="EditRemarks"></textarea>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <input type="button" id="btnasigntask" value="Update" onclick="OnclickUpdateUserAsset();" class="btn btn-primary">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div id="myModalDeallocate" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+                        <div class="modal-dialog">
+
+                            <!-- Modal content-->
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal">×</button>
+                                    <h4 class="modal-title">Deallocate</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="modal-body">
+                                        <input type="hidden" class="form-control" id="DeEditID">
+                                        <div class="row" style="padding:5px;">
+                                            <div class="col-md-4"><label for="name">Deallocate Date<span style="color:red;">*</span></label></div>
+                                            <div class="col-md-8">
+                                                <input class="date form-control" type="text" placeholder="Select Date" id="DeallocateDate" readonly="readonly" />
+                                            </div>
+                                        </div>
+                                        <div class="row" style="padding:5px;">
+                                            <div class="col-md-4"><label for="name">Comments<span style="color:red;">*</span></label></div>
+                                            <div class="col-md-8">
+                                                <textarea class="form-control" id="DeallocateComments"></textarea>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <input type="button" id="btnasigntask" value="Deallocate" onclick="DeallocateAsset();" class="btn btn-primary">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="modal fade" id="DeleteConfirmation">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <a href="#" class="close" data-dismiss="modal">&times;</a>
+                                    <h4>Delete  Record</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <input type="hidden" class="form-control" id="Cid">
+                                    <h4>Are You Sure? You Want To Delete This Record.</h4>
+                                </div>
+                                <div class="modal-footer">
+                                    <a href="#" class="btn btn-primary" data-dismiss="modal" id="r">Cancel</a>
+                                    <a href="#" class="btn btn-danger" onclick="ConfirmDelete()">Confirm</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+        <div id="AssignRole" class="tab-pane fade">
+            <div class="panel panel-success  Assignrole">
+                <div class="panel-heading">Assign Role</div>
+                <div class="panel-body">
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-10">
+                            <table class="table col-md-12" style="width:100%; position:absolute;">
+                                <tr>
+                                    <td>Role<span style="color:red;">*</span></td>
+                                    <td>
+                                        <select id="ddlRole" class="form-control">
+                                            <option value="">Select Role</option>
+                                            <option value="Admin">Admin</option>
+                                            <option value="DepartmentManager">DepartmentManager</option>
+                                            <option value="SubDepartmentManager">Sub Department Manager</option>
+                                            <option value="Doctor">Doctor</option>
+                                            <option value="Employee">Employee</option>
+                                            <option value="HrAdmin">Hr Admin</option>
+                                            <option value="HrEmployee">Hr Employee</option>
+                                            <option value="HrManager">Hr Manager</option>
+                                            <option value="LocationManager">Location Manager</option>
+                                            <option value="Nurse">Nurse</option>
+                                            <option value="Patient">Patient</option>
+                                            <option value="Vendor">Vendor</option>
+                                            <option value="NicuDrug">Nicu Drug</option>
+                                            <option value="SecurityTeam">Security Team</option>
+
+                                        </select>
+
+                                    </td>
+                                </tr>
+
+                            </table>
+
+                        </div>
+                    </div>
+
+                    <input class="btn btn-primary pull-right" type="button" value="Save" onclick="SaveRoleToEmployee();" />
+                </div>
+            </div>
+        </div>
+
+        <div id="DeActivateEmployee" class="tab-pane fade">
+            <div class="panel panel-success DeleteEmployee">
+                <div class="panel-heading">Are you sure you want to delete employee</div>
+                <div class="panel-body">
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-10">
+                            <table class="table" style="width:100%; display:none;" id="tralrmid">
+                                <tr>
+                                    <td>
+                                        Location
+                                    </td>
+                                    <td>
+                                        <select id="ddlLocationForRepaorting" class="form-control" style="max-width:200px;" onchange="ddlLocationForRepaortingChange();">
+                                            <option value="">Select Location</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Department
+                                    </td>
+                                    <td>
+                                        <select id="ddlDepartmentForFilterReporting" class="form-control" style="max-width:200px;" onchange="LoadEmployeesReporting();">
+                                            <option value="">Select Department</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Employee
+                                    </td>
+                                    <td>
+                                        <select id="ddlEmployeesForFilterreporting" class="form-control" style="max-width:200px;">
+                                            <option value="">Select Employee</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table class="table" style="width:100%;  position:absolute;">
+
+                                <tr>
+                                    <td>Date Of Leaving<span style="color:red;">*</span></td>
+                                    <td>
+                                        <input type="text" class="form-control" id="DateOfLeaving" />
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <input class="btn btn-primary pull-right" type="button" value="Delete" onclick="ConfirmDeleteEmployee();" />
+
+                </div>
+            </div>
+        </div>
+        <div id="TransferEmployee" class="tab-pane fade">
+            <div class="panel panel-success myTransfer">
+                <div class="panel-heading">Transfer Employee</div>
+                <div class="panel-body">
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-10">
+                            <table class="table" style="width:100%;">
+                                <tr>
+                                    <td>Location<span style="color:red;">*</span></td>
+                                    <td>
+                                        <select class="form-control TransferRequiredData" id="ddlLocation" onchange="LoadDepartment();">
+                                            <option value="">Select Location</option>
+                                        </select>
+                                    </td>
+
+                                </tr>
+                                <tr>
+                                    <td>Department <span style="color:red">*</span></td>
+                                    <td>
+                                        <select class="form-control TransferRequiredData" id="ddlDepartment" onchange="DepartmentChange()">
+                                            <option value=""> Select Department</option>
+                                        </select>
+                                    </td>
+
+                                </tr>
+                                <tr>
+                                    <td>Sub Department </td>
+                                    <td>
+                                        <select class="form-control" id="ddlSubDepartment">
+                                            <option value=""> Select Sub Department</option>
+                                        </select>
+                                    </td>
+
+                                </tr>
+
+                            </table>
+
+                        </div>
+                    </div>
+                    <input class="btn btn-primary pull-right" type="button" value="Transfer" onclick="SaveTransferEmployee();" />
+
+                </div>
+            </div>
+        </div>
+
+        <div id="CreateLoginOption" class="tab-pane fade">
+            <div class="panel panel-success CreateLoginOption">
+                <h3>Menu 2</h3>
+                <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.</p>
+            </div>
+        </div>
+        <div id="RemoveLoginOption" class="tab-pane fade">
+            <div class="panel panel-success RemoveLoginOption">
+                <h3>Menu 3</h3>
+                <p>Eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+            </div>
+        </div>
+        <div id="ViewTransferHistory" class="tab-pane fade">
+            <div class="panel panel-success EmployeeTransferHistory">
+                <div class="panel-heading">Employee Transfer History</div>
+                <div class="panel-body">
+                    <div id="DivemployeeTransferHistory">
+
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+        <div id="UpdateRemarks" class="tab-pane fade">
+            <div class="panel panel-success EmployeeUpdateRemarksnew">
+                <div class="panel-heading">Manage Remarks</div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-2">
+
+                        </div>
+                        <div class="col-md-2">
+                            Remarks
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" id="txtupdateemployeeremarsk" class="form-control" />
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-primary pull-right" onclick="UpdateRemarksofemppost();">Update Remarks</button>
+
+
+
+                </div>
+            </div>
+        </div>
+        <div id="AppLogin" class="tab-pane fade">
+            <div class="panel panel-success AppLogin">
+                <h3>Menu 3</h3>
+                <p>Eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+
+
+
+

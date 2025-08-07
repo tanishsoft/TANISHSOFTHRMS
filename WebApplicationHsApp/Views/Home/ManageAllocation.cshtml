@@ -1,0 +1,453 @@
+﻿@{
+    ViewBag.Title = "ManageAllocation";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="panel panel-default Permissions">
+    <div class="panel-heading">Manage Allocation <span class="pull-right" style="color:green;font-weight:bold;cursor:pointer;" onclick="newclick();">Create New</span></div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered  dt-responsive " style="width:100%;" id="tbltable">
+            <thead>
+                <tr>
+                    <th>Place </th>
+                    <th>Location </th>
+                    <th>Department </th>
+                    <th>Employee </th>
+                    <th>Contact No</th>
+                    <th>From Date</th>
+                    <th>To Date</th>
+                    <th>Start Time</th>
+                    <th>End Time</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Allocation</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-10">
+                        <table class="table" style="width:100%;">
+
+                            <tr>
+                                <td>Place<span style="color:red;">*</span></td>
+                                <td><input class="form-control " id="txtplace" type="text" placeholder="" /></td>
+                            </tr>
+                            <tr>
+                                <td>Location<span style="color:red;">*</span></td>
+                                <td>
+                                    <select id="ddllocation" class="form-control"
+                                            onchange="LoadDepartment();">
+                                        <option value="">Select Location</option>
+                                    </select>
+
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Department<span style="color:red;">*</span></td>
+                                <td>
+                                    <select id="ddlDepartment" class="form-control" onchange="LoadEmployees();">
+                                        <option value="">Select Department</option>
+                                    </select>
+
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Employee<span style="color:red;">*</span></td>
+                                <td>
+                                    <select id="ddlEmployee" class="form-control">
+                                        <option value="">Select Employee</option>
+                                    </select>
+
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>Mobile<span style="color:red;">*</span></td>
+                                <td><input class="form-control " id="txtmobile" type="text" placeholder="" /></td>
+                            </tr>
+                            <tr>
+                                <td>From Date<span style="color:red;">*</span></td>
+                                <td><input class="form-control " id="txtFromdate" type="text" placeholder="" /></td>
+                            </tr>
+                            <tr>
+                                <td>To Date<span style="color:red;">*</span></td>
+                                <td><input class="form-control " id="txtTodate" type="text" placeholder="" /></td>
+                            </tr>
+                            <tr>
+                                <td>Start Time</td>
+                                <td><input class="form-control " id="txtStarttime" type="text" placeholder="" /></td>
+                            </tr>
+                            <tr>
+                                <td>End Time</td>
+                                <td><input class="form-control " id="txtendtime" type="text" placeholder="" /></td>
+                            </tr>
+
+
+                            <tr>
+                                <td>Details</td>
+                                <td>
+                                    <textarea class="form-control" id="txtDetails" type="text" placeholder=""></textarea>
+
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Comments</td>
+                                <td>
+                                    <textarea class="form-control" id="txtcomments" type="text" placeholder=""></textarea>
+
+                                </td>
+                            </tr>
+                        </table>
+
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <input class="btn btn-primary" type="button" value="Save" onclick="Saveform()" />
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="myViewModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Allocation</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-10">
+                        <table class="table" style="width:100%;">
+
+                            <tr>
+                                <td>Place<span style="color:red;">*</span></td>
+                                <td><span id="ltxtplace"></span></td>
+                            </tr>
+                            <tr>
+                                <td>Location<span style="color:red;">*</span></td>
+                                <td>
+                                    <span id="lddllocation"></span>
+
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Department<span style="color:red;">*</span></td>
+                                <td>
+                                    <span id="lddlDepartment"></span>
+
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Employee<span style="color:red;">*</span></td>
+                                <td>
+                                    <span id="lddlEmployee"></span>
+
+
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td>Mobile<span style="color:red;">*</span></td>
+                                <td><span id="ltxtmobile"></span></td>
+                            </tr>
+                            <tr>
+                                <td>From Date<span style="color:red;">*</span></td>
+                                <td> <span id="ltxtFromdate"></span> </td>
+                            </tr>
+                            <tr>
+                                <td>To Date<span style="color:red;">*</span></td>
+                                <td>
+                                    <span id="ltxtTodate"></span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Start Time</td>
+                                <td>
+                                    <span id="ltxtStarttime"></span>
+
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>End Time</td>
+                                <td>
+                                    <span id="ltxtendtime"></span>
+                                </td>
+                            </tr>
+
+
+                            <tr>
+                                <td>Details</td>
+                                <td>
+                                    <span id="ltxtDetails"></span>
+
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Comments</td>
+                                <td>
+                                    <span id="ltxtcomments"></span>
+
+
+                                </td>
+                            </tr>
+                        </table>
+
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+    var ManageAllocationList_PageLevel;
+    $(function () {
+        LoadData();
+        GetManageAllocationListToAdmin_PageLevel();
+    });
+
+    function GetManageAllocationListToAdmin_PageLevel() {
+        ManageAllocationList_PageLevel = new Array();
+        $.get("/Home/GetManageAllocationListToAdmin", function (Result) {
+            ManageAllocationList_PageLevel = Result;
+        });
+    }
+
+    function validateform() {
+
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#txtplace").val() == "") {
+            $("#txtplace").addClass('css-error');
+            validate = false;
+        }
+        if ($("#ddllocation").val() == "") {
+            $("#ddllocation").addClass('css-error');
+            validate = false;
+        }
+        if ($("#ddlDepartment").val() == "") {
+            $("#ddlDepartment").addClass('css-error');
+            validate = false;
+        }
+        if ($("#ddlEmployee").val() == "") {
+            $("#ddlEmployee").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtmobile").val() == "") {
+            $("#txtmobile").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtFromdate").val() == "") {
+            $("#txtFromdate").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtTodate").val() == "") {
+            $("#txtTodate").addClass('css-error');
+            validate = false;
+        }
+    }
+    function Saveform() {
+        $(".css-error").removeClass('css-error');
+        validateform();
+        if (validate) {
+            var task = {
+                AllocationPlace: $("#txtplace").val(),
+                LocationId: $("#ddllocation").val(),
+                LocationName: $("#ddllocation option:selected").text(),
+                DepartmentId: $("#ddlDepartment").val(),
+                DepartmentName: $("#ddlDepartment option:selected").text(),
+                EmployeeId: $("#ddlEmployee").val(),
+                EmployeeName: $("#ddlEmployee option:selected").text(),
+                ContactNo: $("#txtmobile").val(),
+                AllocaitonFromDate: $("#txtFromdate").val(),
+                AllocationTodate: $("#txtTodate").val(),
+                StartTime: $("#txtStarttime").val(),
+                EndTime: $("#txtendtime").val(),
+                AllocationDetails: $("#txtDetails").val(),
+                Comment: $("#txtcomments").val()
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Home/SaveAllocation",
+                data: task,
+                success: function (data) {
+                    alert(data);
+                    clearAll();
+                    $("#myModal").modal("hide");
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+
+            alert("Fields Required");
+        }
+    }
+    function clearAll() {
+
+        $("#txtplace").val("");
+        $("#ddllocation").val("");
+        $("#ddlDepartment").val("");
+        $("#ddlEmployee").val("");
+        $("#txtmobile").val("");
+        $("#txtFromdate").val("");
+        $("#txtTodate").val("");
+        $("#txtStarttime").val("");
+        $("#txtendtime").val("");
+        $("#txtDetails").val("");
+        $("#txtcomments").val("");
+        LoadData();
+    }
+    function newclick() {
+        clearAll();
+        $("#myModal").modal("show");
+
+    }
+    function CancelAllocation(id) {
+        if (confirm("Are you sure you want to Cancel")) {
+            $.ajax({
+                'url': '/Home/DeleteAllocation?id=' + id,
+                'type': 'POST',
+                success: function (result) {
+                    alert(result); LoadData();
+                },
+                error: function (response) {
+                    alert("error");
+                }
+            });
+        }
+    }
+    function LoadData() {
+        $('#tbltable').dataTable({
+
+            "bServerSide": true,
+            "sAjaxSource": "/Home/AjaxGetAllocation",
+            "bProcessing": true,
+
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            //"aaSorting": [[0, "desc"]],
+            "aoColumns": [
+                       { "sName": "AllocationPlace" },
+                       { "sName": "LocationName" },
+                       { "sName": "DepartmentName" },
+                       { "sName": "EmployeeName" },
+                       { "sName": "ContactNo" },
+                       { "sName": "AllocaitonFromDate" },
+                       { "sName": "AllocationTodate" },
+                       { "sName": "StartTime" },
+                       { "sName": "EndTime" },
+                       {
+                           "sName": "AllocationId",
+                           "bSortable": false,
+                           "render": function (data, type, row) {
+                               var obj = row;
+                               // return '  <a href="#" id="' + data + '" onclick="CancelAllocation(' + data + ');">Delete</a>';
+                               return '<div class="btn-group">' +
+ '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+ '<ul class="dropdown-menu dropdown-menu-right"><li><a href="#" id="' + data + '" onclick="CancelAllocation(this.id);">Delete</a></li><li><a href="#" id="' + data + '" onclick="Edit(this.id);">Edit</a></li>' +
+'<li><a href="#" id="' + data + '" onclick="ViewFiles(this.id);">View Files</a></li> ' +
+ '</ul></div>';
+                           }
+                       }
+            ],
+
+        });
+        $("#tbltable_length").addClass("col-md-6");
+        $("#tbltable_length").addClass("col-md-6");
+    }
+    GetLocList()
+    function GetLocList() {
+        var URL = "@Url.Action("GetLocationView", "Admin")";
+        $.get(URL, function (Data) {
+            Data = Data.aaData;
+            $("#ddllocation").html("");
+            $("#ddllocation").append("<option  value=''>Select </option>");
+            $.each(Data, function (index, Data) {
+                $("#ddllocation").append("<option value='" + Data[1] + "'>" + Data[0] + "</option>");
+            });
+        });
+
+    }
+    function LoadDepartment() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetDepartmentByLocation",
+            data: "id=" + $("#ddllocation").val(),
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Department -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                }
+                $("#ddlDepartment").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadEmployees() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetEmployeesByDepartment",
+            data: "id=" + $("#ddlDepartment").val(),
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Employee -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].CustomUserId + '">' + data[i].FirstName + " " + data[i].LastName + '</option>');
+                }
+                $("#ddlEmployee").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+
+    function ViewFiles(par) {
+        $("#myViewModal").modal("show");
+        //$("#ltxtplace").val(par[0]);
+        //$("#lddllocation").val(par[1]);
+        //$("#lddlDepartment").val(par[2]);
+        //$("#lddlEmployee").val(par[3]);
+        //$("#ltxtmobile").val(par[4]);
+        //$("#ltxtFromdate").val(par[5]);
+        //$("#ltxtTodate").val(par[6]);
+        //$("#ltxtStarttime").val(par[7]);
+        //$("#ltxtendtime").val(par[8]);
+        //$("#ltxtDetails").val(par[10]);
+        //$("#ltxtcomments").val(par[11]);
+    }
+    function Edit(par) {
+
+    }
+</script>

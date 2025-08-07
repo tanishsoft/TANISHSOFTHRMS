@@ -1,0 +1,204 @@
+﻿
+@{
+    ViewBag.Title = "EventDetails";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">Upcoming Events<a  style="float:right;cursor:pointer;" href="/Event/AddEvent">Add Event</a></div>
+    <div class="panel-body">
+        <input type="hidden" id="eEventId" />
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblEvents">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>SL.No</th>
+                    <th>Event Name</th>
+                    <th>Start date</th>
+                    <th>End date</th>
+                    <th>Event Location</th>
+                    <th>Number Of Seats</th>
+                    <th>Status</th>
+                    <th>Description</th>
+                    <th>Workshop</th>
+                    <th>Conference</th>
+                    <th>Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">All Events<a  style="float:right; cursor:pointer;" href="/Event/AddEvent">Add Event</a></div>
+    <div class="panel-body">
+      
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="alltblEvents">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>SL.No</th>
+                    <th>Event Name</th>
+                    <th>Start date</th>
+                    <th>End date</th>
+                    <th>Event Location</th>
+                    <th>Number Of Seats</th>
+                    <th>Status</th>
+                    <th>Description</th>
+                    <th>Workshop</th>
+                    <th>Conference</th>
+                    <th>Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+
+
+@*Delete*@
+<div class="modal fade" id="DeleteConfirmation">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4>Delete  Record</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" class="form-control" id="Cid">
+                <h4>Are You Sure? You Want To Delete This Record.</h4>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn btn-primary" data-dismiss="modal" id="r">Cancel</a>
+                <a href="#" class="btn btn-danger" onclick="ConfirmDelete()">Confirm</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var validate = true;
+    $(document).ready(function () {
+        GetAllEventDetails();
+        GetUpcomingEventDetails();
+    });
+
+    function GetAllEventDetails() {
+        var oTable = $('#alltblEvents').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Event/GetActiveEventDetails",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "EventId" },
+                { "sName": "Name" },
+                { "sName": "EventStartDate" },
+                { "sName": "EventEndDate" },
+                { "sName": "EventLocation" },
+                { "sName": "NumberOfSeats" },
+                { "sName": "EventStatus" },
+                { "sName": "Description" },
+                { "sName": "Workshop" },
+                { "sName": "Conference" },
+                { "sName": "IsActive" },
+                {
+                    "sName": "EventId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><a href="EditEventDetails?eventId=' + data + '" id="' + data + '" onclick="Edit(this.id);">Edit</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="Delete(this.id);">Delete</a></li>' +
+                            '<li><a href="/Event/ViewEvent?eventId=' + data + '" id="' + data + '">View More</a></li>' +
+                            '<li><a href="/Event/EventWelcomeKit/' + data + '" id="' + data + '">Event Welcome Kit</a></li>' +
+                            
+                            '</ul></div>';
+                    }
+                }
+            ],
+            "fnRowCallback": function (nRow, aData, iDisplayIndex) {
+                $("td:nth-child(1)", nRow).html(iDisplayIndex + 1);
+                return nRow;
+            }
+        });
+        $("#tblEvents_length").addClass("col-md-6");
+        $("#tblEvents_length").addClass("col-md-6");
+    }
+
+    function GetUpcomingEventDetails() {
+        var oTable = $('#tblEvents').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Event/GetUpcomingEventDetails",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "EventId" },
+                { "sName": "Name" },
+                { "sName": "EventStartDate" },
+                { "sName": "EventEndDate" },
+                { "sName": "EventLocation" },
+                { "sName": "NumberOfSeats" },
+                { "sName": "EventStatus" },
+                { "sName": "Description" },
+                { "sName": "Workshop" },
+                { "sName": "Conference" },
+                { "sName": "IsActive" },
+                {
+                    "sName": "EventId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><a href="EditEventDetails?eventId=' + data + '" id="' + data + '" onclick="Edit(this.id);">Edit</a></li>' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="Delete(this.id);">Delete</a></li>' +
+                            '<li><a href="/Event/ViewEvent?eventId=' + data + '" id="' + data + '">View More</a></li>' +
+                            '</ul></div>';
+                    }
+                }
+            ],
+            "fnRowCallback": function (nRow, aData, iDisplayIndex) {
+                $("td:nth-child(1)", nRow).html(iDisplayIndex + 1);
+                return nRow;
+            }
+        });
+        $("#tblEvents_length").addClass("col-md-6");
+        $("#tblEvents_length").addClass("col-md-6");
+    }
+
+    function DeleteEventDetails(eventId) {
+        var Url = "/Event/DeleteEventDetails?eventId=" + eventId;
+        $.ajax({
+            type: "GET",
+            url: Url,
+            success: function (data) {
+                $("#DeleteConfirmation").modal("hide");
+            }
+        });
+
+    }
+    //Show The Popup Modal For DeleteComfirmation
+    var Delete = function (eventId) {
+        $("#eEventId").val(eventId);
+        $("#DeleteConfirmation").modal("show");
+    }
+    var ConfirmDelete = function () {
+        $.ajax({
+            type: "POST",
+            url: "/Event/DeleteEvent?eventId=" + $("#eEventId").val(),
+            success: function (result) {
+                $("#DeleteConfirmation").modal("hide");
+            }
+        })
+        GetAllEventDetails();
+    }
+</script>
+
+

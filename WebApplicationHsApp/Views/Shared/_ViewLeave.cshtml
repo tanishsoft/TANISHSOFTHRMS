@@ -1,0 +1,75 @@
+﻿@model WebApplicationHsApp.Models.LeaveViewModels
+
+<table class="table" style="width:80%;">
+    <tr>
+        <td>Leave Status<span style="color:red;">*</span> </td>
+        <td>
+            @Html.DisplayFor(model => model.LeaveStatus)
+
+        </td>
+    </tr>
+    <tr>
+        <td>Leave Type<span style="color:red;">*</span> </td>
+        <td>
+          @Html.DisplayFor(model=>model.LeaveTypeName)
+
+        </td>
+    </tr>
+    @*<tr>
+        <td>Is Full day <span style="color:red;">*</span></td>
+        <td>@Html.DisplayFor(model => model.IsFullday)</td>
+    </tr>*@
+    @*<tr>
+        <td>Is Comp Off</td>
+        <td>@Html.DisplayFor(model => model.IsCompOff)</td>
+    </tr>
+    <tr class="trCompoff" id="trCompoff">
+        <td>Date of Available Compoff<span style="color:red;">*</span></td>
+        <td>@Html.DisplayFor(model => model.DateofAvailableCompoff)</td>
+    </tr>*@
+    <tr id="trfromdate">
+        <td>Leave From Date<span style="color:red;">*</span></td>
+        @*<td>@Html.DisplayFor(model=>model.LeaveFromDate.Value.ToString("dd/MM/yyyy"))</td>*@
+        <td>@Model.LeaveFromDate.Value.ToString("dd/MM/yyyy")</td>
+    </tr>
+    <tr>
+        <td>Leave To Date<span style="color:red;">*</span></td>
+        @*<td>@Html.DisplayFor(model => model.LeaveTodate.Value.ToString("dd/MM/yyyy"))</td>*@
+        <td>@Model.LeaveTodate.Value.ToString("dd/MM/yyyy")</td>
+    </tr>
+    <tr>
+        <td>Reason For Leave<span style="color:red;">*</span></td>
+        <td>@Html.DisplayFor(model => model.ReasonForLeave)</td>
+    </tr>
+    <tr>
+        <td>Address On Leave<span style="color:red;">*</span></td>
+        <td>@Html.DisplayFor(model => model.AddressOnLeave)</td>
+    </tr>
+    <tr>
+        <td>Approver<span style="color:red;">*</span></td>
+        <td>@Html.DisplayFor(model => model.Level1Approver)</td>
+    </tr>
+    @*<tr>
+        <td>Level 1 Approver Status<span style="color:red;">*</span></td>
+        <td>@Html.DisplayFor(model => model.Level1Approved)</td>
+    </tr>
+    <tr>
+        <td>Level 1 Approver Comment<span style="color:red;">*</span></td>
+        <td>@Html.DisplayFor(model => model.Level1ApproveComment)</td>
+    </tr>
+    <tr>
+        <td>Level 2 Approver<span style="color:red;">*</span></td>
+       
+        <td>@Html.DisplayFor(model => model.Level2Approver)</td>
+
+        
+    </tr>
+    <tr>
+        <td>Level 2 Approver Status<span style="color:red;">*</span></td>
+        <td>@Html.DisplayFor(model => model.Level2Approved)</td>
+    </tr>
+    <tr>
+        <td>Level 2 Approver Comment<span style="color:red;">*</span></td>
+        <td>@Html.DisplayFor(model => model.Level2ApproveComment)</td>
+    </tr>*@
+</table>

@@ -1,0 +1,223 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+        $('#eventTime').timepicker();
+
+        $('#calendar').fullCalendar({
+            theme: true,
+            header: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'month,agendaWeek,agendaDay'
+            },
+            //defaultDate: '2016-06-12',
+            editable: true,
+            eventLimit: true, // allow "more" link when too many events
+            events: '/Calender/GetDiaryEvents/',
+            eventClick: function (calEvent, jsEvent, view) {
+                evetclikdeid = calEvent.id;
+                fullinfo(calEvent.id);
+            },
+            eventDrop: function (event, dayDelta, minuteDelta, allDay, revertFunc) {
+                if (confirm("Confirm move?")) {
+                    UpdateEvent(event.id, event.start._i, event.start._d);
+                }
+                else {
+                    revertFunc();
+                }
+            },
+
+            eventResize: function (event, dayDelta, minuteDelta, revertFunc) {
+
+                if (confirm("Confirm change appointment length?")) {
+                    UpdateEvent(event.id, event.start, event.end);
+                }
+                else {
+                    revertFunc();
+                }
+            },
+
+            dayClick: function (date, allDay, jsEvent, view) {
+                var start = moment(date).format('YYYY-MM-DDTHH:mm:ssZ');
+                var date = new Date(start);
+                $('#eventTitle').val("");
+                $('#eventDate').val(date.toLocaleDateString());
+
+                ShowEventPopup(date);
+            }
+        });
+
+    });
+    function fullinfo(id) {
+        eventcurrentid = id;
+        $.get('/Calender/GetFullEvent?EventId=' + id, function (data) {
+            if (data != "NA") {
+                $("#lblEventDescription").html(data.EventTitle);
+                $("#lblEventDate").html(data.EventDate + " " + data.EventTime);
+                $("#lblEventDuration").html(data.EventDuration);
+                $("#lblLocationName").html(data.EventLocation);
+                $("#lblEventOwnerName").html(data.EventOwnerName);
+                $("#lblEventDescription3").html(data.EventDescription);
+
+                $("#myModal2").modal('show');
+            } else {
+                alert("We are unable to find the Event");
+            }
+        });
+    }
+    function ShowEventPopup(date) {
+        $("#myModal").modal('show');
+    }
+    function SaveNewEvent() {
+        var ispersonalevent = false;
+        if ($("#IsPersonalEvent").prop("checked")) {
+            ispersonalevent = true;
+        }
+        if ($("#eventTitle").val() != null && $("#eventTitle").val() != "") {
+            var event = {
+                EventTitle: $("#eventTitle").val(),
+                EventTime: $('#eventTime').val(),
+                EventDate: $("#eventDate").val(),
+                EventDuration: $("#eventDuration").val(),
+                EventDescription: $("#txteventdesc").val(),
+                EventLocation: $("#eventLocation").val(),
+                IsPersonalEvent: ispersonalevent
+            };
+            $.ajax({
+                type: 'POST',
+                url: "/Calender/SaveEvent",
+                data: event,
+                dataType: 'json',
+                success: function (result) {
+                    $("#myModal").modal("hide");
+                    //$('#calendar').fullCalendar('refetchEvents');
+                    alert('New event saved!');
+                    window.location.reload();
+
+                }, error: function (result) {
+                    $("#myModal").modal("hide");
+                    alert('Error, could not save event!');
+                }
+            });
+        } else {
+            alert("Please enter title");
+        }
+    }
+    function UpdateEvent(id, start, end) {
+        //var start = moment(date).format('MM/DD/YYYY');
+        //var date = new Date(start);
+        alert(id + " " + start + " " + end);
+    }
+</script>
+
+<div id='calendar'></div>
+
+
+
+<!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">New Event</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <tr>
+                        <td> Title<span style="color:red;">*</span></td>
+                        <td><input type="text" id="eventTitle" class="form-control" placeholder="Event Title" /> </td>
+                    </tr>
+                    <tr>
+                        <td> Description<span style="color:red;">*</span></td>
+                        <td><input type="text" id="txteventdesc" class="form-control" placeholder="Event Description" /> </td>
+                    </tr>
+                    <tr>
+                        <td> Date</td>
+                        <td><input type="text" id="eventDate" class="form-control" disabled="disabled" placeholder="Event Date" /> </td>
+                    </tr>
+                    <tr>
+                        <td> Time<span style="color:red;">*</span></td>
+                        <td>
+                            <div class="input-group bootstrap-timepicker timepicker">
+                                <input id="eventTime" type="text" class="form-control input-small">
+                                @*<span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>*@
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td> Duration(In Minutes) <span style="color:red;">*</span></td>
+                        <td><input type="number" id="eventDuration" class="form-control" placeholder="In minutes" /> </td>
+                    </tr>
+                    <tr>
+                        <td> Event Location<span style="color:red;">*</span></td>
+                        <td><input type="text" id="eventLocation" class="form-control" placeholder="Event Location" /> </td>
+                    </tr>
+                    <tr>
+                        <td> Is Personal<span style="color:red;">*</span></td>
+                        <td><input type="checkbox" id="IsPersonalEvent" /> </td>
+                    </tr>
+
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="SaveNewEvent();">Save</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="myModal2" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Event Details</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered">
+                    <tr>
+                        <td>Title</td>
+                        <td><span id="lblEventDescription"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Event Date & Time</td>
+                        <td><span id="lblEventDate"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Event Duration</td>
+                        <td><span id="lblEventDuration"></span></td>
+                    </tr>
+
+
+                    <tr>
+                        <td>Location</td>
+                        <td><span id="lblLocationName"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Event OwnerName</td>
+                        <td><span id="lblEventOwnerName"></span></td>
+                    </tr>
+                    <tr>
+                        <td>Description</td>
+                        <td><span id="lblEventDescription3"></span></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

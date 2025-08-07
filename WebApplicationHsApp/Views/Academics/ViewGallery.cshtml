@@ -1,0 +1,138 @@
+﻿@model IEnumerable<WebApplicationHsApp.Models.ListMainEventModel>
+@{
+    ViewBag.Title = "ViewGallery";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="~/Content/baguetteBox.min.css" rel="stylesheet" />
+<script src="~/Scripts/baguetteBox.min.js"></script>
+<style>
+    .bottom-right {
+        position: absolute;
+        bottom: 120px;
+        right: 16px;
+        /*   background-image: url("https://mlxa3lwsoppt.i.optimole.com/HyUeok8-BlxeYbw4/w:auto/h:auto/q:auto/https://fernandezcdc.org/wp-content/uploads/2021/09/Group-512.svg");*/
+        background-color: #FEC20E;
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-size: contain;
+        padding: 15px;
+        color: black;
+        border-radius: 50%;
+        font-weight: bold;
+    }
+</style>
+
+@{
+    int checkimg = 0;
+}
+<div class="container">
+    @foreach (var v in Model)
+    {
+
+        <h2 style=" color: #94C4AC; font-weight: 600; line-height: 1.2em;font-size:55px;">@v.Year</h2>
+
+
+        var months = v.MainEventModels.Select(l => l.StartDateTime.Split(' ')[1]).Distinct().ToList();
+
+        foreach (var m in months)
+        {
+            var Maineventmodels = v.MainEventModels.Where(l => l.StartDateTime.Contains(m)).ToList();
+            <div class="row" style="border-bottom: solid 10px rosybrown;">
+                @foreach (var ev in Maineventmodels)
+                {
+                    checkimg = 0;
+                    <div class="col-md-4" style="padding:15px;">
+
+                        <div style="background-color:#eee; border-radius:15px;height:305px;">
+                            @*<img src="~/Documents/Images/PTW_01-min.jpg" style="width: 100%; border-radius: 15px; border: solid 5px #85C6A9;" /><br />*@
+                            <div id="baguetteBoxThree_@ev.EventId">
+                                @foreach (var im in ev.MainEventModelImages)
+                                {
+                                    if (im.isMainBanner && checkimg == 0)
+                                    {
+                                        checkimg++;
+                                        <a href="/Documents/Images/@im.ImagePath">
+                                            <img src="/Documents/Images/@im.ImagePath" alt="" style="width: 100%; border-radius: 15px; border: solid 5px #85C6A9;height:235px;">
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <a href="/Documents/Images/@im.ImagePath" style="display: none;">
+                                            <img src="/Documents/Images/@im.ImagePath" alt="" style="width: 100%; border-radius: 15px; border: solid 5px #85C6A9;">
+                                        </a>
+                                    }
+                                }
+                                <script>baguetteBox.run('#baguetteBoxThree_@ev.EventId');</script>
+                            </div>
+                            <div class="bottom-right">@ev.StartDateTime</div>
+                            <h4 style="margin:15px;text-align:center;font-weight:bold;">@ev.EventTitle</h4>
+
+                        </div>
+
+
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>
+<br />
+<br />
+
+
+<style>
+
+
+    .tz-gallery {
+        padding: 20px;
+    }
+
+        /* Override bootstrap column paddings */
+        .tz-gallery .row > div {
+            padding: 2px;
+        }
+
+        .tz-gallery .lightbox img {
+            width: 100%;
+            border-radius: 0;
+            position: relative;
+        }
+
+        .tz-gallery .lightbox:before {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -13px;
+            margin-left: -13px;
+            opacity: 0;
+            color: #fff;
+            font-size: 26px;
+            font-family: 'Glyphicons Halflings';
+            content: '\e003';
+            pointer-events: none;
+            z-index: 9000;
+            transition: 0.4s;
+        }
+
+
+        .tz-gallery .lightbox:after {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            background-color: rgba(46, 132, 206, 0.7);
+            content: '';
+            transition: 0.4s;
+        }
+
+        .tz-gallery .lightbox:hover:after,
+        .tz-gallery .lightbox:hover:before {
+            opacity: 1;
+        }
+
+    .baguetteBox-button {
+        background-color: transparent !important;
+    }
+</style>

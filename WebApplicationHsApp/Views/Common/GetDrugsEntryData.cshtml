@@ -1,0 +1,39 @@
+﻿@model WebApplicationHsApp.Models.ModeltoBindDataDrug
+<table class="table table-bordered" style="overflow-x:scroll;">
+    <thead>
+        <tr>
+            <td>Name</td>
+            <td>Stock</td>
+            <td>ExpireDate</td>
+            @foreach (var v in Model.Dates)
+            {
+                <td>@v</td>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var c in Model.drugs)
+        {
+            var dateexp = c.DrugExpiryDate.HasValue ? c.DrugExpiryDate.Value.ToString("dd/MM/yyyy") : "";
+            <tr>
+                <td>@c.DrugName</td>
+                <td>@c.StockTotal</td>
+                <td>@dateexp </td>
+                @foreach (var v in Model.Dates)
+                {
+                    string idbind = c.DrugId + "_" + v;
+                    var value = Model.model.Where(l => l.DrugId == c.DrugId && l.StockDate == v).ToList();
+                    if (value.Count > 0)
+                    {
+                        <td class="tdclassview" id="@idbind" onclick="checkthestockbind(this.id);" title="@c.DrugName @v">@value[0].StockQty</td>
+                    }
+                    else
+                    {
+                        <td class="tdclassview" id="@idbind" onclick="checkthestockbind(this.id);"  title="@c.DrugName @v">0</td>
+                    }
+
+                }
+            </tr>
+        }
+    </tbody>
+</table>

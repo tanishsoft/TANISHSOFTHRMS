@@ -1,0 +1,47 @@
+﻿
+@{
+    ViewBag.Title = "HRNotification";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+        GetHrNotification();
+
+    });
+    function GetHrNotification() {
+        var key = "HrNotification";
+        $.ajax({
+            type: "GET",
+            url: "/Home/GetSettings",
+            data: "key=" + key,
+            success: function (data) {
+                $("#HrNotification").html("<p>" + data + "</p>");
+            },
+            error: function () {
+                // alert("error")
+            }
+        });
+    }
+</script>
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-danger">
+            <div class="panel-heading">
+                <span class="glyphicon glyphicon-info-sign"></span>&nbsp; HR Notifications
+            </div>
+            <div class="panel-body" style="height:571px;overflow-y:auto;background:url('/Images/mdbackground.jpg') repeat;">
+
+                <div id="HrNotification">
+
+                </div>
+
+
+            </div>
+        </div>
+        @if (Request.IsAuthenticated && (User.IsInRole("Admin") || User.IsInRole("HrAdmin") || User.IsInRole("HrEmployee")))
+        {
+            <a href="~/ContentManage/HRNotification" style="text-align:center;color:teal;">Edit Notification</a>
+        }
+    </div>
+</div>

@@ -1,0 +1,436 @@
+﻿
+@{
+    ViewBag.Title = "NewConcession";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+        var id = parseInt($("#hdnIdconcession").val());
+        $(".alltypes").hide();
+        $("#txtDateOfsubmit").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-0:+50",
+            Edit: true
+            //  minDate: 0
+        });
+        $("#txtValidity").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-0:+50",
+            Edit: true
+        });
+        LoadLocations();
+        $(".ConcessionSubcategory").hide();
+        $("#txtConcessionAdvised").select2();
+        if (id > 0) {
+            LoadData(id);
+        }
+    });
+    var locationid = 0;
+    function LoadData(id) {
+        $.get("/ConcessionForm/GetConcession?id=" + id, function (data) {
+            $("#ddlCategory").val(data.Category);
+            $("#ddlSubCategory").val(data.SubCategory);
+            $("#txtConcessionAdvised").val(data.ConcessionAdvised).trigger('change');
+            $("#ddlConcessionType").val(data.ConcessionType);
+            $("#txtConsultation").val(data.Consultation);
+            $("#txtInvestigations").val(data.Investigations);
+            $("#txtIPNumber").val(data.IPNumber);
+            $("#txtJustification").val(data.Justification);
+            $("#txtPackage").val(data.Package);
+            $("#PaidByPatient").val(data.PaidByPatient);
+            $("#txtPatientName").val(data.PatientName);
+            $("#txtProcedure").val(data.ProcedureName);
+            $("#txtRemarks").val(data.Remarks);
+            $("#txtScan").val(data.Scan);
+            $("#txtService").val(data.Service);
+            $("#BillAmount").val(data.TotalBillAmount);
+
+            $("#ConcessioninAmount").val(data.TotalConcessionAmount);
+            $("#ConcessioninPercentage").val(((data.TotalConcessionAmount / data.TotalBillAmount) * 100).toFixed(2));
+            $("#txtDateOfsubmit").val(data.DateOfSubmit);
+
+            $("#BillNo").val(data.BillNo);
+            $("#ddlLocation").val(data.LocationId);
+            $("#txtValidity").val(data.Validity);
+            $("#txtPharmacy").val(data.Pharmacy);
+            $("#txtNST").val(data.NST);
+            $("#txtdateofadmission").val(data.DateOfAdmission);
+            $("#txtdateofdischarge").val(data.DateOfDischarge);
+            changeConcessionType();
+            locationid = data.LocationId;
+            categorychange();
+        });
+    }
+    function changeConcessionType() {
+        $(".alltypes").hide();
+        $("." + $("#ddlConcessionType").val()).show();
+    }
+    function Save() {
+        if ($("#txtIPNumber").val() != null && $("#txtIPNumber").val() != "" &&
+            $("#txtPatientName").val() != null && $("#txtPatientName").val() != "" &&
+            $("#ddlCategory").val() != null && $("#ddlCategory").val() != "" &&
+            $("#txtJustification").val() != null && $("#txtJustification").val() != ""
+            && $("#ddlSubCategory").val() != null && $("#ddlSubCategory").val() != ""
+        ) {
+            var Category = $("#ddlCategory").val();
+            if (Category == "Other") {
+                Category = $("#ConcessionCategoryOther").val();
+            }
+            var fileData = new FormData();
+            var fileUpload = $("#fileupload").get(0);
+            var files = fileUpload.files;
+            fileData.append("Upload", files[0]);
+            fileData.append('ConcessionId', parseInt($("#hdnIdconcession").val()));
+            fileData.append('Category', $("#ddlCategory").val());
+            fileData.append('ConcessionAdvised', $("#txtConcessionAdvised").val());
+            fileData.append('ConcessionType', $("#ddlConcessionType").val());
+
+            fileData.append('Consultation', $("#txtConsultation").val());
+            fileData.append('Investigations', $("#txtInvestigations").val());
+            fileData.append('IPNumber', $("#txtIPNumber").val());
+            fileData.append('Justification', $("#txtJustification").val());
+            fileData.append('Package', $("#txtPackage").val());
+            fileData.append('PaidByPatient', $("#PaidByPatient").val());
+            fileData.append('PatientName', $("#txtPatientName").val());
+            fileData.append('ProcedureName', $("#txtProcedure").val());
+            fileData.append('Remarks', $("#txtRemarks").val());
+            fileData.append('Scan', $("#txtScan").val());
+            fileData.append('Service', $("#txtService").val());
+            fileData.append('TotalBillAmount', $("#BillAmount").val());
+
+            fileData.append('TotalConcessionAmount', $("#ConcessioninAmount").val());
+            fileData.append('TotalConcessionPercentage', $("#ConcessioninPercentage").val());
+            fileData.append('DateOfSubmit', $("#txtDateOfsubmit").val());
+            fileData.append('BillNo', $("#BillNo").val());
+            fileData.append('LocationId', $("#ddlLocation").val());
+            fileData.append('SubCategory', $("#ddlSubCategory").val());
+            fileData.append('Validity', $("#txtValidity").val());
+
+            fileData.append('Pharmacy', $("#txtPharmacy").val());
+            fileData.append('NST', $("#txtNST").val());
+            fileData.append('DateOfAdmission', $("#txtdateofadmission").val());
+            fileData.append('DateOfDischarge', $("#txtdateofdischarge").val());
+            fileData.append('SendEmailTo', $("#SendEmailTo").val())
+
+            fileData.append('SendemailMd', $("#cbsendemail").prop("checked"));
+
+            //var model = {
+            //    Category: $("#ddlCategory").val(),
+            //    ConcessionAdvised: $("#txtConcessionAdvised").val(),
+            //    ConcessionType: $("#ddlConcessionType").val(),
+            //    Consultation: $("#txtConsultation").val(),
+            //    Investigations: $("#txtInvestigations").val(),
+            //    IPNumber: $("#txtIPNumber").val(),
+            //    Justification: $("#txtJustification").val(),
+            //    Package: $("#txtPackage").val(),
+            //    PaidByPatient: $("#PaidByPatient").val(),
+            //    PatientName: $("#txtPatientName").val(),
+            //    ProcedureName: $("#txtProcedure").val(),
+            //    Remarks: $("#txtRemarks").val(),
+            //    Scan: $("#txtScan").val(),
+            //    Service: $("#txtService").val(),
+            //    TotalBillAmount: $("#BillAmount").val(),
+            //    TotalConcessionAmount: $("#ConcessioninAmount").val(),
+            //    TotalConcessionPercentage: $("#ConcessioninPercentage").val(),
+            //    DateOfSubmit: $("#txtDateOfsubmit").val(),
+            //    BillNo: $("#BillNo").val(),
+            //    LocationId: $("#ddlLocation").val(),
+            //    SubCategory: $("#ddlSubCategory").val(),
+            //    Validity: $("#txtValidity").val(),
+            //    SendemailMd: $("#cbsendemail").prop("checked")
+            //};
+            $.ajax({
+                cache: true,
+                type: "POST",
+                url: "/ConcessionForm/SaveConcession",
+                contentType: false,
+                processData: false,
+                data: fileData,
+                success: function (data) {
+                    alert(data);
+                    window.location.reload();
+                }
+            });
+        } else {
+            alert("Please enter all the required fields");
+        }
+    }
+    function LoadLocations() {
+        $.ajax({
+            type: "GET",
+            url: "/Common/GetLocations",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#ddlLocation").html(options.join(''));
+                var id = parseInt($("#hdnIdconcession").val());
+                if (id > 0) {
+                    $("#ddlLocation").val(locationid);
+                }
+            },
+            error: function () {
+                alert("error");
+            }
+        });
+    }
+    function categorychange() {
+        if ($("#ddlCategory").val() == "Other") {
+            $("#ConcessionCategoryOther").show();
+        } else {
+            $("#ConcessionCategoryOther").hide();
+        }
+        $(".ConcessionSubcategory").hide();
+        $("." + $("#ddlCategory").val()).show();
+    }
+    function txtIPnumberchange() {
+        $("#tblpdetails").html("");
+        $("#txtdateofadmission").val("");
+        $("#txtdateofdischarge").val("");
+        $.get("/ConcessionForm/GetBillingforipno?ipno=" + $("#txtIPNumber").val(), function (data) {
+            $("#txtPatientName").val(data.name);
+            $("#BillAmount").val(data.totalamount);
+            var html = "<table class='table table-bordered'><tr><td>Admission Date</td><td>Discharge Date</td><td>Paid Amount</td><td>Discount</td><td>Balance</td><td>Post Dicount</td><td>NetAmount</td></tr>";
+            html += "<tr><td>" + data.admissiondate + "</td><td>" + data.dischargedt + "</td><td>" + data.paidamount + "</td><td>" + data.discount + "</td><td>" + data.balance + "</td><td>" + data.postdisc + "</td><td>" + data.NETAMOUNT + "</td></tr></table>";
+            $("#tblpdetails").html(html);
+            $("#txtdateofadmission").val(data.admissiondate);
+            $("#txtdateofdischarge").val(data.dischargedt);
+            $("#ConcessioninAmount").val(data.discount);
+            $("#BillAmount").val(data.totalamount);
+
+            $("#ConcessioninPercentage").val(((data.discount / data.totalamount) * 100).toFixed(2));
+        });
+    }
+</script>
+<style>
+    .CpxNewRequest label {
+        font-size: 13px;
+        color: darkslategray;
+    }
+</style>
+<input type="hidden" id="hdnIdconcession" value="@ViewBag.Id" />
+<div class="panel panel-default" style="width:80%;margin:auto;">
+    <div class="panel-heading" style="font-weight:normal;">
+        <span class="glyphicon glyphicon-arrow-right"></span>&nbsp;New Request
+    </div>
+    <div class="panel-body CpxNewRequest" style="min-height:500px;">
+        <div class="row" style="width:95%;margin:auto;">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>Location<span style="color:red;">*</span></label>
+                        <select id="ddlLocation" class="form-control">
+                            <option value="">Select</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label>Justification<span style="color:red;">*</span></label>
+                        <input type="text" name="Justification" id="txtJustification" class="form-control clsrequired" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Bill No</label>
+                        <input type="text" name="BillNo" id="BillNo" class="form-control clsrequired" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Concession Type</label>
+                        <select class="form-control" id="ddlConcessionType" onchange="changeConcessionType();">
+                            <option value="">Select Type</option>
+                            <option value="IPD">IPD</option>
+                            <option value="OPD">OPD</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Concession Category<span style="color:red;">*</span></label>
+                        <select class="form-control" id="ddlCategory" onchange="categorychange();">
+                            <option value="">Select Category</option>
+                            <option value="Non-Paying">Non-Paying</option>
+                            <option value="CRM">CRM</option>
+                            <option value="PUBLIC_SERVANTS">PUBLIC SERVANTS</option>
+                            <option value="Other">Others</option>
+                        </select>
+                        <input type="text" name="ConcessionCategoryOther" placeholder="Enter Other Category" id="ConcessionCategoryOther" style="display:none;" class="form-control clsrequired" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Total Bill Amount</label>
+                        <input type="text" name="BillAmount" id="BillAmount" class="form-control clsrequired" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Patient Name<span style="color:red;">*</span></label>
+                        <input type="text" name="PatientName" id="txtPatientName" class="form-control clsrequired" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Concession Sub Category<span style="color:red;">*</span></label>
+                        <select class="form-control" id="ddlSubCategory">
+                            <option value="">Select Sub Category</option>
+                            <option class="ConcessionSubcategory Other" value="Doctors">Doctors</option>
+                            <option class="ConcessionSubcategory Other" value="Staff Nurse">Staff Nurse</option>
+                            <option class="ConcessionSubcategory Other" value="Staff">Staff</option>
+                            <option class="ConcessionSubcategory Other" value="DNB/KNR Examinations">DNB/KNR Examinations</option>
+                            <option class="ConcessionSubcategory Other" value="Insurance">Insurance</option>
+                            <option class="ConcessionSubcategory Other" value="N/A of Rooms">N/A of Rooms</option>
+                            <option class="ConcessionSubcategory Other" value="Academic Scans">Academic Scans</option>
+                            <option class="ConcessionSubcategory Other" value="Requested by Consultant">Requested by Consultant</option>
+                            <option class="ConcessionSubcategory Other" value="Requested by Patient">Requested by Patient</option>
+                            <option class="ConcessionSubcategory Other" value="Management recommendation">Management recommendation</option>
+                            
+                            @*<option class="ConcessionSubcategory Other" value="General/Cash">General/Cash</option>*@
+                            <option class="ConcessionSubcategory CRM" value="Medical Issues">Medical Issues</option>
+
+                            <option class="ConcessionSubcategory PUBLIC_SERVANTS" value="Armed Forces">Armed Forces</option>
+                            <option class="ConcessionSubcategory PUBLIC_SERVANTS" value="Bureaucrats">Bureaucrats</option>
+                            <option class="ConcessionSubcategory PUBLIC_SERVANTS" value="Police Personal">Police Personal</option>
+                            <option class="ConcessionSubcategory Non-Paying" value="RVD (+ve)">RVD (+ve)</option>
+                            <option class="ConcessionSubcategory Non-Paying" value="Nireekshana (Ret+ve)">Nireekshana (Ret+ve)</option>
+                            <option class="ConcessionSubcategory Non-Paying" value="IRHS">IRHS</option>
+                            <option class="ConcessionSubcategory Non-Paying" value="NIMS">NIMS</option>
+                            <option class="ConcessionSubcategory Non-Paying" value="Nun Sisters">Nun Sisters</option>
+                            <option class="ConcessionSubcategory Non-Paying" value="Rosary Convent">Rosary Convent</option>
+                            <option class="ConcessionSubcategory Non-Paying" value="Heal A Child">Heal A Child</option>
+                            <option class="ConcessionSubcategory Non-Paying" value="Home for the Aged">Home for the Aged</option>
+                            <option class="ConcessionSubcategory Non-Paying" value="Home for Disable">Home for Disable</option>
+                            <option class="ConcessionSubcategory Non-Paying" value="General Ward Concession">General Ward Concession</option>
+                            <option class="ConcessionSubcategory Non-Paying" value="Poor Financial Condition of Patient">Poor Financial Condition of Patient</option>
+                            <option class="ConcessionSubcategory Non-Paying" value="Pay What You Can">Pay What You Can</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Total Concession in Amount</label>
+                        <input type="text" name="ConcessioninAmount" id="ConcessioninAmount" class="form-control" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>IP Number<span style="color:red;">*</span></label>
+                        <input type="text" name="IPNumber" id="txtIPNumber" onchange="txtIPnumberchange();" class="form-control clsrequired" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Concession Advised<span style="color:red;">*</span></label>
+                        <select class="form-control" id="txtConcessionAdvised" multiple>
+                            <option value="Dr. Evita">Dr. Evita</option>
+                            <option value="Dr. Pramod">Dr. Pramod</option>
+                            <option value="Dr. Tarakeshwari">Dr. Tarakeshwari</option>
+                            <option value="Dr. Padmaja">Dr. Padmaja</option>
+                            <option value="Dr.Rajitha Reddy">Dr.Rajitha Reddy</option>
+                            <option value="Dr. Tejopratap">Dr. Tejopratap</option>
+                            <option value="Dr. Shamim">Dr.Shamim(Shaikh Shamim Mahboobqavi)</option>
+                            <option value="Dr. Sunil Pawar">Dr. Sunil Pawar</option>
+                            <option value="Dr. Sai Kiran">Dr. Sai Kiran</option>
+                            <option value="Dr. Rajeev">Dr. Rajeev</option>
+                            <option value="Dr. Sowjanya">Dr. Sowjanya</option>
+                            <option value="Dr. Sreedevi">Dr. Sreedevi</option>
+                            <option value="Dr. Tejaswini">Dr. Tejaswini</option>
+                            <option value="Dr. Ashraf">Dr. Ashraf</option>
+                            <option value="Ms. Shirley">Ms. Shirley</option>
+                            <option value="Ms. Satya Durga">Ms. Satya Durga</option>
+                            <option value="Ms.Swathi.B">Ms.Swathi.B</option>
+<option value="Ms. Joyce James">Ms. Joyce James</option>
+                            <option value="Hospital Policy">Hospital Policy</option>
+                        </select>
+                        @*<input type="text" name="ConcessionAdvised" id="txtConcessionAdvised" class="form-control clsrequired" />*@
+                    </div>
+
+                    <div class="col-md-4">
+                        <label>Total Concession in Percentage (%) </label>
+                        <input type="text" name="ConcessioninPercentage" id="ConcessioninPercentage" class="form-control" />
+                    </div>
+                    <div class="col-md-12" id="tblpdetails">
+                    </div>
+
+
+                    
+                </div>
+                <div class="row alltypes IPD">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label>Package</label>
+                            <input type="text" name="txtPackage" id="txtPackage" class="form-control" />
+                        </div>
+                        <div class="col-md-4">
+                            <label>Paid By Patient</label>
+                            <input type="text" name="PaidByPatient" id="PaidByPatient" class="form-control" />
+                        </div>
+                        <div class="col-md-4">
+                            <label>Date of Admission</label>
+                            <input type="text" name="txtdateofadmission" id="txtdateofadmission" class="form-control" />
+                        </div>
+                        <div class="col-md-4">
+                            <label>Date Of Discharge</label>
+                            <input type="text" name="txtdateofdischarge" id="txtdateofdischarge" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row alltypes OPD">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label>Date Of Submit<span style="color:red;">*</span></label>
+                            <input type="text" name="dateofsubmit" autocomplete="off" readonly="readonly" id="txtDateOfsubmit" class="form-control" />
+                        </div>
+                        <div class="col-md-4">
+                            <label>Validity<span style="color:red;">*</span></label>
+                            <input type="text" name="Validity" autocomplete="off" readonly="readonly" id="txtValidity" class="form-control" />
+                        </div>
+                        <div class="col-md-4">
+                            <label>Pharmacy </label>
+                            <input type="text" name="Pharmacy" id="txtPharmacy" class="form-control" />
+                        </div>
+                        <div class="col-md-4">
+                            <label>NST</label>
+                            <input type="text" name="txtnst" id="txtNST" class="form-control" />
+                        </div>
+                        <div class="col-md-4">
+                            <label>Service</label>
+                            <input type="text" name="txtService" id="txtService" class="form-control" />
+                        </div>
+                        <div class="col-md-4">
+                            <label>Consultation</label>
+                            <input type="text" name="txtConsultation" id="txtConsultation" class="form-control" />
+                        </div>
+                        <div class="col-md-4">
+                            <label>Scan</label>
+                            <input type="text" name="txtScan" id="txtScan" class="form-control clsrequired" />
+                        </div>
+                        <div class="col-md-4">
+                            <label>Investigations</label>
+                            <input type="text" name="txtInvestigations" id="txtInvestigations" class="form-control" />
+                        </div>
+                        <div class="col-md-4">
+                            <label>Procedure</label>
+                            <input type="text" name="txtProcedure" id="txtProcedure" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br /><br />
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="col-md-12">
+                        <label>Remarks</label>
+                        <textarea name="Remarks" id="txtRemarks" class="form-control"></textarea>
+                    </div>
+
+                </div>
+                <div class="col-md-2"><br />
+                    Select File to Upload<br />
+                    <input type="file" id="fileupload" />
+                </div>
+                <div class="col-md-3">
+                    <br />
+                    <label>Send Email To comma(,) saparate</label>
+                    <input type="text" id="SendEmailTo" class="form-control" placeholder="abc@gmail.com,bclc@gmail.com" />
+                </div>
+                <div class="col-md-3">
+                    <br />
+                    <input type="checkbox" id="cbsendemail" /> SendEmail To Ilaiah Dongari<br />
+                    <button type="button" class="btn save" onclick="Save();">SAVE</button>
+                    <button type="button" data-dismiss="modal" class="btn cancel">Cancel</button>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>

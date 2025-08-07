@@ -1,0 +1,77 @@
+﻿@{
+    ViewBag.Title = "ViewDutyRoster";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@Scripts.Render("~/bundles/Roster")
+<script src="~/Scripts/dataTables.buttons.min.js"></script>
+<script src="~/Scripts/buttons.print.min.js"></script>
+<script>
+    $(document).ready(function () {
+        LoadLocations();
+    });
+    function ExporttoExcelRoster() {
+        var valid = true;
+        if ($("#ddlLocation").val() == null || $("#ddlLocation").val() == "")
+        {
+            valid = false;
+        }
+        if ($("#ddlDepartment").val() == null || $("#ddlDepartment").val() == "") {
+            valid = false;
+        }
+        if ($("#txtfromdate1").val() == null || $("#txtfromdate1").val() == "") {
+            valid = false;
+        }
+        if ($("#txttodate1").val() == null || $("#txttodate1").val() == "") {
+            valid = false;
+        }
+        if (valid) {
+            window.location = "/HrAdmin/ExporttoExcelRoster?location=" + $("#ddlLocation").val() + "&department=" + $("#ddlDepartment").val() + "&FromDate=" + $("#txtfromdate1").val() + "&ToDate=" + $("#txttodate1").val() + "&Employee=" + $("#ddlEmployees").val();
+        } else {
+            alert("Please select all the required fields")
+        }
+    }
+</script>
+<input type="hidden" id="hidtypeofview" value="View" />
+<div class="panel panel-default">
+    <div class="panel-heading">View Duty Roster</div>
+    <div class="panel-body">
+        <div class="row" style="padding-bottom:5px;">
+            <div class="col-md-12" style="padding-bottom:5px;">
+                <div class="col-md-2">
+                    <select id="ddlLocation" class="form-control" style="max-width:200px;" onchange="LoadDepartment();">
+                        <option value="">All Locations</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select id="ddlDepartment" class="form-control" style="max-width:200px;" onchange="LoadEmployeesByDepartment();">
+                        <option value="0">All Departments</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select id="ddlEmployees" class="form-control" style="max-width:200px;">
+                        <option value="">All Employees</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <input type='text' class="form-control btdate" id="txtfromdate1" placeholder="From Date" style="max-width:200px;" />
+                </div>
+                <div class="col-md-2">
+                    <input type='text' class="form-control btdate" id="txttodate1" placeholder="To Date" style="max-width:200px;" />
+                </div>
+                <div class="col-md-2">
+                    <input type="button" class="btn btn-sm btn-success" value="Go" onclick="LoadDutyRoster();" />&nbsp;
+                    <input type="button" class="btn btn-sm btn-default" value="Export" onclick="ExporttoExcelRoster();" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row" style="padding-bottom:5px;">
+            <div class="col-md-12" style="padding-bottom:5px; height:400px;overflow:scroll;">
+                <div id="viewdivroster">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,468 @@
+﻿
+@{
+    ViewBag.Title = "MyCpxRequests";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+        LoadData();
+    });
+    function LoadData() {
+        $('#tblManageTaskApprovers').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Cpx/AjaxbyMyCpxDetails",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "TaskCpxId" },
+                { "sName": "CPXType" },
+                { "sName": "Created On" },
+                { "sName": "CreatorLocationName" },
+                //{ "sName": "CreatorDepartmentName" },
+                { "sName": "CreatorName" },
+                { "sName": "ProjectTitle" },
+                { "sName": "RequestDept" },
+                { "sName": "Item" },
+                { "sName": "Qty" },
+                { "sName": "EstimatedCost" },
+                { "sName": "Budgeted" },
+                { "sName": "IsNewItem" },
+                { "sName": "Priority" },
+                { "sName": "WorkDoneComments" },
+                { "sName": "CpxStatus" },
+                {
+                    "sName": "TaskCpxId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return GetHtmlContent(data);
+
+                    }
+                }
+            ],
+            "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                $('td:eq(0)', nRow).html('<a href="javascript:void(0);" id="' + aData[0] + '" title="View Details" onclick="ViewTaskDetails(this.id);">' + aData[0] + '</a>')
+                $('td:eq(7)', nRow).html('<a href="javascript:void(0);" id="' + aData[0] + '" title="View Details" onclick="ViewTaskDetails(this.id);">' + aData[7] + '</a>');
+
+                switch (aData[14]) {
+                    case 'Pending':
+                    case 'Pending at Requestor':
+                        $('td:eq(14)', nRow).css('color', '#E67D21');
+                        break;
+                    case 'New':
+                        $('td:eq(14)', nRow).css('color', '#3598dc');
+                        break;
+                    case 'In Progress':
+                        $('td:eq(14)', nRow).css('color', '#8E44AD');
+                        break;
+                    case 'Reopen':
+                        $('td:eq(14)', nRow).css('color', '#5FC29D');
+                        break;
+                    case 'Rejected':
+                        $('td:eq(14)', nRow).css('color', '#a71f23');
+                        break;
+                    default:
+                        $('td:eq(14)', nRow).css('color', 'Green');
+                        break;
+                }
+                switch (aData[10]) {
+                    case 'No':
+                        $('td:eq(10)', nRow).css('color', '#a71f23');
+                        break;
+                    default:
+                        $('td:eq(10)', nRow).css('color', 'Green');
+                        break;
+                }
+            }
+        });
+        $("#tblManageTaskApprovers_length").addClass("col-md-6");
+    }
+    function GetHtmlContent(data) {
+
+        var htmlcontect = "";
+        htmlcontect += '<div class="btn-group">';
+        htmlcontect += '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>';
+        htmlcontect += '<ul class="dropdown-menu dropdown-menu-right">';
+        htmlcontect += '<li class="dontScoll"><a href="javascript:void(0);" id="' + data + '" onclick="ViewTaskDetails(this.id);">View Details</a></li>';
+        htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="DoneTaks(this.id);"> Acknowledge</a></li> ';
+        htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="EditCpaxRequest(this.id);"> Edit</a></li> ';
+        //htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="ApproveTask(this.id);">Approve</a></li>';
+        htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="CancelRequest(this.id);">Cancel Request</a></li>';
+        htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="ViewApprovers(this.id);">View Approvers</a></li> ';
+        htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="QueryOnRequest(this.id);">Add/Manage Queries</a></li>';
+        //htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="WorkDonwstatus(this.id);">WorkDone Comments</a></li> ';
+        htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="ViewFiles(this.id);">View Files</a></li>';
+
+        htmlcontect += '</ul></div>';
+        return htmlcontect;
+    }
+    function EditCpaxRequest(id) {
+        $.get("/Cpx/GetFullDetailsOfCpx?id=" + id, function (data) {
+            if (data.CpxStatus == "Pending") {
+                window.location = "/Cpx/NewRequest?id=" + id;
+            } else {
+                alert("Only New CPAX can edit.");
+            }
+        });
+    }
+    function DoneTaks(id) {
+        if (confirm("Are you sure you want to confirm to Close?")) {
+            $.get("/Cpx/ConfirmCpxRequest?id=" + id + "&comments=ok", function (data) {
+                LoadData();
+            });
+        }
+    }
+    function ViewTaskDetails(id) {
+        var html = "";
+        $.get("/Cpx/GetFullDetailsOfCpx?id=" + id, function (data) {
+            html = "<table class='table table-bordered table-striped'>";
+            html += "<tr><td>Type</td><td>" + data.CPXType + "</td></tr>";
+            var item = "Item"; var company = "";
+            if (data.CPXType == "CPX" || data.CPXType == "CAPX") {
+                item = "Item";
+                company = "";
+            }
+            else if (data.CPXType == "AMC/CMC") {
+                item = "AMC Item";
+                company = "AMC Company";
+            }
+            else if (data.CPXType == "Repair") {
+                item = "Repair Item";
+                company = "Repair Company";
+            }
+            else if (data.CPXType == "Replacement") {
+                item = "Replacement Item";
+                company = "Replacement Company";
+            }
+            html += "<tr><td>CPX Date</td><td>" + data.CreatedDate + "</td></tr>";
+            html += "<tr><td>CPX Related To</td><td>" + data.CpxRelatedTo + "</td></tr>";
+            html += "<tr><td>Project Title</td><td>" + data.ProjectTitle + "</td></tr>";
+            html += "<tr><td>Qty</td><td>" + data.Qty + "</td></tr>";
+            html += "<tr><td>Budgeted</td><td>" + data.Budgeted + "</td></tr>";
+            html += "<tr><td>Creator</td><td>" + data.CreatorLocationName + " " + data.CreatorDepartmentName + " " + data.CreatorName + "</td></tr>";
+            //html += "<tr><td>Creator Department</td><td>" + data.CreatorDepartmentName + "</td></tr>";
+            //html += "<tr><td>Creator </td><td>" + data.CreatorName + "</td></tr>";
+            html += "<tr><td>Estimated Cost</td><td>" + data.EstimatedCost + "</td></tr>";
+            html += "<tr><td>" + item + "</td><td>" + data.Item + "</td></tr>";
+            if (data.IsNewItem == "Yes") {
+                html += "<tr><td>Is New Item</td><td>" + data.IsNewItem + "</td></tr>";
+            } else {
+                html += "<tr><td>Is Repeat Item</td><td>Yes</td></tr>";
+            }
+            html += "<tr><td>Item Details</td><td>" + data.ItemDetails + "</td></tr>";
+            if (data.MainFeatures != null)
+                html += "<tr><td>Main Features</td><td>" + data.MainFeatures + "</td></tr>";
+            else
+                html += "<tr><td>Main Features</td><td>&nbsp;</td></tr>";
+            if (data.Model != null)
+                html += "<tr><td>Model</td><td>" + data.Model + "</td></tr>";
+            else
+                html += "<tr><td>Model</td><td>&nbsp;</td></tr>";
+            html += "<tr><td>Priority</td><td>" + data.Priority + "</td></tr>";
+            html += "<tr><td>Request For Department</td><td>" + data.RequestForDepartment + "</td></tr>";
+            if (data.CPXType != "CAPX" && data.CPXType != "CPX")
+                html += "<tr><td>" + company + "</td><td>" + data.SupportCompany + "</td></tr>";
+            if (data.CPXType == "AMC/CMC") {
+                html += "<tr><td>Last Renewal Date</td><td>" + data.AMCLastRenewalDate + "</td></tr>";
+                html += "<tr><td>Next Renewal Date</td><td>" + data.AMCNextRenewalDate + "</td></tr>";
+            } else if (data.CPXType == "Replacement") {
+                html += "<tr><td>Replacement Reason</td><td>" + data.ReasonForReplacement + "</td></tr>";
+                html += "<tr><td>Existing Product Model</td><td>" + data.OldProductModel + "</td></tr>";
+                html += "<tr><td>Old Product Cost</td><td>" + data.OldProductCost + "</td></tr>";
+            }
+            else if (data.CPXType == "Repair") {
+            }
+            html += "</table>";
+            $("#divfullrequestdetails").html(html);
+            $("#myModalFullrequest").modal("show");
+        });
+    }
+
+    function ViewApprovers(id) {
+        var html = "";
+        $.get("/Cpx/GetFullDetailsOfCpx?id=" + id, function (maindata) {
+
+            var item = "Item";
+            if (maindata.CPXType == "CPX" || maindata.CPXType == "CAPX") {
+                item = "Item";
+            }
+            else if (maindata.CPXType == "AMC/CMC") {
+                item = "AMC Item";
+            }
+            else if (maindata.CPXType == "Repair") {
+                item = "Repair Item";
+            }
+            else if (maindata.CPXType == "Replacement") {
+                item = "Replacement Item";
+            }
+            $.get("/Cpx/GetApproversList?id=" + id, function (data) {
+                html = "<p><b>" + item + " :</b> " + maindata.Item + "<br /><b>Item Details :</b>" + maindata.ItemDetails + " </p><br><table class='table table-bordered table-striped'>";
+                html += "<tr><td style='display:none'>Department</td><td>Approver </td><td>Approval Level</td><td>Is Approved</td><td>Approved Date</td><td>Approve Comments</td></tr>";
+                for (var i = 0; i < data.length; i++) {
+                    html += "<tr><td style='display:none'>" + data[i].DepartmentName + "</td>";
+                    html += "<td>" + data[i].FirstName + "</td>";
+                    var name = '';
+                    switch (data[i].ApprovalLevel) {
+                        case "-1":
+                            name = 'Incharge';
+                            break;
+                        case "0":
+                            name = 'HOD';
+                            break;
+                        case "1":
+                            name = 'Technical Admin';
+                            break;
+                        case "2":
+                            name = 'Unit Admin';
+                            break;
+                        case "3":
+                            name = 'Medial Director';
+                            break;
+                        case "4":
+                            name = 'Finance Approve';
+                            break;
+                        case "5":
+                            name = 'Final Approver 1';
+                            break;
+                        case "6":
+                            name = 'Final Approver 2';
+                            break;
+                        case "7":
+                            name = 'Final Approver 3';
+                            break;
+                        case "8":
+                            name = 'Purchase Approver 1';
+                            break;
+                        case "9":
+                            name = 'Purchase Approver 2';
+                            break;
+                    }
+                    html += "<td>" + name + "</td>";
+                    if (data[i].IsApproved) {
+                        html += "<td>Yes</td>";
+                    } else {
+                        html += "<td>No</td>";
+                    }
+                    html += "<td>" + data[i].ApprovedDate + "</td>";
+                    html += "<td>" + data[i].ApproveComments + "</td></tr>";
+                }
+                html += "</table>";
+                $("#divfullapproversdetails").html(html);
+                $("#myModalViewApprovers").modal("show");
+            });
+        });
+    }
+    function CancelRequest(id) {
+        if (confirm("Are you sure you want to Cancel?")) {
+            $.get("/Cpx/RejectCpxRequest?id=" + id + "&comments=cancel", function (data) {
+                LoadData();
+            });
+        }
+    }
+
+    var currentid;
+    function ViewFiles(id) {
+        currentid = id;
+        //alert(id);
+        BindListoffiles(id);
+        $("#divManageDocuments").modal("show");
+    }
+    function Uploaddataclick() {
+
+        // Checking whether FormData is available in browser
+        if (window.FormData !== undefined) {
+
+            var fileUpload = $("#selectfiletoupload").get(0);
+            var files = fileUpload.files;
+
+            // Create FormData object
+            var fileData = new FormData();
+
+            // Looping over all files and add it to FormData object
+            for (var i = 0; i < files.length; i++) {
+                fileData.append(files[i].name, files[i]);
+            }
+
+            // Adding one more key to FormData object
+            fileData.append('id', currentid);
+            fileData.append('public', $("#documentisprivate").val());
+            $.ajax({
+                url: '/Cpx/UploadFiles',
+                type: "POST",
+                contentType: false, // Not to set any content header
+                processData: false, // Not to process data
+                data: fileData,
+                success: function (result) {
+                    alert(result);
+                    BindListoffiles(currentid);
+                },
+                error: function (err) {
+                    alert(err.statusText);
+                }
+            });
+        } else {
+            alert("FormData is not supported.");
+        }
+    }
+    function BindListoffiles(id) {
+        $.get("/Cpx/GetListOfFiles", { id: id }, function (data) {
+            var html = "<table class='table  table-bordered'><tr style='background-color:teal;color:white;'><td>Name</td><td> Action</td></tr>";
+            for (var i = 0; i < data.length; i++) {
+                html += "<tr><td>" + data[i].DocumentName + "</td><td><a  target='_blank' href='/ExcelUplodes/" + data[i].DocumentPath + "'>View</a> </td></tr>";
+            }
+            html + "</table>";
+            $("#Divdocumentshistory").html(html);
+        });
+    }
+
+
+    function QueryOnRequest(id) {
+        currentid = id;
+        BindQueryonReques(id);
+        $("#divManageQueryOnRequest").modal("show");
+    }
+    function SubmitQueryonRequest() {
+        var model = {
+            Id: 0,
+            TaskCpxId: currentid,
+            Notes: $("#txtquerycomments").val(),
+            CreatedBy: "response"
+        };
+        $.post("/Cpx/SaveQueriesOnComments", model, function (data) {
+            alert("Query is added successfully");
+            //$("#divManageQueryOnRequest").modal("hide");
+            BindQueryonReques(currentid);
+        });
+    }
+    function BindQueryonReques(id) {
+        $.get("/Cpx/GetQueriesOrCommentsonRequest", { id: id }, function (data) {
+            var html = "<table class='table  table-bordered'><tr style='background-color:teal;color:white;'><td>Comments</td><td>Added By</td><td> Date</td></tr>";
+            for (var i = 0; i < data.length; i++) {
+                html += "<tr><td>" + data[i].Notes + "</td><td>" + data[i].CreatedBy + " </td><td>" + data[i].CreatedOn + " </td></tr>";
+            }
+            html + "</table>";
+            $("#Divqueryonrequest").html(html);
+        });
+    }
+</script>
+<div class="modal fade" id="myModalViewApprovers" role="dialog">
+    <div class="form-block">
+        <h3>View Approvers<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <div id="divfullapproversdetails">
+
+        </div>
+    </div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading" style=" font-weight:normal;">
+        <span class="glyphicon glyphicon-arrow-right"></span>&nbsp;Manage My Cpx Requests  <a href="/Cpx/NewRequest" style="cursor:pointer;float:right;"> <span class="glyphicon glyphicon-plus-sign">New </span></a>
+    </div>
+    <div class="panel-body" style="min-height:600px;">
+        <table class="table table-bordered" id="tblManageTaskApprovers">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>Cpx No.</th>
+                    <th>Type</th>
+                    <th>Date </th>
+                    <th>Location</th>
+                    @*<th>Department</th>*@
+                    <th>User</th>
+                    <th>Project</th>
+                    <th>Request Dept</th>
+                    <th>Item</th>
+                    <th>Qty</th>
+                    <th>Estimated Cost</th>
+                    <th>Budgeted</th>
+                    <th>Is New Item</th>
+                    <th>Priority</th>
+                    <th>Work Done Comments</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+<div class="modal fade" id="myModalFullrequest" role="dialog">
+    <div class="form-block">
+        <h3>View Request<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <div id="divfullrequestdetails">
+
+        </div>
+    </div>
+</div>
+
+<div id="divManageDocuments" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Manage Documents</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <tr>
+                        <td>
+                            Is It Private :
+                        </td>
+                        <td>
+                            <input type="checkbox" id="documentisprivate" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            Select File  :
+                        </td>
+                        <td>
+                            <input type="file" name="file" id="selectfiletoupload" multiple />
+                        </td>
+                        <td>
+                            <input type="button" id="btnUploadfile" class="btn btn-primary" value="Upload" onclick="Uploaddataclick();" />
+                        </td>
+                    </tr>
+                </table>
+                <div class="row" style="padding:5px;" id="Divdocumentshistory">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div><div id="divManageQueryOnRequest" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Manage Query/Comments</h4>
+            </div>
+            <div class="modal-body">
+                <table class="table">
+                    <tr>
+                        <td>
+                            Enter Details:
+                        </td>
+                        <td>
+                            <textarea id="txtquerycomments" class="form-control" rows="3"></textarea>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                        </td>
+                        <td>
+                            <input type="button" id="btnsubmitquery" class="btn btn-primary" value="Save" onclick="SubmitQueryonRequest();" />
+                        </td>
+                    </tr>
+                </table>
+                <div class="row" style="padding:5px;" id="Divqueryonrequest">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

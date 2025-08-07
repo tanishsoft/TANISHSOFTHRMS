@@ -1,0 +1,100 @@
+﻿@model WebApplicationHsApp.Models.LeaveViewModels
+@{
+    ViewBag.Title = "LeaveApproval";
+
+}
+
+<script>
+    $(document).ready(function () {
+        $("#blockStatus").hide();
+    });
+
+    function SaveForm() {
+        debugger;
+        var sts = $('input[name=Status]:checked').val();
+
+        if (sts == "1" || sts == "2") {
+            if ($("#Level1ApproveComment").val() == "") {
+                alert("Please Enter Comments");
+                return false;
+            }
+        }
+
+        var task = {
+            LeaveId: $("#LeaveId").val(),
+            Level1ApproveComment: $("#Level1ApproveComment").val(),
+            Status: sts
+        };
+        $.ajax({
+            type: "POST",
+            url: "/Account/LeaveApprovalSave",
+            data: task,
+            success: function (data) {
+                alert(data);
+                $("#blockForm").hide();
+                $("#blockStatus").show();
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+
+    }
+
+</script>
+<div class="row">
+    <div class="col-md-3">
+        &nbsp;
+    </div>
+    <div class="col-md-6">
+        <div class="panel panel-default StatusApplyLeave">
+            <div class="panel-heading">  Leave Approval</div>
+            <div class="panel-body">
+                @if (string.IsNullOrEmpty(Model.LeaveStatus) || Model.LeaveStatus == "Pending")
+                {
+                    <div class="row" style="padding:5px;" id="blockForm">
+
+                        <div class="row" style="padding:5px;">
+                            <div class="col-md-1">
+                                <label for="name"> Please Select :</label>
+                            </div>
+                            <div class="col-md-4">
+                                @Html.HiddenFor(a => a.LeaveId)
+                                <span>@Html.RadioButtonFor(a => a.Status, "0")<span>Approved</span> </span>
+                                <span>@Html.RadioButtonFor(a => a.Status, "1")<span>Reject</span></span>
+                                <span>@Html.RadioButtonFor(a => a.Status, "2")<span>Partially approved</span></span>
+
+                            </div>
+
+                        </div>
+
+                        <div class="row" style="padding:5px;">
+                            <div class="col-md-1">
+                                <label for="name"> Comments :</label>
+                            </div>
+                            <div class="col-md-8">
+                                @Html.TextAreaFor(a => a.Level1ApproveComment, new { @class = "form-control" })
+                            </div>
+                        </div>
+
+                        <div class="row" style="padding:5px;">
+
+                            <input type="button" value="Submit" id="btnSave" class="btn btn-primary" onclick="SaveForm()" />
+                        </div>
+
+                    </div>
+                    <div class="row" style="padding:5px;" id="blockStatus">
+                        <h1>Request Completed Successfully</h1>
+                    </div>
+                }
+                else
+                {
+                    <h1>Request Completed..</h1>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        &nbsp;
+    </div>
+</div>

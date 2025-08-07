@@ -1,0 +1,211 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    #captureSignature {
+        width: 100%;
+        height: auto;
+        border: 1px solid #eee;
+    }
+</style>
+<script src="~/Scripts/jSignature.min.js"></script>
+<script>
+    var $sigdiv, $sigdiv2;
+    $(document).ready(function () {
+        $sigdiv2 = $("#captureSignature").jSignature({ 'UndoButton': true });
+        $("#selCource").select2({
+            ajax: {
+                url: "/Learning/GetTrainingsSearch",
+                type: "get",
+                dataType: 'json',
+
+                //delay: 250,
+                data: function (params) {
+                    return {
+                       
+                        searchTerm: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 4
+        });
+        $("#selUser").select2({
+            ajax: {
+                url: "/Home/GetCustomIdEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 4
+        });
+        //LoadDataDepartment();
+    });
+    function LoadDataDepartment() {
+
+        $.get("/Hospital/GetTrainingDepartmentsToBind", function (data) {
+            var options = [];
+            options.push('<option value="">- Select -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i] + '">' + data[i] + '</option>');
+            }
+            $("#ddlselectdepartment").html(options.join(''));
+        });
+    }
+    function LoadCourceByDepartment() {
+        $.get("/Learning/GetCourcesSearch?dept=" + $("#ddlselectdepartment").val() +"&searchTerm=", function (data) {
+            var options = [];
+            options.push('<option value="">- Select -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i] + '">' + data[i] + '</option>');
+            }
+            $("#selCource").html(options.join(''));
+        });
+        
+    }
+    function SaveAttendanceofCource() {
+        var takingSecuritySign = $sigdiv2.jSignature('getData', 'image').toString();
+        if ($("#selCource").val() != null && $("#selCource").val() != "" && $("#selUser").val() != null && $("#selUser").val() != "") {
+            var task = {
+                Id: 0,
+                CourseId: $("#selCource").val(),
+                Department: "",
+                CourseName: $("#selCource option:selected").text(),
+                TraineeEmpId: $("#selUser").val(),
+                TraineeSign: "data:" + takingSecuritySign,
+                Mode: $("#ddlMode").val(),
+                Remarks: $("#txtRemarks").val(),
+                IsActive: true
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Learning/SaveNewCourceEmployee",
+                data: task,
+                success: function (data) {
+                    alert(data);
+                    OnchangeCource();
+                }
+            });
+        } else {
+            alert("Please select requried options");
+        }
+    }
+    function OnchangeCource() {
+        //tbldatabindcourcetrinee
+        $("#tbldatabindcourcetrinee").html("");
+        $.get("/Learning/GetCourceTraineeDetailsById?CourseName=" + $("#selCource option:selected").text(), function (data) {
+            var html = "";
+            for (var i = 0; i < data.length; i++) {
+                html += "<tr> <td>" + data[i].CourseName + "</td><td>" + data[i].DateOfCourse + "</td><td>" + data[i].EmployeeName + "</td><td><img style='border-radius:50%;width:100px;' src='/Documents/" +  data[i].EmployeeSign +"' /></td></tr>";
+            }
+            $("#tbldatabindcourcetrinee").html(html);
+        });
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading" style="height:35px;"><a href="~/Register/Index">Go Back</a> &nbsp;&nbsp;Update Attendance of Cource</div>
+    <div class="panel-body">
+
+        <div style="width:60%;margin:auto;">
+            @*<div class="row">
+                <div class="col-md-4">Select Department</div>
+                <div class="col-md-6">
+                    <select id="ddlselectdepartment" class="form-control  border-primary" name="query" onchange="LoadCourceByDepartment();">
+                          <option value=""></option>
+                    </select>
+                </div>
+            </div>*@
+            <div class="row" style="margin-top:10px;">
+                <div class="col-md-4">Select Cource</div>
+                <div class="col-md-6">
+                    <select id="selCource" class="form-control typeahead border-primary" name="query"
+                            data-provide="typeahead" autocomplete="off" onchange="OnchangeCource();">
+                        <option>Select</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row" style="margin-top:10px;">
+                <div class="col-md-4">Employee Search</div>
+                <div class="col-md-6">
+                    <select id="selUser" class="form-control typeahead border-primary" name="query"
+                            data-provide="typeahead" autocomplete="off">
+                    </select>
+                </div>
+            </div>
+
+            <div class="row" style="margin-top:10px;">
+                <div class="col-md-4">Mode</div>
+                <div class="col-md-6">
+                    <select id="ddlMode" class="form-control">
+                        <option value="">Select</option>
+                        <option value="Online">Online</option>
+                        <option value="WorkShop">WorkShop</option>
+                        <option value="OnCall">OnCall</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row" style="margin-top:10px;">
+                <div class="col-md-4">Remarks</div>
+                <div class="col-md-6">
+                    <textarea id="txtRemarks" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="row" style="margin-top:10px;">
+                <div class="col-md-4">Sign</div>
+                <div class="col-md-6">
+                    <div id="captureSignature">
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="margin-top:10px;">
+                <div class="col-md-4">&nbsp;</div>
+                <div class="col-md-6"><input type="button" id="btnupdate" value="Save" class="btn btn-primary" onclick="SaveAttendanceofCource()" /></div>
+
+            </div>
+        </div>
+        <br />
+        <div id="">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                     
+                        <th>
+                            Course Name
+                        </th>
+                        <th>
+                            Date Of Course
+                        </th>
+                        <th>
+                            Employee Name
+                        </th>
+                        <th>
+                            Employee Sign
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="tbldatabindcourcetrinee">
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+

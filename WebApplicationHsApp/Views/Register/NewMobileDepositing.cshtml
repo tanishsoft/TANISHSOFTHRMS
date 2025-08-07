@@ -1,0 +1,229 @@
+﻿
+@{
+    ViewBag.Title = "NewMobileDepositing";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+
+    #captureSignature {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+
+    #captureSignature2 {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+
+    #captureSignatureStaff {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+</style>
+<script src="~/Scripts/jSignature.min.js"></script>
+<!--[if lt IE 9]>
+<script  type="text/javascript" src="~/Scripts/flashcanvas.js"></script>
+    <![endif]-->
+<script>
+    var validate;
+    var eId = 0;
+
+    var $sigdiv, $sigdiv2;
+    $(document).ready(function () {
+        $sigdiv = $("#captureSignatureTaking").jSignature({ 'UndoButton': true });
+        $sigdiv2 = $("#captureSignatureSecurity").jSignature({ 'UndoButton': true });
+        LoadLocations();
+        $("#txtstaffIdNumber").change(function () {
+            $.get("/Custom/GetUserDetailsByEmpId?id=" + $("#txtstaffIdNumber").val(), function (data) {
+                if (data != "Enter Valid Request ID") {
+                    $("#txtstaffName").val(data.FirstName);
+                    //$("#txtstaffContactNumber").val(data.PhoneNumber);
+                    //$("#dllstafdepartment").val(data.DepartmentName);
+                }
+            });
+        });
+    });
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Locations -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#LocationId").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function OnLocationchng() {
+        $.get("/Register/GetSecurityDetails?locationId=" + $("#LocationId").val(), function (data) {
+            var options = [];
+            options.push('<option value="">- Select Security -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].FirstName + '">' + data[i].FirstName + '</option>');
+            }
+            $("#txtTakingSecurity").html(options.join(''));
+        });
+    }
+    function SaveRegister() {
+        ValidateDetails();
+        var takingSign = $sigdiv.jSignature('getData', 'image').toString();
+        var takingSecuritySign = $sigdiv2.jSignature('getData', 'image').toString();
+        if (takingSign == null || takingSign == "") {
+            validate = false;
+        }
+        if (takingSecuritySign == null || takingSecuritySign == "") {
+            validate = false;
+        }
+        if (validate) {
+            var task = {
+                Id: eId,
+                LocationId: $("#LocationId").val(),
+                EmployeeNumber: $("#txtstaffIdNumber").val(),
+                TokenNumber: $("#txtTokenNumber").val(),
+                IsActive: true,               
+                InSecurity: $("#txtTakingSecurity").val(),
+                Remarks: $("#txtRemarks").val(),
+                EmployeeInSign: "data:" + takingSign,
+                SecurityInSign: "data:" + takingSecuritySign
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Register/SaveNewMobileDepositing",
+                data: task,
+                success: function (data) {
+                    alert(data);
+                    clearAll();
+                }
+            });
+        } else {
+            alert("Please enter all the required fields");
+        }
+    }
+    function ValidateDetails() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+
+        if ($("#LocationId").val() == "") {
+            $("#LocationId").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtstaffIdNumber").val() == "") {
+            $("#txtstaffIdNumber").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtstaffName").val() == "") {
+            $("#txtstaffName").addClass('css-error');
+            validate = false;
+        }
+        //if ($("#txtKeyNumber").val() == "") {
+        //    $("#txtKeyNumber").addClass('css-error');
+        //    validate = false;
+        //}
+        if ($("#txtTokenNumber").val() == "") {
+            $("#txtTokenNumber").addClass('css-error');
+            validate = false;
+        }
+    }
+    function clearAll() {
+        window.location.href = "/Register/MobileDepositing";
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading" style="height:35px;"><a href="~/Register/MobileDepositing">Go Back</a> &nbsp;&nbsp;New Mobile Depositing </div>
+    <div class="panel-body">
+        <div class="modal-body">
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Location<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <select id="LocationId" class="form-control" onchange="OnLocationchng();">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="name">Emp Number<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtstaffIdNumber" class="form-control" />
+                </div>
+            </div>
+
+
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Employee Name<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtstaffName" readonly="readonly" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <label for="name">Token Number</label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtTokenNumber" class="form-control" />
+                </div>
+
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Taking Security<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <select id="txtTakingSecurity" class="form-control">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+
+
+                <div class="col-md-2">
+                    <label for="name">Remarks</label>
+                </div>
+                <div class="col-md-4">
+                    <textarea rows="2" id="txtRemarks" class="form-control"></textarea>
+                </div>
+            </div>
+
+            <div class="row" style="padding:5px;">
+
+                <div class="col-md-1">
+                    <label for="name">Employee Signature<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-5">
+                    <div id="captureSignatureTaking">
+                    </div>
+                </div>
+
+
+                <div class="col-md-1">
+                    <label for="name">Security Signature<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-5">
+                    <div id="captureSignatureSecurity">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div>
+            <input type="button" id="btnasigntask" value="Save" onclick="SaveRegister();" class="btn btn-primary" />
+            <button type="button" class="btn btn-default" onclick="clearAll();">Cancel</button>
+        </div>
+    </div>
+</div>

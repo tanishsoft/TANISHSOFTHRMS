@@ -1,0 +1,53 @@
+﻿
+@{
+    ViewBag.Title = "ManageConsentForm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    var oTable;
+    $(document).ready(function () {
+        LoadData();
+    });
+    function LoadData() {
+        oTable = $('#tblNewUserRequest').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Hospital/AjaxGetConsentForm",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "Id" },
+                { "sName": "Name" },
+                { "sName": "S_Or_W_Off" },
+                { "sName": "Address" },
+                { "sName": "CustomDate" },
+                { "sName": "ContactNumber" },
+                { "sName": "CreatedOn" }
+            ]
+        });
+        //$("#tblNewUserRequest_filter").prepend('<div style="float:left;margin-right: 100px;padding-bottom: 2px;"> IT Support Updated? : <select id="ddlapproverstatus" onchange="onchangeapprovers()" class="form-control" title="IT Support Updated"><option value="Yes">Yes</option><option value="No" selected>No</option></div></select>');
+        $("#tblNewUserRequest_length").addClass("col-md-6");
+
+    }
+</script>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Manage Consent Form</div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblNewUserRequest">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>S/W</th>
+                    <th>Address</th>
+                    <th>Custom Date</th>
+                    <th>Contact Number</th>
+                    <th>CreatedOn</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>

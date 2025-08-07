@@ -1,0 +1,312 @@
+﻿
+@{
+    ViewBag.Title = "NewLifeCell";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+
+    #captureSignature {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+
+    #captureSignature2 {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+
+    #captureSignatureStaff {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+</style>
+<script src="~/Scripts/jSignature.min.js"></script>
+<!--[if lt IE 9]>
+<script  type="text/javascript" src="~/Scripts/flashcanvas.js"></script>
+    <![endif]-->
+<script>
+    var validate;
+    var eId = 0;
+
+    var $sigdiv;
+    $(document).ready(function () {
+        $sigdiv = $("#captureSignatureIn").jSignature({ 'UndoButton': true });
+        LoadLocations();
+        $("#txtPatientMrNumber").change(function () {
+            var id = $('#txtPatientMrNumber').val();
+            if (id != "") {
+                $.get("/CMS/GetCMS_PatitentNamebyMRno?id=" + id, function (res) {
+                    if (res != null) {
+                        $("#txtMobileNo").val(res.MobileNumber);
+                        $("#txtPatientName").val(res.Name);
+                        $("#txtPatientRoomNo").val(res.RoomNo + " " + res.BedNo);
+
+                    }
+                    else {
+                        $("#txtPatientName").val("");
+                    }
+                });
+            }
+        });
+        $("#txtCompanyNameOthers").hide();
+        $("#txtsecurityname").hide();
+        //LoadDropdownvalues();
+    });
+    function OnLocationchng() {
+        $.get("/Register/GetSecurityDetails?locationId=" + $("#LocationId").val(), function (data) {
+            var options = [];
+            options.push('<option value="">- Select Security -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].FirstName + '">' + data[i].FirstName + '</option>');
+            }
+            options.push('<option value="Other">Other</option>');
+            $("#txtSecurity").html(options.join(''));
+        });
+    }
+    function onsecuritychange() {
+        $("#txtsecurityname").hide();
+        if ($("#txtSecurity").val() == "Other") {
+            $("#txtsecurityname").show();
+        }
+    }
+    //function LoadDropdownvalues() {
+    //    $.get("/Common/GetCommonDropdownValues?dtype=Security", function (data) {
+    //        var options = [];
+    //        options.push('<option value="">- Select -</option>');
+    //        for (var i = 0; i < data.length; i++) {
+    //            options.push('<option value="' + data[i].Name + '">' + data[i].Name + '</option>');
+    //        }
+    //        $("#txtSecurity").html(options.join(''));
+    //    });
+    //}
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Locations -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#LocationId").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+
+    function SaveRegister() {
+        ValidateDetails();
+        if (validate) {
+            var cmpnamevalue = $("#txtCompanyName").val();
+            if (cmpnamevalue == "Others") {
+                cmpnamevalue = $("#txtCompanyNameOthers").val();
+            }
+            var securityname = $("#txtSecurity").val();
+            if (securityname == "Other") {
+                securityname = $("#txtsecurityname").val();
+            }
+            var task = {
+                DailyVisitingId: eId,
+                LocationId: $("#LocationId").val(),
+                PatientMRNo: $("#txtPatientMrNumber").val(),
+                NameOfPatient: $("#txtPatientName").val(),
+                PatientContactNumber: $("#txtMobileNo").val(),
+                RoomNo: $("#txtPatientRoomNo").val(),
+                IsActive: true,
+                CompanyName: cmpnamevalue,
+                ParamedicName: $("#txtParamedicName").val(),
+                ContactNumber: $("#ParamedicContactNo").val(),
+                Security: securityname,
+                InRemarks: $("#txtRemarks").val(),
+                InSign: "data:" + $sigdiv.jSignature('getData', 'image').toString(),
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Register/SaveNewLifeCell",
+                data: task,
+                success: function (data) {
+                    alert(data);
+                    clearAll();
+                }
+            });
+        }
+    }
+    function onchangetxt() {
+        var value = $("#txtCompanyName").val();
+        if (value == "Others") {
+            $("#txtCompanyNameOthers").show();
+        } else {
+            $("#txtCompanyNameOthers").hide();
+        }
+    }
+    function ValidateDetails() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+
+        if ($("#LocationId").val() == "") {
+            $("#LocationId").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtPatientMrNumber").val() == "") {
+            $("#txtPatientMrNumber").addClass('css-error');
+            validate = false;
+        }
+
+        if ($("#txtCompanyName").val() == "") {
+            $("#txtCompanyName").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtPatientName").val() == "") {
+            $("#txtPatientName").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtMobileNo").val() == "") {
+            $("#txtMobileNo").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtKeyDepartment").val() == "") {
+            $("#txtKeyDepartment").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtSecurity").val() == "") {
+            $("#txtSecurity").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtRemarks").val() == "") {
+            $("#txtRemarks").addClass('css-error');
+            validate = false;
+        }
+
+    }
+    function clearAll() {
+        window.location.href = "/Register/LifeCell";
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading" style="height:35px;"><a href="~/Register/LifeCell">Go Back</a> &nbsp;&nbsp;New Life Cell </div>
+    <div class="panel-body">
+        <div class="modal-body">
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Location<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <select id="LocationId" class="form-control" onchange="OnLocationchng();">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="name">Patient Mr No<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtPatientMrNumber" class="form-control" />
+                </div>
+            </div>
+
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Patient Name<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtPatientName" readonly="readonly" class="form-control" />
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Mobile No<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtMobileNo" class="form-control" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Room No<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtPatientRoomNo" readonly="readonly" class="form-control" />
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Company Name<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <select id="txtCompanyName" class="form-control" onchange="onchangetxt();">
+                        <option value="">Select</option>
+                        <option value="Reelabs">Reelabs</option>
+                        <option value="Life Cell">Life Cell</option>
+                        <option value="Baby Cell">Baby Cell</option>
+                        <option value="Stem Site">Stem Site</option>
+                        <option value="Mycord">Mycord</option>
+                        <option value="Biocell">Biocell</option>
+                        <option value="Mycorn">Mycorn</option>
+                        <option value="Others">Others</option>
+                    </select>
+                    <input type="text" id="txtCompanyNameOthers" placeholder="Enter here" class="form-control" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+
+
+                <div class="col-md-2">
+                    <label for="name">Paramedic Name<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtParamedicName" class="form-control" />
+                </div>
+                <div class="col-md-2">
+                    <label for="name">Paramedic Contact No<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="ParamedicContactNo" class="form-control" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Security<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    @*<input type="text" id="txtSecurity" class="form-control" />*@
+                    <select id="txtSecurity" class="form-control" onchange="onsecuritychange();">
+                        <option value="">Select</option>
+                    </select>
+                    <input type="text" id="txtsecurityname" class="form-control" style="margin-top:5px;" />
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Remarks<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <textarea rows="2" id="txtRemarks" class="form-control"></textarea>
+                </div>
+            </div>
+
+            <div class="row" style="padding:5px;">
+
+                <div class="col-md-2">
+                    <label for="name">In Signature<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-8">
+                    <div id="captureSignatureIn">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div>
+            <input type="button" id="btnasigntask" value="Save" onclick="SaveRegister();" class="btn btn-primary" />
+            <button type="button" class="btn btn-default" onclick="clearAll();">Cancel</button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,211 @@
+﻿
+@{
+    ViewBag.Title = "Manage Images";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script>
+    $(document).ready(function () {
+        Loadsuccess();
+        $(".opCategory").hide();
+    });
+    function Loadsuccess() {
+        $.get("/Hospital/GetProtocols", function (data) {
+            var html = "";
+            for (var i = 0; i < data.length; i++) {
+                html += "<tr><td>" + data[i].Name + "</td><td>" + data[i].Category + "</td><td><input type='button' id='" + data[i].Id + "' onclick='Delete(this.id);' value='Del' /></td></tr>";
+            }
+            $("#tblbodyprotocol").html(html);
+            $('#tblprotocol').dataTable();
+        });
+    }
+    function Delete(id) {
+        if (confirm("Are you sure you want to delete?")) {
+            $.get("/Hospital/DeleteProtocol?id=" + id, function (data) {
+                window.location = "/Hospital/ManageProtocaol";
+            });
+        }
+    }
+    function ddlpagenamechange() {
+        $(".opCategory").hide();
+        var value = $("#PageName").val();
+        $("." + value).show();
+        $("#Category").val("");
+    }
+</script>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Add New Image</div>
+    <div class="panel-body">
+        @if (ViewBag.Message != null && ViewBag.Message == "Success")
+        {
+            <h4 style="color:green;">Updated successfully </h4>
+        }
+
+        @using (Html.BeginForm("ManageProtocaol", "Hospital", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            <table class="table" style="width:60%; margin:auto;">
+                <tr>
+                    <td>
+                        <div class="row" style="padding:5px;">
+                            <div class="col-md-4">
+                                <label for="name" class="required">Name</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="text" id="Name" name="Name" class="form-control" />
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="row" style="padding:5px;">
+                            <div class="col-md-4">
+                                <label for="name" class="required">Type Of The Page</label>
+                            </div>
+                            <div class="col-md-8">
+                                <select id="PageName" name="PageName" class="form-control" onchange="ddlpagenamechange();">
+                                    <option value="">Select Page </option>
+                                    <option value="Protocol">Protocol</option>
+                                    <option value="Events">Events</option>
+                                    <option value="NABH">NABH</option>
+                                    <option value="IRB">IRB</option>
+                                    <option value="HR">HR</option>
+                                    <option value="Academics">Academics</option>
+                                </select>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+
+                        <div class="row" style="padding:5px;">
+                            <div class="col-md-4">
+                                <label for="name" class="required">Category</label>
+                            </div>
+                            <div class="col-md-8">
+                                <select id="Category" name="Category" class="form-control">
+                                    <option value="">Select </option>
+                                    <option class="Protocol opCategory" value="Obstetrics">Obstetrics</option>
+                                    <option class="Protocol opCategory" value="Gynaecology">Gynaecology</option>
+                                    <option class="Protocol opCategory" value="FMU">FMU</option>
+                                    <option class="Protocol opCategory" value="ONLINE_PRINT_JOBS_ADMIN">PRINT_JOBS- ADMIN</option>
+                                    <option class="Protocol opCategory" value="ONLINE_PRINT_JOBS_ANAESTHESIA">PRINT_JOBS- ANAESTHESIA</option>
+                                    <option class="Protocol opCategory" value="ONLINE_PRINT_JOBS_DIETETICS_AND_CLINICAL">PRINT_JOBS- DIETETICS & CLINICAL NUTRITION</option>
+                                    <option class="Protocol opCategory" value="ONLINE_PRINT_JOBS_FETAL_MEDICINE">PRINT_JOBS- FETAL MEDICINE</option>
+                                    <option class="Protocol opCategory" value="ONLINE_PRINT_JOBS_GENERAL_INFORMATION">PRINT_JOBS- GENERAL INFORMATION</option>
+                                    <option class="Protocol opCategory" value="ONLINE_PRINT_JOBS_GYNAECOLOGY">PRINT_JOBS- GYNAECOLOGY</option>
+                                    <option class="Protocol opCategory" value="ONLINE_PRINT_JOBS_HICC">PRINT_JOBS- HICC</option>
+                                    <option class="Protocol opCategory" value="ONLINE_PRINT_JOBS_LAB">PRINT_JOBS- LAB</option>
+                                    <option class="Protocol opCategory" value="ONLINE_PRINT_JOBS_MATERNITY">PRINT_JOBS- MATERNITY</option>
+                                    <option class="Protocol opCategory" value="ONLINE_PRINT_JOBS_MEDICAL_RECORD">PRINT_JOBS- MEDICAL RECORD</option>
+                                    <option class="Protocol opCategory" value="ONLINE_PRINT_JOBS_MIDWIFERY">PRINT_JOBS- MIDWIFERY</option>
+                                    <option class="Protocol opCategory" value="ONLINE_PRINT_JOBS_NEONATOLOGY">PRINT_JOBS- NEONATOLOGY</option>
+                                    <option class="Protocol opCategory" value="ONLINE_PRINT_JOBS_PHARMACY">PRINT_JOBS- PHARMACY</option>
+                                    <option class="Protocol opCategory" value="ONLINE_PRINT_JOBS_OBSTETRICS">PRINT_JOBS- OBSTETRICS</option>
+ <option class="Protocol opCategory" value="ONLINE_PRINT_JOBS_BIOMEDICAL">PRINT_JOBS- BIOMEDICAL</option>
+                                    <option class="Protocol opCategory" value="ONLINE_PRINT_JOBS_FERNANDEZ_CDC">PRINT_JOBS- FERNANDEZ CDC</option>
+                                    <option class="Protocol opCategory" value="ONLINE_PRINT_JOBS_INPATIENT">PRINT_JOBS- INPATIENT</option>
+                                    <option class="Protocol opCategory" value="ONLINE_PRINT_JOBS_OUTPATIENT">PRINT_JOBS- OUTPATIENT</option>
+                                    <option class="Protocol opCategory" value="ONLINE_PRINT_JOBS_PURCHASE">PRINT_JOBS- PURCHASE</option>
+                                    <option class="Protocol opCategory" value="ONLINE_PRINT_JOBS_QUALITY">PRINT_JOBS- QUALITY</option>
+
+                                    <option class="NABH opCategory" value="FH - Bogulkunta">FH - Bogulkunta Manuals</option>
+                                    <option class="NABH opCategory" value="FH - Bogulkunta-Reports">FH - Bogulkunta Reports</option>
+                                    <option class="NABH opCategory" value="FH - Bogulkunta-Committees">FH - Bogulkunta Committees</option>
+                                    <option class="NABH opCategory" value="FH - Bogulkunta-KPI-Indicators">FH - Bogulkunta KPI & Indicators</option>
+                                    <option class="NABH opCategory" value="FH - Hyderguda">FH - Hyderguda Manuals</option>
+
+                                    <option class="NABH opCategory" value="FH - Hyderguda-Reports">FH - Hyderguda Reports</option>
+                                    <option class="NABH opCategory" value="FH - Hyderguda-Committees">FH - Hyderguda Committees</option>
+                                    <option class="NABH opCategory" value="FH - Hyderguda-KPI-Indicators">FH - Hyderguda KPI & Indicators</option>
+                                    <option class="NABH opCategory" value="FH - Stork Home Manuals">FH - Stork Home Manuals</option>
+                                    <option class="NABH opCategory" value="FH - Stork Home Manuals-Reports">FH - Stork Home Reports</option>
+                                    <option class="NABH opCategory" value="FH - Stork Home Manuals-Committees">FH - Stork Home Committees</option>
+                                    <option class="NABH opCategory" value="FH - Stork Home Manuals-KPI-Indicators">FH - Stork Home KPI & Indicators</option>
+
+                                    <option class="NABH opCategory" value="FH OP Clinic - Miyapur">FH OP Clinic - Miyapur Manuals</option>
+                                    <option class="NABH opCategory" value="FH OP Clinic - Miyapur-Reports">FH OP Clinic - Miyapur Reports</option>
+                                    <option class="NABH opCategory" value="FH OP Clinic - Miyapur-Committees">FH OP Clinic - Miyapur Committees</option>
+                                    <option class="NABH opCategory" value="FH OP Clinic - Miyapur-KPI-Indicators">FH OP Clinic - Miyapur KPI & Indicators</option>
+
+                                    <option class="NABH opCategory" value="FH - Necklace Road">FH - Necklace Road Manuals</option>
+                                    <option class="NABH opCategory" value="FH - Necklace Road-Reports">FH - Necklace Road Home Reports</option>
+                                    <option class="NABH opCategory" value="FH - Necklace Road-Committees">FH - Necklace Road Committees</option>
+                                    <option class="NABH opCategory" value="FH - Necklace Road-KPI-Indicators">FH - Necklace Road KPI & Indicators</option>
+
+
+                                    <option class="NABH opCategory" value="Training Topics">Training Topics</option>
+                                    <option class="NABH opCategory" value="Important Forms">Important Forms</option>
+                                    <option class="NABH opCategory" value="Important_Information">Important_Information</option>
+                                    <option class="NABH opCategory" value="Bi-LingualConsents-Telugu">Bi-LingualConsents-Telugu</option>
+                                    <option class="NABH opCategory" value="Bi-LingualConsents-Urdu">Bi-LingualConsents-Urdu</option>
+                                    <option class="NABH opCategory" value="FH - Common Manuals">FH - Common Manuals</option>
+                                    <option class="NABH opCategory" value="Reports">Reports</option>
+                                    <option class="NABH opCategory" value="Committees">Committees</option>
+                                    <option class="Events opCategory" value="Medical">Medical</option>
+                                    <option class="Events opCategory" value="In-House">In-House</option>
+                                    <option class="IRB opCategory" value="IRB">IRB</option>
+                                    <option class="HR opCategory" value="HR">HR</option>
+                                    <option class="Academics opCategory" value="Representation from FF">Representation from FF</option>
+                                    <option class="Academics opCategory" value="Library Books">Library Books</option>
+                                    <option class="Academics opCategory" value="Forms">Forms</option>
+                                </select>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="row" style="padding:5px;">
+                            <div class="col-md-4">
+                                <label for="name" class="required">Select PDF or Image</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="file" id="ExcelFileData" name="ExcelFileData" />
+                                <p style="font-size:10px;"></p>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="row" style="padding:5px;">
+                            <div class="col-md-4">
+                                &nbsp;
+                            </div>
+                            <div class="col-md-8">
+                                <input type="submit" id="btnuploadLeaveTypeExcel" value="Save" class="btn btn-primary" />
+                            </div>
+                        </div>
+
+                    </td>
+                </tr>
+            </table>
+
+        }
+
+    </div>
+</div>
+<div class="panel panel-default">
+    <div class="panel-heading">View Images</div>
+    <div class="panel-body">
+        <table style="width:80%;margin:auto;" class="table table-bordered" id="tblprotocol">
+            <thead>
+                <tr>
+                    <td>
+                        Name
+                    </td>
+                    <td>
+                        Protocol
+                    </td>
+                    <td>
+                        Action
+                    </td>
+                </tr>
+            </thead>
+            <tbody id="tblbodyprotocol"></tbody>
+        </table>
+    </div>
+</div>

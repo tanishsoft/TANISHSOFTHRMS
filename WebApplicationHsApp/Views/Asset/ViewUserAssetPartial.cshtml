@@ -1,0 +1,123 @@
+﻿@model WebApplicationHsApp.Models.UserAssetViewModel
+@*<!DOCTYPE html>
+
+    <html>
+    <head>
+        <meta name="viewport" content="width=device-width" />
+        <title>ViewAsset</title>*@
+
+@*</head>*@
+@*<body>*@
+<div style="display: flex; justify-content: center; margin: 0 auto;">
+    <div style="border: solid 4px lightgray; width: 80%;padding-bottom: 2%;">
+        <div style="display: flex; justify-content: space-between;">
+            <div class="fhlogo"></div>
+            <div class="top"><br /><br /><label>Asset Management Procedural Manual</label></div>
+            <div><br /><br /><label>FH/ADM/MANUAL-01</label></div>
+        </div>
+        <div style="text-align: center;">
+            <b>Annexure I-Asset Allotment Form</b>
+        </div>
+        <div style="display: flex; justify-content: center;">
+            <table style="border: 3px solid lightgray;width: 90%;border-collapse: collapse;">
+                <thead>
+                    <tr style="height:30px;">
+                        <th colspan="2" style="text-align:center;border: 1px solid lightgray;">configuratin Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="height:30px;">
+
+                        <td style="width: 50%; border: 1px solid lightgray;">Asset Name :@Model.AssetModel.Name</td>
+                        <td style="width: 50%; border: 1px solid lightgray;">Make/Model @Model.AssetModel.Model</td>
+                    </tr>
+                    <tr style="height:30px;">
+                        <td style="width: 50%; border: 1px solid lightgray;">Asset Description :@Model.AssetModel.Description</td>
+                        <td style="width: 50%; border: 1px solid lightgray;">Serial No :@Model.AssetModel.SerialNumber</td>
+                    </tr>
+                    <tr style="height:30px;">
+                        <td style="width: 50%; border: 1px solid lightgray;">DOP :@Model.AssetModel.Name</td>
+                        <td style="width: 50%; border: 1px solid lightgray;">Asset Label: @Model.AssetModel.Name</td>
+                    </tr>
+                    <tr style="height:30px;">
+                        <td>Registration No :(only for vehicles):@Model.AssetModel.RegistrationNo</td>
+                        <td>Insurance :@Model.AssetModel.Insurance</td>
+                    </tr>
+                    <tr style="height:30px;">
+                        <td colspan="2" style="border: 1px solid lightgray;">Asset Label :@Model.AssetModel.Name</td>
+                    </tr>
+                    <tr style="height:30px;">
+                        <td colspan="2" style="border: 1px solid lightgray;">Accessories :@Model.AssetModel.Name</td>
+                    </tr>
+                    <tr style="height:30px;">
+                        <td colspan="2" style="border: 1px solid lightgray;">Warrantry :@Model.AssetModel.Warranty</td>
+                    </tr>
+                    <tr style="height:30px;">
+                        <td colspan="2" style="border: 1px solid lightgray;">Service support Details :@Model.AssetModel.ServiceSupportDetails</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="display: flex; justify-content: center; margin-top: 10px;">
+            <table style="border: 3px solid lightgray;width: 90%;border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th colspan="2" style="text-align:center;height:30px">Employee Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="height:30px;">
+                        <td style="width:50%;border: 1px solid lightgray;">Name :@Model.CreatedBy</td>
+                        <td style="width: 50%; border: 1px solid lightgray;">Designation : @Model.Designation</td>
+                    </tr>
+                    <tr style="height:30px;">
+                        <td style="width: 50%; border: 1px solid lightgray;">Emp No :@Model.CreatedBy</td>
+                        <td style="width: 50%; border: 1px solid lightgray;">Department : @Model.Department</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div style="width:90%;margin-left: 5%;margin-top:10px">
+            <div class="sig" style="display: flex;justify-content: space-between;">
+                <div class="fhlogo">Issued By:Name:Elroy Fernandez</div>
+                <div class="top"><label>Signature</label></div>
+                <div><label>@Model.CreatedOn</label></div>
+            </div>
+        </div>
+        <div class="ackowledment" style="width:80%;display:flex;justify-content:center;flex-direction:column;margin: 2% 10%;">
+            <b>Acknowledgment:</b>
+            <ul>
+                <li><p>This asset is property of Fernandz Hospital and when using Asset, special care mustbe taken to ensure that organisation's business information is not compramised</p></li>
+                <li><p>This asset is property of Fernandz Hospital and when using Asset, special care mustbe taken to ensure that organisation's business information is not compramised</p></li>
+                <li><p>This asset is property of Fernandz Hospital and when using Asset, special care mustbe taken to ensure that organisation's business information is not compramised</p></li>
+            </ul>
+            <p>This asset is property of Fernandz Hospital and when using Asset, special care mustbe taken to ensure that organisation's business information is not compramised</p>
+        </div>
+        <div style="width:90%;margin-left: 5%;margin-top:10px">
+            <div class="sig" style="display: flex;justify-content: space-between;">
+                <div class="fhlogo">Name of Employee:</div>
+                <div class="top"><label>Signature:</label></div>
+                <div><label>Date:00/00/2021</label></div>
+            </div>
+        </div>
+        <div style="display: flex; justify-content: center;margin-top:10px">
+            <table style="border: 3px solid lightgray;width: 90%;border-collapse: collapse;box-shadow:black 10px inherit;">
+                <thead>
+                <th colspan="2" style="text-align:center;height:30px;">Return of Asset</th>
+                </thead>
+                <tbody>
+                    <tr style="height:30px;border: 1px solid lightgray;">
+                        <td style="width: 50%; border: 1px solid lightgray;">Received By Name :</td>
+                        <td style="width: 50%; border: 1px solid lightgray;">Signature :</td>
+                    </tr>
+                    <tr style="height:30px;">
+                        <td style="width: 50%; border: 1px solid lightgray;">Date :</td>
+                        <td style="width: 50%; border: 1px solid lightgray;">Remarks :</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@*</body>
+    </html>*@

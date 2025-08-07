@@ -1,0 +1,509 @@
+﻿
+@{
+    ViewBag.Title = "GatePass";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+
+    .col-md-6 {
+        margin-bottom: 10px;
+    }
+</style>
+<script>
+    var validate = true;
+    var eId = @ViewBag.id;
+    var tableRowCount = 1;
+    $(document).ready(function () {
+        EmployeeSearch();
+        $("#GatePassType").change(function () {
+
+            var GatePassType = this.value;
+            if (GatePassType != "Return")
+                $(".return").hide();
+            else
+                $(".return").show();
+        });
+        $(".date")
+            .datepicker({
+                changeMonth: true,
+                changeYear: true,
+                dateFormat: "dd/mm/yy",
+                Edit: true,
+                minDate: 0
+
+            })
+        LoadLocations();
+        //LoadItems();
+        if (eId != 0) {
+            LoadData();
+            }
+        else {
+                @*$("#AuthorizedByName").val('@ViewBag.Name');
+                $("#AuthorizedByDesignation").val('@ViewBag.Designation');
+             var name = '@ViewBag.Name ' + '@ViewBag.Designation';
+            $("#AuthorizedByEmpId").select2("trigger", "select", { data: { id: @ViewBag.EmpNo, text: name} });
+            $("#AuthorizedByDepartment").val('@ViewBag.Department');*@
+            AddItem("");
+        }
+        $(".showoutsidelocation").hide();
+    });
+  
+    function EmployeeSearch() {
+
+        $(".EmpId").select2({
+            ajax: {
+                url: "/Home/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            width: 'element',
+            minimumInputLength: 4
+        });
+    }
+    function validatedetails() {
+        var valid = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if (!inputvalidation('LocationId', 'Select LocationId')) valid = false;
+        //if (!inputvalidation('NameOfTheCompany', 'Select To NameOfTheCompany')) valid = false;
+        //if (!inputvalidation('Date', 'select Date')) valid = false;
+        if (!inputvalidation('Address', 'Enter Address')) valid = false;
+
+        if (!inputvalidation('AuthorizedByEmpId', 'Select AuthorizedByEmpId')) valid = false;
+        if (!inputvalidation('AuthorizedByName', 'Select AuthorizedByName')) valid = false;
+        if (!inputvalidation('AuthorizedByDesignation', 'Select AuthorizedByDesignation')) valid = false;
+       /* if (!inputvalidation('ReceivingCompanyName', 'Select ReceivingCompanyName')) valid = false;*/
+        if (!inputvalidation('AuthorizedByDepartment', 'Select AuthorizedByDepartment')) valid = false;
+        if (!inputvalidation('Comments', 'Enter Comments')) valid = false;
+        if (!inputvalidation('GatePassType', 'Select GatePassType')) valid = false;
+        if ($("#GatePassType").val() != "" && $("#GatePassType").val() == "Return") {
+            if (!inputvalidation('ExpectedDateOfReturn', 'select Expected Date Of Return')) valid = false;
+        }
+        var table = document.getElementById("ItemTable");
+
+        var table_len = (table.rows.length);
+        for (var i = 1; i < tableRowCount; i++) {
+            var mt = $("#AssetLabel" + i).val();
+            if ($("#AssetLabel" + i).val() == "") {
+                $("#AssetLabel" + i).after('<span class="error" style="color:Red;">select Asset</span>');
+                $("#AssetLabel" + i).addClass('css-error');
+                valid = false;
+            }
+        }
+        return valid;
+    }
+    function LoadItems(id, val) {
+        $.ajax({
+            type: "POST",
+            url: "/CMS/GetCMS_Items",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Item -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].ItemId + '">' + data[i].ItemName + '</option>');
+                }
+                $("#AssetLabel").html(options.join(''));
+                $("#AssetLabel" + id).html(options.join(''));
+
+                var table = document.getElementById("ItemTable");
+                var table_len = (table.rows.length);
+                for (var i = 1; i < tableRowCount; i++) {
+                    var mealtype = $("#AssetLabel" + i).val();
+                    if (mealtype != "")
+                        $("#AssetLabel" + id + " option[value=" + mealtype + "]").remove();
+
+                }
+                var len = $("#AssetLabel" + id + " option").length;
+                if (len == 1) {
+                    delete_row(id);
+                }
+                if (val != "")
+                    $("#AssetLabel" + id).val(val);
+            },
+
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                var options1 = [];
+                options1.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                    options1.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                options1.push('<option value="Other">Other</option>');
+                $("#LocationId").html(options.join(''));
+                if(eId==0)
+                    $("#LocationId").val('@ViewBag.Location');
+                $("#ToLocation").html(options1.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function EmployeeSearch() {
+
+        $(".EmpId").select2({
+            ajax: {
+                url: "/Home/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            width: 'element',
+            minimumInputLength: 4
+        });
+    }
+    function inputvalidation(selector, Text) {
+
+        var validate = true;
+        if ($("#" + selector).val() == "") {
+            $("#" + selector).after('<span class="error" style="color:Red;">' + Text + '</span>');
+            $("#" + selector).addClass('css-error');
+            validate = false;
+        }
+        return validate;
+    }
+    function LoadPartialdivonclick(link, title) {
+        $("#titleofpage").html(title);
+        $("#partialDiv").load("/CMS/" + link);
+    }
+    function LoadData(id) {
+        $.get("/Custom/Get_GatePass_ById?id=" + eId, function (res) {
+            $("#LocationId").val(res.LocationId);
+            $("#NameOfTheCompany").val(res.NameOfTheCompany);
+            if (res.Date != "") {
+                var arr = res.Date.split('-');
+                var month = parseInt(arr[1]) - 1;
+                $('#Date').datepicker("setDate", new Date(arr[2], month, arr[0]));
+            }
+            if (res.ExpectedDateOfReturn != "" && res.ExpectedDateOfReturn!=null) {
+                var arr = res.ExpectedDateOfReturn.split('-');
+                var month = parseInt(arr[1]) - 1;
+                $('#ExpectedDateOfReturn').datepicker("setDate", new Date(arr[2], month, arr[0]));
+            }
+            $("#Address").val(res.Address);
+            $("#AuthorizedByName").val(res.AuthorizedByName);
+            var name = res.AuthorizedByName + " " + res.AuthorizedByDesignation;
+            $("#AuthorizedByEmpId").select2("trigger", "select", { data: { id: res.AuthorizedByEmpId, text: name } });
+            $("#AuthorizedByDesignation").val(res.AuthorizedByDesignation);
+
+            $("#AuthorizedByDepartment").val(res.AuthorizedByDepartment);
+            $("#ReceivingCompanyName").val(res.ReceivingCompanyName);
+            $("#Comments").val(res.Comments);
+               $("#GatePassType").val(res.GatePassType);
+            LoadItemsDetails(eId,"rece");
+        });
+    }
+    function GetUserDetails() {
+        if (eId == 0) {
+            if ($("#AuthorizedByEmpId").val() != null && $("#AuthorizedByEmpId").val() != "") {
+                $.get("/Custom/GetUserDetails", { id: $("#AuthorizedByEmpId").val() }, function (data) {
+                    $("#AuthorizedByName").val(data.FirstName);
+                    $("#AuthorizedByDesignation").val(data.Designation);
+                    $("#AuthorizedByDepartment").val(data.DepartmentName);
+                });
+            }
+        }
+    }
+    function Cancel() {
+        window.location.href = "/Custom/ManageGatePass";
+    }
+    function LoadItemsDetails(id,val) {
+        $.get("/Custom/Get_GatePassAsset_ByGatePassId?id=" + id, function (res) {
+            var table = document.getElementById("ItemTable");
+            for (var i = 0; i < res.length; i++) {
+                AddItem(res[i].AssetLabel);
+                $(".Id" + (i + 1)).text(res[i].Id);
+                $("#Quantity" + (i + 1)).val(res[i].Quantity);
+                $("#Reason" + (i + 1)).val(res[i].Reason);
+                $("#Description" + (i + 1)).val(res[i].Description);
+            }
+        });
+    }
+    function AddItem(val) {
+        var table = document.getElementById("ItemTable");
+
+        var table_len = (table.rows.length);
+        if (table_len > 1) {
+            if (eId == 0) {
+                if ($("#ItemId" + (table_len - 1)).val() != "")
+                    var row = table.insertRow(table_len).outerHTML = "<tr class='datarow' id='row" + tableRowCount + "'><td class='Id" + table_len + "' style='display:none;'>0</td><td> <input type='text' id='AssetLabel" + table_len + "' class='form-control' style='max-width:200px;' /></td><td>  <input type='number' name='Quantity' class='form-control' id='Quantity" + tableRowCount + "'></td><td class='Receiver'>  <input type='text' name='Reason' class='form-control' id='Reason" + tableRowCount + "'></td><td class='Receiver'>  <input type='text' name='Description' class='form-control' id='Description" + tableRowCount + "'></td><td> <span class='glyphicon glyphicon-trash' style='color:red;cursor:pointer;' onclick='delete_row(" + tableRowCount + ")'></span></td></tr>";
+                else
+                    alert("select Item First");
+            }
+            else {
+                var row = table.insertRow(table_len).outerHTML = "<tr class='datarow' id='row" + tableRowCount + "'><td class='Id" + table_len + "' style='display:none;'>0</td><td> <input type='text' id='AssetLabel" + table_len + "' class='form-control' style='max-width:200px;'/></td><td>  <input type='number' name='Quantity' class='form-control' id='Quantity" + tableRowCount + "'></td><td class='Receiver'>  <input type='text' name='Reason' class='form-control' id='Reason" + tableRowCount + "'></td><td class='Receiver'>  <input type='text' name='Description' class='form-control' id='Description" + tableRowCount + "'></td><td> <span class='glyphicon glyphicon-trash' style='color:red;cursor:pointer;' onclick='delete_row(" + tableRowCount + ")'></span></td></tr>";
+                //<td>  <input type='number' class='form-control' id='QtySend" + table_len + "'></td><td>  <input type='number' class='form-control' id='QtyRecived" + table_len + "'></td><td>  <input type='number' class='form-control' id='QtyReturn" + table_len + "'></td><td>  <input type='number' class='form-control' id='QtyDamage" + table_len + "'></td>
+            }
+        }
+        else {
+            var row = table.insertRow(table_len).outerHTML = "<tr class='datarow' id='row" + tableRowCount + "'><td class='Id" + table_len + "' style='display:none;'>0</td><td> <input type='text' id='AssetLabel" + table_len + "' class='form-control' style='max-width:200px;'/></td><td>  <input type='number' name='Quantity' class='form-control' id='Quantity" + tableRowCount + "'></td><td class='Receiver'><input type='text' name='Reason' class='form-control' id='Reason" + tableRowCount + "'></td><td class='Receiver'>  <input type='text' name='Description' class='form-control' id='Description" + tableRowCount + "'></td><td> <span class='glyphicon glyphicon-trash' style='color:red;cursor:pointer;' onclick='delete_row(" + tableRowCount + ")'></span></td></tr>";
+        }
+        //LoadItems(tableRowCount, val);
+        tableRowCount++;
+        $('#ItemTable').show();
+
+    }
+
+
+    function delete_row(no) {
+        document.getElementById("row" + no + "").outerHTML = "";
+        var table = document.getElementById("ItemTable");
+
+        var table_len = (table.rows.length - 1);
+        if (table_len == 0) {
+            $('#ItemTable').hide();
+        }
+    }
+    function SaveDetails() {
+        var valid = validatedetails();
+        if (valid) {
+            if (window.FormData !== undefined) {
+                var files = "";
+                // Create FormData object
+                var fileData = new FormData();
+                fileData.append('GatePassId', eId);
+                fileData.append('LocationId', $("#LocationId").val());
+                fileData.append('ToLocation', $("#ToLocation option:selected").text());
+                fileData.append('ToDepartmentId', $("#ddlDepartment").val());
+                fileData.append('ModeOfTransfer', $("#ModeOfTransfer").val());
+
+                fileData.append('AuthorizedByDesignation', $("#AuthorizedByDesignation").val());
+                fileData.append('AuthorizedByEmpId', $("#AuthorizedByEmpId").val());
+                fileData.append('AuthorizedByName', $("#AuthorizedByName").val());
+                fileData.append('ExpectedDateOfReturn', $("#ExpectedDateOfReturn").val());
+                fileData.append('Address', $("#Address").val());
+                fileData.append('AuthorizedByDepartment', $("#AuthorizedByDepartment").val());
+                fileData.append('ReceivingCompanyName', $("#ReceivingCompanyName").val());
+                fileData.append('ToLocationCmpCPName', $("#ToLocationCmpCPName").val());
+                fileData.append('ToLocationCmpCPMobile', $("#ToLocationCmpCPMobile").val());
+                fileData.append('ToLocationCmpCPEmail', $("#ToLocationCmpCPEmail").val());
+                fileData.append('Comments', $("#Comments").val());
+                fileData.append('GatePassType', $("#GatePassType").val());
+                $.ajax({
+                    type: "POST",
+                    url: "/Custom/Save_Update_GatePass",
+                    contentType: false,
+                    processData: false,
+                    data: fileData,
+                    success: function (data) {
+                        console.log(data);
+                        SaveItem(data);
+                        alert("Successfully Saved");
+                        window.location.reload();
+                    },
+                    error: function (err) {
+                        alert(err.statusText);
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+    }
+    function SaveItem(id) {
+        var ItemList = [];
+        var table = document.getElementById("ItemTable");
+
+        var table_len = (table.rows.length);
+        for (var i = 1; i < tableRowCount; i++){
+
+                    ItemList.push({
+                        Id: parseInt($(".Id" + i).text()),
+                        GatePassId: parseInt(id),
+                        AssetLabel: $("#AssetLabel" + i).val(),
+                        Quantity: parseInt($("#Quantity" + i).val()),
+                        Reason: $("#Reason" + i).val(),
+                        Description: $("#Description" + i).val()
+                    });
+
+          }
+        $.post("/Custom/Save_UpdateGatePassAsset", { model: ItemList }, function (res) {
+
+        });
+    }
+    function Tolocationchg() {
+        if ($("#ToLocation").val() == "Other") {
+            $(".showoutsidelocationdept").hide();
+            $(".showoutsidelocation").show();
+            $("#ddlDepartment").val("");
+        } else {
+            $(".showoutsidelocation").hide();
+            $(".showoutsidelocationdept").show();
+            LoadDepartment();
+
+             $("#ToLocationCmpCPName").val("");
+             $("#ToLocationCmpCPMobile").val("");
+             $("#ToLocationCmpCPEmail").val("");
+        }
+    }
+    function LoadDepartment() {
+        if ($("#ToLocation").val() != null && $("#ToLocation").val() != "") {
+            $.ajax({
+                type: "GET",
+                url: "/Common/GetDepartmentByLocation",
+                data: "id=" + $("#ToLocation").val(),
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">- Select Department -</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                    }
+                    $("#ddlDepartment").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+    }
+</script>
+<div class="container">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4>Gate Pass</h4>
+        </div>
+        <div class="panel-body">
+            <div class="row" style="padding:10px;">
+                <div class="col-md-4">
+                    <label>Gate Pass Type<span class="text-danger">*</span></label>
+                    <select class="form-control maxwidth" id="GatePassType">
+                        <option value="Return">Return</option>
+                        <option value="Non-Return">Non-Return</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label>From Location<span class="text-danger">*</span> </label>
+                    <select class="form-control maxwidth" id="LocationId" style="width:100%;"></select>
+                </div>
+                <div class="col-md-4">
+                    <label>To Location<span class="text-danger">*</span> </label>
+                    <select class="form-control maxwidth" id="ToLocation" style="width:100%;" onchange="Tolocationchg();"></select>
+                </div>
+                <div class="col-md-4 showoutsidelocationdept">
+                    <label>To Department<span class="text-danger">*</span> </label>
+                    <select class="form-control maxwidth" id="ddlDepartment" style="width:100%;">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+
+                <div class="col-md-4" style="display:none;">
+                    <label>NameOfTheCompany<span class="text-danger">*</span></label>
+                    <input type="text" id="NameOfTheCompany" autocomplete="off" class="form-control maxwidth" />
+                </div>
+                <div class="col-md-4 showoutsidelocation">
+                    <label>Rec. Company Name</label>
+                    <input type="text" id="ReceivingCompanyName" autocomplete="off" class="form-control maxwidth" />
+                </div>
+                <div class="col-md-4 showoutsidelocation">
+                    <label>Rec. Company Contact Name</label>
+                    <input type="text" id="ToLocationCmpCPName" autocomplete="off" class="form-control maxwidth" />
+                </div>
+                <div class="col-md-4 showoutsidelocation">
+                    <label>Rec. Company Contact Mobile</label>
+                    <input type="text" id="ToLocationCmpCPMobile" autocomplete="off" class="form-control maxwidth" />
+                </div>
+                <div class="col-md-4 showoutsidelocation">
+                    <label>Rec. Company Contact Email</label>
+                    <input type="text" id="ToLocationCmpCPEmail" autocomplete="off" class="form-control maxwidth" />
+                </div>
+
+                <div class="col-md-4">
+                    <label>Authorized By EmpId<span class="text-danger">*</span></label>
+                    <select id="AuthorizedByEmpId" class="form-control typeahead EmpId maxwidth" name="query" data-provide="typeahead" autocomplete="off" onchange="GetUserDetails();"></select>
+                </div>
+
+                <div class="col-md-4">
+                    <label>Authorized By Name<span class="text-danger">*</span></label>
+                    <input type="text" name="name" id="AuthorizedByName" class="form-control maxwidth" />
+                </div>
+
+                <div class="col-md-4">
+                    <label>Authorized By Designation<span class="text-danger">*</span></label>
+                    <input type="text" name="name" id="AuthorizedByDesignation" class="form-control maxwidth" />
+                </div>
+                <div class="col-md-4">
+                    <label>Authorized By Department<span class="text-danger">*</span></label>
+                    <input class="form-control maxwidth" type="text" name="name" id="AuthorizedByDepartment" />
+                </div>
+
+                <div class="row">
+                    <div class="col-md-4 return">
+                        <label>Excepted Date<span class="text-danger">*</span></label>
+                        <input type="text" name="Excepted Date" id="ExpectedDateOfReturn" autocomplete="off" class="form-control maxwidth date" />
+                    </div>
+                    <div class="col-md-4">
+                        <label>Address<span class="text-danger">*</span></label>
+                        <textarea class="form-control maxwidth" rows="1" id="Address" style="height:50px;"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label>Comments<span class="text-danger">*</span></label>
+                        <textarea class="form-control maxwidth" id="Comments"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <a href="javascript:void(0)" class="pull-right" onclick="AddItem();">New Asset</a>
+
+            <table id="ItemTable" class="table table-borderedtable-condensed table-striped">
+                <thead>
+                    <tr>
+                        <th>Asset Label</th>
+                        <th>Quantity</th>
+                        <th>Reason</th>
+                        <th>Description</th>
+                        <th>Action </th>
+                    </tr>
+                </thead>
+            </table>
+
+        </div>
+        <br />
+        <div class="form-group col-md-6">
+            <br />
+            <button type="button" class="btn save" onclick="SaveDetails();">SAVE</button>
+            <button type="button" onclick="Cancel();" class="btn cancel">Cancel</button>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+</div>

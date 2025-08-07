@@ -1,0 +1,253 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="aeonhrmModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="att_master1">
+          <Key>
+            <PropertyRef Name="slno" />
+          </Key>
+          <Property Name="slno" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="att_date" Type="datetime" />
+          <Property Name="empcod" Type="char" MaxLength="10" />
+          <Property Name="employeeid" Type="char" MaxLength="50" />
+          <Property Name="cmp_cod" Type="char" MaxLength="10" />
+          <Property Name="loc_cod" Type="char" MaxLength="10" />
+          <Property Name="site_cod" Type="char" MaxLength="10" />
+          <Property Name="shft_type" Type="char" MaxLength="10" />
+          <Property Name="shft_cod" Type="char" MaxLength="10" />
+          <Property Name="punchdate" Type="datetime" />
+          <Property Name="in_time" Type="char" MaxLength="10" />
+          <Property Name="out_time" Type="char" MaxLength="10" />
+          <Property Name="extrahours" Type="char" MaxLength="10" />
+          <Property Name="earlyin" Type="char" MaxLength="10" />
+          <Property Name="earlyout" Type="char" MaxLength="10" />
+          <Property Name="latein" Type="char" MaxLength="10" />
+          <Property Name="lateout" Type="char" MaxLength="10" />
+          <Property Name="holiday" Type="char" MaxLength="10" />
+          <Property Name="status" Type="char" MaxLength="10" />
+          <Property Name="auth_latein" Type="char" MaxLength="10" />
+          <Property Name="auth_earlyout" Type="char" MaxLength="10" />
+          <Property Name="auth_ot" Type="char" MaxLength="10" />
+          <Property Name="transact" Type="char" MaxLength="15" />
+          <Property Name="in_time1" Type="char" MaxLength="10" />
+          <Property Name="out_time1" Type="char" MaxLength="10" />
+          <Property Name="co_ot" Type="char" MaxLength="10" />
+          <Property Name="remarks" Type="varchar" MaxLength="250" />
+          <Property Name="lastupdatedon" Type="datetime" />
+          <Property Name="roasterlatein" Type="decimal" Precision="18" Scale="4" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'aeonhrm.dbo.DataTable' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="DataTable">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="cmp_cod" Type="varchar" MaxLength="10" />
+          <Property Name="Loc_Cod" Type="varchar" MaxLength="10" />
+          <Property Name="Pch_Date" Type="datetime" />
+          <Property Name="Site_Code" Type="varchar" MaxLength="250" />
+          <Property Name="Card_ID" Type="varchar" MaxLength="25" />
+          <Property Name="Tot_Min" Type="varchar" MaxLength="10" />
+          <Property Name="Pch_Time" Type="varchar" MaxLength="5" />
+          <Property Name="Pch_Status" Type="varchar" MaxLength="250" />
+          <Property Name="Pch_KeyCode" Type="varchar" MaxLength="4" />
+          <Property Name="myflag" Type="varchar" MaxLength="10" />
+          <Property Name="emppic" Type="image" />
+          <Property Name="emppath" Type="varchar" MaxLength="250" />
+          <Property Name="myrtype" Type="varchar" MaxLength="10" />
+          <Property Name="pch_time1" Type="varchar" MaxLength="10" />
+          <Property Name="outreason" Type="varchar" MaxLength="250" />
+          <Property Name="outremark" Type="varchar" MaxLength="250" />
+          <Property Name="remarks" Type="varchar" MaxLength="250" />
+          <Property Name="recorddatetime" Type="datetime" />
+          <Property Name="indexno" Type="varchar" MaxLength="15" />
+          <Property Name="ID" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+        </EntityType>
+        <EntityContainer Name="aeonhrmModelStoreContainer">
+          <EntitySet Name="att_master1" EntityType="Self.att_master1" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="DataTable" EntityType="Self.DataTable" store:Type="Tables" store:Schema="dbo">
+            <DefiningQuery>SELECT 
+    [DataTable].[cmp_cod] AS [cmp_cod], 
+    [DataTable].[Loc_Cod] AS [Loc_Cod], 
+    [DataTable].[Pch_Date] AS [Pch_Date], 
+    [DataTable].[Site_Code] AS [Site_Code], 
+    [DataTable].[Card_ID] AS [Card_ID], 
+    [DataTable].[Tot_Min] AS [Tot_Min], 
+    [DataTable].[Pch_Time] AS [Pch_Time], 
+    [DataTable].[Pch_Status] AS [Pch_Status], 
+    [DataTable].[Pch_KeyCode] AS [Pch_KeyCode], 
+    [DataTable].[myflag] AS [myflag], 
+    [DataTable].[emppic] AS [emppic], 
+    [DataTable].[emppath] AS [emppath], 
+    [DataTable].[myrtype] AS [myrtype], 
+    [DataTable].[pch_time1] AS [pch_time1], 
+    [DataTable].[outreason] AS [outreason], 
+    [DataTable].[outremark] AS [outremark], 
+    [DataTable].[remarks] AS [remarks], 
+    [DataTable].[recorddatetime] AS [recorddatetime], 
+    [DataTable].[indexno] AS [indexno], 
+    [DataTable].[ID] AS [ID]
+    FROM [dbo].[DataTable] AS [DataTable]</DefiningQuery>
+          </EntitySet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="aeonhrmModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="att_master1">
+          <Key>
+            <PropertyRef Name="slno" />
+          </Key>
+          <Property Name="slno" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="att_date" Type="DateTime" Precision="3" />
+          <Property Name="empcod" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="employeeid" Type="String" MaxLength="50" FixedLength="true" Unicode="false" />
+          <Property Name="cmp_cod" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="loc_cod" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="site_cod" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="shft_type" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="shft_cod" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="punchdate" Type="DateTime" Precision="3" />
+          <Property Name="in_time" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="out_time" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="extrahours" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="earlyin" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="earlyout" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="latein" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="lateout" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="holiday" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="status" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="auth_latein" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="auth_earlyout" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="auth_ot" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="transact" Type="String" MaxLength="15" FixedLength="true" Unicode="false" />
+          <Property Name="in_time1" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="out_time1" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="co_ot" Type="String" MaxLength="10" FixedLength="true" Unicode="false" />
+          <Property Name="remarks" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="lastupdatedon" Type="DateTime" Precision="3" />
+          <Property Name="roasterlatein" Type="Decimal" Precision="18" Scale="4" />
+        </EntityType>
+        <EntityContainer Name="aeonhrmEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="att_master1" EntityType="Self.att_master1" />
+          <EntitySet Name="DataTables" EntityType="aeonhrmModel.DataTable" />
+        </EntityContainer>
+        <EntityType Name="DataTable">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="cmp_cod" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="Loc_Cod" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="Pch_Date" Type="DateTime" Precision="3" />
+          <Property Name="Site_Code" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Card_ID" Type="String" MaxLength="25" FixedLength="false" Unicode="false" />
+          <Property Name="Tot_Min" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="Pch_Time" Type="String" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="Pch_Status" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Pch_KeyCode" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="myflag" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="emppic" Type="Binary" MaxLength="Max" FixedLength="false" />
+          <Property Name="emppath" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="myrtype" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="pch_time1" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="outreason" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="outremark" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="remarks" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="recorddatetime" Type="DateTime" Precision="3" />
+          <Property Name="indexno" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="ID" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+        </EntityType>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="aeonhrmModelStoreContainer" CdmEntityContainer="aeonhrmEntities">
+          <EntitySetMapping Name="att_master1">
+            <EntityTypeMapping TypeName="aeonhrmModel.att_master1">
+              <MappingFragment StoreEntitySet="att_master1">
+                <ScalarProperty Name="slno" ColumnName="slno" />
+                <ScalarProperty Name="att_date" ColumnName="att_date" />
+                <ScalarProperty Name="empcod" ColumnName="empcod" />
+                <ScalarProperty Name="employeeid" ColumnName="employeeid" />
+                <ScalarProperty Name="cmp_cod" ColumnName="cmp_cod" />
+                <ScalarProperty Name="loc_cod" ColumnName="loc_cod" />
+                <ScalarProperty Name="site_cod" ColumnName="site_cod" />
+                <ScalarProperty Name="shft_type" ColumnName="shft_type" />
+                <ScalarProperty Name="shft_cod" ColumnName="shft_cod" />
+                <ScalarProperty Name="punchdate" ColumnName="punchdate" />
+                <ScalarProperty Name="in_time" ColumnName="in_time" />
+                <ScalarProperty Name="out_time" ColumnName="out_time" />
+                <ScalarProperty Name="extrahours" ColumnName="extrahours" />
+                <ScalarProperty Name="earlyin" ColumnName="earlyin" />
+                <ScalarProperty Name="earlyout" ColumnName="earlyout" />
+                <ScalarProperty Name="latein" ColumnName="latein" />
+                <ScalarProperty Name="lateout" ColumnName="lateout" />
+                <ScalarProperty Name="holiday" ColumnName="holiday" />
+                <ScalarProperty Name="status" ColumnName="status" />
+                <ScalarProperty Name="auth_latein" ColumnName="auth_latein" />
+                <ScalarProperty Name="auth_earlyout" ColumnName="auth_earlyout" />
+                <ScalarProperty Name="auth_ot" ColumnName="auth_ot" />
+                <ScalarProperty Name="transact" ColumnName="transact" />
+                <ScalarProperty Name="in_time1" ColumnName="in_time1" />
+                <ScalarProperty Name="out_time1" ColumnName="out_time1" />
+                <ScalarProperty Name="co_ot" ColumnName="co_ot" />
+                <ScalarProperty Name="remarks" ColumnName="remarks" />
+                <ScalarProperty Name="lastupdatedon" ColumnName="lastupdatedon" />
+                <ScalarProperty Name="roasterlatein" ColumnName="roasterlatein" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="DataTables">
+            <EntityTypeMapping TypeName="aeonhrmModel.DataTable">
+              <MappingFragment StoreEntitySet="DataTable">
+                <ScalarProperty Name="ID" ColumnName="ID" />
+                <ScalarProperty Name="indexno" ColumnName="indexno" />
+                <ScalarProperty Name="recorddatetime" ColumnName="recorddatetime" />
+                <ScalarProperty Name="remarks" ColumnName="remarks" />
+                <ScalarProperty Name="outremark" ColumnName="outremark" />
+                <ScalarProperty Name="outreason" ColumnName="outreason" />
+                <ScalarProperty Name="pch_time1" ColumnName="pch_time1" />
+                <ScalarProperty Name="myrtype" ColumnName="myrtype" />
+                <ScalarProperty Name="emppath" ColumnName="emppath" />
+                <ScalarProperty Name="emppic" ColumnName="emppic" />
+                <ScalarProperty Name="myflag" ColumnName="myflag" />
+                <ScalarProperty Name="Pch_KeyCode" ColumnName="Pch_KeyCode" />
+                <ScalarProperty Name="Pch_Status" ColumnName="Pch_Status" />
+                <ScalarProperty Name="Pch_Time" ColumnName="Pch_Time" />
+                <ScalarProperty Name="Tot_Min" ColumnName="Tot_Min" />
+                <ScalarProperty Name="Card_ID" ColumnName="Card_ID" />
+                <ScalarProperty Name="Site_Code" ColumnName="Site_Code" />
+                <ScalarProperty Name="Pch_Date" ColumnName="Pch_Date" />
+                <ScalarProperty Name="Loc_Cod" ColumnName="Loc_Cod" />
+                <ScalarProperty Name="cmp_cod" ColumnName="cmp_cod" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

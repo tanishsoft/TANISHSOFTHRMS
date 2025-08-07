@@ -1,0 +1,132 @@
+﻿
+@{
+    ViewBag.Title = "ConsentForm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="container">
+
+
+    <div style="line-height:35px;text-align:justify;">
+        <h4 style="color:crimson; text-align:center;"> Undertaking on Self &ndash;    Isolation / Quarantine</h4>
+        I <input type="text" id="txtname" style="border: none; border-bottom: solid 1px #a1a2a3; color:lightseagreen; margin-left:20px;margin-right:20px;width:150px;" />
+        S/W of <input type="text" id="txtswof" style="border: none; border-bottom: solid 1px #a1a2a3;color:lightseagreen;margin-left:20px;margin-right:20px;width:150px;" />, resident of
+        <input type="text" id="txtresidentof" style="border: none; color: lightseagreen; border-bottom: solid 1px #a1a2a3;margin-left:20px;margin-right:20px;width:150px;" />
+        being diagnosed as a confirmed/suspect case of COVID-19, do hereby  voluntarily undertake to maintain strict self-isolation
+        at all times for the  prescribed period. During this period I shall monitor my health and those  around me and interact with
+        the assigned surveillance team/with the call  center, in case I suffer from any deteriorating symptoms or any of my close
+        family contacts develops any symptoms consistent with COVID-19. I have been  explained in detail about the precautions that I need
+        to follow while I am  under selfisolation. I am liable to be acted on under the prescribed law for any  non-adherence to
+        self-isolation protocol.<br />
+        @*Signature____________________  <br />*@
+        Date<input type="text" id="txtdate" style="border: none; border-bottom: solid 1px #a1a2a3; color: lightseagreen;margin-left:20px;margin-right:20px;width:150px;" />  <br />
+        Contact Number<input type="text" id="txtcontactnumber" style="border: none; border-bottom: solid 1px #a1a2a3;color:lightseagreen;margin-left:20px;margin-right:20px;width:150px;" /><br />
+
+        <h4 style="color: crimson; text-align: center;">
+            Principles of Home   Quarantine
+        </h4>
+        <b style="color:darkorange;">What is QUARANTINE?</b> <br /> Quarantine is the state period of isolation in which people who have arrived from elsewhere
+        or  been exposed to infections or contagious disease are placed without any contact with the general population, who have
+        not been tested or in quarantine due to exposure till  the incubation period is over. Isolation is the term used for confirmed
+        Covid positive cases. <br />
+        <b style="color:darkorange;"> What are the INSTRUCTIONS for home quarantine? </b><br />
+        <ul>
+            <li>1. Stay in a well ventilated single room preferably with an attached or a separate toilet. </li>
+            <li>2. Family members need to maintain a distance of at least 6 feet between each other.</li>
+            <li>3. Stay away from elderly people and pregnant women children and persons with  comorbidities within the household.</li>
+            <li>4. Restrict his or her movement within the house</li>
+            <li>5. Do NOT attend any religious / social gathering.</li>
+        </ul>
+
+
+        <b style="color:darkorange;"> What are most IMPORTANT public health measures to follow?</b> <br />
+        <ul>
+            <li>1. Wash hands as thoroughly with soap and water or alcohol-based sanitizer.</li>
+            <li>2. Avoid sharing household items example dishes drinking glasses cups, towels, bedding, or  other items used by others.</li>
+            <li>3. Wear a surgical mask at all the times. The mask should be changed every 6 to 8 hours and  disposed off.</li>
+            <li>
+                4. Mask to be used by patients / caregivers / close contacts should be disinfected using  ordinary bleach solution 5% or sodium
+                hypochlorite solution 1% or and disposed by deep  burial, or disposed in a separate bin in yellow bags if available. If not
+                available &ndash; keep the  garbage in a bag, tied up for three days before disposing in general garbage disposal  system.
+            </li>
+            <li>5. Used mask should be considered potentially infected, not kept on tables, chairs to be  reused.</li>
+            <li> 6. If symptoms appear (cough, fever, and difficulty in breathing) then she should immediately  inform their follow up doctor, physician.</li>
+        </ul>
+
+        <b style="color:darkorange;">  Instructions for the family members of the person being home quarantined.</b><br />
+        <ul>
+            <li>1. Only an assigned family member should take care of a quarantined person.</li>
+            <li>2. Avoid shaking the soil linen or direct contact with skin, when changing sheets.</li>
+            <li>3. Use disposable gloves when cleaning the surfaces or handling soiled linen.</li>
+            <li>4. Wash hands before and after removing gloves.</li>
+            <li> 5. Visitors should not be allowed.</li>
+            <li>
+                6. In case the person is being quarantined becomes symptomatic, tests positive then all
+                his  close contacts will be home quarantined for 14 days and followed up for an additional 14  days.
+            </li>
+        </ul>
+
+
+        <b style="color:darkorange;">  Environmental sanitation</b>  <br />
+        <ul>
+            <li>
+                1. Clean and disinfect frequently touched surfaces in the quarantine persons room daily with  1% sodium hypochlorite solution. (if you have 10% solution (from market) then take 100  ml of this and mix with 900 ml to make 1% solution
+                for use at home, do not keep for more  than 24 hours).
+            </li>
+            <li>2. Clean and disinfect toilet surfaces daily with regular household bleach solution / phenolic  disinfectants.</li>
+            <li>
+                3. Clean the clothes and other linen used by the person separately using common
+                household  detergent and dry.
+            </li>
+        </ul>
+        <div style="text-align:center;">
+            Additional resources for information on home quarantine<br />
+            <a href="https://www.nhs.uk/conditions/coronavirus-covid-19/self-isolation-advice/"> https://www.nhs.uk/conditions/coronavirus-covid-19/self-isolation-advice/ </a><br />
+            <a href="https://www.gov.uk/government/publications/covid-19-stay-at-home-guidance/stay-at-homeguidance-for-households-with-possible-coronavirus-covid-19-infection">https://www.gov.uk/government/publications/covid-19-stay-at-home-guidance/stay-at-homeguidance-for-households-with-possible-coronavirus-covid-19-infection</a><br />
+            <br />
+            <input type="button" id="btnsubmit" class="btn btn-pinterest btn-lg" style="float:inherit;width:220px;" value="Save" onclick="SaveConsentForm();" />
+            <br /> <br />
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#txtdate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            Edit: true
+        });
+    });
+    function SaveConsentForm() {
+        if ($("#txtname").val() != "" && $("#txtswof").val() != "" && $("#txtdate").val() != "" && $("#txtresidentof").val() != "" && $("#txtcontactnumber").val() != "") {
+            var model = {
+                Name: $("#txtname").val(),
+                S_Or_W_Off: $("#txtswof").val(),
+                CustomDate: $("#txtdate").val(),
+                Address: $("#txtresidentof").val(),
+                ContactNumber: $("#txtcontactnumber").val()
+            }
+            $.ajax({
+                type: "POST",
+                url: "/Hospital/SaveConsentForm",
+                data: model,
+                success: function (data) {
+                    alert(data);
+                    clearall();
+                }
+            });
+        } else {
+            alert("Please enter all required fields");
+        }
+    }
+    function clearall() {
+        $("#txtname").val("");
+        $("#txtswof").val("");
+        $("#txtdate").val("");
+        $("#txtresidentof").val("");
+        $("#txtcontactnumber").val("");
+    }
+</script>

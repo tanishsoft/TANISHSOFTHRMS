@@ -1,0 +1,289 @@
+﻿
+@{
+    ViewBag.Title = "ManageRounds";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    var validate = true;
+    var eId = 0;
+    var oTable;
+    $(document).ready(function () {
+        LoadData();
+        LoadLocations();
+
+        $("#txtFromDate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            Edit: true
+        });
+        $("#txtToDate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            Edit: true
+        });
+        $(".clmrno").show();
+        $("#txtMrNo").change(function () {
+            var id = $('#txtMrNo').val();
+            if (id != "") {
+                $.get("/CMS/GetCMS_PatitentNamebyMRno?id=" + id, function (res) {
+                    if (res != null) {
+                        $("#MobileNo").val(res.MobileNumber);
+                        $("#PatientName").val(res.Name);
+                    }
+                    else {
+                        $("#PatientName").val("");
+                    }
+                });
+            }
+        });
+
+    });
+    function LoadData() {
+        oTable = $('#tblDemoRegister').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Register/AjaxGetRegisterRound",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "Id" },
+                { "sName": "Name" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                {
+                           "sName": "Id",
+                           "bSortable": false,
+                           "render": function (data, row, r) {
+
+                               return '<div class="btn-group">' +
+                                   '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                                   '<ul class="dropdown-menu dropdown-menu-right">' +
+                                   '<li><a href="javascript:void(0);"  onclick="ViewDetails(' + data + ')">View</a></li>' +
+                                   '<li><a href="javascript:void(0);"  onclick="UpdateDetails(' + data + ')">Update Details</a></li>' +
+                                   //'<li><a href="javascript:void(0);"  onclick="onDelete(' + data + ')">Delete</a></li>' +
+                                   '</ul></div>';
+                           }
+                }
+            ],
+            "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                //$('td:eq(1)', nRow).html('<a href="javascript:void(0);" id="' + aData[0] + '" onclick="ViewDetails(this.id);">' + aData[1] + '</a>');
+            }
+            ,
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "locationid", "value": $("#LocationId2").val() },
+                    { "name": "fromdate", "value": $("#txtFromDate").val() },
+                    { "name": "todate", "value": $("#txtToDate").val() },
+                );
+            }
+        });
+        $("#tblDailyVisting_length").addClass("d-none");
+        $("#tblDailyVisting_length").addClass("d-sm-block");
+        //$("#tblValetParking_length").addClass("col-xs-6");
+    }
+    function UpdateDetails(id) {
+        eId = id;
+        window.location = "/Register/DemoUpdate?id=" + id;
+        //$.get("/Custom/GetDailyVisiting?id=" + id, function (data) {
+        //    $("#myModalUpdate").modal('show');
+        //});
+    }
+    function GetDatestr(date) {
+        var d = new Date(parseInt(date.substr(6)));
+        return d.toLocaleString("en-GB");
+    }
+    function ViewDetails(id) {
+        eId = id;
+        $.get("/Register/GetRegister_Round?id=" + id, function (data) {
+            var html = "<table class='table table-bordered'>";
+            html += "<tr><td>Location</td><td>" + getlocationame(data.LocationId) + "</td></tr>";
+            html += "<tr><td>Product Details</td><td>" + data.ProductDetails + "</td></tr>";
+            html += "<tr><td>Vendor Name</td><td>" + data.VendorName + "</td></tr>";
+            html += "<tr><td>Qty</td><td>" + data.Qty + "</td></tr>";
+            html += "<tr><td>DcNo</td><td>" + data.DcNo + "</td></tr>";
+            html += "<tr><td>Handover To Security</td><td>" + data.HandoverToSecurity + "</td></tr>";
+            html += "<tr><td>HandOver To Department</td><td>" + data.HandOverToDepartment + "</td></tr>";
+            html += "<tr><td>Hand OverDate </td><td>" + GetDatestr(data.HandOverDate) + "</td></tr>";
+            html += "<tr><td>HandOver To PersonName</td><td>" + data.HandOverToPersonName + "</td></tr>";
+            html += "<tr><td>HandOver Remarks</td><td>" + data.HandOverRemarks + "</td></tr>";
+            if (data.ReturnSecurity != null && data.ReturnSecurity != "") {
+                html += "<tr><td>Return Security </td><td>" + (data.ReturnSecurity) + "</td></tr>";
+            }
+            if (data.ReturnDepartment != null && data.ReturnDepartment != "") {
+                html += "<tr><td>Return Department</td><td>" + data.ReturnDepartment + "</td></tr>";
+            }
+            if (data.ReturnPersonName != null && data.ReturnPersonName != "") {
+                html += "<tr><td>Return Person</td><td>" + data.ReturnPersonName + "</td></tr>";
+            }
+            if (data.ReturnRemarks != null && data.ReturnRemarks != "") {
+                html += "<tr><td>Return Remarks</td><td>" + data.ReturnRemarks + "</td></tr>";
+            }
+
+            if (data.HandoverToSecuritySign != null && data.HandoverToSecuritySign != "") {
+                html += "<tr><td>Handover To Security Sign</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.HandoverToSecuritySign + "' /></td></tr>";
+            }
+            if (data.ReturnSecuritySign != null && data.ReturnSecuritySign != "") {
+                html += "<tr><td>Return Security Sign</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.ReturnSecuritySign + "' /></td></tr>";
+            }
+
+            html += "</table>";
+            $("#tableview").html(html);
+            $("#myModalView").modal('show');
+        });
+    }
+    var locations;
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                locations = data;
+                var options = [];
+                options.push('<option value="">- All Locations -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#LocationId").html(options.join(''));
+                $("#LocationId2").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function getlocationame(id) {
+        for (var i = 0; i < locations.length; i++) {
+            if (locations[i].LocationId == id) {
+                return locations[i].LocationName;
+            }
+        }
+        return '';
+    }
+
+    function Loaddynamicdata() {
+        oTable.api().ajax.reload(null, false);
+    }
+    function onDelete(id) {
+        if (confirm('Are you sure you want to delete?')) {
+            $.getJSON("@Url.Action("DeleteDailyVisiting", "Custom")", { id: id }, function (data) {
+                clearAll();
+                oTable.api().ajax.reload(null, false);
+            });
+        } return false;
+    }
+
+    function clearAll() {
+        $(".css-error").removeClass('css-error');
+
+        eId = 0;
+    }
+
+    function ExportExcelData() {
+        $("#myModalExportExcel").modal('show');
+    }
+    function FinalExportExcel() {
+        if ($("#txtFromDate").val() != null && $("#txtFromDate").val() != "" && $("#txtToDate").val() != null && $("#txtToDate").val() != "") {
+            var url = '/Register/ExportExcelDemoRegister?FromDate=' + $("#txtFromDate").val() + '&ToDate=' + $("#txtToDate").val();
+            window.location = url;
+
+        } else {
+            alert("Please select from date and todae");
+        }
+    }
+    function FinalExportPdf() {
+        if ($("#txtFromDate").val() != null && $("#txtFromDate").val() != "" && $("#txtToDate").val() != null && $("#txtToDate").val() != "") {
+            var url = '/Register/ExportPdfDemoRegister?FromDate=' + $("#txtFromDate").val() + '&ToDate=' + $("#txtToDate").val();
+            window.location = url;
+
+        } else {
+            alert("Please select from date and todae");
+        }
+    }
+
+    function closeallnew() {
+        $("#myModalnew").modal('hide');
+    }
+    function newmodalshow() {
+        //$("#myModalnew").modal('show');
+        window.location.href = "/Register/NewRounds";
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading" style="height:35px;"> &nbsp;&nbsp;  Manage Rounds<span style="color:orangered; cursor:pointer; float:right;" onclick="newmodalshow()">&nbsp;&nbsp;&nbsp;&nbsp;New</span>  </div>
+    <div class="panel-body">
+        <div class="row" style="padding:5px;">
+            <div class="col-md-2 col-xs-6">
+                <select id="LocationId2" class="form-control" onchange="Loaddynamicdata()">
+                    <option value="">Select</option>
+                </select>
+            </div>
+            <div class="col-md-2 col-xs-6">
+                <input type="text" class="form-control" placeholder="From Date" id="txtFromDate" readonly="readonly" autocomplete="off" />
+            </div>
+            <div class="col-md-2 col-xs-6">
+
+                <input type="text" class="form-control" placeholder="To Date" id="txtToDate" readonly="readonly" autocomplete="off" />
+            </div>
+            <div class="col-md-1 col-xs-6" style="text-align:left !important;">
+
+                <input type="button" class="btn btn-primary" id="btnsave" value="Go" style="float:left;" onclick="Loaddynamicdata();" />
+            </div>
+            <div class="col-md-1 col-xs-6" style="text-align:left !important;">
+
+                <input type="button" class="btn btn-default" id="btnsave2" value="Export To Excel" style="float:left;" onclick="FinalExportExcel();" />
+            </div>
+            <div class="col-md-1 col-xs-6" style="text-align:left !important;">
+                <input type="button" class="btn btn-secondary" id="btnsave2" value="Export To PDF" style="float:left;" onclick="FinalExportPdf();" />
+            </div>
+        </div>
+        <div class="row" style="padding:5px;">
+
+            <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblDemoRegister">
+                <thead>
+                    <tr style="background-color:chocolate;color:white;">
+                        <th>Id</th>
+                        <th>Location</th>
+                        <th>IP NO</th>
+                        <th>MR No</th>
+                        <th>Name Of Patient</th>
+                        <th>Date</th>
+                        <th>Remarks</th>
+                        <th>Action Taken</th>
+                    
+                        <th>Created By</th>
+                        <th>Modified On</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="myModalView" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title" id="headerView">View</h4>
+            </div>
+            <div class="modal-body">
+                <div id="tableview">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

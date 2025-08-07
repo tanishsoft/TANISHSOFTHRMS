@@ -1,0 +1,1221 @@
+﻿<script>
+    $(document).ready(function () {
+        bindonload();
+    });
+    function bindonload() {
+        var current_fs, next_fs, previous_fs; //fieldsets
+        var opacity;
+        $(".next").click(function () {
+            current_fs = $(this).parent();
+            next_fs = $(this).parent().next();
+            //Add Class Active
+            $("#progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
+            //show the next fieldset
+            next_fs.show();
+            //hide the current fieldset with style
+            current_fs.animate({ opacity: 0 }, {
+                step: function (now) {
+                    // for making fielset appear animation
+                    opacity = 1 - now;
+                    current_fs.css({
+                        'display': 'none',
+                        'position': 'relative'
+                    });
+                    next_fs.css({ 'opacity': opacity });
+                },
+                duration: 600
+            });
+        });
+
+        $(".previous").click(function () {
+            current_fs = $(this).parent();
+            previous_fs = $(this).parent().prev();
+            //Remove class active
+            $("#progressbar li").eq($("fieldset").index(current_fs)).removeClass("active");
+            //show the previous fieldset
+            previous_fs.show();
+            //hide the current fieldset with style
+            current_fs.animate({ opacity: 0 }, {
+                step: function (now) {
+                    // for making fielset appear animation
+                    opacity = 1 - now;
+                    current_fs.css({
+                        'display': 'none',
+                        'position': 'relative'
+                    });
+                    previous_fs.css({ 'opacity': opacity });
+                },
+                duration: 600
+            });
+        });
+
+        $('.radio-group .radio').click(function () {
+            $(this).parent().find('.radio').removeClass('selected');
+            $(this).addClass('selected');
+        });
+
+        $(".submit").click(function () {
+            return false;
+        })
+    }
+    function SaveData() {
+        var childinfo = {
+            firstName: $("#txtfirstName").val(),
+            middleName: $("#txtmiddlename").val(),
+            LastName: $("#txtlastName").val(),
+            DOB: $("#txtdateofbirth").val(),
+            Gender: $("input[type=radio][name=childgeneder]:checked").val(),
+            FillingPersonName: $("#txtfillingPersonName").val(),
+            RelationShipChild: $("#ddlrelationshiptochild").val(),
+            EmailAddress: $("#txtEmailAddress").val(),
+            NameOfPeople: $("#txtNameofPeopleassisting").val(),
+
+        }
+    }
+</script>
+<div class="container-fluid">
+    <div class="row justify-content-center mt-0">
+        <div class="col-12">
+            <div class="card px-0 pt-4 pb-0 mt-3 mb-3">
+                <div class="row">
+                    <div class="col-md-12 mx-0">
+                        <form id="msform">
+                            <!-- progressbar -->
+                            <ul id="progressbar">
+                                <li class="active" id="account">Child’s information</li>
+                                <li id="payment">Communication</li>
+                                <li id="payment">Gross Motor</li>
+                                <li id="payment">Fine Motor</li>
+                                <li id="payment">Problem Solving</li>
+                                <li id="payment">Personal Social</li>
+                                <li id="confirm">Finish</li>
+                            </ul> <!-- fieldsets -->
+                            <fieldset>
+                                <div class="form-card" style="min-height:500px;">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h2 class="fs-title">Child’s information</h2>
+                                            <div class="row">
+                                                <div class="col-md-8">
+                                                    <div class="form-group col-lg-12">
+                                                        <div class="form-wrapper col-lg-12">
+                                                            <div class="row">
+                                                                <label class="col-lg-4">first name</label>
+                                                                <div class="form-holder col-lg-8">
+                                                                    <input type="text" id="txtfirstName" class="form-control form-control-sm">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div><div class="form-group col-lg-12">
+                                                        <div class="form-wrapper col-lg-12">
+                                                            <div class="row">
+                                                                <label for="" class="col-lg-4">Middle Initial</label>
+                                                                <div class="form-holder col-lg-8">
+                                                                    <input type="text" id="txtmiddlename" class="form-control form-control-sm">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div><div class="form-group col-lg-12">
+                                                        <div class="form-wrapper col-lg-12">
+                                                            <div class="row">
+                                                                <label for="" class="col-lg-4">Last name</label>
+                                                                <div class="form-holder col-lg-8">
+                                                                    <input type="text" id="txtlastName" class="form-control form-control-sm">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group col-lg-12">
+                                                        <div class="form-wrapper col-lg-12">
+                                                            <div class="row">
+                                                                <label for="" class="col-lg-4">Date of birth:</label>
+                                                                <div class="form-holder col-lg-8">
+                                                                    <input type="date" id="txtdateofbirth" class="form-control form-control-sm">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div><div class="form-group col-lg-12">
+                                                        <div class="form-wrapper col-lg-12">
+                                                            <div class="row">
+                                                                <label for="" class="col-lg-4">Child’s gender:</label>
+                                                                <div class="col-lg-8">
+                                                                    <div class="form-check form-check-inline">
+                                                                        <input class="form-check-input" type="radio" name="childgeneder" id="childgeneder1" value="Male" />
+                                                                        <label class="form-check-label" for="childgeneder1">Male</label>
+                                                                    </div>
+                                                                    <div class="form-check form-check-inline">
+                                                                        <input class="form-check-input" type="radio" name="childgeneder" id="childgeneder2" value="Female" />
+                                                                        <label class="form-check-label" for="childgeneder2">Female</label>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <br />
+                                                    <img src="~/Images/ASQ/main.PNG" class="img-responsive" style="height:155px" />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <h2 class="fs-title">Person filling out questionnaire</h2>
+                                            <div class="form-group col-lg-12">
+                                                <div class="form-wrapper col-lg-6">
+                                                    <div class="row">
+                                                        <label for="" class="col-lg-12">Full name</label>
+                                                        <div class="form-holder col-lg-12">
+                                                            <input type="text" id="txtfillingPersonName" class="form-control form-control-sm">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-wrapper col-lg-6">
+                                                    <div class="row">
+                                                        <label for="" class="col-lg-12">Relationship to child:</label>
+                                                        <div class="form-holder select col-lg-12">
+                                                            <select id="ddlrelationshiptochild" class="form-control form-control-sm">
+                                                                <option selected>Parent</option>
+                                                                <option>Guardian</option>
+                                                                <option>Teacher</option>
+                                                                <option>Child care provider</option>
+                                                                <option>Grandparent or other relative</option>
+                                                                <option>Foster parent</option>
+                                                                <option>Other</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            <div class="form-group col-lg-12">
+                                                <div class="form-wrapper col-lg-6">
+                                                    <div class="row">
+                                                        <label class="col-lg-12">E-mail address:</label>
+                                                        <div class="form-holder col-lg-12">
+                                                            <input type="text" id="txtEmailAddress" class="form-control form-control-sm">
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="form-wrapper col-lg-6">
+                                                    <div class="row">
+                                                        <label class="col-lg-12">Names of people assisting in questionnaire completion:</label>
+                                                        <div class="form-holder col-lg-12">
+                                                            <input type="text" id="txtNameofPeopleassisting" class="form-control form-control-sm">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <h4>PROGRAM INFORMATION</h4>
+                                                <div class="form-group col-lg-12">
+
+                                                    <div class="form-wrapper col-lg-6">
+                                                        <div class="row">
+                                                            <label for="" class="col-lg-12">Child ID #</label>
+                                                            <div class="form-holder col-lg-12">
+                                                                <input type="text" class="form-control form-control-sm">
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                    <div class="form-wrapper col-lg-6">
+                                                        <div class="row">
+                                                            <label for="" class="col-lg-12">Program ID #:</label>
+                                                            <div class="form-holder col-lg-12">
+                                                                <input type="text" class="form-control form-control-sm">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-wrapper col-lg-6">
+                                                        <div class="row">
+                                                            <label for="" class="col-lg-12">Program name:</label>
+                                                            <div class="form-holder col-lg-12">
+                                                                <input type="text" class="form-control form-control-sm">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            <br>
+                                            <p>At this age, many toddlers may not be cooperative when asked to do things. You may need to try the following activities with your child more than one time. If possible, try the activities when your child is cooperative. If your child can do the activity but refuses, mark “yes” for the item</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="button" name="next" class="next action-button" value="Next Step" />
+                            </fieldset>
+                            <fieldset>
+                                <div class="form-card" style="min-height:500px">
+                                    <h2 class="fs-title">Communication</h2>
+                                    <div class="form-group">
+
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <label>
+                                                        1. Without your showing him, does your child point to the correct picture when you say, “Show me the kitty,” or ask, “Where is the dog?” (She
+                                                        needs to identify only one picture correctly.)
+                                                    </label>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <label>2. Does your child imitate a two-word sentence? For example, when you say a two-word phrase, such as “Mama eat,” “Daddy play,” “Go home,” or “What’s this?” does your child say both words back to you? (Mark “yes” even if her words are difficult to understand.)</label>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group ">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <label>3. Without your giving him clues by pointing or using gestures, can your child carry out at least three of these kinds of directions?</label>
+                                                </div>
+                                                <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-lg-12">
+
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">a. “Put the toy on the table.”</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">b. “Close the door.”</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">c. “Bring me a towel.”</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">d. “Find your coat.”</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">e. “Take my hand.”</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">f. “Get your book.”</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group ">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <label>4. If you point to a picture of a ball (kitty, cup, hat, etc.) and ask your child, “What is this?” does your child correctly name at least one picture?</label>
+                                                </div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group ">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <label>5. Does your child say two or three words that represent different ideas together, such as “See dog,” “Mommy come home,” or “Kitty gone”? (Don’t count word combinations that express one idea, such as “byebye,” “all gone,” “all right,” and “What’s that?”) Please give an example of your child’s word combinations:</label>
+                                                </div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <label>6. Does your child correctly use at least two words like “me,” “I,” “mine,” and “you”?</label>
+                                                </div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                </div> <input type="button" name="previous" class="previous action-button-previous" value="Previous" /> <input type="button" name="next" class="next action-button" value="Next Step" />
+                            </fieldset>
+                            <fieldset>
+                                <div class="form-card" style="min-height:500px">
+                                    <h2 class="fs-title text-center">GROSS MOTOR</h2> <br><br>
+                                    <div class="form-group ">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <label>1. Does your child walk down stairs if you hold onto one of her hands?She may also hold onto the railing or wall. (You can look for this at a store, on a playground, or at home.)</label>
+                                                </div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group ">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <label>2. When you show your child how to kick a large ball, does he try to kick the ball by moving his leg forward or by walking  into it? (If your child already kicks a ball, mark “yes” for this item.)</label>
+                                                </div><div class="col-lg-2">  <img src="~/Images/ASQ/1.png" class="img-responsive"></div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group ">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <label>3. Does your child walk either up or down at least two steps by herself? She may hold onto the railing or wall.</label>
+                                                </div><div class="col-lg-2"> <img src="~/Images/ASQ/2.png" class="img-responsive"></div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group ">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <label>4. Does your child run fairly well, stopping herself without bumping into things or falling?</label>
+                                                </div><div class="col-lg-2"><img src="~/Images/ASQ/3.png" class="img-responsive"></div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group ">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <label>5. Does your child jump with both feet leaving the floor at the same time?</label>
+                                                </div><div class="col-lg-2"><img src="~/Images/ASQ/4.png" class="img-responsive"></div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group ">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <label>6. Without holding onto anything for support, does your child kick a ball by swinging his leg forward?</label>
+                                                </div><div class="col-lg-2"><img src="~/Images/ASQ/5.png" class="img-responsive" /></div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="button" name="previous" class="previous action-button-previous" value="Previous" /> <input type="button" name="next" class="next action-button" value="Next Step" />
+                            </fieldset>
+                            <fieldset>
+                                <div class="form-card" style="min-height:500px">
+                                    <h2 class="fs-title text-center">FINE MOTOR</h2> <br><br>
+                                    <div class="form-group ">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <label>1. Does your child get a spoon into his mouth right side up so that the food usually doesn’t spill?</label>
+                                                </div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group ">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <label>2. Does your child turn the pages of a book by herself? (She may turn more than one page at a time.)</label>
+                                                </div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group ">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <label>3. Does your child use a turning motion with his hand while trying to turn doorknobs, wind up toys, twist tops, or screw lids on and off jars?</label>
+                                                </div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group ">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-6"> <label>4. Does your child flip switches off and on?</label></div>
+                                                <div class="col-lg-2"><img src="~/Images/ASQ/6.png" class="img-responsive"></div>
+                                                <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group ">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <label>5. Does your child stack seven small blocks or toys on top of each other by herself? (You could also use spools of thread, small boxes, or toys that are about 1 inch in size.)</label>
+                                                </div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group ">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <label>6. Can your child string small items such as beads, macaroni, or pasta “wagon wheels” onto a string or shoelace?</label>
+                                                </div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="button" name="previous" class="previous action-button-previous" value="Previous" /> <input type="button" name="next" class="next action-button" value="Next Step" />
+                            </fieldset>
+                            <fieldset>
+                                <div class="form-card" style="min-height:500px">
+                                    <h2 class="fs-title text-center">PROBLEM SOLVING</h2> <br><br>
+                                    <div class="form-group ">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <label>1. After watching you draw a line from the top of the  paper to the bottom with a crayon (or pencil or pen), does your child copy you by drawing a single line on the paper in any direction? (Mark “not yet” if your child scribbles back and forth.)</label>
+                                                </div> <div class="col-lg-2"> <img src="~/Images/ASQ/7.png" class="img-responsive"></div><div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group ">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <label>2. After a crumb or Cheerio is dropped into a small, clear bottle, does your child turn the bottle upside down to dump out the crumb or Cheerio? (Do not show him how.) (You can use a soda-pop bottle or baby bottle.)</label>
+                                                </div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group ">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <label>3. DDoes your child pretend objects are something else? For example, does your child hold a cup to her ear, pretending it is a telephone? Doesshe put a box on her head, pretending it is a hat? Does she use a block or small toy to stir food?</label>
+                                                </div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group ">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <label>4.  Does your child put things away where they belong? For example, doeshe know his toys belong on the toy shelf, his blanket goes on his bed, and dishes go in the kitchen?</label>
+                                                </div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group ">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <label>5.  If your child wants something she cannot reach, does she find a chair or box to stand on to reach it (for example, to get a toy on a counter or to “help” you in the kitchen)?</label>
+                                                </div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group ">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <label>6. While your child watches, line up four objects like blocks or cars in a row. Does your child copy or imitate you and line up four objects in a row? (You can also use spools of thread, small boxes, or other toys.)</label>
+                                                </div><div class="col-lg-2">  <img src="~/Images/ASQ/8.png" class="img-responsive"></div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="button" name="previous" class="previous action-button-previous" value="Previous" /> <input type="button" name="next" class="next action-button" value="Next Step" />
+                            </fieldset>
+                            <fieldset>
+                                <div class="form-card" style="min-height:500px">
+                                    <h2 class="fs-title text-center">PERSONAL-SOCIAL</h2> <br><br>
+                                    <div class="form-group ">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <label>1. Does your child drink from a cup or glass, putting it down again with little spilling</label>
+                                                </div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group ">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <label>2. Does your child copy the activities you do, such as wipe up a spill, sweep, shave, or comb hair?</label>
+                                                </div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group ">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8"><label>3. Does your child eat with a fork?</label></div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group ">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <label>4. When playing with either a stuffed animal or a doll, does your child pretend to rock it, feed it, change its diapers, put it to bed, and so forth?</label>
+                                                </div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group ">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <label>5.  Does your child push a little wagon, stroller, or other toy on wheels, steering it around objects and backing out of corners if he cannot turn?</label>
+                                                </div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group ">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <label>6.  Does your child call herself “I” or “me” more often than her own name? For example, “I do it,” more often than “Juanita do it.”</label>
+                                                </div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                                                        <label class="form-check-label" for="inlineRadio1">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">SOMETIMES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NOT YET</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="button" name="previous" class="previous action-button-previous" value="Previous" /> <input type="button" name="next" class="next action-button" value="Next Step" />
+                            </fieldset>
+                            <fieldset>
+                                <div class="form-card" style="min-height:500px">
+                                    <div class="form-group">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8"><label for="">1. Do you think your child hears well? If no, explain</label></div>
+                                                <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NO</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-12">
+                                                    <div class="form-holder">
+                                                        <textarea class="form-control form-control-sm" id="exampleFormControlTextarea1" rows="2"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <label for="">2. Do you think your child talks like other toddlers her age? If no, explain:</label>
+                                                </div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio2">NO</label>
+                                                    </div>
+                                                </div> <div class="col-lg-12">
+                                                    <div class="form-holder">
+                                                        <textarea class="form-control form-control-sm" id="exampleFormControlTextarea1" rows="2"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8"><label for="">3. Can you understand most of what your child says? If no, explain:</label></div>
+                                                <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio3">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio3">NO</label>
+                                                    </div>
+                                                </div><div class="col-lg-12">
+                                                    <div class="form-holder">
+                                                        <textarea class="form-control form-control-sm" id="exampleFormControlTextarea1" rows="2"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <label for="">
+                                                        4.  Do you think your child walks, runs, and climbs like other toddlers his age? If no, explain:
+                                                    </label>
+                                                </div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio3">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio3">NO</label>
+                                                    </div>
+                                                </div><div class="col-lg-12">
+                                                    <div class="form-holder">
+                                                        <textarea class="form-control form-control-sm" id="exampleFormControlTextarea1" rows="2"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <label for="">
+                                                        5. Does either parent have a family history of childhood deafness or hearing impairment? If yes, explain
+                                                    </label>
+                                                </div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio3">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio3">NO</label>
+                                                    </div>
+                                                </div><div class="col-lg-12">
+                                                    <div class="form-holder">
+                                                        <textarea class="form-control form-control-sm" id="exampleFormControlTextarea1" rows="2"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <label for="">
+                                                        6. Do you have any concerns about your child’s vision? If yes, explain:
+                                                    </label>
+                                                </div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio3">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio3">NO</label>
+                                                    </div>
+                                                </div><div class="col-lg-12">
+                                                    <div class="form-holder">
+                                                        <textarea class="form-control form-control-sm" id="exampleFormControlTextarea1" rows="2"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <label for="">7. Has your child had any medical problems in the last several months? If yes, explain:</label>
+                                                </div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio3">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio3">NO</label>
+                                                    </div>
+                                                </div> <div class="col-lg-12">
+                                                    <div class="form-holder">
+                                                        <textarea class="form-control form-control-sm" id="exampleFormControlTextarea1" rows="2"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8">
+                                                    <label for="">8. Do you have any concerns about your child’s behavior? If yes, explain:</label>
+                                                </div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio3">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio3">NO</label>
+                                                    </div>
+                                                </div><div class="col-lg-12">
+                                                    <div class="form-holder">
+                                                        <textarea class="form-control form-control-sm" id="exampleFormControlTextarea1" rows="2"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="form-wrapper col-lg-12">
+                                            <div class="row">
+                                                <div class="col-lg-8"><label for="">9. Does anything about your child worry you? If yes, explain:</label></div> <div class="col-lg-4">
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio3">YES</label>
+                                                    </div>
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option2">
+                                                        <label class="form-check-label" for="inlineRadio3">NO</label>
+                                                    </div>
+                                                </div><div class="col-lg-12">
+                                                    <div class="form-holder">
+                                                        <textarea class="form-control form-control-sm" id="exampleFormControlTextarea1" rows="2"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="button" name="previous" class="previous action-button-previous" value="Previous" /> <input type="button" name="submit" class="btn action-button" value="Submit" style="float:none;" />
+                            </fieldset>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,296 @@
+﻿
+@{
+    ViewBag.Title = "LostFoundUpdate";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+
+<style>
+    .maxwidth {
+        max-width: 100%;
+    }
+</style>
+
+<script src="~/Scripts/jSignature.min.js"></script>
+<!--[if lt IE 9]>
+<script  type="text/javascript" src="~/Scripts/flashcanvas.js"></script>
+    <![endif]-->
+<script>
+    var $sigdiv, $sigdiv2, id = 0, RequestType = "";
+    $(document).ready(function () {
+        // $sigdiv = $("#captureSignature").jSignature({ 'UndoButton': true });
+        $sigdiv2 = $("#captureSignatureSecurity").jSignature({ 'UndoButton': true });
+
+        $("#txtLost_or_HandOverPerson").change(function () {
+            var value = $("#ddllostby").val();
+            if (value == "Employee") {
+                $.get("/Custom/GetUserDetailsByEmpId?id=" + $("#txtLost_or_HandOverPerson").val(), function (data) {
+                    if (data != "Enter Valid Request ID") {
+                        $("#txtLost_or_HandOverPersonText").html(data.FirstName + " " + data.PhoneNumber + " " + data.DepartmentName);
+                    }
+                });
+            } else if (value == "Patient") {
+                $.get("/CMS/GetCMS_PatitentNamebyMRno?id=" + $("#txtLost_or_HandOverPerson").val(), function (res) {
+                    if (res != null) {
+                        $("#txtLost_or_HandOverPersonText").html(res.Name + " " + res.MobileNumber + " " + res.RoomNo + " " + res.BedNo);
+                    }
+                    else {
+                        $("#txtLost_or_HandOverPersonText").html("");
+                    }
+                });
+            }
+        });
+
+        $("#txtFoundPerson").change(function () {
+            var value = $("#ddlFoundby").val();
+            if (value == "Employee") {
+                $.get("/Custom/GetUserDetailsByEmpId?id=" + $("#txtFoundPerson").val(), function (data) {
+                    if (data != "Enter Valid Request ID") {
+                        $("#txtFoundPersonText").html(data.FirstName + " " + data.PhoneNumber + " " + data.DepartmentName);
+                    }
+                });
+            } else if (value == "Patient") {
+                $.get("/CMS/GetCMS_PatitentNamebyMRno?id=" + $("#txtFoundPerson").val(), function (res) {
+                    if (res != null) {
+                        $("#txtFoundPersonText").html(res.Name + " " + res.MobileNumber + " " + res.RoomNo + " " + res.BedNo);
+                    }
+                    else {
+                        $("#txtFoundPersonText").html("");
+                    }
+                });
+            }
+        });
+        $("#txtDate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            Edit: true
+        });
+        $('#txtApproximateTime').timepicker();
+        $(".LostItem").show();
+        $(".FoundItem").hide();
+        ViewDetails();
+    });
+    function Cancel() {
+        window.location.replace("/Register/LostFound");
+    }
+    function SaveUserSignoff() {
+        var task = {
+            Id: $("#hidBreakdownid").val(),
+            RequestType: RequestType,
+            IsActive: true,
+            LostIsEmployeeOrOther: "",
+            Lost_or_HandOverPerson: "",
+            LostRegisterSecurity: "",
+            LostRegisterSecuritySign: "",
+            LostRemarks: "",
+            LostPersonAddress: "",
+            FoundIsEmployeeOrOther: "",
+            FoundPerson: "",
+            FoundRegisterSecurity: "",
+            FoundRegisterSecuritySign: "",
+            FoundRemarks: "",
+            LostApproximateTime: "",
+            FoundApproximateTime: "",
+            FoundPersonAddress: ""
+        };
+        if (task.RequestType != "Lost") {
+            task.LostIsEmployeeOrOther = $("#ddllostby").val();
+            task.Lost_or_HandOverPerson = task.LostIsEmployeeOrOther != "Other" ? $("#txtLost_or_HandOverPersonText").html() : $("#txtLost_or_HandOverPerson").val();
+            task.LostRegisterSecurity = $("#ddlSecurity").val();
+            task.LostRegisterSecuritySign = "data:" + $sigdiv2.jSignature('getData', 'image').toString();
+            task.LostRemarks = $("#txtRemarks").val();
+            task.LostApproximateTime = $("#txtDate").val() + "_" + $("#txtApproximateTime").val();
+            task.LostPersonAddress = $("#txtLostPersonAddress").val();
+        } else {
+            task.FoundIsEmployeeOrOther = $("#ddlFoundby").val();
+            task.FoundPerson = task.FoundIsEmployeeOrOther != "Other" ? $("#txtFoundPersonText").html() : $("#txtFoundPerson").val();
+            task.FoundRegisterSecurity = $("#ddlSecurity").val();
+            task.FoundRegisterSecuritySign = "data:" + $sigdiv2.jSignature('getData', 'image').toString();
+            task.FoundRemarks = $("#txtRemarks").val();
+            task.FoundApproximateTime = $("#txtDate").val() + "_" + $("#txtApproximateTime").val();
+            task.FoundPersonAddress = $("#txtFoundPersonAddress").val();
+        }
+        $.post('/Register/SaveLostFoundUpdate', task, function (data) {
+            alert("Successfully updated");
+            window.location.replace("/Register/LostFound");
+        });
+    }
+    function OnLocationchng(id) {
+        $.get("/Register/GetSecurityDetails?locationId=" + id, function (data) {
+            var options = [];
+            options.push('<option value="">- Select Security -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].FirstName + '">' + data[i].FirstName + '</option>');
+            }
+            $("#ddlSecurity").html(options.join(''));
+        });
+    }
+    function GetDatestr(date) {
+        var d = new Date(parseInt(date.substr(6)));
+        return d.toLocaleString("en-GB");
+    }
+    function ViewDetails() {
+        $.get("/Register/GetRegister_LostFound?id=" + $("#hidBreakdownid").val(), function (data) {
+            OnLocationchng(data.LocationId);
+            var html = "<table class='table table-bordered'>";
+            RequestType = data.RequestType;
+            if (RequestType != "Lost") {
+                $(".LostItem").show();
+                $(".FoundItem").hide();
+            } else {
+                $(".LostItem").hide();
+                $(".FoundItem").show();
+            }
+            //html += "<tr><td>Location</td><td>" + getlocationame(data.LocationId) + "</td></tr>";
+            html += "<tr><td>Request Type</td><td>" + data.RequestType + "</td></tr>";
+            html += "<tr><td>Items</td><td>" + data.Items + "</td></tr>";
+            if (data.Lost_or_HandOverPerson != null && data.Lost_or_HandOverPerson != "") {
+                html += "<tr><td>Lost or HandOverPerson</td><td>" + data.Lost_or_HandOverPerson + "</td></tr>";
+                html += "<tr><td>Lost Date</td><td>" + GetDatestr(data.LostDate) + "</td></tr>";
+                html += "<tr><td>Lost Register Security</td><td>" + data.LostRegisterSecurity + "</td></tr>";
+                html += "<tr><td>Lost Remarks</td><td>" + data.LostRemarks + "</td></tr>";
+                html += "<tr><td>Lost ApproximateTime</td><td>" + data.LostApproximateTime + "</td></tr>";
+            }
+
+            if (data.FoundPerson != null && data.FoundPerson != "") {
+                html += "<tr><td>Found Person</td><td>" + data.FoundPerson + "</td></tr>";
+                html += "<tr><td>Found Date</td><td>" + GetDatestr(data.FoundDate) + "</td></tr>";
+                html += "<tr><td>Found Register Security</td><td>" + data.FoundRegisterSecurity + "</td></tr>";
+                html += "<tr><td>Found Remarks</td><td>" + data.FoundRemarks + "</td></tr>";
+                html += "<tr><td>Found ApproximateTime</td><td>" + data.FoundApproximateTime + "</td></tr>";
+            }
+
+            if (data.LostRegisterSecuritySign != null && data.LostRegisterSecuritySign != "") {
+                html += "<tr><td>Lost Register Security Sign</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.LostRegisterSecuritySign + "' /></td></tr>";
+            }
+            if (data.FoundRegisterSecuritySign != null && data.FoundRegisterSecuritySign != "") {
+                html += "<tr><td>Found Register Security Sign</td><td><img style='border-radius:50%;width:100px;'src='/Documents/" + data.FoundRegisterSecuritySign + "' /></td></tr>";
+            }
+            html += "</table>";
+            $("#tableview").html(html);
+        });
+    }
+</script>
+
+<style>
+    #captureSignature {
+        width: 100%;
+        height: auto;
+        border: 1px solid black;
+    }
+</style>
+<input type="hidden" id="hidBreakdownid" value="@ViewBag.Id" />
+<div class="panel panel-default">
+    <div class="panel-heading">LostFound Update</div>
+    <div class="panel-body">
+        <div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div id="tableview">
+
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Date<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtDate" class="form-control" />
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Approximate Time<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4 bootstrap-timepicker timepicker">
+                    <input type="text" id="txtApproximateTime" class="form-control" />
+                </div>
+            </div>
+            <div class="row LostItem" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Lost By</label>
+                </div>
+                <div class="col-md-4">
+                    <select id="ddllostby" class="form-control">
+                        <option value="">Select</option>
+                        <option value="Employee">Employee</option>
+                        <option value="Patient">Patient</option>
+                        <option value="Others">Others</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Lost Person Name<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtLost_or_HandOverPerson" class="form-control" />
+                    <span id="txtLost_or_HandOverPersonText"></span>
+                </div>
+                <div class="col-md-2">
+                    <label for="name">Lost Person Address<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <textarea id="txtLostPersonAddress" class="form-control"></textarea>
+                </div>
+            </div>
+            <div class="row FoundItem" style="padding:5px;">
+                <div class="col-md-2">
+                    <label for="name">Found By</label>
+                </div>
+                <div class="col-md-4">
+                    <select id="ddlFoundby" class="form-control">
+                        <option value="">Select</option>
+                        <option value="Employee">Employee</option>
+                        <option value="Patient">Patient</option>
+                        <option value="Others">Others</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label for="name">Found Person Name<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" id="txtFoundPerson" class="form-control" />
+                    <span id="txtFoundPersonText"></span>
+                </div>
+                <div class="col-md-2">
+                    <label for="name">Found Person Address<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <textarea id="txtFoundPersonAddress" class="form-control"></textarea>
+                </div>
+            </div>
+
+            <div class="row" style="padding:15px;">
+                <div class="col-md-2">
+                    <label for="name">Security</label>
+                </div>
+                <div class="col-md-4">
+                    <select id="ddlSecurity" class="form-control">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="name">Remarks<span style="color:red;">*</span></label>
+                </div>
+                <div class="col-md-4">
+                    <textarea type="text" id="txtRemarks" class="form-control"></textarea>
+                </div>
+                <div class="form-group col-md-12">
+                    <label style="margin-bottom:5px;">Security Signature</label><br />
+                    <div id="captureSignatureSecurity">
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <div>
+            <input type="button" id="btnasigntask" value="Save" onclick="SaveUserSignoff();" class="btn btn-primary">
+            <button type="button" class="btn btn-default" onclick="Cancel();">Cancel</button>
+        </div>
+    </div>
+</div>

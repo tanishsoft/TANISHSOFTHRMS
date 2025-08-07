@@ -1,0 +1,336 @@
+﻿
+@{
+    ViewBag.Title = "MobileAllotment";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    var currentId = 0;
+    var oTable;
+    $(document).ready(function () {
+        LoadData();
+        LoadAssetBrand();
+        $("#FddlAssignDate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            Edit: true
+        });
+        $(".selUser").select2({
+            ajax: {
+                url: "/Home/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+                data: function (params) {
+                    return {
+                        searchTerm: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 3
+        });
+        $("#FAssignTo").select2({
+            ajax: {
+                url: "/Home/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            width: 'element',
+            minimumInputLength: 2
+        });
+    });
+    function LoadAssetBrand() {
+        var id = 2;
+        $.get("/Asset/GetAssetBrandsByType?id=" +id, function (data) {
+            var options = [];
+            options.push('<option value="">- select Asset Brand -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].AssetBrandId + '">' + data[i].Name + '</option>');
+            }
+            $("#AssetBrandId").html(options.join(''));
+        });
+    }
+    function LoadAssetModel() {
+        debugger;
+        $.get("/Asset/GetAssetModelsByType?id=" + $("#AssetBrandId").val(), function (data) {
+            var options = [];
+            options.push('<option value="">- select AssetType -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].AssetModelId + '">' + data[i].Name + '</option>');
+            }
+            $("#Model").html(options.join(''));
+        });
+            }
+    function LoadData() {
+        
+        oTable = $('#tblRequest').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Asset/AjaxGetMobileAllotment",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "Id" },
+                { "sName": "AssetLabel" },
+                { "sName": "Brand" },
+                { "sName": "Model" },
+                { "sName": "SerialNumber" },
+                { "sName": "MobileNumber" },
+                { "sName": "AssigntoEmpId" },
+                { "sName": "AssignedDate" },
+                { "sName": "AssetStatus" },
+
+                {
+                    "sName": "Id",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><a href="javascript:void(0);"  onclick="View(' + data + ')">View</a></li>' +
+                            '<li><a href="javascript:void(0);"  onclick="Edit(' + data + ')">Edit</a></li>' +
+                            '<li><a href="javascript:void(0);"  onclick="Delete(' + data + ')">Delete</a></li>' +
+                            '<li><a href="javascript:void(0);"  onclick="Assign(' + data + ')">Assign</a></li>' +
+                            '<li><a href="javascript:void(0);"  onclick="Return(' + data + ')">Return</a></li>' +
+                            '</ul></div>';
+                    }
+                }
+            ],
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "Brand", "value": $("#AssetBrandId").val() },
+                    { "name": "Model", "value": $("#Model").val() },
+                    { "name": "status", "value": $("#FddlStatus").val() },
+                    { "name": "Emp", "value": $("#FAssignTo").val() },
+                    { "name": "todate", "value": $("#FddlAssignDate").val() }
+                );
+            }
+        });
+        $("#tblRequest_length").addClass("col-md-6");
+        $("#tblRequest_length").addClass("col-md-6");
+    }
+    function Delete(id) {
+        if (confirm("Are you sure you want to delete?")) {
+            $.get("/Custom/DeleteCellPhoneRequest?id=" + id, function (data) {
+                alert("Successfully Deleted ");
+                LoadData();
+            });
+        }
+    }
+    function NewRequest() {
+        window.location.replace("/Asset/NewMobileAllotment");
+    }
+    function View(id) {
+        currentId = id;
+        $.get("/Asset/GetMobileAllotment?id=" + id, function (data) {
+            var table = "<table class='table table-bordered'>"
+            table += "<tr><td> Brand </td><td>" + data.BrandId + "</td></tr>";
+            table += "<tr><td> Model </td><td>" + data.ModelId + "</td></tr>";
+            table += "<tr><td> Serial Number </td><td>" + data.SerialNumber + "</td></tr>";
+            table += "<tr><td> Battery SerialNo </td><td>" + data.BatterySerialNo + "</td></tr>";
+            table += "<tr><td> DOP </td><td>" + data.DOP + "</td></tr>";
+            table += "<tr><td> IMEI NO </td><td>" + data.IMEINO + "</td></tr>";
+            table += "<tr><td> Asset Label </td><td>" + data.AssetLabel + "</td></tr>";
+            table += "<tr><td> Accessories </td><td>" + data.Accessories + "</td></tr>";
+            table += "<tr><td> Monthly Plan </td><td>" + data.MonthlyPlan + "</td></tr>";
+            table += "<tr><td> SIMNO </td><td>" + data.SIMNO + "</td></tr>";
+            table += "<tr><td> Mobile Number </td><td>" + data.MobileNumber + "</td></tr>";          
+            table += "<tr><td> Status </td><td>" + data.AssetStatus + "</td></tr>";
+            table += "</table>";
+            $("#divfullrequestdetails").html(table);
+            $("#myModalFullrequest").modal("show");
+        });
+    }
+    function Assign(id) {
+        currentId = id;
+        $("#myModalAssignto").modal("show");
+    }
+    function Return(id) {
+        currentId = id;
+        $("#myModalReturnto").modal("show");
+    }
+    function SaveReturntoMobile() {
+        if ($("#selUserreturn").val() != null && $("#selUserreturn").val() != "" && $("#txtcommentsreturn").val() != null &&
+            $("#txtcommentsreturn").val() != "")
+        {
+            $.get("/Asset/ReturnMobileToEmp?id=" + currentId + "&empid=" + $("#selUserreturn").val() + "&comments=" + $("#txtcommentsreturn").val(), function (data) {
+                //alert(data);
+                oTable.api().ajax.reload(null, false);
+                $("#myModalReturnto").modal("hide");
+            });
+        } else {
+            alert("Please enter employee number and comments");
+        }
+    }
+    function SaveAssigntoMobile() {
+        if ($("#selUser").val() != null && $("#selUser").val() != "" && $("#txtcommentsapprove").val() != null && $("#txtcommentsapprove").val() != "") {
+            $.get("/Asset/AssignMobileToEmp?id=" + currentId + "&empid=" + $("#selUser").val() + "&comments=" + $("#txtcommentsapprove").val(), function (data) {
+                //alert(data);
+                oTable.api().ajax.reload(null, false);
+                $("#myModalAssignto").modal("hide");
+            });
+        } else {
+            alert("Please enter employee number and comments");
+        }
+    }
+
+    function Edit(id) {
+        window.location.replace("/Asset/NewMobileAllotment?id=" + id);
+    }
+</script>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Mobile Allotment<span style="cursor:pointer;" onclick="NewRequest();" class="pull-right">New</span></div>
+    <div class="panel-body">
+        <div class="row">
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <span class="form-label">Asset Brand</span>
+                    <select class="form-control" id="AssetBrandId" onchange="LoadAssetModel();"></select>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <span class="form-label">Make / Model </span>
+                    <select class="form-control" id="Model"></select>
+                </div>
+            </div>
+            <div class="form-group col-md-2">
+                <span class="form-label">Assign TO </span>
+                <select id="FAssignTo" style="width: 100%" class="form-control typeahead" name="query" data-provide="typeahead" autocomplete="off">
+                    <option value="">Select Assign to</option>
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <span class="form-label">Status</span>
+                    <select class="form-control" id="FddlStatus">
+                        <option value="">Select Status</option>
+                        <option value="New">New</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <div class="form-group">
+                    <span class="form-label">Assign Date</span>
+                    <input type="text" class="form-control" id="FddlAssignDate" />
+                </div>
+            </div>
+            <div class="form-group col-md-2">
+                <button type="button" class="btn btn-sm btn-success" value="Go" onclick="LoadData();"><span class="glyphicon glyphicon-search" style="vertical-align:middle;"></span>&nbsp;Go</button>
+            </div>
+        </div>
+        <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblRequest">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>Id</th>
+                    <th>Asset Label</th>
+                    <th>Brand</th>
+                    <th>Model</th>
+                    <th>Serial Number</th>
+                    <th>Mobile Number</th>
+                    <th>Assign To</th>
+                    <th>Assign Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal fade" id="myModalFullrequest" role="dialog">
+    <div class="form-block">
+        <h3>View <button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <div id="divfullrequestdetails">
+
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="myModalAssignto" role="dialog">
+    <div class="form-block">
+        <h3>Assign Cug Number<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <div id="divapproverequest">
+            <table class="table" style="width:100%;">
+                <tr>
+                    <td>
+                        Emp Id
+                    </td>
+                    <td>
+                        <select id="selUser" class="form-control typeahead border-primary selUser" name="query" data-provide="typeahead" autocomplete="off" style="width:200px;"></select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Comments
+                    </td>
+                    <td>
+                        <textarea id="txtcommentsapprove" class="form-control"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        &nbsp;
+                    </td>
+                    <td>
+                        <input type="button" id="btnapprove" class="btn btn-warning" onclick="SaveAssigntoMobile();" value="Assign" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="myModalReturnto" role="dialog">
+    <div class="form-block">
+        <h3>Return Requestr<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <div id="divapproverequest">
+            <table class="table" style="width:100%;">
+                <tr>
+                    <td>
+                        Return Id
+                    </td>
+                    <td>
+                        <select id="selUserreturn" class="form-control typeahead border-primary selUser" name="query" data-provide="typeahead" autocomplete="off" style="width:200px;"></select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Comments
+                    </td>
+                    <td>
+                        <textarea id="txtcommentsreturn" class="form-control"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        &nbsp;
+                    </td>
+                    <td>
+                        <input type="button" id="btnreturn" class="btn btn-warning" onclick="SaveReturntoMobile();" value="Return" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

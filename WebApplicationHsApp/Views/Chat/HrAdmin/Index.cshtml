@@ -1,0 +1,756 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        LoadLocations();
+        LoadTodayLeave();
+        LoadTomorrowLeave();
+        LoadTable();
+        LoadATTRITIONRATE();
+        LoadheadcountofEmployeefromlastYear();
+        LoadheadcountofEmployeebyGender();
+        LoadheadcountofEmployeebyAge();
+    });
+    function Getseries(name, chart, point) {
+        $.ajax({
+            type: "POST",
+            url: "/Report/GetEmployeesCountByDepartment",
+            data: "location=" + name,
+            success: function (data) {
+                var dept = new Array();
+                for (var i = 0; i < data.length; i++) {
+                    dept.push([
+                        data[i].Key,
+                        data[i].Value
+                    ]);
+                }
+                var cdata = {
+                    name: name,
+                    data: dept
+                }
+                chart.hideLoading();
+                chart.addSeriesAsDrilldown(point, cdata);
+
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function GetseriesDept(name, chart, point) {
+        $.ajax({
+            type: "POST",
+            url: "/Report/GetLeavesCountByDepartment",
+            data: "location=" + name,
+            success: function (data) {
+                var dept = new Array();
+                for (var i = 0; i < data.length; i++) {
+                    dept.push([
+                        data[i].Key,
+                        data[i].Value
+                    ]);
+                }
+                var cdata = {
+                    name: name,
+                    data: dept
+                }
+                chart.hideLoading();
+                chart.addSeriesAsDrilldown(point, cdata);
+
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function GetseriesDepttomorrow(name, chart, point) {
+        $.ajax({
+            type: "POST",
+            url: "/Report/GettomorrowLeavesCountByDepartment",
+            data: "location=" + name,
+            success: function (data) {
+                var dept = new Array();
+                for (var i = 0; i < data.length; i++) {
+                    dept.push([
+                        data[i].Key,
+                        data[i].Value
+                    ]);
+                }
+                var cdata = {
+                    name: name,
+                    data: dept
+                }
+                chart.hideLoading();
+                chart.addSeriesAsDrilldown(point, cdata);
+
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Report/GetEmployeesCountByLocation",
+            //data: "id=",
+            success: function (data) {
+                debugger;
+                var locdata = new Array();
+                for (var i = 0; i < data.length; i++) {
+                    locdata.push({
+                        name: data[i].Key,
+                        y: data[i].Value,
+                        drilldown: true
+                    });
+                }
+                BindLocationWiseEmployees(locdata);
+
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadTodayLeave() {
+        $.ajax({
+            type: "POST",
+            url: "/Report/GetTodayLeaveCountByLocation",
+            //data: "id=",
+            success: function (data) {
+                var locdata = new Array();
+                for (var i = 0; i < data.length; i++) {
+                    locdata.push({
+                        name: data[i].Key,
+                        y: data[i].Value,
+                        drilldown: true
+                    });
+                }
+                BindTodayOnLeaveEmployees(locdata);
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadTomorrowLeave() {
+        $.ajax({
+            type: "POST",
+            url: "/Report/GettomorrowLeaveCountByLocation",
+            //data: "id=",
+            success: function (data) {
+                var locdata = new Array();
+                for (var i = 0; i < data.length; i++) {
+                    locdata.push({
+                        name: data[i].Key,
+                        y: data[i].Value,
+                        drilldown: true
+                    });
+                }
+                BindTomorrowOnLeaveEmployees(locdata);
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadATTRITIONRATE() {
+        $.ajax({
+            type: "POST",
+            url: "/Report/GetAttritionrate",
+            //data: "id=",
+            success: function (data) {
+                debugger;
+                var locdata = new Array();
+                for (var i = 0; i < data.length; i++) {
+                    locdata.push({
+                        name: data[i].Key,
+                        y: data[i].Value,
+                        drilldown: true
+                    });
+                }
+                BindAttritionrate(locdata);
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function BindAttritionrate(locations) {
+
+        $('#container3').highcharts({
+            chart: {
+                type: 'column',
+                events: {
+                    drilldown: function (e) {
+                        if (!e.seriesOptions) {
+
+                            var chart = this;
+                            chart.showLoading('Simulating Ajax ...');
+                            // var series = GetseriesDepttomorrow(e.point.name, chart, e.point);
+                            // Show the loading label
+
+                        }
+                    }
+                }
+            },
+            title: {
+                text: 'Attrition rate for Last 12 months'
+            },
+            xAxis: {
+                type: 'category'
+            },
+
+            legend: {
+                enabled: false
+            },
+
+            plotOptions: {
+                series: {
+                    borderWidth: 0,
+                    dataLabels: {
+                        enabled: true
+                    }
+                }
+            },
+
+            series: [{
+                name: 'Attrition rate',
+                colorByPoint: true,
+                data: locations
+            }],
+
+            drilldown: {
+                series: []
+            }
+        });
+    }
+
+    function LoadheadcountofEmployeefromlastYear() {
+        $.ajax({
+            type: "POST",
+            url: "/Report/GetheadcountofEmployeefromlastYear",
+            //data: "id=",
+            success: function (data) {
+                debugger;
+                var locdata = new Array();
+                for (var i = 0; i < data.length; i++) {
+                    locdata.push({
+                        name: data[i].Key,
+                        y: data[i].Value,
+                        drilldown: true
+                    });
+                }
+                BindheadcountofEmployeefromlastYear(locdata);
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadheadcountofEmployeebyGender() {
+        $.ajax({
+            type: "POST",
+            url: "/Report/GetEmployeeCountbyGender",
+            //data: "id=",
+            success: function (data) {
+                debugger;
+                var locdata = new Array();
+                for (var i = 0; i < data.length; i++) {
+                    locdata.push({
+                        name: data[i].Key,
+                        y: data[i].Value,
+                        drilldown: true
+                    });
+                }
+                BindheadcountofEmployeebyGender(locdata);
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadheadcountofEmployeebyAge() {
+        $.ajax({
+            type: "POST",
+            url: "/Report/GetEmployeeCountbyAge",
+            //data: "id=",
+            success: function (data) {
+                debugger;
+                var locdata = new Array();
+                for (var i = 0; i < data.length; i++) {
+                    locdata.push({
+                        name: data[i].AgeGroup,
+                        y: data[i].Count,
+                        drilldown: true
+                    });
+                }
+                BindheadcountofEmployeebyAge(locdata);
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function BindheadcountofEmployeebyAge(locations) {
+
+
+        $('#container6').highcharts({
+            chart: {
+                type: 'pie',
+                options3d: {
+                    enabled: true,
+                    alpha: 45
+                }
+            },
+            title: {
+                text: 'Employee Head Count by Age'
+            },
+            xAxis: {
+                type: 'category',
+            },
+
+            legend: {
+                enabled: false
+            },
+
+            plotOptions: {
+                pie: {
+                    innerSize: 100,
+                    depth: 45
+                },
+                series: {
+                    visible: true,
+                    dataLabels: {
+                        enabled: true,
+                        step: 'left'
+                    }
+                }
+            },
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                dataLabels: {
+                    enabled: true,
+                    format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                    style: {
+                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                    }
+                }
+            },
+            series: [{
+                name: 'Employee Count',
+                colorByPoint: true,
+                data: locations
+            }],
+        });
+
+
+
+    }
+    function BindheadcountofEmployeebyGender(locations) {
+
+        $('#container5').highcharts({
+            chart: {
+                plotBackgroundColor: null,
+                plotBorderWidth: null,
+                plotShadow: false,
+                type: 'pie'
+            },
+            title: {
+                text: 'Employee Head Count by Gender'
+            },
+            xAxis: {
+                type: 'category',
+            },
+
+            legend: {
+                enabled: false
+            },
+
+            plotOptions: {
+                series: {
+                    visible: true,
+                    dataLabels: {
+                        enabled: true,
+                        step: 'left'
+                    }
+                }
+            },
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                dataLabels: {
+                    enabled: true,
+                    format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                    style: {
+                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                    }
+                }
+            },
+            series: [{
+                name: 'Employee Count',
+                colorByPoint: true,
+                data: locations
+            }],
+        });
+
+
+
+    }
+    function BindheadcountofEmployeefromlastYear(locations) {
+
+        $('#container4').highcharts({
+            chart: {
+                renderTo: 'lineChart',
+                //type: 'line',
+                //events: {
+
+                //},
+            },
+            title: {
+                text: 'Employee Head Count for Last 12 months'
+            },
+            xAxis: {
+                type: 'category',
+            },
+
+            legend: {
+                enabled: false
+            },
+
+            plotOptions: {
+                series: {
+                    visible: true,
+                    dataLabels: {
+                        enabled: true,
+                        step: 'left'
+                    }
+                }
+            },
+
+            series: [{
+                name: 'Employee Head Count',
+                colorByPoint: true,
+                lineWidth: 2,
+                connectNulls: true,
+                data: locations
+            }],
+        });
+
+
+
+    }
+    function BindLocationWiseEmployees(locations) {
+        $('#container').highcharts({
+            chart: {
+                type: 'column',
+                options3d: {
+                    enabled: true,
+                    alpha: 15,
+                    beta: 15,
+                    depth: 50,
+                    viewDistance: 25
+                },
+                events: {
+                    drilldown: function (e) {
+                        if (!e.seriesOptions) {
+
+                            var chart = this;
+                            chart.showLoading('Simulating Ajax ...');
+                            var series = Getseries(e.point.name, chart, e.point);
+                            // Show the loading label
+
+                        }
+                    }
+                }
+            },
+            title: {
+                text: 'Location Wise Employees'
+            },
+            xAxis: {
+                type: 'category'
+            },
+
+            legend: {
+                enabled: false
+            },
+
+            plotOptions: {
+                series: {
+                    borderWidth: 0,
+                    dataLabels: {
+                        enabled: true
+                    }
+                }
+            },
+
+            series: [{
+                name: 'Employees',
+                colorByPoint: true,
+                data: locations
+            }],
+
+            drilldown: {
+                series: []
+            }
+        });
+    }
+    function BindTodayOnLeaveEmployees(locations) {
+        $('#container1').highcharts({
+            chart: {
+                type: 'column',
+                events: {
+                    drilldown: function (e) {
+                        if (!e.seriesOptions) {
+
+                            var chart = this;
+                            chart.showLoading('Simulating Ajax ...');
+                            var series = GetseriesDept(e.point.name, chart, e.point);
+                            // Show the loading label
+
+                        }
+                    }
+                }
+            },
+            title: {
+                text: 'Employees on Leave Today'
+            },
+            xAxis: {
+                type: 'category'
+            },
+
+            legend: {
+                enabled: false
+            },
+
+            plotOptions: {
+                series: {
+                    borderWidth: 0,
+                    dataLabels: {
+                        enabled: true
+                    }
+                }
+            },
+
+            series: [{
+                name: 'Leave',
+                colorByPoint: true,
+                data: locations
+            }],
+
+            drilldown: {
+                series: []
+            }
+        });
+    }
+    function BindTomorrowOnLeaveEmployees(locations) {
+
+        $('#container2').highcharts({
+            chart: {
+                type: 'column',
+                events: {
+                    drilldown: function (e) {
+                        if (!e.seriesOptions) {
+
+                            var chart = this;
+                            chart.showLoading('Simulating Ajax ...');
+                            var series = GetseriesDepttomorrow(e.point.name, chart, e.point);
+                            // Show the loading label
+
+                        }
+                    }
+                }
+            },
+            title: {
+                text: 'Employees on Leave Tomorrow'
+            },
+            xAxis: {
+                type: 'category'
+            },
+
+            legend: {
+                enabled: false
+            },
+
+            plotOptions: {
+                series: {
+                    borderWidth: 0,
+                    dataLabels: {
+                        enabled: true
+                    }
+                }
+            },
+
+            series: [{
+                name: 'Leave',
+                colorByPoint: true,
+                data: locations
+            }],
+
+            drilldown: {
+                series: []
+            }
+        });
+    }
+
+    function LoadTable() {
+        $('#tblleave').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Report/AjaxLeavesView",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aoColumns": [
+
+                { "sName": "LocationName" },
+                { "sName": "DepartmentName" },
+                { "sName": "UserName" },
+                { "sName": "UserId" },
+                { "sName": "ReasonForLeave" },
+                { "sName": "LeaveFromDate" },
+                { "sName": "LeaveTodate" }
+            ],
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, 500, 1000], [10, 20, 30, 50, 100, 150, 200, 500, 1000]],
+            "sDom": 'T<"clear">lfrtip',
+            "oTableTools": {
+                "sSwfPath": "/swf/copy_csv_xls_pdf.swf",
+                "aButtons": [
+                    "copy", "xls", "pdf"
+                ]
+            }
+
+        });
+    }
+</script>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"> Employee Head Count</h3>
+            </div>
+            <div class="panel-body" style="height:400px;">
+                <div style="min-width: 310px; height: 400px; margin: 0 auto" id="container4">
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"> Attrition Rate</h3>
+            </div>
+            <div class="panel-body" style="height:400px;">
+                <div style="min-width: 310px; height: 400px; margin: 0 auto" id="container3">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"> Employee Count by Gender</h3>
+            </div>
+            <div class="panel-body" style="height:400px;">
+                <div style="min-width: 310px; height: 400px; margin: 0 auto" id="container5">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    
+    @*<div class="col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"> Employee Count by Gender</h3>
+            </div>
+            <div class="panel-body" style="height:400px;">
+                <div style="min-width: 310px; height: 400px; margin: 0 auto" id="container5">
+                </div>
+            </div>
+        </div>
+    </div>*@
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"> Employee count by Age</h3>
+            </div>
+            <div class="panel-body" style="height:400px;">
+                <div style="min-width: 310px; height: 400px; margin: 0 auto" id="container6">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Today Employees on Leave</h3>
+            </div>
+            <div class="panel-body">
+                <div id="container1" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Tomorrow Employees on Leave</h3>
+            </div>
+            <div class="panel-body">
+                <div id="container2" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"> Employees on Leave Today  and tomorrow</h3>
+            </div>
+            <div class="panel-body">
+                <table id="tblleave" class="table table-striped table-bordered  dt-responsive ">
+                    <thead>
+                        <tr>
+
+                            <th>Location Name</th>
+                            <th>Department Name</th>
+                            <th>User Name</th>
+                            <th>User Id</th>
+                            <th>Reason For Leave</th>
+                            <th>Leave From</th>
+                            <th>Leave Todate</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Employees</h3>
+            </div>
+            <div class="panel-body">
+                <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+            </div>
+        </div>
+    </div>
+</div>

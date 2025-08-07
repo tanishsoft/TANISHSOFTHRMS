@@ -1,0 +1,422 @@
+﻿
+@{
+    ViewBag.Title = "BookPM";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+        $(".error1").hide();
+        LoadLocations();
+        LoadData();
+        BindMonths();
+    });
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Location -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $("#LocationIdfilter").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadData() {
+        $('#tbl_Asset').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Biomedical/AjaxGetAssetCreatePM",
+            "bProcessing": true,
+            "bDestroy": true,
+            "scrollX": true,
+            "aLengthMenu": [[200, 250, 300, -1], [200, 250, 300, "All"]],
+            "aoColumns": [
+                {
+                    "sName": "Id",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<input type="checkbox" id="' + data + '" checked="checked" class="assigncheck" /> ' + data;
+                    }
+                },
+                { "sName": "locationId" },
+                { "sName": "departmentId" },
+                { "sName": "subDepartmentId" },
+                { "sName": "Equipment" },
+                { "sName": "SerialNo" },
+                { "sName": "AssetNo" },
+                { "sName": "PMDone" },
+                { "sName": "PMDue" },
+                {
+                    "sName": "Id",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            '<li><a href="javascript:void(0);" id="' + data + '" onclick="CreatePm(this.id);">Create PM</a></li>' +
+                            '</ul></div>';
+                    }
+                }
+            ],
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "locationid", "value": $("#LocationIdfilter").val() },
+                    { "name": "departmentid", "value": $("#DepartmentIdfilter").val() },
+                    { "name": "subdepartmentid", "value": $("#SubDepartmentIdfliter").val() },
+                    { "name": "equipment", "value": $("#Equipmentfliter").val() },
+                    { "name": "PmDue", "value": $("#PMDuefilter").val() },
+                    { "name": "Year", "value": $("#PMDueYearfilter").val() },
+                    
+                );
+            }
+        });
+        $("#tbl_Asset_length").addClass("col-md-6");
+        $("#tbl_Asset_length").addClass("col-md-6");
+    }
+    function LoadDepartment() {
+        var options = [];
+        options.push('<option value="">- Select Department -</option>');
+        if ($("#LocationIdfilter").val() != "" && $("#PMDuefilter").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Biomedical/GetDepartmentByLocation?id=" + $("#LocationIdfilter").val() + "&month=" + parseInt($("#PMDuefilter").val()),
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].DepartmentId + '">' + data[i].DepartmentName + '</option>');
+                    }
+                    $("#DepartmentIdfilter").html(options.join(''));
+
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#DepartmentIdfilter").html(options.join(''));
+        }
+    }
+    function DepartmentChange() {
+        var options = [];
+        options.push('<option value="">- Select Sub Department -</option>');
+        if ($("#DepartmentIdfilter").val() != "" && $("#PMDuefilter").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Biomedical/GetSubDepartmentByDepartment",
+                data: "id=" + $("#DepartmentIdfilter").val() + "&month=" + $("#PMDuefilter").val(),
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].SubDepartmentId + '">' + data[i].Name + '</option>');
+                    }
+                    $("#SubDepartmentIdfliter").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#SubDepartmentIdfliter").html(options.join(''));
+        }
+    }
+    function LoadEquipment() {
+        var options = [];
+        options.push('<option value="">- Select Equipment -</option>');
+        if ($("#SubDepartmentIdfliter").val() != "" && $("#PMDuefilter").val() != "") {
+            $.ajax({
+                type: "POST",
+                url: "/Biomedical/GetEquipmentByDepartments",
+                data: "locationid=" + $("#LocationIdfilter").val() + "&departmentid=" + $("#DepartmentIdfilter").val() + "&subdepartmentId=" + $("#SubDepartmentIdfliter").val() + "&month=" + $("#PMDuefilter").val(),
+                success: function (data) {
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i] + '">' + data[i] + '</option>');
+                    }
+                    $("#Equipmentfliter").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#Equipmentfliter").html(options.join(''));
+        }
+    }
+    function BindMonths() {
+        var date = new Date();
+        date.setMonth(date.getMonth());
+        var months = 12;
+        var monthNames = ["January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+        var select = document.getElementById('MonthPM');
+        var selectFilter = document.getElementById('PMDuefilter');
+        var html = '';
+        var htmlfilter = '<option value="">Select PM DUE Month</option>';
+        for (var i = 0; i < months; i++) {
+            var m = date.getMonth();
+            html += '<option value="' + monthNames[m] + '">' + monthNames[m] + '</option>'
+
+            htmlfilter += '<option value="' + (i + 1) + '">' + monthNames[(i)] + '</option>'
+            date.setMonth(date.getMonth() + 1);
+        }
+        select.innerHTML = html;
+        selectFilter.innerHTML = htmlfilter;
+    }
+    var idschecked = "";
+    function BulkAssignToUser() {
+        var idchecked = '';
+        $('.assigncheck').each(function () {
+            if (this.checked) {
+                idchecked = idchecked + this.id + ",";
+            }
+        });
+        idschecked = idchecked;
+        $("#myModal21").modal("show");
+        EmployeeSearch();
+    }
+    function EmployeeSearch() {
+        $(".EmpId").select2({
+            ajax: {
+                url: "/Home/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            width: 'element',
+            minimumInputLength: 4
+        });
+    }
+    var assetdetails = {};
+    function CreatePm(id) {
+        $.get('/Biomedical/GetPMAssetDetails?id=' + id, function (data) {
+            if (data != "NA") {
+                assetdetails = data;                
+                $("#EquipmentNamePM").val(data.Equipment);
+                $("#AssetNumberPM").val(data.AssetNo);
+                $("#myModal2").modal('show');
+                EmployeeSearch();
+            } else {
+                alert("We are unable to find the Event");
+            }
+        });
+    }
+    function SaveDetails2() {
+        if (confirm("Are you sure you want to assign assets")) {
+            $.get("/Biomedical/Save_Update_PM_toassign?assetids=" + idschecked + "&empid=" + $("#AssignToPM2").val(), function (data) {
+                $("#myModal21").modal("hide");
+                alert(data);
+                window.location = "/Biomedical/ManagePM";
+            });
+        }
+    }
+    function validateinput() {
+        setTimeout(function () { $('.error1').fadeOut('fast'); }, 5000);
+        var validate = true;
+        $(".error").hide();
+        $(".error1").hide();
+        $(".css-error").removeClass('css-error');
+       
+        if ($('#AssignToPM').val() == null) {
+            $('.error1').show();
+            $('.error1').text("Select Assign Engineer");
+
+            valid = false;
+        }
+
+        return validate;
+    }
+    function SaveDetails() {
+        var validate = validateinput();
+        if (validate) {
+            if (window.FormData !== undefined) {
+                var files = "";
+                // Create FormData object
+                var fileData = new FormData();
+                fileData.append('PreventiveMaintenanceId', 0);
+                fileData.append('LocationId', assetdetails.LocationId);
+                fileData.append('DepartmentId', assetdetails.DepartmentId);
+                fileData.append('SubDepartmentId', assetdetails.SubDepartmentId);
+                fileData.append('Month', $("#MonthPM").val());
+                fileData.append('AssetNumber', $("#AssetNumberPM").val());
+                fileData.append('Equipment', $("#EquipmentNamePM").val());
+                fileData.append('AssignTo', $("#AssignToPM").val());
+                fileData.append('type', "Calender");
+                $.ajax({
+                    type: "POST",
+                    url: "/Biomedical/Save_Update_PM",
+                    contentType: false,
+                    processData: false,
+                    data: fileData,
+                    success: function (data) {
+                        alert("Success");
+                        LoadData();
+                        $("#myModal2").modal('hide');
+                        window.location = "/Biomedical/ManagePM";
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+    }
+</script>
+<div id="myModal2" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Assign PM task to employee</h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger error1" role="alert">
+
+                </div>
+                <div class="row" style="padding:20px;">
+                    <div class="col-md-6">
+                        <label>Choose Month<span style="color:red;">*</span></label>
+                        <select class="form-control maxwidth" id="MonthPM">
+                            <option value="">- Select Month -</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label>Equipment Name<span style="color:red;">*</span></label>
+                        <input type="text" class="form-control" id="EquipmentNamePM" />
+                    </div>
+                    <div class="col-md-6">
+                        <label>Asset Number<span style="color:red;">*</span></label>
+                        <input type="text" class="form-control" id="AssetNumberPM" />
+                    </div>
+                    <div class="col-md-6">
+                        <label>Assigned Engineer<span style="color:red;">*</span></label><br />
+                        <select id="AssignToPM" class="form-control EmpId" name="query"></select>
+                    </div>
+                    <div class="col-md-6">
+                        <br />
+                        <input type="button" class="btn btn-sm btn-default" value="Cancel" data-dismiss="modal" />
+                        <input type="button" class="btn btn-sm btn-primary" value="Save" onclick="SaveDetails();" />
+                    </div>
+                </div>
+            </div>
+          
+        </div>
+    </div>
+</div>
+<div id="myModal21" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title"> Assign PM tasks to employee</h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger error1" role="alert">
+                </div>
+                <div class="row" style="padding:20px;">
+                    <div class="col-md-12">
+                        <label>Assigned Engineer<span style="color:red;">*</span></label><br />
+                        <select id="AssignToPM2" class="form-control EmpId" name="query" style="width:300px;"></select>
+                    </div>
+                    <div class="col-md-12">
+                        <br />
+                        <input type="button" class="btn btn-sm btn-default" value="Cancel" data-dismiss="modal" />
+                        <input type="button" class="btn btn-sm btn-primary" value="Save" onclick="SaveDetails2();" />
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+              
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">Manage Assets&nbsp;&nbsp;<a href="/Biomedical/ManagePM" data-toggle="modal" class="pull-right">Go Back</a></div>
+    <div class="panel-body">
+        <div class="panel-body">
+            <div class="row" style="padding:10px;">
+                <div class="col-md-2">
+                    <select class="form-control maxwidth" id="LocationIdfilter"></select>
+                </div>
+                <div class="col-md-1">
+                    <select class="form-control maxwidth" id="PMDueYearfilter" onchange="LoadDepartment();">
+                        <option value="0"> Select Year</option>
+                        <option value="2021">2021</option>
+                        <option value="2022">2022</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                        <option value="2027">2027</option>
+                        <option value="2028">2028</option>
+                        <option value="2029">2029</option>
+                        <option value="2030">2030</option>
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <select class="form-control maxwidth" id="PMDuefilter" onchange="LoadDepartment();">
+                        <option value="">- Select Month -</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-control maxwidth" id="DepartmentIdfilter" onchange="DepartmentChange(); ">
+                        <option value="">- Select Department -</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+
+                    <select class="form-control maxwidth" id="SubDepartmentIdfliter" onchange="LoadEquipment();">
+                        <option value="">- Select Sub Department -</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select class="form-control maxwidth" id="Equipmentfliter">
+                        <option value="">- Select Equipment -</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <input type="button" class="btn btn-warning" value="GO" onclick="LoadData();" />
+                    <input type="button" class="btn btn-primary" value="Assign To" onclick="BulkAssignToUser();" />
+                </div>
+            </div>
+        </div>
+        <table class="table table-striped table-bordered nowrap" style="width:100%;" id="tbl_Asset">
+            <thead>
+                <tr style="background-color: #786C67;color: white;">
+                    <th>Asset Id</th>
+                    <th>Location</th>
+                    <th>Department</th>
+                    <th>Sub Department</th>
+                    <th>Equipment</th>
+                    <th>Serial No</th>
+                    <th>Asset No</th>
+                    <th>PM Done</th>
+                    <th>PM Due</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>

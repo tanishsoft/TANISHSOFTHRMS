@@ -1,0 +1,71 @@
+﻿
+@{
+    ViewBag.Title = "ManageResponses";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    $(document).ready(function () {
+        LoadData();
+    });
+    function LoadData() {
+        $('#tbltable').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Asq/AjaxGetAsqForm",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            //"aaSorting": [[0, "desc"]],
+            "aoColumns": [
+                { "sName": "AsqId" },
+                { "sName": "FillingMonth" },
+                { "sName": "MotherName" },
+                { "sName": "BabyMRNumber" },
+                { "sName": "BabyGender" },
+                { "sName": "PhoneNumber" },
+                { "sName": "PersonFilling" },
+                { "sName": "CreatedOn" },
+                { "sName": "RelationshipChild" },
+                {
+                    "sName": "Id",
+                    "bSortable": false,
+                    "render": function (data, row, r) {
+                        var htmlcontect = "";
+                        htmlcontect += '<div class="btn-group">';
+                        htmlcontect += '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>';
+                        htmlcontect += '<ul class="dropdown-menu dropdown-menu-right">';
+                        htmlcontect += '<li><a href="javascript:void(0);" id="' + data + '" onclick="ViewDetails(this.id);">View</a></li>';
+                        htmlcontect += '</ul></div>';
+                        return htmlcontect;
+                    }
+                }
+            ],
+        });
+        $("#tbltable_length").addClass("col-md-6");
+        $("#tbltable_length").addClass("col-md-6");
+    }
+    function ViewDetails(id) {
+        window.location = ("/ASQ/ViewDetails?id=" + id);
+    }
+</script>
+<div class="panel panel-default Permissions">
+    <div class="panel-heading">Manage Responses</div>
+    <div class="panel-body">
+        <table class="table table-striped table-bordered  dt-responsive " style="width:100%;" id="tbltable">
+            <thead>
+                <tr class="bg-success">
+                    <th>Id</th>
+                    <th>Filling Type</th>
+                    <th>Mother</th>
+                    <th>Baby MR Number</th>
+                    <th>Baby Gender</th>
+                    <th>Phone Number</th>
+                    <th>Person Filling</th>
+                    <th>Created On</th>
+                    <th>Relation Ship</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>

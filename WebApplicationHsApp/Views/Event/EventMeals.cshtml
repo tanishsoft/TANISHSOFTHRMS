@@ -1,0 +1,325 @@
+﻿
+@{
+    ViewBag.Title = "EventMeals";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<input type="hidden" id="hdnEventId" value="@ViewBag.EventId" />
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title" style="color:#c4122f;">Capture Meal</h3>
+    </div>
+    <div class="panel-body" style="text-align:center;height:100%;">
+        <div style="width:50%;margin:auto;">
+            <div class="row">
+                <div class="col-md-3">
+                    New Meal Capture:
+
+                </div>
+                <div class="col-md-6">
+                    <input type="text" id="txtnewmealcapture" onchange="CaptureMealnow();" class="form-control" placeholder="Select and Read from Barcode" />
+                </div>
+                <div class="col-md-3">
+                    <input type="button" id="btngo" class="btn btn-sm btn-primary" value="Go" onclick="CaptureMealnow();" />
+                </div>
+            </div>
+            <br />
+            <div class="row capture" style="padding:5px;display:none;">
+                <div class="col-md-3">
+                    <label for="Mealtype">Delegate Name<span style="color:red;">&nbsp;*</span></label>
+                </div>
+                <div class="col-md-6">
+                    <input type="text" id="mcDelegatename" class="form-control" disabled="disabled" />
+                    <input type="hidden" id="mcDelegateid" class="form-control" />
+                </div>
+            </div>
+            <div class="row capture" style="padding:5px;display:none;">
+                <div class="col-md-3">
+                    <label for="Mealtype">Meal Type<span style="color:red;">&nbsp;*</span></label>
+                </div>
+                <div class="col-md-6">
+                    <select class="form-control" id="mcMealType">
+                        <option value="">Select Meal Type</option>
+                        @*<option value="Break Fast">Break Fast</option>
+                            <option value="Lunch">Lunch</option>
+                            <option value="Dinner">Dinner</option>*@
+                    </select>
+                </div>
+            </div>
+            <div class="row" style="padding:5px;">
+                <div class="col-md-3">
+                    <label for="EventDate">Event Date<span style="color:red;">&nbsp;*</span></label>
+                </div>
+                <div class="col-md-6">
+                    <input type="text" readonly class="form-control" id="mcEventDate" />
+                </div>
+            </div>
+            <div class="row" style="padding:5px; display:none;">
+                <div class="col-md-3">
+                    <label for="Qty">Quantity<span style="color:red;">&nbsp;*</span></label>
+                </div>
+                <div class="col-md-6">
+                    <input type="text" class="form-control" value="1" id="mcQty">
+                </div>
+            </div>
+
+            @*<div class="row" style="padding:5px;">
+                    <div class="col-md-3">
+                        <label for="Comments">Comments<span style="color:red;">&nbsp;*</span></label>
+                    </div>
+                    <div class="col-md-6">
+                        <input type="text" class="form-control" id="mcComments">
+                    </div>
+                </div>*@
+            <div class="row" style="padding:5px; margin:0px !important; text-align:center;">
+
+                <input type="button" id="btnSave" value="Save" onclick="validateDelegateCaptureMealType();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" onclick="clearData();">Clear</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <input type="button" id="btnExport" class="btn btn-sm btn-success float-right" value="Export Excel" onclick="Exportexcel();" />
+            </div>
+        </div>
+        <br /><br />
+
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped" id="tblEventMeal" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th>SL.No</th>
+                            <th>Event Name</th>
+                            <th>Delegate Name</th>
+                            <th>Meal Type Name</th>
+                            <th>Event Date</th>
+                            <th>Comments</th>
+                            <th>IsActive</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <br />
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        GetEventMealTypeHistory();
+        $("#mcEventDate").datepicker({
+            changeYear: true,
+            changeMonth: true,
+            //minDate: maxDate,
+            yearRange: "0:+1",
+            dateFormat: "dd/mm/yy",
+        });
+        $("#mcEventDate").datepicker('setDate', new Date());
+    });
+    function Exportexcel() {
+        var tab_text = "<h3>Welcome Kit Deatils</h3><table border='2px'><tr bgcolor='#87AFC6'>";
+        tab = document.getElementById('tblEventMeal'); // id of table
+
+        for (j = 0; j < tab.rows.length; j++) {
+            tab.rows[j] = tab.rows[j].lastChild.remove();
+            tab_text = tab_text + tab.rows[j].innerHTML + "</tr>";
+        }
+        window.open('data:application/vnd.ms-excel,' + encodeURIComponent(tab_text));
+    }
+    function GetEventMealTypeHistory() {
+        $('#tblEventMeal').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Event/GetEventMealTypeHistory?eventId=" + $("#hdnEventId").val(),
+            "bSortable": true,
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "EventDelegateMealTypeHistoryId" },
+                { "sName": "Name" },
+                { "sName": "Name" },
+                { "sName": "Name" },
+                { "sName": "EventDate" },
+                { "sName": "Comments" },
+                { "sName": "IsActive" },
+                {
+                    "sName": "EventDelegateMealTypeHistoryId",
+                    "bSortable": false,
+                    "render": function (data) {
+                        return '<div class="btn-group">' +
+                            '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                            '<ul class="dropdown-menu dropdown-menu-right">' +
+                            //'<li><a href="javascript:void(0);" id="' + data + '" onclick="Barcode(this.id);">Barcode</a></li>' +
+                            //'<li><a href="javascript:void(0);" id="' + data + '" onclick="DelegatePayment(this.id);">Payments</a></li>' +
+                            //'<li><a href="javascript:void(0);" id="' + data + '" onclick="DelegateMealType(this.id);">Meal Types</a></li>' +
+                            //'<li><a href="javascript:void(0);" id="' + data + '" onclick="MealHistory(this.id);">Meal History</a></li>' +
+                            //'<li><a href="/Event/PrintIdCard/' + data + '" id="' + data + '">Generate Id Card</a></li>' +
+                            '</ul></div>';
+                    }
+                }
+            ],
+            "fnRowCallback": function (nRow, aData, iDisplayIndex) {
+                $("td:nth-child(1)", nRow).html(iDisplayIndex + 1);
+                return nRow;
+            }
+        });
+        $("#tblEventMeal_length").addClass("col-md-6");
+        $("#tblEventMeal_length").addClass("col-md-6");
+    }
+    var validate = false;
+    function validateDelegateCaptureMealType() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        //if ($("#mEventId").val() != $('#hdnEventId').val()) {
+        //    $("#mEventId").addClass('css-error');
+        //    validate = false;
+        //}
+        if ($("#txtnewmealcapture").val() == "") {
+            $("#txtnewmealcapture").addClass('css-error');
+            validate = false;
+        }
+        if ($("#mcDelegateid").val() == "") {
+            $("#txtnewmealcapture").addClass('css-error');
+            validate = false;
+        }
+        if ($("#mcMealType").val() == "-1") {
+            $("#mcMealType").addClass('css-error');
+            validate = false;
+        }
+
+        if ($("#mcEventDate").val() == "") {
+            $("#mcEventDate").addClass('css-error');
+            validate = false;
+        }
+
+        if (validate) {
+            saveDelegateCaptureMealTypeHis();
+        }
+    }
+    function saveDelegateCaptureMealTypeHis() {
+        if (validate) {
+
+            var fileData = new FormData();
+
+            fileData.append('EventId', $("#hdnEventId").val());
+            fileData.append('MealTypeId', $("#mcMealType").val());
+            fileData.append('DelegateId', $("#mcDelegateid").val());
+            fileData.append('EventDate', $("#mcEventDate").val());
+            fileData.append('Qty', 1);
+            fileData.append('Comments', "");
+            fileData.append('IsActive', true);
+            fileData.append('CreatedBy', '');
+
+            $.ajax({
+                type: "POST",
+                url: "/EventDelegate/SaveDelegateMealTypeHis",
+                contentType: false, // Not to set any content header
+                processData: false, // Not to process data
+                data: fileData,
+                success: function (result) {
+                    alert(result);
+                    // clearData();
+                    GetEventMealTypeHistory();
+                },
+                error: function (err) {
+                    alert(err.statusText);
+                    //clearData();
+                }
+            });
+        }
+    }
+    function clearCapture() {
+        $("#mcMealType").val("-1");
+        $("#mcDelegateid").val("");
+        //$("#mcComments").val("");
+        $("#txtnewmealcapture").val("");
+        $("#mcDelegatename").val("");
+        $('.capture').hide();
+        $("#mcEventDate").datepicker('setDate', new Date());
+    }
+
+    function CaptureMealnow() {
+        var str = $("#txtnewmealcapture").val();
+        if (str != "") {
+            var n = str.includes("-");
+            if (n) {
+                var m = str.split("-");
+                $.ajax({
+                    type: "POST",
+                    url: "/Event/GetDelegatemealcapture?Eventdelegateid=" + m[3] + "&EventId=" + $("#hdnEventId").val(),
+                    dataType: "json",
+                    async: false,
+                    contentType: "application/json",
+                    success: function (data) {
+                        if (data != "") {
+                            $('#mcDelegatename').val(data.Name);
+                            $('#mcDelegateid').val(data.DelegateId);
+                            $('.capture').show();
+                            BindMealTypesCapture();
+                        }
+                    }
+                });
+            } else {
+                $.ajax({
+                    type: "POST",
+                    url: "/Event/GetDelegatemealcapture?Eventdelegateid=" + $("#txtnewmealcapture").val() + "&EventId=" + $("#hdnEventId").val(),
+                    dataType: "json",
+                    async: false,
+                    contentType: "application/json",
+                    success: function (data) {
+                        if (data != "") {
+                            $('#mcDelegatename').val(data.Name);
+                            $('#mcDelegateid').val(data.DelegateId);
+                            $('.capture').show();
+                            BindMealTypesCapture();
+                        }
+                    }
+
+                });
+            }
+        }
+        else {
+            $("#txtnewmealcapture").addClass('css-error');
+            $('.capture').hide();
+        }
+    }
+    function BindMealTypesCapture() {
+        $.ajax({
+            type: "POST",
+            url: "/Event/GetMealTypesformealcapture?delegateid=" + $('#mcDelegateid').val() + "&EventDate=" + $("#mcEventDate").val() + "&Eventid=" + $("#hdnEventId").val(),
+            dataType: "json",
+            contentType: "application/json",
+            async: false,
+            success: function (data) {
+                var today = new Date();
+                var hour = today.getHours();
+                var mealtype = "";
+                if (hour > 6 && hour < 11) {
+                    mealtype = "break";
+                } else if (hour > 10 && hour < 16) {
+                    mealtype = "lunch";
+                }
+                else {
+                    mealtype = "dinner";
+                }
+                $("#mcMealType").html('');
+                var optionhtml = '<option value="-1">' + "-- Select Meal --" + '</option>';
+                $.each(data, function (i) {
+                    if (data[i].Name.toLowerCase().includes(mealtype)) {
+                        optionhtml += '<option value="' + data[i].MealTypeId + '" selected="selected">' + data[i].Name + '</option>';
+                    } else {
+                        optionhtml += '<option value="' + data[i].MealTypeId + '">' + data[i].Name + '</option>';
+                    }
+                });
+
+                $("#mcMealType").html(optionhtml);
+            }
+
+        });
+    }
+</script>

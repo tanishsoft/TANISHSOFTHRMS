@@ -1,0 +1,774 @@
+﻿@{
+    ViewBag.Title = "LeaveManagement";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script src="~/Scripts/CustomJS/GlobalFunctionJS.js"></script>
+<script src="~/Scripts/CustomJS/Custom_ConfirmBox_Methods.js"></script>
+<script src="~/Scripts/Datepicker.js"></script>
+@Scripts.Render("~/Scripts/HrLeaveManegent")
+
+<script>
+    //$(function () {
+    //    $('.time').timepicker({
+    //        'showDuration': true,
+    //        'timeFormat': 'g:ia',
+    //        'defaultTime': '07:45 AM',
+    //        'maxHours': '18',
+    //        'showMeridian': false
+    //    });
+    //});
+
+    function GetShiftOfTheDay() {
+        $.get("/Hr/GetShiftOfTheDay", { Date: $("#txtDate").val() }, function (data) {
+            var options = [];
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i] + '">' + data[i] + '</option>');
+            }
+            $("#FromTime").html(options.join(''));
+            $("#ToTime").html(options.join(''));
+        });
+    }
+</script>
+<style>
+    .trCompoff {
+        display: none;
+    }
+</style>
+
+
+<div class="row" style="min-height:450px;">
+    <div class="col-md-2">
+        <div class="list-group">
+            <a href="javascript:void(0);" class="list-group-item active" onclick="ClicklistItem('mydashboard');">
+                Leave Management
+            </a>
+            <a href="javascript:void(0);" class="list-group-item" onclick="ClicklistItem('ApplyLeave');">
+               <span class="glyphicon glyphicon-hand-right" style="vertical-align:middle;color:green;font-weight:bold"></span> &nbsp;Apply Leave
+            </a>
+            <a href="javascript:void(0);" class="list-group-item" onclick="ClicklistItem('StatusApplyLeave');">
+                <span class="glyphicon glyphicon-random" style="vertical-align:middle;color:darkviolet;font-weight:bold"></span> &nbsp;Status of Applied Leaves
+            </a>
+            <a href="javascript:void(0);" class="list-group-item" onclick="ClicklistItem('Permissions');">
+                <span class="glyphicon glyphicon-exclamation-sign" style="vertical-align:middle;color:darkcyan;font-weight:bold"></span> &nbsp;Permissions
+            </a>
+            @*<a href="javascript:void(0);" class="list-group-item" onclick="ClicklistItem('OtherLeaves');">
+                    Other Leave
+                </a>*@
+
+            @*<a href="javascript:void(0);" class="list-group-item" onclick="ClicklistItem('ApproveCompOffLeaveRequest');">
+                  Approve CompOff Leave
+                </a>*@
+
+            <a href="javascript:void(0);" class="list-group-item" onclick="ClicklistItem('ApplyCompOffLeave');">
+                <span class="glyphicon glyphicon-edit" style="vertical-align:middle;color:darkorange;font-weight:bold"></span> &nbsp;Create Comp Off  Request
+            </a>
+
+            <a href="javascript:void(0);" class="list-group-item" onclick="ClicklistItem('ViewCompOffLeaveRequestList');">
+                <span class="glyphicon glyphicon-check" style="vertical-align:middle;color:darkgoldenrod;font-weight:bold"></span> &nbsp;Status of Comp Off Requests
+            </a>
+            @*<a href="javascript:void(0);" class="list-group-item" onclick="ClicklistItem('ViewCompOffEncashRequestList');">
+                    Comp Off Encash Requests
+                </a>*@
+            <a href="javascript:void(0);" class="list-group-item" onclick="ClicklistItem('ApproveLeave');">
+                <span class="glyphicon glyphicon-thumbs-up" style="vertical-align:middle;color:firebrick;font-weight:bold"></span>&nbsp;Approve Leaves<span class="badge" id="lblApproveLeavescount"></span>
+            </a>
+            <a href="javascript:void(0);" class="list-group-item" onclick="ClicklistItem('ApprovePermissions');">
+                <span class="glyphicon glyphicon-ok-circle" style="vertical-align:middle;color:crimson;font-weight:bold"></span>&nbsp;Approve Permission<span class="badge" id="lblApprovePermissioncount"></span>
+            </a>
+            <a href="javascript:void(0);" class="list-group-item" onclick="ClicklistItem('ApproveCompOffLeaveRequest');">
+                <span class="glyphicon glyphicon-saved" style="vertical-align:middle;color:chocolate;font-weight:bold"></span>&nbsp;Approve Comp Off Req.<span class="badge" id="lblApproveCompOffcount"></span>
+            </a>
+        </div>
+    </div>
+    <div class="col-md-10">
+        <div class="panel panel-success" id="myleaestableshow">
+            <div class="panel-heading">Leaves Avaiable</div>
+            <div class="panel-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>
+                                S.No
+                            </th>
+                            <th>Leave Type</th>
+                            @*<th>
+                                    Count
+                                </th>*@
+                            <th>
+                                Available
+                            </th>
+                            @*<th>
+                                    Updated On
+                                </th>
+                                <th>
+                                    Expired on
+                                </th>*@
+                        </tr>
+                    </thead>
+                    <tbody id="empleavestable"></tbody>
+                </table>
+                @*<br />
+                    Comp Off Leave Balance : <label id="lblCompOffLeaveBalance"></label>*@ &nbsp;@*<span onclick="myModalCompOffEnchashShow();" style="cursor:pointer;color:green;"> Enchash CompOff Request</span>*@
+                </div>
+            </div>
+
+            @*<div class="panel panel-default Dashboarddefault">
+                    <div class="panel-heading">Panel heading</div>
+                    <div class="panel-body">
+                        Panel content
+                    </div>
+                </div>*@
+            <div class="panel panel-success ApplyLeave">
+                <div class="panel-heading"> <span class="glyphicon glyphicon-hand-right" style="vertical-align:middle;color:darkslategray;font-weight:bold"></span> &nbsp;Apply Leave</div>
+                <div class="panel-body">
+                    <div class="col-md-2">
+                        &nbsp;
+                    </div>
+                    <div class="col-md-8">
+                        <table class="table" style="width:80%;">
+                            <tr>
+                                <td>Leave Type<span style="color:red;">*</span> </td>
+                                <td>
+                                    <select id="ddlLeaveType" class="form-control" onchange="dropdowncheckedchange(this.id);">
+                                        <option value="">Select Leave Type</option>
+                                    </select>
+                                    <input type="hidden" id="DateofAvailableCompoff" />
+                                    <input type="hidden" id="cbIsCompOff" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Is Full Day <span style="color:red;">*</span></td>
+                                <td><input type="checkbox" id="cbfullday" name="cbfullday" onchange="cbfullday_change();" checked="checked" style="padding-left:30px;" /></td>
+                            </tr>
+                            <tr id="daytype">
+                                <td>Day type</td>
+                                <td>
+                                    <select class="form-control" id="typeoftheday">
+                                        <option value="">Select</option>
+                                        <option value="1st Half">1st Half</option>
+                                        <option value="2nd Half">2nd Half</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            @*<tr>
+                                    <td>Is Comp Off</td>
+                                    <td><input type="checkbox" name="cbIsCompOff" id="cbIsCompOff" onchange="cbcheckedchange(this.checked);" style="padding-left:30px;" /></td>
+                                </tr>
+                                <tr class="trCompoff" id="trCompoff">
+                                    <td>
+                                        Date of Available Compoff<span style="color:red;">*</span><br />
+                                        <span class="label label-default">Select the date you worked</span>
+                                    </td>
+                                    <td></td>
+                                </tr>*@
+                            <tr id="trfromdate">
+                                <td>Leave From Date<span style="color:red;">*</span></td>
+                                <td><input class="form-control txtdate" readonly="readonly" id="LeaveFromDate" type="text" placeholder="" /></td>
+                            </tr>
+                            <tr>
+                                <td>Leave To Date<span style="color:red;">*</span></td>
+                                <td><input class="form-control txtdate" readonly="readonly" id="LeaveTodate" type="text" placeholder="" onchange="Getdays();" /></td>
+                            </tr>
+                            @if (User.IsInRole("Doctor"))
+                            {
+                                <tr>
+                                    <td>Select Weekly OffDay<span style="color:red;">*</span></td>
+                                    <td>
+                                        <select id="WeeklyOffDay" class="form-control">
+                                            <option value="">Select Day</option>
+                                            <option value="Sunday">Sunday</option>
+                                            <option value="Monday">Monday</option>
+                                            <option value="Tuesday">Tuesday</option>
+                                            <option value="Wednesday">Wednesday</option>
+                                            <option value="Thursday">Thursday</option>
+                                            <option value="Friday">Friday</option>
+                                            <option value="Saturday">Saturday</option>
+                                        </select>
+                                    </td>
+                                </tr>
+                            }
+                            <tr>
+                                <td>Reason For Leave<span style="color:red;">*</span></td>
+                                <td><textarea class="form-control" id="ReasonForLeave" placeholder=""></textarea></td>
+                            </tr>
+                            <tr>
+                                <td>Address On Leave</td>
+                                <td><textarea class="form-control" id="AddressOnLeave" placeholder=""></textarea></td>
+                            </tr>
+                            <tr id="tronmanaerleave">
+                                <td>Reliever<span style="color:red;">*</span></td>
+                                <td>
+                                    <select id="Level1Approver" class="form-control">
+                                        <option value="">Select Employee</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            @* <tr>
+                                    <td>Level 2 Approver<span style="color:red;">*</span></td>
+                                    <td>
+                                        <select id="Level2Approver" class="form-control">
+                                            <option value="">Select Approver</option>
+                                        </select>
+
+                                    </td>
+                                </tr>*@
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>
+                                    <input class="btn btn-primary" type="button" value="Save" onclick="SaveLeave()" />&nbsp;<input class="btn btn-default" type="reset" value="Cancel" />
+                                </td>
+                            </tr>
+                        </table>
+
+                    </div>
+
+                </div>
+            </div>
+            <div class="panel panel-success StatusApplyLeave">
+                <div class="panel-heading"><span class="glyphicon glyphicon-random" style="vertical-align:middle;color:darkviolet;font-weight:bold"></span> &nbsp;Status of Applied Leaves</div>
+                <div class="panel-body">
+
+                    <table id="myDataTable" class="table table-striped table-bordered  dt-responsive " style="width:100%;">
+                        <thead>
+                            <tr>
+                                @*
+                                    <th>Leave ID</th>*@
+                                <th>Leave Type</th>
+                                <th>Day Type</th>
+                                <th>Day Session</th>
+                                @*<th>Is Comp Off</th>*@
+                                <th>From Date  </th>
+                                <th>To Date</th>
+                                <th>NoOf Leaves</th>
+                                <th>Approve Name</th>
+                                @*<th>Level 2 Approver</th>*@
+                                <th>Status</th>
+                                <th>Applied Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="panel panel-success ApproveLeave">
+                <div class="panel-heading"><span class="glyphicon glyphicon-thumbs-up" style="vertical-align:middle;color:firebrick;font-weight:bold"></span>&nbsp;Approve Leaves</div>
+                <div class="panel-body">
+                    <table id="ApprovedDataTable" class="table table-striped table-bordered  dt-responsive " style="width:100%;">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" class="cbcheckall" id="selectall" onchange="cbcheckboxassigndev_changed();" /> </th>
+                                <th>Leave Type</th>
+                                <th>Day Type</th>
+                                <th>Session Day</th>
+                                <th>From Date  </th>
+                                <th>To Date</th>
+                                <th>NoOf Leaves</th>
+                                <td>User Name</td>
+                                <td>Department</td>
+                                <td>Leave Status</td>
+                                <td>Applied Date</td>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="panel panel-success Permissions">
+                <div class="panel-heading">   <span class="glyphicon glyphicon-exclamation-sign" style="vertical-align:middle;color:darkcyan;font-weight:bold"></span> &nbsp;Permissions <span class="pull-right" style="color:black;font-weight:bold;cursor:pointer;" onclick="newpermissionclick();">New Permission</span></div>
+                <div class="panel-body">
+
+                    <table class="table table-striped table-bordered  dt-responsive" style="width:100%;" id="tblpermission">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Approve Name</th>
+                                <th>Status</th>
+                                <th>Reason</th>
+                                <th>Applied Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="panel panel-success ApprovePermissions">
+                <div class="panel-heading"><span class="glyphicon glyphicon-ok-circle" style="vertical-align:middle;color:crimson;font-weight:bold"></span>&nbsp;Approve Permissions</div>
+                <div class="panel-body">
+                    <table class="table table-striped table-bordered  dt-responsive" style="width:100%;" id="tblApprovepermission">
+                        <thead>
+                            <tr>
+                                <th>User Name</th>
+                                <th>Department Name</th>
+                                <th>Location</th>
+                                <th>Date</th>
+                                <th>Start Time</th>
+                                <th>End Time</th>
+                                <th>Approve Name</th>
+                                <th>Status</th>
+                                <th>Reason</th>
+                                <th>Applied Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="panel panel-success OtherLeaves">
+                <div class="panel-heading">Apply Leave For Other</div>
+                <div class="panel-body">
+                    <div class="col-md-2">
+                        &nbsp;
+                    </div>
+                    <div class="col-md-8">
+                        <table class="table" style="width:80%;">
+                            <tr>
+                                <td>
+                                    Employee
+                                </td>
+                                <td>
+                                    <select id="ddlEmployees1" class="form-control">
+                                        <option value="">Select Employee</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Leave Type<span style="color:red;">*</span> </td>
+                                <td>
+                                    <select id="ddlLeaveType1" class="form-control" onchange="dropdowncheckedchange1(this.id);">
+                                        <option value="">Select Leave Type</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Is Full day <span style="color:red;">*</span></td>
+                                <td><input type="checkbox" id="cbfullday1" name="cbfullday1" checked="checked" style="padding-left:30px;" /></td>
+                            </tr>
+                            @*<tr>
+                                    <td>Is Comp Off</td>
+                                    <td><input type="checkbox" name="cbIsCompOff1" id="cbIsCompOff1" onchange="cbcheckedchange1(this.checked);" style="padding-left:30px;" /></td>
+                                </tr>
+                                <tr class="trCompoff" id="trCompoff1">
+                                    <td>Date of Available Compoff<span style="color:red;">*</span></td>
+                                    <td><input type="text" class="form-control txtcmpdate" id="DateofAvailableCompoff1" /></td>
+                                </tr>*@
+                            <tr id="trfromdate1">
+                                <td>Leave From Date<span style="color:red;">*</span></td>
+                                <td><input class="form-control txtdate" id="LeaveFromDate1" type="text" placeholder="" /></td>
+                            </tr>
+                            <tr>
+                                <td>Leave To date<span style="color:red;">*</span></td>
+                                <td><input class="form-control txtdate" id="LeaveTodate1" type="text" placeholder="" /></td>
+                            </tr>
+                            <tr>
+                                <td>Reason For Leave<span style="color:red;">*</span></td>
+                                <td><input class="form-control" id="ReasonForLeave1" type="text" placeholder="" /></td>
+                            </tr>
+                            <tr>
+                                <td>Address On Leave</td>
+                                <td><input class="form-control" id="AddressOnLeave1" type="text" placeholder="" /></td>
+                            </tr>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>
+                                    <input class="btn btn-primary" type="button" value="Save" onclick="SaveOtherLeave()" />&nbsp;
+                                    <input class="btn btn-default" type="reset" value="Cancel" />
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-success ApplyCompOffLeave">
+                <div class="panel-heading"><span class="glyphicon glyphicon-edit" style="vertical-align:middle;color:darkorange;font-weight:bold"></span> &nbsp;Apply Comp Off Request</div>
+                <div class="panel-body">
+                    <div class="col-md-2">
+                        &nbsp;
+                    </div>
+                    <div class="col-md-8">
+                        <table class="table" style="width:80%;">
+                            <tr>
+                                <td>Comp Off Date<span style="color:red;">*</span></td>
+                                <td><input class="form-control CompOffRequiredField" readonly="readonly" id="txtCompOffDate" type="text" placeholder="" /></td>
+                            </tr>
+                            <tr>
+                                <td>Reason<span style="color:red;">*</span></td>
+                                <td><input class="form-control CompOffRequiredField" id="txtReasonForCompOffLeave" type="text" placeholder="" /></td>
+                            </tr>
+                            <tr>
+                                <td>Which Shift you are in? <span style="color:red;">*</span></td>
+                                <td><select class="form-control CompOffRequiredField" id="ddlshifttypesofcompoffrequest"></select></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Full Day or Half Day
+                                </td>
+                                <td>
+                                    <select id="ddltypeofdayworked" class="form-control">
+                                        <option value="Full Day">Full Day</option>
+                                        <option value="Half Day">Half Day</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>&nbsp;</td>
+                                <td>
+                                    <input class="btn btn-primary" type="button" value="Save" onclick="ApplyNewCompOffLeave_PageLevel()" />&nbsp;<input class="btn btn-default" type="button" onclick="ResetFieldsByClassName_GlobalJS('CompOffRequiredField');" value="Cancel" />
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-success ApproveCompOffLeaveRequest">
+                <div class="panel-heading"><span class="glyphicon glyphicon-saved" style="vertical-align:middle;color:chocolate;font-weight:bold"></span>&nbsp;Approve Comp Off Leave</div>
+                <div class="panel-body">
+                    <table class="table table-striped table-bordered  dt-responsive" style="width:100%;" id="ApproveCompOffRequestList_DataTable">
+                        <thead>
+                            <tr>
+                                <th>User Name</th>
+                                <th>Department Name</th>
+                                <th>Location</th>
+                                <th>Comp Off Date</th>
+                                <th>Reason</th>
+                                <th>Status</th>
+                                <th>Applied Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id=""></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="panel panel-success ViewCompOffLeaveRequestList">
+                <div class="panel-heading"><span class="glyphicon glyphicon-check" style="vertical-align:middle;color:darkgoldenrod;font-weight:bold"></span> &nbsp;Status of Comp Off Requests</div>
+                <div class="panel-body">
+                    <table class="table table-striped table-bordered  dt-responsive " style="width:100%;" id="CompOffRequestList_DataTable">
+                        <thead>
+                            <tr>
+                                <th>User Name</th>
+                                <th>Department Name</th>
+                                <th>Location</th>
+                                <th>Comp Off Date</th>
+                                <th>Reason</th>
+                                <th>Status</th>
+                                <th>Applied Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id=""></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="panel panel-success ViewCompOffLeaveApprovedList">
+                <div class="panel-heading"><span class="glyphicon glyphicon-saved" style="vertical-align:middle;color:chocolate;font-weight:bold"></span>&nbsp;Comp Off Leave Approved List</div>
+                <div class="panel-body">
+                    <table class="table table-striped table-bordered  dt-responsive " style="width:100%;" id="CompOffApprovedList_DataTable">
+                        <thead>
+                            <tr>
+                                <th>User Name</th>
+                                <th>Department Name</th>
+                                <th>Location</th>
+                                <th>Comp Off Date</th>
+                                <th>Reason</th>
+                                <th>Status</th>
+                                <th>Applied Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id=""></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="panel panel-success ViewCompOffEncashRequestList">
+                <div class="panel-heading"> My Comp Off Enchash Requests <span onclick="myModalCompOffEnchashShow();" style="cursor:pointer;color:black;" class="pull-right"> New Request</span> </div>
+                <div class="panel-body">
+                    <table class="table table-striped table-bordered  dt-responsive " style="width:100%;" id="CompOffEncashList_DataTable">
+                        <thead>
+                            <tr>
+                                <th>UserId</th>
+                                <th>Name</th>
+                                <th>SubmitedOn</th>
+                                <th>Days</th>
+                                <th>Remarks</th>
+                                <td>ReportingTo</td>
+                                <td>IsApproved</td>
+                                <td>HRApproved</td>
+                                <th>HrRemarks</th>
+                                <th>HrEnchashedDate</th>
+                                <th>Status</th>
+                                <th>Action  </th>
+                            </tr>
+                        </thead>
+                        <tbody id=""></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+
+    <div id="myModalReject" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"> Remarks</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Comments<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <textarea class="form-control" id="txtcomments"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="button" id="btnasigntask" value="Save" class="btn btn-primary" onclick="SaveComments();" />
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div id="myModalCompOffEnchash" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"> CompOff Encash Request</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name" id="lbl">Days<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="txtcompoffencash" />
+                            <span id="lblcompoffactuvalbalance"></span>
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Comments<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <textarea class="form-control" id="txtcommentscomoffenchash"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="button" id="btnasigntask" value="Save" class="btn btn-primary" onclick="SaveCompOffEncash();" />
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="myModalPermisionReject" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"> Remarks</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Comments<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <textarea class="form-control" id="txtPercomments"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="button" id="btnasigntask" value="Save" class="btn btn-primary" onclick="SavePermisionComments();" />
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="myModalBulkLeaveReject" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"> Remarks</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Comments<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <textarea class="form-control" id="txtBulkLeavecomments"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="button" id="btnasigntask" value="Save" class="btn btn-primary" onclick="SaveBulkDoActionForRejectLeave();" />
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="myModalBulkLeaveCancel" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"> Remarks</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4">
+                            <label for="name">Comments<span style="color:red;">*</span></label>
+                        </div>
+                        <div class="col-md-8">
+                            <textarea class="form-control" id="txtBulkLeaveCancelcomments"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input type="button" id="btnasigntask" value="Save" class="btn btn-primary" onclick="SaveBulkDoActionCancelLeave();" />
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="myModalWorkDone" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Leave Details</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row" style="padding:5px;" id="FormBody">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div id="myModalPermision" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title"> Permision</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-8">
+                            <table class="table" style="width:80%;">
+                                <tr>
+                                    <td>Date<span style="color:red;">*</span></td>
+                                    <td><input type="text" class="form-control" readonly="readonly" id="txtDate" onchange="GetShiftOfTheDay();" /></td>
+                                </tr>
+                                <tr id="trfromdate">
+                                    <td>Start Time<span style="color:red;">*</span></td>
+                                    <td>
+                                        @*<input class="form-control time" id="FromTime" type="text" placeholder="" />*@
+                                        <select id="FromTime" class="form-control"></select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>End Time<span style="color:red;">*</span></td>
+                                    <td>
+                                        <select id="ToTime" class="form-control"></select>
+                                        @*<input class="form-control time" id="ToTime" type="text" placeholder="" />*@
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Reason<span style="color:red;">*</span></td>
+                                    <td>
+                                        <textarea class="form-control" id="perReasonForLeave" type="text" placeholder=""></textarea>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <input class="btn btn-primary" type="button" value="Save" onclick="SavePermissions()" />
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="myViewPermision" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Permission Details</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row" style="padding:5px;" id="PermisionBody">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="mymodalDepartmentEmployeesareinleave" class="modal fade" role="dialog">
+        <div class="modal-dialog" style="width:700px;">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Employees List</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row" style="padding:5px; max-height:400px;overflow-y:scroll;" id="divDepartmentEmployeesareinleav">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <td>UserId</td>
+                                    <td>Name</td>
+                                    <td>LeaveFromDate</td>
+                                    <td>LeaveTodate</td>
+                                    <td>Status</td>
+                                    <td>Reason</td>
+                                </tr>
+                            </thead>
+                            <tbody id="tblDepartmentEmployeesareinleav"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-warning" onclick="PostNewLeaveConfirmation();">I am aware of this submit my leave</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>

@@ -1,0 +1,141 @@
+﻿@model IEnumerable<WebApplicationHsApp.Models.TaskApproveViewModel>
+@{
+    ViewBag.Title = "ManageCPXApprovers";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    var currentid = 0;
+    $(document).ready(function () {
+        $(".selUser").select2({
+            ajax: {
+                url: "/Home/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 4
+        });
+    });
+    function RemoveApprove(id) {
+        currentid = id;
+        if (confirm("Are you sure you want to delete?")) {
+            $.get("/CPX/DeleteTaskApprovers?id=" + id, function (data) {
+                alert("Success");
+                window.location.reload();
+            });
+        }
+    }
+    function EditApprove(id) {
+        currentid = id;
+        $("#myModalFullrequest").modal("show");
+    }
+    function UpdateEmployee() {
+        $.get("/CPX/UpdateTaskApprovers?id=" + currentid + "&empid=" + $("#selUser2").val(), function (data) {
+            $("#myModalFullrequest").modal("hide");
+            alert("Success");
+            window.location.reload();
+        });
+    }
+    function SaveApproversNew() {
+        $.get("/CPX/SaveTaskApprovers?id=" + $("#hidnTaskId").val() + "&empid=" + $("#selUser").val() + "&approverlevl=" + parseInt($("#ddlApproverLevel").val()), function (data) {
+            alert("Success");
+            window.location.reload();
+        });
+    }
+</script>
+<input type="hidden" id="hidnTaskId" value="@ViewBag.TaskId" />
+<div class="panel panel-default">
+    <div class="panel-heading" style="font-weight:normal;">
+        <span class="glyphicon glyphicon-arrow-right"></span>&nbsp;Manage Task Approvers
+    </div>
+    <div class="panel-body" style="min-height:600px;">
+        <table style="width:100%;" class="table">
+            <tr>
+                <td>
+                    Select Employee:<br />
+                    <select id="selUser" class="form-control typeahead border-primary selUser" name="query" data-provide="typeahead" autocomplete="off" style="width:200px;"></select>
+                </td>
+                <td>
+                    Approver Level:<br />
+                    <select id="ddlApproverLevel" class="form-control">
+                        <option value="">Select Approver Level</option>
+                        <option value="1">Technical Admin</option>
+                        <option value="2">Unit Admin</option>
+                        <option value="3">Medial Director</option>
+                        <option value="4">Final Approver 1</option>
+                        <option value="5">Finance Approve</option>
+                        <option value="6">Final Approver 2</option>
+                        <option value="7">Final Approver 3</option>
+                        <option value="8">Purchase Approver 1</option>
+                        <option value="9">Purchase Approver 2</option>
+                    </select>
+                </td>
+                <td>
+                    @*<br /><input type="checkbox" id="cbemail" />Send Email*@
+                    <input type="button" value="Save" class="btn btn-sm btn-primary" onclick="SaveApproversNew();" />
+                </td>
+            </tr>
+
+        </table>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <td>Id</td>
+                    <td>Department</td>
+                    <td>EmpId</td>
+                    <th>Emp Name</th>
+                    <td>ApproverLevel</td>
+                    <td>Action</td>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var m in Model)
+                {
+                    <tr>
+                        <td> @m.TaskApproveId </td>
+                        <td> @m.DepartmentName </td>
+                        <td> @m.EmpId </td>
+                        <td> @m.FirstName </td>
+                        <td> @m.ApprovalLevel </td>
+                        <td>
+                            <span id="@m.TaskApproveId" style="color: green; cursor: pointer; font-size: 15px;" onclick="EditApprove(this.id)"><span class="glyphicon glyphicon-edit"></span></span> &nbsp;
+                            <span id="@m.TaskApproveId" style="color:crimson; cursor:pointer;font-size:15px;" onclick="RemoveApprove(this.id)"><span class="glyphicon glyphicon-remove-circle"></span></span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="modal fade" id="myModalFullrequest" role="dialog">
+    <div class="form-block">
+        <h3>Change Approver<button type="button" class="pull-right close" data-dismiss="modal">&times;</button></h3>
+        <div id="divfullrequestdetails">
+            <table id="tblapprovers">
+                <tr>
+                    <td>Select Employee</td>
+                    <td> <select id="selUser2" class="form-control typeahead border-primary selUser" name="query" data-provide="typeahead" autocomplete="off" style="width:200px;"></select></td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>
+                        <br />
+                        <input type="button" id="btnUpdate" class="btn btn-primary" value="Update" onclick="UpdateEmployee();" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>

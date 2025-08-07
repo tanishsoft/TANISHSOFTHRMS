@@ -1,0 +1,119 @@
+﻿@model WebApplicationHsApp.DataModel.tbl_Settings
+
+@{
+    ViewBag.Title = "AdminSetting";
+}
+<style type="text/css">
+    .inlineTable {
+        display: inline-block;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+    $("#btnSubmit").click(function () {
+        debugger;
+        if ($("#SecurityPhoneNO").val() != "" && $("#SecurityEmail").val() != "" && $("#AdminPhoneNO").val() != "" && $("#AdminEmail").val()!="") {
+            $.ajax({
+                traditional: true,
+                url: "/Vehicle/UpdateAdminsettings",
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(
+                    [
+                        { SettingKey: 'SecurityEmail', SettingValue: $("#SecurityEmail").val() },
+                        { SettingKey: 'SecurityPhoneNo', SettingValue: $("#SecurityPhoneNO").val() },
+                        { SettingKey: 'SecurityUserId', SettingValue: $("#TransportUserId").val() },
+                        { SettingKey: 'AdminUserId', SettingValue: $("#AdminUserId").val() },
+                        { SettingKey: 'AdminPhoneNO', SettingValue: $("#AdminPhoneNO").val() },
+                        { SettingKey: 'AdminEmail', SettingValue: $("#AdminEmail").val() },
+                    ]),
+                success: function (data) {
+                   alert("Success");
+                }
+            });
+        }
+        else {
+            alert("please enter All Fields");
+        }
+        });
+        Load();
+    });
+    function Load() {
+        var Url = "/Vehicle/GetAdminSettingsDetails";
+        $.ajax({
+            type: "GET",
+            url: Url,
+            success: function (data) {
+                debugger;
+                if (data != "") {
+                    if (data.length>0)
+                        $("#SecurityEmail").val(data[0].SettingValue);
+                   if (data.length > 1)
+                        $("#SecurityPhoneNO").val(data[1].SettingValue);
+                     if (data.length > 2)
+                        $("#TransportUserId").val(data[2].SettingValue);
+                    if (data.length > 3)
+                        $("#AdminUserId").val(data[3].SettingValue);
+                    if (data.length > 4)
+                        $("#AdminPhoneNO").val(data[4].SettingValue);
+                   if (data.length > 5)
+                    $("#AdminEmail").val(data[5].SettingValue);
+                } else {
+                    $("#SecurityEmail").val("");
+                    $("#SecurityPhoneNO").val("");
+                    $("#SecurityUserId").val("");
+                    $("#AdminUserId").val("");
+                    $("#AdminPhoneNO").val("");
+                    $("#AdminEmail").val("");
+                }
+            }
+        })
+    }
+</script>
+<h2>AdminSetting</h2>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="col-md-6">
+                <table style="width:70%;" id="Transport" class="table-bordered">
+                    <tr>
+                        <td><label for="name" class="lbl">Transport User ID</label> </td>
+                        <td><input class="form-control" type="text" placeholder="Enter User Id" id="TransportUserId" /></td>
+                    </tr>
+                    <tr>
+                        <td><label for="name" class="lbl">Security Phone Number</label> </td>
+                        <td><input class="form-control" type="text" placeholder="Enter Phone No" id="SecurityPhoneNO" /></td>
+                    </tr>
+                    <tr>
+                        <td><label for="name" class="lbl">Security Email</label></td>
+                        <td><input class="date form-control" type="text" placeholder="Enter Email" id="SecurityEmail" /></td>
+                    </tr>
+                </table>
+            </div><div class="col-md-6">
+                <table style="width:70%;" id="Admin" class="table-bordered">
+                    <tr>
+                        <td><label for="name" class="lbl">Admin User ID</label> </td>
+                        <td><input class="form-control" type="text" placeholder="Enter User Id" id="AdminUserId" /></td>
+                    </tr>
+                    <tr>
+                        <td><label for="name" class="lbl">Admin Phone Number</label> </td>
+                        <td><input class="form-control" type="text" placeholder="Enter Phone No" id="AdminPhoneNO" /></td>
+                    </tr>
+                    <tr>
+                        <td><label for="name" class="lbl">Admin Email</label></td>
+                        <td><input class="date form-control" type="text" placeholder="Enter Email" id="AdminEmail" /></td>
+                    </tr>
+
+
+                </table>
+
+            </div>
+                  <div class="col-md-12">
+                      <div class="col-md-2 pull-right ">
+                          <input type="button" id="btnSubmit" value="save" class="btn btn-primary" />
+
+                      </div>
+                  </div>
+        </div>
+        </div>
+</div>

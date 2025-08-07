@@ -1,0 +1,425 @@
+﻿
+@{
+    ViewBag.Title = "ManageNursingDocuments";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<script>
+    var validate = true;
+    var eId = 0;
+    var oTable;
+    $(document).ready(function () {
+        LoadData();
+        LoadLocations();
+        LoadDropdownvalues();
+        //$("#txtOutDate").datepicker({
+        //    changeMonth: true,
+        //    changeYear: true,
+        //    dateFormat: "dd/mm/yy",
+        //    yearRange: "-30:+30",
+        //    Edit: true
+        //});
+        //$('#txtOutDate').datepicker('setDate', 'today');
+
+
+    });
+    function LoadDropdownvalues() {
+        $.get("/Common/GetCommonDropdownValues?dtype=Driver", function (data) {
+            var options = [];
+            options.push('<option value="">- Select -</option>');
+            for (var i = 0; i < data.length; i++) {
+                options.push('<option value="' + data[i].Name + '">' + data[i].Name + '</option>');
+            }
+            $("#InDrivername").html(options.join(''));
+            $("#txtupoutdriver").html(options.join(''));
+        });
+    }
+    function LoadLocations() {
+        $.ajax({
+            type: "POST",
+            url: "/Common/GetLocations",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- All Locations -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].LocationId == 1 || data[i].LocationId == 2 || data[i].LocationId == 9 || data[i].LocationId == 4 || data[i].LocationId == 5) {
+                        options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                    }
+                }
+                $("#LocationId").html(options.join(''));
+                $("#LocationId2").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadData() {
+        oTable =$('#tblValetParking').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/Custom/AjaxGetNursingDocuments",
+            "bProcessing": true,
+            "bDestroy": true,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "" },
+                { "sName": "IsActive" },
+                {
+                           "sName": "Id",
+                           "bSortable": false,
+                           "render": function (data, row, r) {
+
+                               return '<div class="btn-group">' +
+                                   '<div class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="glyphicon glyphicon-th-list"></span></div>' +
+                                   '<ul class="dropdown-menu dropdown-menu-right">' +
+                                   '<li><a href="javascript:void(0);"  onclick="ViewDocuments(' + data + ')">View Documents</a></li>' +
+                                   '<li><a href="javascript:void(0);"  onclick="ViewDetails(' + data + ')">View</a></li>' +
+                                   '<li><a href="javascript:void(0);"  onclick="EditDetails(' + data + ')">Edit</a></li>' +
+                                   //'<li><a href="javascript:void(0);"  onclick="onDelete(' + data + ')">Delete</a></li>' +
+                                   '</ul></div>';
+                           }
+                }
+            ],
+            "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
+                $('td:eq(2)', nRow).html('<a href="javascript:void(0);" id="' + aData[0] + '" onclick="ViewDocuments(this.id);">' + aData[2] + '</a>');
+            }
+            ,
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "locationid", "value": $("#LocationId2").val() },
+                    { "name": "fromdate", "value": $("#txtFromDate").val() },
+                    { "name": "todate", "value": $("#txtToDate").val() },
+                );
+            }
+        });
+        $("#tblValetParking_length").addClass("d-none");
+        $("#tblValetParking_length").addClass("d-sm-block");
+        //$("#tblValetParking_length").addClass("col-xs-6");
+    }
+
+    var requestid;
+    function ViewDocuments(id) {
+        $("#DocumentsModel").modal('show');
+        GetFiles(id);
+        requestid = id;
+    }
+    function ViewDetails(id) {
+        $.get("/Custom/GetNursingDetailsbyId?id=" + id, function (data) {
+            var html = "<table class='table table-bordered'>";
+            html += "<tr><td>Course</td><td>" + data.Course + "</td><td>Student Name</td><td>" + data.NameOfStudent + "</td></tr>";
+
+            html += "<tr><td>Father Name</td><td>" + data.FatherName + "</td><td>Date Of Birth</td><td>" + data.DateOfBirth + "</td></tr>";
+            html += "<tr><td>Religion</td><td>" + data.Religion + "</td><td>Identification Marks</td><td>" + data.IndentificationMarks + "</td></tr>";
+            html += "<tr><td>Education Qualifications </td><td>" + data.Qualification + "</td><td>Admission No</td><td>" + data.AdmissionNo + "</td></tr>";
+            html += "<tr><td>Date Of Joining</td><td>" + data.DateOfJoining + "</td><td>Date Of Relieving</td><td>" + data.DateOfRelieving + "</td></tr>";
+            html += "<tr><td>Hall Ticket No</td><td>" + data.HallTicketNo + "</td><td>Registration No</td><td>" + data.RegistrationNo + "</td></tr>";
+            html += "<tr><td>PTS Date</td><td>" + data.ResultsParticulars_PTS_date + "</td><td>PTS Remarks</td><td>" + data.ResultsParticulars_PTS_remarks + "</td></tr>";
+            html += "<tr><td>1st Year Date</td><td>" + data.ResultsParticulars_1styear_date + "</td><td>1st Year Remarks</td><td>" + data.ResultsParticulars_1styear_remarks + "</td></tr>";
+            html += "<tr><td>2nd Year Date</td><td>" + data.ResultsParticulars_2ndyear_date + "</td><td>2nd Year Remarks</td><td>" + data.ResultsParticulars_2ndyear_remarks + "</td></tr>";
+            html += "<tr><td>3rd Year Date</td><td>" + data.ResultsParticulars_3rdyear_date + "</td><td>3rd Year Remarks</td><td>" + data.ResultsParticulars_3rdyear_remarks + "</td></tr>";
+            html += "<tr><td>Internship Date</td><td>" + data.ResultsParticulars_Internship_date + "</td><td>Internship Remarks</td><td>" + data.ResultsParticulars_Internship_remarks + "</td></tr>";
+            html += "</table>";
+            $("#viewdetails").html(html);
+            $("#ViewModel").modal('show');
+        });
+    }
+    function GetFiles(subId) {
+        $('#tblFiles tbody').replaceWith("<tbody><tr><td></td><td></td><td></td></tr></tbody>");
+        $.ajax({
+            type: "POST",
+            url: '/Custom/GetNursingDocumentbyId?id=' + subId,
+            data: '{}',
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (files) {
+                $.each(files, function () {
+                    AppendRow(this.Did, this.url, this.title);
+                });
+            },
+            failure: function (r) {
+                alert(r.d);
+            },
+            error: function (r) {
+                alert(r.d);
+            }
+        });
+    };
+    function AppendRow(Did, url, title) {
+        var row = $("#tblFiles tbody tr:last-child");
+        if (row.find("td:empty").length > 0) {
+            row.remove();
+        }
+        row = row.clone();
+        $("td", row).eq(0).html(Did);
+        $("td", row).eq(1).html(title);
+        var urlhtml = "<a  target='_blank' href='/Documents/" + url + "'>View/Download</a>";
+        $("td", row).eq(2).html(urlhtml);
+
+        $("#tblFiles tbody").append(row);
+    };
+
+    function onDelete(id) {
+        if (confirm('Are you sure you want to delete?')) {
+            $.getJSON("@Url.Action("DeleteValetParking", "Custom")", { id: id }, function (data) {
+                clearAll();
+                oTable.api().ajax.reload(null, false);
+            });
+        } return false;
+    }
+    function onEdit(id) {
+        clearAll();
+        eId = id;
+        $.get("/Custom/GetValetParking?id=" + id, function (data) {
+            $("#txtupVehicleNo").val(data.VehicleNo);
+            $("#txtupoutdriver").val(data.OutDriverName);
+            $("#txtupRemarks").val(data.CheckoutRemarks);
+            $("#txtupMobileNo").val(data.MobileNumber);
+            $("#txtupTokenNo").val(data.TokenNumber);
+            $("#txtupintime").val(data.InTime);
+            $("#txtupindriver").val(data.InDriverName);
+            $("#header").html("Update Exist Details");
+            $("#myModal").modal('show');
+        });
+
+    }
+    function clearAll() {
+        $(".css-error").removeClass('css-error');
+
+        $("#txtNameOfStudent").val("");
+        $("#txtFatherName").val("");
+        $("#txtDateOfBirth").val("");
+        $("#txtAddress").val("");
+        $("#txtPhoneNumber").val("");
+        $("#txtQualification").val("");
+        $("#txtHallTicketNo").val("");
+
+        $("#txtfinalrating").val("");
+        $("#txtDateOfJoining").val("");
+        $("#txtDateOfRelieving").val("");
+        eId = 0;
+    }
+    function OnclickSave() {
+        validate = true;
+        $(".css-error").removeClass('css-error');
+        if ($("#txtupVehicleNo").val() == "") {
+            $("#txtupVehicleNo").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtupouttime").val() == "") {
+            $("#txtupouttime").addClass('css-error');
+            validate = false;
+        }
+        if ($("#txtupoutdriver").val() == "") {
+            $("#txtupoutdriver").addClass('css-error');
+            validate = false;
+        }
+        if (validate) {
+            var task = {
+                ValetParkingId: eId,
+               // ModifiedBy: $("#txtOutDate").val(),
+                VehicleNo: $("#txtupVehicleNo").val(),
+                //OutTime: $("#txtupouttime").val(),
+                OutDriverName: $("#txtupoutdriver").val(),
+                CheckoutRemarks: $("#txtupRemarks").val()
+            };
+            $.ajax({
+                type: "POST",
+                url: "/Custom/UpdateValetParking",
+                data: task,
+                success: function (data) {
+
+                    closeandclear(); oTable.api().ajax.reload(null, false);
+
+                }
+            });
+        }
+    }
+    function closeandclear() {
+        $("#txtupVehicleNo").val("");
+        $("#txtupouttime").val("");
+        $("#txtupoutdriver").val("");
+        $("#txtupRemarks").val("");
+        $("#myModal").modal('hide');
+        clearAll();
+    }
+    function closeallnew() {
+        $("#myModalnew").modal('hide');
+    }
+    function Loaddynamicdata() {
+        oTable.api().ajax.reload(null, false);
+    }
+    function ExportExcelData() {
+        $("#myModalExportExcel").modal('show');
+    }
+    function FinalExportExcel() {
+        if ($("#txtFromDate").val() != null && $("#txtFromDate").val() != "" && $("#txtToDate").val() != null && $("#txtToDate").val() != "") {
+            var url = '/Custom/ExportExcelValetParking?FromDate=' + $("#txtFromDate").val() + '&ToDate=' + $("#txtToDate").val();
+            window.location = url;
+
+        } else {
+            alert("Please select from date and todae");
+        }
+    }
+    function newmodalshow() {
+        window.location = "/Custom/NewNursingDocument?id=0";
+    }
+    function EditDetails(id) {
+        window.location = "/Custom/NewNursingDocument?id="+id;
+    }
+    function AjaxPostDocuments() {
+
+        var Posturl;
+        //validateDocument();
+        if (true) {
+
+            // Checking whether FormData is available in browser
+            if (window.FormData !== undefined) {
+                var fileData = new FormData();
+                Posturl = "/Custom/AdminNursingDocuments";
+                var fileUpload = $("#UploadDocument").get(0);
+                var files = fileUpload.files;
+
+                // Looping over all files and add it to FormData object
+                for (var i = 0; i < files.length; i++) {
+                    fileData.append("Upload", files[i]);
+                }
+
+                // Adding one more key to FormData object
+
+                fileData.append('NursingDetailsId', requestid);
+                //fileData.append('Remarks', $("#Remarks").val());
+                fileData.append('DocumentName', $("#Title").val());
+                $.ajax({
+                    type: "POST",
+                    url: Posturl,
+                    contentType: false, // Not to set any content header
+                    processData: false, // Not to process data
+                    data: fileData,
+                    success: function (result) {
+                        alert(result);
+                        //clearAll();
+                        $("#Remarks").val("");
+                        $("#Title").val("");
+                        GetFiles(requestid);
+
+                    },
+                    error: function (err) {
+                        alert(err.statusText);
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+        else {
+            return false;
+        }
+    }
+</script>
+<div class="panel panel-default">
+    <div class="panel-heading" style="height:35px;">Manage Nursing Documents <span style="color:orangered; cursor:pointer; float:right;" onclick="newmodalshow()">&nbsp;&nbsp;&nbsp;&nbsp;New</span> </div>
+    <div class="panel-body">
+        <div class="row" style="padding:5px;">
+            <table class="table table-striped table-bordered dt-responsive nowrap" style="width:100%;" id="tblValetParking">
+                <thead>
+                    <tr style="background-color:chocolate;color:white;">
+                        <th>Id</th>
+                        <th>Name Of Student</th>
+                        <th>Father Name</th>
+                        <th>Hall Ticket No</th>
+                        <th>Register No</th>
+                        <th>Qualification</th>
+                        <th>Date Of Joining</th>
+                        <th>Date Of Relieving</th>
+                        <th>Created By</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<div id="ViewModel" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4 class="modal-title">View</h4>
+            </div>
+            <div class="modal-body">
+                <div id="viewdetails">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div id="DocumentsModel" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="clearAll();">×</button>
+                <h4 class="modal-title">Manage Documents</h4>
+            </div>
+            <div class="modal-body">
+                <form id="Add" method="post" enctype="multipart/form-data">
+                    <input type="hidden" id="trackerid" />
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name">Title<span style="color:red;">*</span></label></div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" id="Title">
+                        </div>
+                    </div>
+                    <div class="row" style="padding:5px;">
+                        <div class="col-md-4"><label for="name"> Docuement<span style="color:red;">*</span></label></div>
+                        <div class="col-md-8">
+                            <input type="file" id="UploadDocument" name="UploadDocument" class="form-control" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="button" value="Save" onclick="AjaxPostDocuments()" class="btn btn-primary" />
+                        <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearAll();">Close</button>
+                        <progress id="fileProgress" style="display:none"></progress>
+                        <hr />
+                        <table id="tblFiles" class="table table-bordered text-center">
+                            <thead>
+                                <tr>
+                                    <th style="width:50px">Id</th>
+                                    <th style="width:50px">Title</th>
+                                    <th style="width:80px">url</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+</div>

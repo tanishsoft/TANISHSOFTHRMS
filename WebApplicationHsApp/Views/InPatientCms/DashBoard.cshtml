@@ -1,0 +1,969 @@
+﻿
+@{
+    ViewBag.Title = "DashBoard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model WebApplicationHsApp.Models.InpatientDashBoardViewModel
+
+
+<script>
+    var editor;
+    $(document).ready(function () {
+        LoadData();
+        LoadDataNursing();
+        LoadDataDietitian();
+        LoadLocations();
+        LoadMealType();
+        GetOrderCountbyDietPlan();
+        LoadDataAttendendent();
+        $('#btnExportNursing').click(function () {
+            var url = '/InpatientCms/ExportExcelNursing?MealType=' + $("#NursingMealTypeId").val();
+            if ($("#NursingLocationId").val() != "") {
+                url += '&Location=' + $("#NursingLocationId option:selected").text();
+            }
+            if ($("#NursingFloorId").val() != "") {
+                url += '&floor=' + $("#NursingFloorId option:selected").text();
+            }
+            if ($("#FNursingtxtfromdate").val() != "") {
+                url += '&fromDate=' + $("#FNursingtxtfromdate").val();
+            }
+            if ($('#FNursingtxttodate').val() != "") {
+                url += '&toDate=' + $('#FNursingtxttodate').val();
+            }
+            if ($('#NursingReportfor').val() != "") {
+                url += '&attendermeal=' + $('#NursingReportfor').val();
+            }
+            window.open(url);
+        });
+        $('#btnExportDietitian').click(function () {
+            var url = '/InpatientCms/ExportExcelDietitian?MealType=' + $("#DietitianMealTypeId").val();
+            debugger;
+            if ($("#DietitianLocationId").val() != "") {
+                url += '&Location=' + $("#DietitianLocationId option:selected").text();
+            }
+            if ($("#DietitianFloorId").val() != "") {
+                url += '&floor=' + $("#DietitianFloorId option:selected").text();
+            }
+            if ($("#FDietitiantxtfromdate").val() != "") {
+                url += '&fromDate=' + $("#FDietitiantxtfromdate").val();
+            }
+            if ($('#FDietitiantxttodate').val() != "") {
+                url += '&toDate=' + $('#FDietitiantxttodate').val();
+            }
+            if ($('#DietitianReportfor').val() != "") {
+                url += '&attendermeal=' + $('#DietitianReportfor').val();
+            }
+            window.open(url);
+        });
+
+        $('#btnExportNursing2').click(function () {
+            var url = '/InpatientCms/ExportPDFNursing?MealType=' + $("#NursingMealTypeId").val();
+            if ($("#NursingLocationId").val() != "") {
+                url += '&Location=' + $("#NursingLocationId option:selected").text();
+            }
+            if ($("#NursingFloorId").val() != "") {
+                url += '&floor=' + $("#NursingFloorId option:selected").text();
+            }
+            if ($("#FNursingtxtfromdate").val() != "") {
+                url += '&fromDate=' + $("#FNursingtxtfromdate").val();
+            }
+            if ($('#FNursingtxttodate').val() != "") {
+                url += '&toDate=' + $('#FNursingtxttodate').val();
+            }
+            if ($('#NursingReportfor').val() != "") {
+                url += '&attendermeal=' + $('#NursingReportfor').val();
+            }
+            window.open(url);
+        });
+        $('#btnExportDietitian2').click(function () {
+            var url = '/InpatientCms/ExportPDFDietitian?MealType=' + $("#DietitianMealTypeId").val();
+            debugger;
+            if ($("#DietitianLocationId").val() != "") {
+                url += '&Location=' + $("#DietitianLocationId option:selected").text();
+            }
+            if ($("#DietitianFloorId").val() != "") {
+                url += '&floor=' + $("#DietitianFloorId option:selected").text();
+            }
+            if ($("#FDietitiantxtfromdate").val() != "") {
+                url += '&fromDate=' + $("#FDietitiantxtfromdate").val();
+            }
+            if ($('#FDietitiantxttodate').val() != "") {
+                url += '&toDate=' + $('#FDietitiantxttodate').val();
+            }
+            if ($('#DietitianReportfor').val() != "") {
+                url += '&attendermeal=' + $('#DietitianReportfor').val();
+            }
+            window.open(url);
+        });
+
+
+
+
+        $('#btnExportAttendendent').click(function () {
+            var url = '/InpatientCms/ExportExcelAttendendent?MealType=' + $("#AttendendentMealTypeId").val();
+            
+            if ($("#AttendendentLocationId").val() != "") {
+                url += '&Location=' + $("#AttendendentLocationId option:selected").text();
+            }
+            if ($("#AttendendentFloorId").val() != "") {
+                url += '&floor=' + $("#AttendendentFloorId option:selected").text();
+            }
+            if ($("#FAttendendenttxtfromdate").val() != "") {
+                url += '&fromDate=' + $("#FAttendendenttxtfromdate").val();
+            }
+            if ($('#FAttendendenttxttodate').val() != "") {
+                url += '&toDate=' + $('#FAttendendenttxttodate').val();
+            }
+            if ($('#AttendendentReportfor').val() != "") {
+                url += '&attendermeal=' + $('#AttendendentReportfor').val();
+            }
+            window.open(url);
+        });
+
+        $('#btnExportAttendendent2').click(function () {
+            var url = '/InpatientCms/ExportPDFAttendendent?MealType=' + $("#AttendendentMealTypeId").val();
+            if ($("#AttendendentLocationId").val() != "") {
+                url += '&Location=' + $("#AttendendentLocationId option:selected").text();
+            }
+            if ($("#AttendendentFloorId").val() != "") {
+                url += '&floor=' + $("#AttendendentFloorId option:selected").text();
+            }
+            if ($("#FAttendendenttxtfromdate").val() != "") {
+                url += '&fromDate=' + $("#FAttendendenttxtfromdate").val();
+            }
+            if ($('#FAttendendenttxttodate').val() != "") {
+                url += '&toDate=' + $('#FAttendendenttxttodate').val();
+            }
+            if ($('#AttendendentReportfor').val() != "") {
+                url += '&attendermeal=' + $('#AttendendentReportfor').val();
+            }
+            window.open(url);
+        });
+
+
+        $("#FNursingtxtfromdate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            Edit: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            onSelect: function (dateText, inst) {
+                $("#FNursingtxttodate").datepicker("option", "minDate",
+                    $("#FNursingtxtfromdate").datepicker("getDate"));
+            }
+        });
+        $("#FNursingtxttodate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            Edit: true
+        });
+        $("#FDietitiantxtfromdate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            Edit: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            onSelect: function (dateText, inst) {
+                $("#FDietitiantxttodate").datepicker("option", "minDate",
+                    $("#FDietitiantxtfromdate").datepicker("getDate"));
+            }
+        });
+        $("#FDietitiantxttodate").datepicker({
+            changeMonth: true,
+            changeYear: true,
+            dateFormat: "dd/mm/yy",
+            yearRange: "-30:+30",
+            Edit: true
+        });
+    });
+
+    function LoadDataNursing() {
+        $('#tblNursing').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/InPatientCms/AjaxGetCMSNursing",
+            "bProcessing": true,
+            "bDestroy": true,
+            "scrollX": true,
+            "autoWidth": false,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+
+            "aoColumns": [
+                { "sName": "Id" },
+                { "sName": "Name" },
+                { "sName": "Id" },
+                { "sName": "Name" },
+                { "sName": "Mr No" },
+                { "sName": "Room No" },
+                { "sName": "Mobile" },
+                {
+                    "sName": "DietPlan"
+                },
+                {
+                    "sName": "Delivered"
+                },
+                {
+                    "sName": "To"
+                }
+                ,
+                {
+                    "sName": "To"
+                }
+            ],
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "locationname", "value": $("#NursingLocationId option:selected").text() },
+                    { "name": "floor", "value": $("#NursingFloorId option:selected").text() },
+                    { "name": "MealType", "value": $("#NursingMealTypeId").val() },
+                    { "name": "fromdate", "value": $("#FNursingtxtfromdate").val() },
+                    { "name": "todate", "value": $("#FNursingtxttodate").val() },
+                    { "name": "FormType", "value": $("#NursingReportfor").val() },
+
+                );
+            }
+
+
+        });
+        $("#tblNursing_length").addClass("col-md-6");
+        $("#tblNursing_length").addClass("col-md-6");
+        //LoadDietPlans();
+    }
+    function LoadDataAttendendent() {
+        $('#tblAttendendent').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/InPatientCms/AjaxGetCMSAttendendent",
+            "bProcessing": true,
+            "bDestroy": true,
+            "scrollX": true,
+            "autoWidth": false,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "Id" },
+                { "sName": "Name" },
+                { "sName": "Mr No" },
+                { "sName": "Room No" },
+                { "sName": "Mobile" },
+                { "sName": "To" },
+                { "sName": "Room No" },
+                { "sName": "Mobile" },
+                { "sName": "DietPlan" }
+            
+            ],
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "locationname", "value": $("#AttendendentLocationId option:selected").text() },
+                    { "name": "floor", "value": $("#AttendendentFloorId option:selected").text() },
+                    { "name": "MealType", "value": $("#AttendendentMealTypeId").val() },
+                    { "name": "fromdate", "value": $("#FAttendendenttxtfromdate").val() },
+                    { "name": "todate", "value": $("#FAttendendenttxttodate").val() },
+                    { "name": "FormType", "value": $("#AttendendentReportfor").val() }
+                );
+            }
+
+        });
+        $("#tblAttendendent_length").addClass("col-md-6");
+        $("#tblAttendendent_length").addClass("col-md-6");
+    }
+    function LoadDataDietitian() {
+        $('#tblDietitian').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/InPatientCms/AjaxGetCMSDietitian",
+            "bProcessing": true,
+            "bDestroy": true,
+
+
+            "scrollX": true,
+            "autoWidth": false,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "Id" },
+                { "sName": "Name" },
+                { "sName": "Mr No" },
+                { "sName": "Room No" },
+                { "sName": "Mobile" },
+                {
+                    "sName": "DietPlan"
+                },
+                {
+                    "sName": "Delivered"
+                },
+                {
+                    "sName": "To"
+                },
+                { "sName": "Room No" },
+                { "sName": "Mobile" },
+                {
+                    "sName": "DietPlan"
+                },
+                {
+                    "sName": "Delivered"
+                },
+                {
+                    "sName": "To"
+                }
+            ],
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "locationname", "value": $("#DietitianLocationId option:selected").text() },
+                    { "name": "floor", "value": $("#DietitianFloorId option:selected").text() },
+                    { "name": "MealType", "value": $("#DietitianMealTypeId").val() },
+                    { "name": "fromdate", "value": $("#FDietitiantxtfromdate").val() },
+                    { "name": "todate", "value": $("#FDietitiantxttodate").val() },
+                    { "name": "FormType", "value": $("#DietitianReportfor").val() }
+                );
+            }
+
+        });
+        $("#tblPatients_length").addClass("col-md-6");
+        $("#tblPatients_length").addClass("col-md-6");
+        //LoadDietPlans();
+    }
+    function GetOrderCountbyDietPlan() {
+        $.ajax({
+            type: "POST",
+            url: "/InPatientCms/GetOrderCountbyDietPlan",
+            //data: "id=",
+            success: function (data) {
+                var locdata = new Array();
+                for (var i = 0; i < data.length; i++) {
+                    locdata.push({
+                        name: data[i].key,
+                        y: data[i].cnt,
+                        drilldown: true
+                    });
+                }
+                BindheadcountofEmployeebyGender(locdata);
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function BindheadcountofEmployeebyGender(locations) {
+
+        $('#container5').highcharts({
+            chart: {
+                plotBackgroundColor: null,
+                plotBorderWidth: null,
+                plotShadow: false,
+                type: 'pie'
+            },
+            title: {
+                text: 'Order Count by Diet Plan'
+            },
+            xAxis: {
+                type: 'category',
+            },
+
+            legend: {
+                enabled: false
+            },
+
+            plotOptions: {
+                series: {
+                    visible: true,
+                    dataLabels: {
+                        enabled: true,
+                        step: 'left'
+                    }
+                }
+            },
+            pie: {
+                allowPointSelect: true,
+                cursor: 'pointer',
+                dataLabels: {
+                    enabled: true,
+                    format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                    style: {
+                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                    }
+                }
+            },
+            series: [{
+                name: 'Diet Count',
+                colorByPoint: true,
+                data: locations
+            }],
+        });
+
+
+
+    }
+    function LoadData() {
+        $('#tblPatients').dataTable({
+            "bServerSide": true,
+            "sAjaxSource": "/InPatientCms/AjaxGetCMSDashBoardData",
+            "bProcessing": true,
+            "bDestroy": true,
+            "scrollX": true,
+            "autoWidth": false,
+            "aLengthMenu": [[10, 20, 30, 50, 100, 150, 200, -1], [10, 20, 30, 50, 100, 150, 200, "All"]],
+            "aoColumns": [
+                { "sName": "Id" },
+                { "sName": "Name" },
+                { "sName": "Mr No" },
+                { "sName": "Room No" },
+                { "sName": "Mobile" },
+                {
+                    "sName": "DietPlan",
+
+                },
+                {
+                    "sName": "Delivered",
+
+                },
+                {
+                    "sName": "To",
+
+                }
+            ],
+            "fnServerParams": function (aoData) {
+                aoData.push(
+                    { "name": "locationname", "value": $("#TodayLocationId").val() },
+                    { "name": "floor", "value": $("#TodayFloorId").val() },
+                    { "name": "MealType", "value": $("#TodayMealTypeId").val() }
+                );
+            }
+        });
+        $("#tblPatients_length").addClass("col-md-6");
+        $("#tblPatients_length").addClass("col-md-6");
+        //LoadDietPlans();
+    }
+    function LoadLocations() {
+        $.ajax({
+            type: "GET",
+            url: "/InPatientCms/GetCMSP_Location",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">Select</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].LocationId + '">' + data[i].LocationName + '</option>');
+                }
+                $(".LocationId").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadTodayFloorByLocations() {
+        var id = $("#TodayLocationId").val();
+        if (id != "") {
+            $.ajax({
+                type: "GET",
+                url: "/InPatientCms/GetCMSP_FloorByLocation?id=" + id,
+                //data: "id=",
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">Select</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].FloorId + '">' + data[i].FloorNo + '</option>');
+                    }
+                    $("#TodayFloorId").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#TodayFloorId").html('<option value="">Select</option>');
+        }
+    }
+    function LoadMealType() {
+        $.ajax({
+            type: "GET",
+            url: "/CMS/GetMealType",
+            //data: "id=",
+            success: function (data) {
+
+                var options = [];
+                options.push('<option value="0">- Select MealType -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].MealTypeId + '">' + data[i].MealTypeName + '</option>');
+                }
+                $(".MealTypeId").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadNursingFloorByLocations() {
+        var id = $("#NursingLocationId").val();
+        if (id != "") {
+            $.ajax({
+                type: "GET",
+                url: "/InPatientCms/GetCMSP_FloorByLocation?id=" + id,
+                //data: "id=",
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">Select</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].FloorId + '">' + data[i].FloorNo + '</option>');
+                    }
+                    $("#NursingFloorId").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#NursingFloorId").html('<option value="">- Select Floor -</option>');
+        }
+    }
+    function LoadDietitianFloorByLocations() {
+        var id = $("#DietitianLocationId").val();
+        if (id != "") {
+            $.ajax({
+                type: "GET",
+                url: "/InPatientCms/GetCMSP_FloorByLocation?id=" + id,
+                //data: "id=",
+                success: function (data) {
+                    var options = [];
+                    options.push('<option value="">Select</option>');
+                    for (var i = 0; i < data.length; i++) {
+                        options.push('<option value="' + data[i].FloorId + '">' + data[i].FloorNo + '</option>');
+                    }
+                    $("#DietitianFloorId").html(options.join(''));
+                },
+                error: function () {
+                    alert("error")
+                }
+            });
+        }
+        else {
+            $("#DietitianFloorId").html('<option value="">Select</option>');
+        }
+    }
+</script>
+<div class="panel panel-default" id="myleaestableshow">
+    <div class="panel-heading" id="titleofpage">Dashboard</div>
+    <div class="panel-body">
+        <div id="partialDiv">
+            <div id="page-wrapper">
+
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="panel panel-default">
+                            <div class="panel-heading" style="color:crimson;font-weight:bold;">
+                                Break fast
+                            </div>
+                            <div class="panel-body">
+                                <div id="DivMyOrders">
+                                    <table class="table table-striped" style="width:100%;">
+                                        <thead>
+                                            <tr style="background-color:crimson;color:white;">
+                                                <td></td>
+                                                <td>Count</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Ordered to Kitchen</td>
+                                                <td>@Model.BreakFastOrderedtoKitchen</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Ordered to Cafeteria</td>
+                                                <td>@Model.BreakFastOrderedtoCafeteria</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Total Delivered</td>
+                                                <td>@Model.BreakFastTotalDelivered</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    Not Delivered
+                                                </td>
+                                                <td>@Model.BreakFastNotDelivered</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="panel panel-default">
+                            <div class="panel-heading" style="color:chocolate;font-weight:bold;">
+                                Lunch
+                            </div>
+                            <div class="panel-body">
+                                <div id="DivMyOrders">
+                                    <table class="table table-striped" style="width:100%;">
+                                        <thead>
+                                            <tr style="background-color:chocolate;color:white;">
+                                                <td></td>
+                                                <td>Count</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Ordered to Kitchen</td>
+                                                <td>@Model.LunchOrderedtoKitchen</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Ordered to Cafeteria</td>
+                                                <td>@Model.LunchOrderedtoCafeteria</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Total Delivered</td>
+                                                <td>@Model.LunchTotalDelivered</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    Not Delivered
+                                                </td>
+                                                <td>@Model.LunchNotDelivered</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="panel panel-default">
+                            <div class="panel-heading" style="color:darkgoldenrod;font-weight:bold;">
+                                Dinner
+                            </div>
+                            <div class="panel-body">
+                                <div id="DivMyOrders">
+                                    <table class="table table-striped" style="width:100%;">
+                                        <thead>
+                                            <tr style="background-color:darkgoldenrod;color:white;">
+                                                <td></td>
+                                                <td>Count</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Ordered to Kitchen</td>
+                                                <td>@Model.DinnerOrderedtoKitchen</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Ordered to Cafeteria</td>
+                                                <td>@Model.DinnerOrderedtoCafeteria</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Total Delivered</td>
+                                                <td>@Model.DinnerTotalDelivered</td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    Not Delivered
+                                                </td>
+                                                <td>@Model.DinnerNotDelivered</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <i class="fa fa-bar-chart-o fa-fw"></i> Today Meals
+                            </div>
+                            <div class="panel-body">
+                                <div class="form-row">
+                                    <div class="col-md-1">
+                                        &nbsp;
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <label>Meal Type :<span style="color:red;">*</span></label>
+                                        <select class="form-control MealTypeId" id="TodayMealTypeId">
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <label>Location :<span style="color:red;">*</span></label>
+                                        <select class="form-control LocationId" id="TodayLocationId" onchange="LoadTodayFloorByLocations();"></select>
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <label>Floor :<span style="color:red;">*</span></label>
+                                        <select class="form-control FloorId" id="TodayFloorId"></select>
+                                    </div>
+                                    <div class="form-group col-md-1">
+                                        <br />
+                                        <input type="button" class="btn sm btn-danger form-control" onclick="LoadData();" value="go" />
+                                    </div>
+
+                                </div>
+                                <table class="table table-striped" style="width:100%;" id="tblPatients">
+                                    <thead>
+                                        <tr style="background-color:chocolate;color:white;">
+                                            <td>Patient Id</td>
+                                            <td>Name</td>
+                                            <td>Mr No</td>
+                                            <td>Room No</td>
+                                            <td>Mobile</td>
+                                            <td>Diet Plan</td>
+                                            <td>Delivered?</td>
+                                            <td>To</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <i class="fa fa-bar-chart-o fa-fw"></i> Nursing
+                            </div>
+                            <div class="panel-body">
+                                <div class="form-row">
+
+                                    <div class="form-group col-md-2">
+                                        <label>Meal Type :<span style="color:red;">*</span></label>
+                                        <select class="form-control MealTypeId" id="NursingMealTypeId">
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group col-md-2">
+                                        <label>Location :<span style="color:red;">*</span></label>
+                                        <select class="form-control LocationId" id="NursingLocationId" onchange="LoadNursingFloorByLocations();"></select>
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <label>Floor :<span style="color:red;">*</span></label>
+                                        <select class="form-control FloorId" id="NursingFloorId"><option value="">Select</option></select>
+                                    </div>
+                                    <div class="form-group col-md-1">
+                                        <label>From Date :<span style="color:red;">*</span></label>
+                                        <input type="text" class="form-control" autocomplete="off" placeholder="From Date" id="FNursingtxtfromdate" />
+                                    </div>
+                                    <div class="form-group col-md-1">
+                                        <label>To Date :<span style="color:red;">*</span></label>
+                                        <input type="text" class="form-control" autocomplete="off" placeholder="To Date" id="FNursingtxttodate" />
+                                    </div>
+                                    <div class="form-group col-md-1" style="display:none;">
+                                        <label>Report For:<span style="color:red;">*</span></label>
+                                        <select class="form-control" id="NursingReportfor">
+                                            <option value="">Select</option>
+                                            <option value="Patient" selected>Patient</option>
+                                            <option value="Attender">Attender</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-1">
+                                        <br />
+                                        <input type="button" class="btn sm btn-danger form-control" onclick="LoadDataNursing();" value="go" />
+                                    </div>
+                                    <div class="form-group col-md-1">
+                                        <br />
+                                        <input type="button" id="btnExportNursing" value="Export Excel" class="btn btn-link form-control" />
+                                    </div>
+                                    <div class="form-group col-md-1">
+                                        <br />
+                                        <input type="button" id="btnExportNursing2" value="Export PDF" class="btn btn-link form-control" />
+                                    </div>
+                                </div>
+
+                                <table class="table table-striped" style="width:100%;" id="tblNursing">
+                                    <thead>
+                                        <tr style="background-color:chocolate;color:white;">
+                                            <td>S NO</td>
+                                            <td>Meal Type</td>
+                                            <td>MR NO</td>
+                                            <td>P Name</td>
+                                            <td>Room No</td>
+                                            <td>Diet Plan</td>
+                                            <td>Notes</td>
+                                            <td>User Id</td>
+                                            <td>Date</td>
+                                            <td>Time</td>
+                                            <td>Request Type</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <i class="fa fa-bar-chart-o fa-fw"></i>Dietitian
+                            </div>
+                            <div class="panel-body">
+                                <div class="form-row">
+
+                                    <div class="form-group col-md-2">
+                                        <label>Meal Type :<span style="color:red;">*</span></label>
+                                        <select class="form-control MealTypeId" id="DietitianMealTypeId">
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <label>Location :<span style="color:red;">*</span></label>
+                                        <select class="form-control LocationId" id="DietitianLocationId" onchange="LoadDietitianFloorByLocations();"></select>
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <label>Floor :<span style="color:red;">*</span></label>
+                                        <select class="form-control FloorId" id="DietitianFloorId"><option value="">Select</option></select>
+                                    </div>
+                                    <div class="form-group col-md-1">
+                                        <label>From Date :<span style="color:red;">*</span></label>
+                                        <input type="text" class="form-control" autocomplete="off" placeholder="From Date" id="FDietitiantxtfromdate" />
+                                    </div>
+                                    <div class="form-group col-md-1">
+                                        <label>To Date :<span style="color:red;">*</span></label>
+                                        <input type="text" class="form-control" autocomplete="off" placeholder="To Date" id="FDietitiantxttodate" />
+                                    </div>
+                                    <div class="form-group col-md-1" style="display:none;">
+                                        <label>Report For:<span style="color:red;">*</span></label>
+                                        <select class="form-control" id="DietitianReportfor">
+                                            <option value="">Select</option>
+                                            <option value="Patient" selected>Patient</option>
+                                            <option value="Attender">Attender</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-1">
+                                        <br />
+                                        <input type="button" class="btn sm btn-danger form-control" onclick="LoadDataDietitian();" value="go" />
+                                    </div>
+                                    <div class="form-group col-md-1">
+                                        <br />
+                                        <input type="button" id="btnExportDietitian" value="Export Excel" class="btn btn-link form-control" />
+                                    </div>
+                                    <div class="form-group col-md-1">
+                                        <br />
+                                        <input type="button" id="btnExportDietitian2" value="Export PDF" class="btn btn-link form-control" />
+                                    </div>
+                                </div>
+
+                                <table class="table table-striped" style="width:100%;" id="tblDietitian">
+                                    <thead>
+                                        <tr style="background-color:chocolate;color:white;">
+                                            <td>S No</td>
+                                            <td>Meal Type</td>
+                                            <td>Mr No</td>
+                                            <td>Name</td>
+
+                                            <td>Room No</td>
+                                            <td>Diet Plan</td>
+                                            <td>Notes</td>
+                                            <td>User Id</td>
+                                            <td>Date</td>
+                                            <td>Time</td>
+                                            <td>Request Type</td>
+                                            <td>
+                                                Dietitian Save Date
+                                            </td>
+                                            <td>
+                                                Dietitian Save Time
+                                            </td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <i class="fa fa-bar-chart-o fa-fw"></i>Attendendent Meals
+                            </div>
+                            <div class="panel-body">
+                                <div class="form-row">
+
+                                    <div class="form-group col-md-2">
+                                        <label>Meal Type :<span style="color:red;">*</span></label>
+                                        <select class="form-control MealTypeId" id="AttendendentMealTypeId">
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <label>Location :<span style="color:red;">*</span></label>
+                                        <select class="form-control LocationId" id="AttendendentLocationId" onchange="LoadDietitianFloorByLocations();"></select>
+                                    </div>
+                                    <div class="form-group col-md-2">
+                                        <label>Floor :<span style="color:red;">*</span></label>
+                                        <select class="form-control FloorId" id="AttendendentFloorId"><option value="">Select</option></select>
+                                    </div>
+                                    <div class="form-group col-md-1">
+                                        <label>From Date :<span style="color:red;">*</span></label>
+                                        <input type="text" class="form-control" autocomplete="off" placeholder="From Date" id="FAttendendenttxtfromdate" />
+                                    </div>
+                                    <div class="form-group col-md-1">
+                                        <label>To Date :<span style="color:red;">*</span></label>
+                                        <input type="text" class="form-control" autocomplete="off" placeholder="To Date" id="FAttendendenttxttodate" />
+                                    </div>
+                                    <div class="form-group col-md-1">
+                                        <label>Report For:<span style="color:red;">*</span></label>
+                                        <select class="form-control" id="AttendendentReportfor">
+                                            <option value="">Select</option>
+                                            <option value="Patient" selected>Patient</option>
+                                            <option value="Attender">Attender</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-1">
+                                        <br />
+                                        <input type="button" class="btn sm btn-danger form-control" onclick="LoadDataAttendendent();" value="go" />
+                                    </div>
+                                    <div class="form-group col-md-1">
+                                        <br />
+                                        <input type="button" id="btnExportAttendendent" value="Export Excel" class="btn btn-link form-control" />
+                                    </div>
+                                    <div class="form-group col-md-1">
+                                        <br />
+                                        <input type="button" id="btnExportAttendendent2" value="Export PDF" class="btn btn-link form-control" />
+                                    </div>
+                                </div>
+
+                                <table class="table table-striped" style="width:100%;" id="tblAttendendent">
+                                    <thead>
+                                        <tr style="background-color:chocolate;color:white;">
+                                            <td>S No</td>
+                                            <td>Meal Type</td>
+                                            <td>Mr No</td>
+                                            <td>Name</td>
+
+                                            <td>Room No</td>
+
+                                            <td>User Id</td>
+                                            <td>Date</td>
+                                            <td>Time</td>
+                                            <td>Request Type</td>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h3 class="panel-title"> Order Count by Diet Plan</h3>
+                        </div>
+                        <div class="panel-body" style="height:400px;">
+                            <div style="min-width: 310px; height: 400px; margin: 0 auto" id="container5">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+

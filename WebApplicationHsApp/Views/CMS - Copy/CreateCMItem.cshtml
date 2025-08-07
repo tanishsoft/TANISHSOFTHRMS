@@ -1,0 +1,273 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<script>
+    var eId = @ViewBag.id;
+    $(document).ready(function () {
+
+        LoadUnitType();
+        LoadCategory();
+        LoadMealType();
+        if (eId != null && eId != 0) {
+            LoadData(eId);
+        }
+    });
+    function LoadData(id) {
+        $.get("/CMS/GetCMS_Item?id=" + id, function (res) {
+            debugger;
+            $("#Name").val(res.ItemName);
+            $("#Description").val(res.ItemDescription);
+            $("#Code").val(res.ItemCode);
+            $("#UnitTypeId").val(res.UnitTypeId);
+            $("#ItemType").val(res.ItemType);
+            $("#TotalCostStaff").val(res.TotalCostStaff);
+            $("#PackagingCost").val(res.PackagingCost);
+            $("#TotalCost").val(res.TotalCost);
+            $('#Category').val(res.Category.split(","));
+            $('#MealType').val(res.MealType.split(","));
+            //$.each(res.Category.split(","), function (i, e) {
+            //    $("#Category option[value='" + e + "']").prop("selected", true);
+            //});
+            //$.each(res.MealType.split(","), function (i, e) {
+            //    $("#MealType option[value='" + e + "']").prop("selected", true);
+            //});
+
+            $("#header").text("Update Item");
+        });
+    }
+    function LoadUnitType() {
+        $.ajax({
+            type: "POST",
+            url: "/CMS/GetUnitType",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select UnitType -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].UnitTypeId + '">' + data[i].UnitTypeName + '</option>');
+                }
+                $("#UnitTypeId").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadCategory() {
+        $.ajax({
+            type: "POST",
+            url: "/CMS/GetCategory",
+            //data: "id=",
+            success: function (data) {
+                debugger;
+                var options = [];
+                options.push('<option value="">- Select Category -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].CategoryId + '">' + data[i].CategoryName + '</option>');
+                }
+                $("#Category").html(options.join(''));
+                $('#Category').select2({
+                    placeholder: "Select Category"
+                })
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadMealType() {
+        $.ajax({
+            type: "POST",
+            url: "/CMS/GetMealType",
+            //data: "id=",
+            success: function (data) {
+                debugger;
+                var options = [];
+                options.push('<option value="">- Select MealType -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].MealTypeId + '">' + data[i].MealTypeName + '</option>');
+                }
+                $("#MealType").html(options.join(''));
+                $('#MealType').select2({
+                    placeholder: "Select MealType"
+                })
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function validatedetails() {
+        var valid = true;
+        $(".error").hide();
+        $(".css-error").removeClass('css-error');
+        if (!inputvalidation('Name', 'Enter Name'))  valid=false;
+        if (!inputvalidation('Code', 'Enter Code')) valid = false;
+        if (!inputvalidation('UnitTypeId', 'select UnitType')) valid = false;
+        if (!inputvalidation('ItemType', 'select ItemType')) valid = false;
+        //if (!inputvalidation('Category', 'Select Category')) valid = false;
+        //if (!inputvalidation('MealType', 'Select MealType')) valid = false;
+        if (!inputvalidation('TotalCost', 'Select Price')) valid = false;
+        if (!inputvalidation('TotalCostStaff', 'Select Staff Cost')) valid = false;
+        if (!inputvalidation('PackagingCost', 'Select Packaging Cost')) valid = false;
+
+        return valid;
+    }
+    function SaveDetails() {
+
+        var valid = validatedetails();
+        if (valid) {
+
+
+            if (window.FormData !== undefined) {
+                var fileData = new FormData();
+                fileData.append('ItemId', eId);
+                fileData.append('ItemName', $("#Name").val());
+                fileData.append('ItemCode', $("#Code").val());
+                fileData.append('UnitTypeId', $("#UnitTypeId").val());
+                fileData.append('ItemType', $("#ItemType").val());
+                fileData.append('Category', $("#Category").val());
+                fileData.append('MealType', $("#MealType").val());
+                fileData.append('ItemDescription', $("#Description").val());
+                fileData.append('TotalCost', $("#TotalCost").val());
+                fileData.append('TotalCostStaff', $("#TotalCostStaff").val());
+                fileData.append('PackagingCost', $("#PackagingCost").val());
+
+                $.ajax({
+                    type: "POST",
+                    url: "/CMS/Save_UpdateItem",
+                    contentType: false,
+                    processData: false,
+                    data: fileData,
+                    success: function (data) {
+                        alert("Successfully Saved");
+                        LoadPartialdivonclick('ManageCMItem', 'Manage Item');
+                       // window.location.reload();
+                    },
+                    error: function (err) {
+                        alert(err.statusText);
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+    }
+    function inputvalidation(selector, Text) {
+        debugger;
+        var validate = true;
+        if ($("#" + selector).val() == "") {
+            $("#" + selector).after('<span class="error" style="color:Red;">' + Text + '</span>');
+            $("#" + selector).addClass('css-error');
+            validate = false;
+        }
+        return validate;
+    }
+    function cancel() {
+        window.location.href = '/CMS/ManageCMItem';
+    }
+    function LoadPartialdivonclick(link, title) {
+        $("#titleofpage").html(title);
+        $("#partialDiv").load("/CMS/" + link);
+    }
+</script>
+<div class="panel panel-default" style="min-height:500px;">
+    <div class="panel-heading">Create Item</div>
+    <div class="panel-body">
+        <div class="row" style="width:75%;margin:auto;">
+
+            <div class="col-md-12">
+                <table class="table table-stribbed">
+                    <tr>
+                        <td>
+                            <label>Name<span class="text-danger">*</span> </label>
+                        </td>
+                        <td>
+                            <input type="text" id="Name" name="itemname" class="form-control" />
+                        </td>
+                        <td>&nbsp;</td>
+                        <td>
+                            <label>Code<span class="text-danger">*</span></label>
+                        </td>
+                        <td>
+                            <input type="text" name="itemcode" id="Code" class="form-control" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Unit Type<span class="text-danger">*</span></label>
+                        </td>
+                        <td>
+                            <select class="form-control" id="UnitTypeId"></select>
+                        </td>
+                        <td>&nbsp;</td>
+                        <td>
+                            <label>Item Type<span class="text-danger">*</span></label>
+                        </td>
+                        <td>
+                            <select class="form-control" id="ItemType">
+                                <option value="">Select Item Type</option>
+                                <option value="Recipe" selected>Recipe</option>
+                                <option value="Ingredient">Ingredient</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Category</label>
+                        </td>
+                        <td>
+                            <select class="form-control" id="Category" multiple></select>
+                        </td>
+                        <td>&nbsp;</td>
+                        <td>
+                            <label>Meal Type</label>
+                        </td>
+                        <td>
+                            <select class="form-control" id="MealType" multiple></select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Description</label>
+                        </td>
+                        <td>
+                            <textarea class="form-control" id="Description"></textarea>
+                        </td>
+                        <td>&nbsp;</td>
+                        <td>
+                            <label>Price<span class="text-danger">*</span></label>
+                        </td>
+                        <td>
+                            <input type="number" name="itemprice" id="TotalCost" class="form-control" />
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>
+                            <label>Staff Price<span class="text-danger">*</span></label>
+                        </td>
+                        <td>
+                            <input type="number" name="TotalCostStaff" id="TotalCostStaff" value="0" class="form-control" />
+                        </td>
+                        <td>&nbsp;</td>
+                        <td>
+                            <label>Packaging Cost<span class="text-danger">*</span></label>
+                        </td>
+                        <td>
+                            <input type="number" name="PackagingCost" id="PackagingCost" value="0" class="form-control" />
+                        </td>
+                    </tr>
+
+                </table>
+            </div>
+            <br />
+            <div class="form-group col-md-6">
+                <br />
+                <button type="button" class="btn save" onclick="SaveDetails();">SAVE</button>
+                <button type="button" onclick="cancel();" class="btn cancel">Cancel</button>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+        </div></div>

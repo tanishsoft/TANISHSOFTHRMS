@@ -1,0 +1,81 @@
+﻿
+@{
+    ViewBag.Title = "ViewAsset";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@*<style>
+    body {
+        
+    }
+
+    .main {
+        
+    }
+
+    .top {
+        
+    }
+
+    .top2 {
+        
+    }
+
+    table, td, th {
+        
+    }
+
+    td {
+        
+    }
+
+    td, th {
+        height: 30px;
+    }
+
+    table {
+        
+    }
+
+    .tabledata {
+        
+    }
+
+    .table2 {
+        
+    }
+</style>*@
+<script>
+    var Assetid=@ViewBag.id;
+      $(document).ready(function () {
+
+        GetAsset(Assetid);
+          //$("#btnPrint").click(function () {
+          //    $("#viewAsset").print();
+          //});
+
+      });
+    function printDiv() {
+
+        var printContents = document.getElementById("viewAsset").innerHTML;
+        var originalContents = document.body.innerHTML;
+        document.body.innerHTML = printContents;
+        window.print();
+        document.body.innerHTML = originalContents;
+
+    }
+    function GetAsset(id) {
+        if (id != 0) {
+            $.get("/Asset/ViewAssetPartial", { id: id }, function (data) {
+                debugger;
+                var obj = data;
+                $("#viewAsset").html(data);
+
+            });
+        }
+
+    }
+</script>
+
+<div id="viewAsset">
+
+</div>

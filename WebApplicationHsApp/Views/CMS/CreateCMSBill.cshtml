@@ -1,0 +1,517 @@
+﻿
+
+
+<script>
+    var eId = @ViewBag.id;
+    $(document).ready(function () {
+        $('#ItemTable').show();
+        LoadCateen();
+        LoadItems();
+        EmployeeSearch();
+        //$(".inputmasking").keyup(function () {
+
+        //    convertToINRFormat($(this).val(), $(this));
+        //});
+        if (eId != 0) {
+            LoadData(eId);
+            LoadItemsDetails(eId);
+        }
+      
+    });
+    function LoadCateen() {
+        $.ajax({
+            type: "POST",
+            url: "/CMS/GetCMS_Canteen",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Cateen -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].CanteenId + '">' + data[i].CanteenName + '</option>');
+                }
+                $("#CanteenId").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function LoadItems() {
+        $.ajax({
+            type: "POST",
+            url: "/CMS/GetCMS_Items",
+            //data: "id=",
+            success: function (data) {
+                var options = [];
+                options.push('<option value="">- Select Item -</option>');
+                for (var i = 0; i < data.length; i++) {
+                    options.push('<option value="' + data[i].ItemId + '">' + data[i].ItemName + '</option>');
+                }
+                $("#ItemId").html(options.join(''));
+            },
+            error: function () {
+                alert("error")
+            }
+        });
+    }
+    function EmployeeSearch() {
+
+        $(".EmpId").select2({
+            ajax: {
+                url: "/Home/GetEmployeeSearch",
+                type: "get",
+                dataType: 'json',
+
+                //delay: 250,
+                data: function (params) {
+                    return {
+                        searchTerm: params.term // search term
+                    };
+                },
+                processResults: function (response) {
+                    return {
+                        results: response
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 4
+        });
+    }
+    function LoadData(id) {
+        $.get("/CMS/GetCMS_Bill_ById?id=" + id, function (res) {
+            debugger;
+            $("#TransactionCustomerType").val(res.TransactionCustomerType);
+            $("#EmpId").val(res.EmpId);
+            $("#TotalPrice").val(res.TotalPrice);
+            $("#DiscountType").val(res.DiscountType);
+            $("#ModeOfPayment").val(res.ModeOfPayment);
+            $("#CardNumber").val(res.CardNumber);
+            $("#NameOfTheCard").val(res.NameOfTheCard);
+            $("#DiscountValue").val(res.DiscountValue);
+            $("#TaxAmount").val(res.TaxAmount);
+            $("#FinalPrice").val(res.FinalPrice);
+            $("#RefundAmount").val(res.RefundAmount);
+            $("#BillAddress").val(res.BillAddress);
+            $("#SalesEmpNotes").val(res.SalesEmpNotes);
+            $("#SalesEmpId").val(res.SalesEmpId);
+            $("#CanteenId").val(res.CanteenId);
+            $('#IsFreeMeal').prop('checked', res.IsFreeMeal);
+            $("#header").text("Update Item");
+        });
+    }
+    function LoadItemsDetails(id) {
+        $.get("/CMS/GetCMS_BillItems_BytranId?id=" + id, function (res) {
+            debugger;
+            var table = document.getElementById("ItemTable");
+            for (var i = 0; i < res.length; i++) {
+                debugger;
+                var table_len = (table.rows.length);
+                var row = table.insertRow(table_len).outerHTML = "<tr class='datarow' id='row" + table_len + "'><td class='Id" + table_len + "' style='display:none;'>" + res[i].Id + "</td><td class='ItemId" + table_len + "'>" + res[i].ItemId + "</td><td class='Qty" + table_len + "'>" + res[i].Qty + "</td><td class='Amount" + table_len + "'>" + res[i].Amount + "</td><td class='Tax" + table_len + "'>" + res[i].Tax + "</td><td class='Discount" + table_len + "'>" + res[i].Discount + "</td><td class='FinalAmount" + table_len + "'>" + res[i].FinalAmount + "</td><td class='Notes" + table_len + "'>" + res[i].Notes + "</td><td><span class='glyphicon glyphicon-edit' style='color:greem;cursor:pointer;' onclick='Edit_row(" + table_len + ")'></span> <span class='glyphicon glyphicon-trash' style='color:red;cursor:pointer;' onclick='delete_row(" + table_len + ")'></span></td></tr>";
+            }
+        });
+    }
+    function validatedetails() {
+        var valid = true;
+        valid = inputvalidation('TotalPrice', 'Enter TotalPrice');
+        if (!valid) return valid;
+        valid = inputvalidation('DiscountType', 'Select Discount Type');
+        if (!valid) return valid;
+        valid = inputvalidation('DiscountValue', 'select DiscountValue');
+        if (!valid) return valid;
+        valid = inputvalidation('TaxAmount', 'select TaxAmount');
+        if (!valid) return valid;
+        valid = inputvalidation('FinalPrice', 'Select FinalPrice');
+        var table = document.getElementById("ItemTable");
+        var table_len = (table.rows.length);
+        if (table_len == 1)
+            valid = false;
+        return valid;
+    }
+    function SaveDetails() {
+        var valid = validatedetails();
+        if (valid) {
+
+
+            if (window.FormData !== undefined) {
+                var fileData = new FormData();
+                fileData.append('TransactionId', eId);
+                fileData.append('TransactionCustomerType', $("#TransactionCustomerType").val());
+                fileData.append('EmpId', $("#EmpId").val());
+                fileData.append('TotalPrice', $("#TotalPrice").val());
+                fileData.append('DiscountType', $("#DiscountType").val());
+                fileData.append('ModeOfPayment', $("#ModeOfPayment").val());
+                fileData.append('CardNumber', $("#CardNumber").val());
+                fileData.append('NameOfTheCard', $("#NameOfTheCard").val());
+                fileData.append('DiscountValue', $("#DiscountValue").val());
+                fileData.append('TaxAmount', $("#TaxAmount").val());
+                fileData.append('FinalPrice', $("#FinalPrice").val());
+                fileData.append('RefundAmount', $("#RefundAmount").val());
+                fileData.append('BillAddress', $("#BillAddress").val());
+                fileData.append('SalesEmpNotes', $("#SalesEmpNotes").val());
+                fileData.append('SalesEmpId', $("#SalesEmpId").val());
+                fileData.append('CanteenId', $("#CanteenId").val());
+                fileData.append('IsFreeMeal', $("#IsFreeMeal").is(":checked"));
+                $.ajax({
+                    type: "POST",
+                    url: "/CMS/Save_UpdateBIll",
+                    contentType: false,
+                    processData: false,
+                    data: fileData,
+                    success: function (data) {
+                        SaveItem(data);
+                        alert("Successfully Saved");
+                        window.location.reload();
+                    },
+                    error: function (err) {
+                        alert(err.statusText);
+                    }
+                });
+            } else {
+                alert("FormData is not supported.");
+            }
+        }
+    }
+    function SaveItem(id) {
+        var ItemList = [];
+        var table = document.getElementById("ItemTable");
+        debugger; 
+        var table_len = (table.rows.length);
+        for (var i = 1; i < table_len; i++) {
+            ItemList.push({
+                Id: parseInt( $(".Id" + i).text()),
+                TransactionId:parseInt(id),
+                ItemId: parseInt( $(".ItemId" + i).text()),
+                Qty: parseInt($(".Qty" + i).text()),
+                Amount: parseFloat($(".Amount" + i).text()).toFixed(2),
+                Tax: parseFloat($(".Tax" + i).text()).toFixed(2),
+                Discount: parseFloat($(".Discount" + i).text()).toFixed(2),
+                FinalAmount: parseFloat($(".FinalAmount" + i).text()).toFixed(2),
+                Notes: $(".Notes" + i).text()
+            });
+        }
+        debugger;
+        $.post("/CMS/Save_UpdateBillList", { model: ItemList}, function (res) {
+            debugger;
+        });
+    }
+    function inputvalidation(selector, Text) {
+        debugger;
+        var validate = true;
+        if ($("#" + selector).val() == "") {
+            $("#" + selector).after('<span class="error" style="color:Red;">' + Text + '</span>');
+            $("#" + selector).addClass('css-error');
+            validate = false;
+        }
+        return validate;
+    }
+    function cancel() {
+        window.location.href = '/CMS/ManageCMSItemTransfer';
+    }
+    function AddItem() {
+        var table = document.getElementById("ItemTable");
+        debugger;
+        var table_len = (table.rows.length);
+        if ($("#len").val() == "0")
+            var row = table.insertRow(table_len).outerHTML = "<tr class='datarow' id='row" + table_len + "'><td class='Id" + table_len + "' style='display:none;'>0</td><td class='ItemId" + table_len + "'>" + $("#ItemId").val() + "</td><td class='Qty" + table_len + "'>" + $("#Qty").val() + "</td><td class='Amount" + table_len + "'>" + $('#Amount').val() + "</td><td class='Tax" + table_len + "'>" + $("#Tax").val() + "</td><td class='Discount" + table_len + "'>" + $("#Discount").val() + "</td><td class='FinalAmount" + table_len + "'>" + $('#FinalAmount').val() + "</td><td class='Notes" + table_len + "'>" + $('#Notes').val() + "</td><td><span class='glyphicon glyphicon-edit' style='color:greem;cursor:pointer;' onclick='Edit_row(" + table_len + ")'></span> <span class='glyphicon glyphicon-trash' style='color:red;cursor:pointer;' onclick='delete_row(" + table_len + ")'></span></td></tr>";
+        else {
+            update_row($("#len").val());
+        }
+        clearItem();
+        $('#ItemTable').show();
+        $("#myModalItem").modal('hide');
+    }
+    function delete_row(no) {
+        document.getElementById("row" + no + "").outerHTML = "";
+        var table = document.getElementById("ItemTable");
+
+        var table_len = (table.rows.length - 1);
+        if (table_len == 0) {
+            $('#ItemTable').hide();
+        }
+    }
+    function update_row(no) {
+        $(".ItemId" + no).text($("#ItemId").val());
+        $(".Qty" + no).text($("#Qty").val());
+        $(".Amount" + no).text($("#Amount").val());
+        $(".Tax" + no).text($("#Tax").val());
+        $(".Discount" + no).text($("#Discount").val());
+        $(".FinalAmount" + no).text($("#FinalAmount").val());
+        $(".Notes" + no).text($("#Notes").val());
+    }
+    function Edit_row(no) {
+        debugger;
+        $("#len").val(no);
+        $("#ItemId").val($(".ItemId" + no).text());
+        $("#Qty").val($(".Qty" + no).text());
+        $("#Amount").val($(".Amount" + no).text());
+        $("#Tax").val($(".Tax" + no).text());
+        $("#Discount").val($(".Discount" + no).text());
+        $("#FinalAmount").val($(".FinalAmount" + no).text());
+        $("#Notes").val($(".Notes" + no).text());
+        $("#myModalItem").modal('show');
+    }
+    function clearItem() {
+        $("#len").val("0");
+        $("#ItemId").val("");
+        $("#Qty").val("");
+        $("#Amount").val("");
+        $("#Tax").val("");
+        $("#Discount").val("");
+        $("#FinalAmount").val("");
+        $("#Notes").val("");
+    }
+    function convertToINRFormat(value, inputField) {
+        var number = Number(value.replace(/,/g, ""));
+        // India uses thousands/lakh/crore separators
+        $(inputField).html(number.toLocaleString('en-IN'));
+
+        $(inputField).html(number.toLocaleString('en-IN', {
+            maximumFractionDigits: 2,
+            style: 'currency',
+            currency: 'INR'
+        }));
+
+        $(inputField).val(number.toLocaleString('en-IN'));
+    }
+    function CheckNumeric(e) {
+        if (window.event) // IE
+        {
+            if ((e.keyCode < 48 || e.keyCode > 57) & e.keyCode != 8 && e.keyCode != 44) {
+                event.returnValue = false;
+                return false;
+            }
+        }
+        else { // Fire Fox
+            if ((e.which < 48 || e.which > 57) & e.which != 8 && e.which != 44) {
+                e.preventDefault();
+                return false;
+            }
+        }
+    }
+</script>
+<div class="row" style="width:95%;margin:auto;">
+
+    <div class="col-md-12">
+        <table class="table table-stribbed">
+            <tr>
+                <td>
+                    <label>TransactionCustomerType<span class="text-danger">*</span> </label>
+                </td>
+                <td>
+                    <select class="form-control StoreId" id="TransactionCustomerType"><option value="">Type</option></select>
+                </td>
+                <td>&nbsp;</td>
+                <td>
+                    <label>TotalPrice<span class="text-danger">*</span></label>
+                </td>
+                <td>
+                    <input id="TotalPrice" class="form-control inputmasking" onkeypress="CheckNumeric(event);" />
+                </td>
+
+            </tr>
+            <tr>
+                <td>
+                    <label>EmpId<span class="text-danger">*</span></label>
+                </td>
+                <td>
+                    <select id="EmpId" style="width: 80%" class="form-control typeahead EmpId" name="query" data-provide="typeahead" autocomplete="off"></select>
+                </td>
+                <td>&nbsp;</td>
+                <td>
+                    <label>DiscountType<span class="text-danger">*</span></label>
+                </td>
+                <td>
+                    <input id="DiscountType" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label>ModeOfPayment<span class="text-danger">*</span></label>
+                </td>
+                <td>
+                    <input id="ModeOfPayment" class="form-control" />
+                </td>
+                <td>&nbsp;</td>
+                <td>
+                    <label>CardNumber<span class="text-danger">*</span></label>
+                </td>
+                <td>
+                    <input id="CardNumber" class="form-control" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label>NameOfTheCard</label>
+                </td>
+                <td>
+                    <input type="text" name="name" id="NameOfTheCard" class="form-control" />
+                </td>
+                <td>&nbsp;</td>
+                <td>
+                    <label>DiscountValue</label>
+                </td>
+                <td>
+                    <input type="text" name="name" id="DiscountValue" class="form-control inputmasking" onkeypress="CheckNumeric(event);" />
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <label>TaxAmount<span class="text-danger">*</span></label>
+                </td>
+                <td>
+                    <input type="text" name="name" id="TaxAmount" class="form-control inputmasking" onkeypress="CheckNumeric(event);" />
+                </td>
+                <td>&nbsp;</td>
+                <td>
+                    <label>FinalPrice<span class="text-danger">*</span></label>
+                </td>
+                <td>
+                    <input type="text" name="name" id="FinalPrice" class="form-control inputmasking" onkeypress="CheckNumeric(event);" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label>RefundAmount</label>
+                </td>
+                <td>
+                    <input type="text" name="name" id="RefundAmount" class="form-control inputmasking" onkeypress="CheckNumeric(event);" />
+
+                </td>
+                <td>&nbsp;</td>
+                <td>
+                    <label>BillAddress<span class="text-danger">*</span></label>
+                </td>
+                <td>
+                    <input type="text" name="name" id="BillAddress" class="form-control" />
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <label>SalesEmpNotes</label>
+                </td>
+                <td>
+                    <textarea class="form-control" id="SalesEmpNotes"></textarea>
+                </td>
+                <td>&nbsp;</td>
+                <td>
+                    <label>CanteenId</label>
+                </td>
+                <td>
+                    <select class="form-control" id="CanteenId"></select>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <label>SalesEmpId</label>
+                </td>
+                <td>
+                    <select id="SalesEmpId" style="width: 80%" class="form-control typeahead EmpId" name="query" data-provide="typeahead" autocomplete="off"></select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="IsFreeMeal" name="IsFreeMeal">
+                        <label class="custom-control-label" for="IsFreeMeal">IsFreeMeal</label>
+                    </div>
+                </td>
+            </tr>
+        </table><a href="#" data-toggle="modal" class="pull-right" data-target="#myModalItem">Item</a>
+        <table id="ItemTable" class="table table-borderedtable-condensed table-striped">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Qty</th>
+                    <th>Amount</th>
+                    <th>Tax</th>
+                    <th>Discount</th>
+                    <th>Final Amount</th>
+                    <th>Notes</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+    <br />
+    <div class="form-group col-md-6">
+        <br />
+        <button type="button" class="btn save" onclick="SaveDetails();">SAVE</button>
+        <button type="button" onclick="cancel();" class="btn cancel">Cancel</button>
+    </div>
+    <div class="clearfix"></div>
+</div>
+<div id="myModalItem" class="modal fade" role="dialog" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" onclick="clearItem();">×</button>
+                <h4 class="modal-title" id="header">New Item</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" class="form-control" id="len" value="0">
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-2">
+                        <label for="name">Item Id<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <select id="ItemId" class="form-control" style="max-width:200px;">
+                            <option value="">Select Item</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label for="name">Qty<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="Qty">
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-2">
+                        <label for="name">Amount<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control inputmasking" id="Amount" onkeypress="CheckNumeric(event);">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="name">Tax<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="Tax" onkeypress="CheckNumeric(event);">
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-2">
+                        <label for="name">Discount<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control inputmasking" id="Discount" onkeypress="CheckNumeric(event);">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="name">FinalAmount<span style="color:red;">*</span></label>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control inputmasking" id="FinalAmount" onkeypress="CheckNumeric(event);">
+                    </div>
+                </div>
+                <div class="row" style="padding:5px;">
+                    <div class="col-md-4"><label for="name">Notes</label></div>
+                    <div class="col-md-8">
+                        <textarea class="form-control" id="Notes"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <input type="button" id="btnasigntask" value="Save" onclick="AddItem();" class="btn btn-primary">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="clearItem();">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+

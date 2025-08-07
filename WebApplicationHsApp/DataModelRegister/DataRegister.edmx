@@ -1,0 +1,2307 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="MyIntranetApp_RegisterModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="tbl_Lms_CourceTrainee">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CourseId" Type="int" />
+          <Property Name="TraineeEmpId" Type="int" />
+          <Property Name="TraineeSign" Type="varchar" MaxLength="150" />
+          <Property Name="AttendedOn" Type="datetime" />
+          <Property Name="Remarks" Type="varchar" MaxLength="500" />
+          <Property Name="Mode" Type="varchar" MaxLength="50" />
+          <Property Name="Status" Type="varchar" MaxLength="50" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+          <Property Name="Department" Type="varchar" MaxLength="150" />
+          <Property Name="CourseName" Type="varchar" MaxLength="500" />
+        </EntityType>
+        <EntityType Name="tbl_Lms_Course">
+          <Key>
+            <PropertyRef Name="CourseId" />
+          </Key>
+          <Property Name="CourseId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CourseCode" Type="varchar" MaxLength="150" />
+          <Property Name="CourseName" Type="varchar" MaxLength="500" />
+          <Property Name="Description" Type="varchar(max)" />
+          <Property Name="CourseImg" Type="varchar" MaxLength="250" />
+          <Property Name="DateOfCourse" Type="datetime" />
+          <Property Name="Rating" Type="int" />
+          <Property Name="IsGlobal" Type="bit" />
+          <Property Name="LocationId" Type="int" />
+          <Property Name="DepartmentId" Type="int" />
+          <Property Name="Remarks" Type="varchar(max)" />
+          <Property Name="Status" Type="varchar" MaxLength="50" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+        </EntityType>
+        <EntityType Name="tbl_Lms_CoursePage">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CourseId" Type="int" />
+          <Property Name="Page_Order" Type="int" />
+          <Property Name="PageContent" Type="varchar(max)" />
+          <Property Name="PageDocumentUrl" Type="varchar" MaxLength="250" />
+          <Property Name="PageContentType" Type="varchar" MaxLength="50" />
+          <Property Name="Remarks" Type="varchar(max)" />
+          <Property Name="Status" Type="varchar" MaxLength="50" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+        </EntityType>
+        <EntityType Name="tbl_Lms_CourseQuiz">
+          <Key>
+            <PropertyRef Name="QuizId" />
+          </Key>
+          <Property Name="QuizId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="QuizName" Type="varchar" MaxLength="250" />
+          <Property Name="CourseId" Type="int" />
+          <Property Name="StartTime" Type="datetime" />
+          <Property Name="Duration" Type="int" />
+          <Property Name="Score" Type="int" />
+          <Property Name="EndTime" Type="datetime" />
+          <Property Name="Remarks" Type="varchar(max)" />
+          <Property Name="Status" Type="varchar" MaxLength="50" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+        </EntityType>
+        <EntityType Name="tbl_Lms_CourseTrainer">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="CourseId" Type="int" />
+          <Property Name="TrainerId" Type="int" />
+          <Property Name="Status" Type="varchar" MaxLength="50" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+        </EntityType>
+        <EntityType Name="tbl_LMS_TraineeQuiz">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TraineeId" Type="int" />
+          <Property Name="QuizId" Type="int" />
+          <Property Name="Marks" Type="int" />
+          <Property Name="Remarks" Type="varchar" MaxLength="250" />
+          <Property Name="Status" Type="varchar" MaxLength="50" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+        </EntityType>
+        <EntityType Name="tbl_ParkingLocation">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LocationId" Type="int" />
+          <Property Name="ParkingLocation" Type="varchar" MaxLength="150" />
+          <Property Name="ParkingType" Type="varchar" MaxLength="50" />
+          <Property Name="ParkingVolume" Type="int" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+        </EntityType>
+        <EntityType Name="tbl_Patient_Movement_Register">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LocationId" Type="int" />
+          <Property Name="PatientMRNo" Type="varchar" MaxLength="150" />
+          <Property Name="NameOfPatient" Type="varchar" MaxLength="150" />
+          <Property Name="Mobile" Type="varchar" MaxLength="150" />
+          <Property Name="Ward" Type="varchar" MaxLength="50" />
+          <Property Name="InTime" Type="datetime" />
+          <Property Name="OutTime" Type="datetime" />
+          <Property Name="RoomNo" Type="varchar" MaxLength="50" />
+          <Property Name="ConsultantName" Type="varchar" MaxLength="500" />
+          <Property Name="Remarks" Type="varchar(max)" />
+          <Property Name="DateOfRegister" Type="datetime" />
+          <Property Name="OutPerson" Type="varchar" MaxLength="150" />
+          <Property Name="OutPersonSign" Type="varchar" MaxLength="150" />
+          <Property Name="InPerson" Type="varchar" MaxLength="150" />
+          <Property Name="InPersonSign" Type="varchar" MaxLength="150" />
+          <Property Name="InSecurity" Type="varchar" MaxLength="250" />
+          <Property Name="InSecuritySign" Type="varchar" MaxLength="150" />
+          <Property Name="OutSecurity" Type="varchar" MaxLength="150" />
+          <Property Name="OutSecuritySign" Type="varchar" MaxLength="150" />
+          <Property Name="Status" Type="varchar" MaxLength="50" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+          <Property Name="InWard" Type="varchar" MaxLength="150" />
+        </EntityType>
+        <EntityType Name="tbl_Register_BioMedicalWaste">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LocationId" Type="int" />
+          <Property Name="SlipNo" Type="varchar" MaxLength="150" />
+          <Property Name="NameOfHCE" Type="varchar" MaxLength="250" />
+          <Property Name="MedicareRegistratioNo" Type="varchar" MaxLength="150" />
+          <Property Name="DateOfRegister" Type="datetime" />
+          <Property Name="YellowNoOfBags" Type="int" />
+          <Property Name="YellowWeightKgs" Type="varchar" MaxLength="50" />
+          <Property Name="BlueNoOfBags" Type="int" />
+          <Property Name="BlueWeightKgs" Type="varchar" MaxLength="50" />
+          <Property Name="RedNoOfBags" Type="int" />
+          <Property Name="RedWeightKgs" Type="varchar" MaxLength="50" />
+          <Property Name="SharpsNoOfBags" Type="int" />
+          <Property Name="SharpsWeightKgs" Type="varchar" MaxLength="50" />
+          <Property Name="TakenBy" Type="varchar" MaxLength="150" />
+          <Property Name="TakenBySign" Type="varchar" MaxLength="150" />
+          <Property Name="Security" Type="varchar" MaxLength="150" />
+          <Property Name="SecuritySign" Type="varchar" MaxLength="150" />
+          <Property Name="Remarks" Type="varchar" MaxLength="500" />
+          <Property Name="Status" Type="varchar" MaxLength="50" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+        </EntityType>
+        <EntityType Name="tbl_Register_Daak">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LocationId" Type="int" />
+          <Property Name="DateOfRegister" Type="datetime" />
+          <Property Name="Description" Type="varchar" MaxLength="500" />
+          <Property Name="PODNo" Type="varchar" MaxLength="250" />
+          <Property Name="FromLocation" Type="varchar" MaxLength="250" />
+          <Property Name="ToLocation" Type="varchar" MaxLength="250" />
+          <Property Name="Driver" Type="varchar" MaxLength="250" />
+          <Property Name="DriverSign" Type="varchar" MaxLength="150" />
+          <Property Name="CourierName" Type="varchar" MaxLength="250" />
+          <Property Name="HandOverto" Type="varchar" MaxLength="150" />
+          <Property Name="HandOverSign" Type="varchar" MaxLength="150" />
+          <Property Name="Remarks" Type="varchar" MaxLength="500" />
+          <Property Name="Status" Type="varchar" MaxLength="50" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+        </EntityType>
+        <EntityType Name="tbl_Register_Demo">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LocationId" Type="int" />
+          <Property Name="ProductDetails" Type="varchar" MaxLength="500" />
+          <Property Name="VendorName" Type="varchar" MaxLength="150" />
+          <Property Name="Qty" Type="int" />
+          <Property Name="DcNo" Type="varchar" MaxLength="50" />
+          <Property Name="HandoverToSecurity" Type="varchar" MaxLength="150" />
+          <Property Name="HandoverToSecuritySign" Type="varchar" MaxLength="150" />
+          <Property Name="HandOverToDepartment" Type="varchar" MaxLength="150" />
+          <Property Name="HandOverToPersonName" Type="varchar" MaxLength="150" />
+          <Property Name="HandOverDate" Type="datetime" />
+          <Property Name="HandOverRemarks" Type="varchar" MaxLength="500" />
+          <Property Name="ReturnSecurity" Type="varchar" MaxLength="150" />
+          <Property Name="ReturnSecuritySign" Type="varchar" MaxLength="150" />
+          <Property Name="ReturnDepartment" Type="varchar" MaxLength="150" />
+          <Property Name="ReturnPersonName" Type="varchar" MaxLength="150" />
+          <Property Name="ReturnDate" Type="datetime" />
+          <Property Name="ReturnRemarks" Type="varchar" MaxLength="500" />
+          <Property Name="Status" Type="varchar" MaxLength="50" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+        </EntityType>
+        <EntityType Name="tbl_Register_Fuel">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LocationId" Type="int" />
+          <Property Name="VechicleNumber" Type="varchar" MaxLength="150" />
+          <Property Name="OpeningKM" Type="varchar" MaxLength="50" />
+          <Property Name="ClosingKM" Type="varchar" MaxLength="50" />
+          <Property Name="TotalKM" Type="varchar" MaxLength="50" />
+          <Property Name="BillNo" Type="varchar" MaxLength="50" />
+          <Property Name="FuelFilled" Type="varchar" MaxLength="250" />
+          <Property Name="Amount" Type="varchar" MaxLength="50" />
+          <Property Name="DriverName" Type="varchar" MaxLength="250" />
+          <Property Name="SecuritySupervisor" Type="varchar" MaxLength="250" />
+          <Property Name="SecuritySupervisorSign" Type="varchar" MaxLength="50" />
+          <Property Name="Remarks" Type="varchar(max)" />
+          <Property Name="Status" Type="varchar" MaxLength="50" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+          <Property Name="FuelQty" Type="varchar" MaxLength="100" />
+        </EntityType>
+        <EntityType Name="tbl_Register_InternalInward">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LocationId" Type="int" />
+          <Property Name="RegisterDate" Type="datetime" />
+          <Property Name="Department" Type="varchar" MaxLength="250" />
+          <Property Name="GatePassNo" Type="varchar" MaxLength="250" />
+          <Property Name="ProductName" Type="varchar" MaxLength="250" />
+          <Property Name="Qty" Type="int" />
+          <Property Name="FromPerson" Type="varchar" MaxLength="250" />
+          <Property Name="AuthorizeBy" Type="varchar" MaxLength="250" />
+          <Property Name="Reason" Type="varchar" MaxLength="500" />
+          <Property Name="Security" Type="varchar" MaxLength="250" />
+          <Property Name="SecuritySign" Type="varchar" MaxLength="250" />
+          <Property Name="HandOverSign" Type="varchar" MaxLength="250" />
+          <Property Name="HandOverTo" Type="varchar" MaxLength="500" />
+          <Property Name="TakenBySign" Type="varchar" MaxLength="250" />
+          <Property Name="TakenBy" Type="varchar" MaxLength="250" />
+          <Property Name="Remarks" Type="varchar" MaxLength="500" />
+          <Property Name="Status" Type="varchar" MaxLength="50" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+        </EntityType>
+        <EntityType Name="tbl_Register_InwardNonReturnable">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LocationId" Type="int" />
+          <Property Name="RegisterDate" Type="datetime" />
+          <Property Name="SupplierName" Type="varchar" MaxLength="250" />
+          <Property Name="ProductName" Type="varchar" MaxLength="250" />
+          <Property Name="Qty" Type="int" />
+          <Property Name="Amount" Type="varchar" MaxLength="50" />
+          <Property Name="InvoiceNo" Type="varchar" MaxLength="150" />
+          <Property Name="HandOverTo" Type="varchar" MaxLength="250" />
+          <Property Name="HandOverToSign" Type="varchar" MaxLength="250" />
+          <Property Name="Security" Type="varchar" MaxLength="250" />
+          <Property Name="SecuritySign" Type="varchar" MaxLength="250" />
+          <Property Name="Remarks" Type="varchar" MaxLength="500" />
+          <Property Name="Status" Type="varchar" MaxLength="50" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+        </EntityType>
+        <EntityType Name="tbl_Register_InWardReturnable">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LocationId" Type="int" />
+          <Property Name="RegisterDate" Type="datetime" />
+          <Property Name="Department" Type="varchar" MaxLength="250" />
+          <Property Name="GatePassNo" Type="varchar" MaxLength="250" />
+          <Property Name="SupplierName" Type="varchar" MaxLength="250" />
+          <Property Name="ProductName" Type="varchar" MaxLength="250" />
+          <Property Name="Qty" Type="int" />
+          <Property Name="AuthorizeBy" Type="varchar" MaxLength="250" />
+          <Property Name="Reason" Type="varchar" MaxLength="500" />
+          <Property Name="Security" Type="varchar" MaxLength="250" />
+          <Property Name="SecuritySign" Type="varchar" MaxLength="250" />
+          <Property Name="OutDate" Type="datetime" />
+          <Property Name="OutTime" Type="varchar" MaxLength="50" />
+          <Property Name="Remarks" Type="varchar" MaxLength="500" />
+          <Property Name="Status" Type="varchar" MaxLength="50" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+          <Property Name="ExceptedDate" Type="datetime" />
+          <Property Name="InSecurity" Type="varchar" MaxLength="200" />
+          <Property Name="InSecuritySign" Type="varchar" MaxLength="200" />
+          <Property Name="InPerson" Type="varchar" MaxLength="200" />
+          <Property Name="InPersonSign" Type="varchar" MaxLength="200" />
+        </EntityType>
+        <EntityType Name="tbl_Register_Key">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LocationId" Type="int" />
+          <Property Name="EmployeeNumber" Type="int" />
+          <Property Name="KeyDepartment" Type="varchar" MaxLength="150" />
+          <Property Name="KeyNumber" Type="varchar" MaxLength="50" />
+          <Property Name="NoOfKeys" Type="int" />
+          <Property Name="KeyIssuerName" Type="varchar" MaxLength="150" />
+          <Property Name="TakingDateTime" Type="datetime" />
+          <Property Name="TakingSignature" Type="varchar" MaxLength="50" />
+          <Property Name="TakingSecuritySignature" Type="varchar" MaxLength="50" />
+          <Property Name="TakingSecurity" Type="varchar" MaxLength="150" />
+          <Property Name="ReturnSignature" Type="varchar" MaxLength="50" />
+          <Property Name="ReturnDateTime" Type="datetime" />
+          <Property Name="TakingRemarks" Type="varchar(max)" />
+          <Property Name="ReturnRemarks" Type="varchar(max)" />
+          <Property Name="ReturnSecurity" Type="varchar" MaxLength="150" />
+          <Property Name="ReturnSecuritySign" Type="varchar" MaxLength="150" />
+          <Property Name="ReturnEmployee" Type="int" />
+          <Property Name="Status" Type="varchar" MaxLength="50" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+        </EntityType>
+        <EntityType Name="tbl_Register_LifeCell">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LocationId" Type="int" />
+          <Property Name="PatientMRNo" Type="varchar" MaxLength="50" />
+          <Property Name="NameOfPatient" Type="varchar" MaxLength="250" />
+          <Property Name="RoomNo" Type="varchar" MaxLength="50" />
+          <Property Name="CompanyName" Type="varchar" MaxLength="250" />
+          <Property Name="PatientContactNumber" Type="varchar" MaxLength="50" />
+          <Property Name="ParamedicName" Type="varchar" MaxLength="250" />
+          <Property Name="ContactNumber" Type="varchar" MaxLength="50" />
+          <Property Name="Security" Type="varchar" MaxLength="250" />
+          <Property Name="InDateTime" Type="datetime" />
+          <Property Name="InSign" Type="varchar" MaxLength="50" />
+          <Property Name="OutDateTime" Type="datetime" />
+          <Property Name="OutSign" Type="varchar" MaxLength="50" />
+          <Property Name="InRemarks" Type="varchar(max)" />
+          <Property Name="OutRemarks" Type="varchar(max)" />
+          <Property Name="Status" Type="varchar" MaxLength="50" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+        </EntityType>
+        <EntityType Name="tbl_Register_LostFound">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="RequestType" Type="varchar" MaxLength="50" />
+          <Property Name="LocationId" Type="int" />
+          <Property Name="Items" Type="varchar(max)" />
+          <Property Name="LostIsEmployeeOrOther" Type="varchar" MaxLength="150" />
+          <Property Name="Lost_or_HandOverPerson" Type="varchar" MaxLength="500" />
+          <Property Name="LostRegisterSecurity" Type="varchar" MaxLength="150" />
+          <Property Name="LostRegisterSecuritySign" Type="varchar" MaxLength="150" />
+          <Property Name="LostRemarks" Type="varchar(max)" />
+          <Property Name="LostDate" Type="datetime" />
+          <Property Name="LostApproximateTime" Type="varchar" MaxLength="50" />
+          <Property Name="FoundIsEmployeeOrOther" Type="varchar" MaxLength="150" />
+          <Property Name="FoundPerson" Type="varchar" MaxLength="500" />
+          <Property Name="FoundRegisterSecurity" Type="varchar" MaxLength="150" />
+          <Property Name="FoundRegisterSecuritySign" Type="varchar" MaxLength="150" />
+          <Property Name="FoundRemarks" Type="varchar(max)" />
+          <Property Name="FoundDate" Type="datetime" />
+          <Property Name="FoundApproximateTime" Type="varchar" MaxLength="50" />
+          <Property Name="Status" Type="varchar" MaxLength="50" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+          <Property Name="Handoverto" Type="varchar" MaxLength="150" />
+          <Property Name="HandovertoSign" Type="varchar" MaxLength="150" />
+          <Property Name="LostPersonAddress" Type="varchar" MaxLength="500" />
+          <Property Name="FoundPersonAddress" Type="varchar" MaxLength="500" />
+          <Property Name="HandoverPersonAddress" Type="varchar" MaxLength="500" />
+        </EntityType>
+        <EntityType Name="tbl_Register_MobileDepositing">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="EmployeeNumber" Type="varchar" MaxLength="150" />
+          <Property Name="RegisterDate" Type="datetime" />
+          <Property Name="LocationId" Type="int" />
+          <Property Name="TokenNumber" Type="varchar" MaxLength="50" />
+          <Property Name="SecurityInSign" Type="varchar" MaxLength="150" />
+          <Property Name="EmployeeInSign" Type="varchar" MaxLength="250" />
+          <Property Name="SecurityOutSign" Type="varchar" MaxLength="250" />
+          <Property Name="EmployeeOutSign" Type="varchar" MaxLength="250" />
+          <Property Name="InSecurity" Type="varchar" MaxLength="250" />
+          <Property Name="OutSecurity" Type="varchar" MaxLength="250" />
+          <Property Name="Remarks" Type="varchar(max)" />
+          <Property Name="Status" Type="varchar" MaxLength="50" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+        </EntityType>
+        <EntityType Name="tbl_Register_NursingOuting">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LocationId" Type="int" />
+          <Property Name="EmployeeNo" Type="varchar" MaxLength="50" />
+          <Property Name="EmployeeName" Type="varchar" MaxLength="250" />
+          <Property Name="Designation" Type="varchar" MaxLength="250" />
+          <Property Name="Deparment" Type="varchar" MaxLength="250" />
+          <Property Name="EmployeeLocation" Type="varchar" MaxLength="250" />
+          <Property Name="EmailId" Type="varchar" MaxLength="250" />
+          <Property Name="MobileNo" Type="varchar" MaxLength="50" />
+          <Property Name="ReasonForGoing" Type="varchar" MaxLength="500" />
+          <Property Name="OutDate" Type="datetime" />
+          <Property Name="OutSecurity" Type="varchar" MaxLength="250" />
+          <Property Name="OutSecuritySign" Type="varchar" MaxLength="250" />
+          <Property Name="OutEmployeeSign" Type="varchar" MaxLength="250" />
+          <Property Name="OutRemarks" Type="varchar(max)" />
+          <Property Name="InDate" Type="datetime" />
+          <Property Name="InSecurity" Type="varchar" MaxLength="250" />
+          <Property Name="InSecuritySign" Type="varchar" MaxLength="250" />
+          <Property Name="InEmployeeSign" Type="varchar" MaxLength="250" />
+          <Property Name="Status" Type="varchar" MaxLength="50" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+          <Property Name="LeaveFromDate" Type="varchar" MaxLength="250" />
+          <Property Name="LeaveToDate" Type="varchar" MaxLength="250" />
+          <Property Name="ShiftName" Type="varchar" MaxLength="150" />
+        </EntityType>
+        <EntityType Name="tbl_Register_Occurance">
+          <Key>
+            <PropertyRef Name="OccuranceId" />
+          </Key>
+          <Property Name="OccuranceId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LocationId" Type="int" />
+          <Property Name="DateOfRegister" Type="datetime" />
+          <Property Name="Occurance" Type="varchar(max)" />
+          <Property Name="Shift" Type="varchar" MaxLength="150" />
+          <Property Name="OccuranceTime" Type="varchar" MaxLength="50" />
+          <Property Name="EmployeeId" Type="int" />
+          <Property Name="EmployeeSign" Type="varchar" MaxLength="250" />
+          <Property Name="Remarks" Type="varchar" MaxLength="500" />
+          <Property Name="Status" Type="varchar" MaxLength="50" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+        </EntityType>
+        <EntityType Name="tbl_Register_OutWardNonReturnable">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LocationId" Type="int" />
+          <Property Name="RegisterDate" Type="datetime" />
+          <Property Name="Department" Type="varchar" MaxLength="250" />
+          <Property Name="GatePassNo" Type="varchar" MaxLength="250" />
+          <Property Name="ProductName" Type="varchar" MaxLength="250" />
+          <Property Name="Qty" Type="int" />
+          <Property Name="SendingTo" Type="varchar" MaxLength="250" />
+          <Property Name="AuthorizeBy" Type="varchar" MaxLength="250" />
+          <Property Name="Reason" Type="varchar" MaxLength="500" />
+          <Property Name="Security" Type="varchar" MaxLength="250" />
+          <Property Name="SecuritySign" Type="varchar" MaxLength="250" />
+          <Property Name="OutDate" Type="datetime" />
+          <Property Name="OutTime" Type="varchar" MaxLength="50" />
+          <Property Name="Remarks" Type="varchar" MaxLength="500" />
+          <Property Name="Status" Type="varchar" MaxLength="50" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+        </EntityType>
+        <EntityType Name="tbl_Register_OutWardReturnable">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LocationId" Type="int" />
+          <Property Name="RegisterDate" Type="datetime" />
+          <Property Name="Department" Type="varchar" MaxLength="250" />
+          <Property Name="GatePassNo" Type="varchar" MaxLength="250" />
+          <Property Name="ProductName" Type="varchar" MaxLength="250" />
+          <Property Name="Qty" Type="int" />
+          <Property Name="SendingTo" Type="varchar" MaxLength="250" />
+          <Property Name="AuthorizeBy" Type="varchar" MaxLength="250" />
+          <Property Name="Reason" Type="varchar" MaxLength="500" />
+          <Property Name="Security" Type="varchar" MaxLength="250" />
+          <Property Name="SecuritySign" Type="varchar" MaxLength="250" />
+          <Property Name="ExceptedDate" Type="datetime" />
+          <Property Name="DateOfReturn" Type="datetime" />
+          <Property Name="Remarks" Type="varchar" MaxLength="500" />
+          <Property Name="Status" Type="varchar" MaxLength="50" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+          <Property Name="ReturnSecurity" Type="varchar" MaxLength="200" />
+          <Property Name="ReturnSecuritySign" Type="varchar" MaxLength="200" />
+          <Property Name="ReturnPerson" Type="varchar" MaxLength="200" />
+          <Property Name="ReturnPersonSign" Type="varchar" MaxLength="200" />
+        </EntityType>
+        <EntityType Name="tbl_Register_PatientDischarge">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LocationId" Type="int" />
+          <Property Name="PatientMRNo" Type="varchar" MaxLength="50" />
+          <Property Name="NameOfPatient" Type="varchar" MaxLength="250" />
+          <Property Name="Passes" Type="varchar" MaxLength="500" />
+          <Property Name="RoomNo" Type="varchar" MaxLength="500" />
+          <Property Name="OutDate" Type="datetime" />
+          <Property Name="OutTime" Type="varchar" MaxLength="50" />
+          <Property Name="IpExecutive" Type="varchar" MaxLength="250" />
+          <Property Name="IpExecutiveSign" Type="varchar" MaxLength="250" />
+          <Property Name="Security" Type="varchar" MaxLength="250" />
+          <Property Name="SecuritySign" Type="varchar" MaxLength="250" />
+          <Property Name="Remarks" Type="varchar" MaxLength="500" />
+          <Property Name="Status" Type="varchar" MaxLength="50" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+        </EntityType>
+        <EntityType Name="tbl_Register_PatientTransfer">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LocationId" Type="int" />
+          <Property Name="PatientMRNo" Type="varchar" MaxLength="50" />
+          <Property Name="NameOfPatient" Type="varchar" MaxLength="250" />
+          <Property Name="FromLocation" Type="varchar" MaxLength="250" />
+          <Property Name="ToLocation" Type="varchar" MaxLength="250" />
+          <Property Name="OutDateTime" Type="datetime" />
+          <Property Name="OutRemarks" Type="varchar" MaxLength="500" />
+          <Property Name="NurseIncharge" Type="varchar" MaxLength="250" />
+          <Property Name="NurseInchargeSign" Type="varchar" MaxLength="50" />
+          <Property Name="Security" Type="varchar" MaxLength="250" />
+          <Property Name="SecuritySign" Type="varchar" MaxLength="50" />
+          <Property Name="SecuritySupervisor" Type="varchar" MaxLength="250" />
+          <Property Name="SecuritySupervisorSign" Type="varchar" MaxLength="50" />
+          <Property Name="InDateTime" Type="datetime" />
+          <Property Name="InRemarks" Type="varchar" MaxLength="500" />
+          <Property Name="InLocation" Type="varchar" MaxLength="150" />
+          <Property Name="Status" Type="varchar" MaxLength="50" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+        </EntityType>
+        <EntityType Name="tbl_Register_Posting">
+          <Key>
+            <PropertyRef Name="PostingId" />
+          </Key>
+          <Property Name="PostingId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LocationId" Type="int" />
+          <Property Name="PostingDate" Type="datetime" />
+          <Property Name="PostingType" Type="varchar" MaxLength="150" />
+          <Property Name="PostingRank" Type="varchar" MaxLength="150" />
+          <Property Name="EmployeeId" Type="int" />
+          <Property Name="Shift" Type="varchar" MaxLength="150" />
+          <Property Name="PostingLocation" Type="varchar" MaxLength="250" />
+          <Property Name="InTime" Type="datetime" />
+          <Property Name="InTimeEmpSign" Type="varchar" MaxLength="250" />
+          <Property Name="InAuthorizeEmpSign" Type="varchar" MaxLength="150" />
+          <Property Name="InAuthorizeEmp" Type="varchar" MaxLength="150" />
+          <Property Name="OutTime" Type="datetime" />
+          <Property Name="OutTimeEmpSign" Type="varchar" MaxLength="250" />
+          <Property Name="OutAuthorizeEmpSign" Type="varchar" MaxLength="150" />
+          <Property Name="OutAuthorizeEmp" Type="varchar" MaxLength="150" />
+          <Property Name="Remarks" Type="varchar" MaxLength="500" />
+          <Property Name="Status" Type="varchar" MaxLength="50" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+        </EntityType>
+        <EntityType Name="tbl_Register_Round">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LocationId" Type="int" />
+          <Property Name="MrNo" Type="varchar" MaxLength="150" />
+          <Property Name="IpNo" Type="varchar" MaxLength="150" />
+          <Property Name="NameOfPatient" Type="varchar" MaxLength="250" />
+          <Property Name="DrName" Type="varchar" MaxLength="250" />
+          <Property Name="Remarks" Type="varchar(max)" />
+          <Property Name="ActionTaken" Type="varchar" MaxLength="500" />
+          <Property Name="AttenderSign" Type="varchar" MaxLength="250" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+        </EntityType>
+        <EntityType Name="tbl_Register_VehicleMovement">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LocationId" Type="int" />
+          <Property Name="WheelerType" Type="varchar" MaxLength="50" />
+          <Property Name="DateOfRegister" Type="datetime" />
+          <Property Name="VehicleNameOrNumber" Type="varchar" MaxLength="250" />
+          <Property Name="OutReading" Type="varchar" MaxLength="250" />
+          <Property Name="OutTime" Type="datetime" />
+          <Property Name="Driver" Type="varchar" MaxLength="150" />
+          <Property Name="InReading" Type="varchar" MaxLength="250" />
+          <Property Name="InTime" Type="datetime" />
+          <Property Name="TotalKiloMeter" Type="varchar" MaxLength="50" />
+          <Property Name="GoingTo" Type="varchar" MaxLength="250" />
+          <Property Name="Purpose" Type="varchar(max)" />
+          <Property Name="Remarks" Type="varchar(max)" />
+          <Property Name="Status" Type="varchar" MaxLength="50" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+          <Property Name="InSecurity" Type="varchar" MaxLength="150" />
+          <Property Name="InSecuritySign" Type="varchar" MaxLength="150" />
+          <Property Name="DriverSign" Type="varchar" MaxLength="150" />
+          <Property Name="OutSecurity" Type="varchar" MaxLength="150" />
+          <Property Name="OutSecuritySign" Type="varchar" MaxLength="150" />
+        </EntityType>
+        <EntityType Name="tbl_Register_VehicleParking">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LocationId" Type="int" />
+          <Property Name="ParkingLocation" Type="varchar" MaxLength="150" />
+          <Property Name="WheelerType" Type="varchar" MaxLength="50" />
+          <Property Name="DateOfRegister" Type="datetime" />
+          <Property Name="VehicleNameOrNumber" Type="varchar" MaxLength="250" />
+          <Property Name="MobileNo" Type="varchar" MaxLength="50" />
+          <Property Name="InTime" Type="datetime" />
+          <Property Name="InDriver" Type="varchar" MaxLength="150" />
+          <Property Name="OutTime" Type="datetime" />
+          <Property Name="OutDriver" Type="varchar" MaxLength="150" />
+          <Property Name="Purpose" Type="varchar(max)" />
+          <Property Name="Remarks" Type="varchar(max)" />
+          <Property Name="Status" Type="varchar" MaxLength="50" />
+          <Property Name="IsActive" Type="bit" />
+          <Property Name="CreatedBy" Type="varchar" MaxLength="150" />
+          <Property Name="CreatedOn" Type="datetime" />
+          <Property Name="ModifiedBy" Type="varchar" MaxLength="150" />
+          <Property Name="ModifiedOn" Type="datetime" />
+          <Property Name="InSecurity" Type="varchar" MaxLength="150" />
+          <Property Name="InSecuritySign" Type="varchar" MaxLength="150" />
+          <Property Name="InDriverSign" Type="varchar" MaxLength="150" />
+          <Property Name="OutSecurity" Type="varchar" MaxLength="150" />
+          <Property Name="OutSecuritySign" Type="varchar" MaxLength="150" />
+          <Property Name="OutDriverSign" Type="varchar" MaxLength="150" />
+        </EntityType>
+        <EntityContainer Name="MyIntranetApp_RegisterModelStoreContainer">
+          <EntitySet Name="tbl_Lms_CourceTrainee" EntityType="Self.tbl_Lms_CourceTrainee" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_Lms_Course" EntityType="Self.tbl_Lms_Course" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_Lms_CoursePage" EntityType="Self.tbl_Lms_CoursePage" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_Lms_CourseQuiz" EntityType="Self.tbl_Lms_CourseQuiz" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_Lms_CourseTrainer" EntityType="Self.tbl_Lms_CourseTrainer" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_LMS_TraineeQuiz" EntityType="Self.tbl_LMS_TraineeQuiz" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_ParkingLocation" EntityType="Self.tbl_ParkingLocation" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_Patient_Movement_Register" EntityType="Self.tbl_Patient_Movement_Register" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_Register_BioMedicalWaste" EntityType="Self.tbl_Register_BioMedicalWaste" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_Register_Daak" EntityType="Self.tbl_Register_Daak" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_Register_Demo" EntityType="Self.tbl_Register_Demo" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_Register_Fuel" EntityType="Self.tbl_Register_Fuel" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_Register_InternalInward" EntityType="Self.tbl_Register_InternalInward" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_Register_InwardNonReturnable" EntityType="Self.tbl_Register_InwardNonReturnable" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_Register_InWardReturnable" EntityType="Self.tbl_Register_InWardReturnable" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_Register_Key" EntityType="Self.tbl_Register_Key" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_Register_LifeCell" EntityType="Self.tbl_Register_LifeCell" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_Register_LostFound" EntityType="Self.tbl_Register_LostFound" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_Register_MobileDepositing" EntityType="Self.tbl_Register_MobileDepositing" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_Register_NursingOuting" EntityType="Self.tbl_Register_NursingOuting" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_Register_Occurance" EntityType="Self.tbl_Register_Occurance" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_Register_OutWardNonReturnable" EntityType="Self.tbl_Register_OutWardNonReturnable" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_Register_OutWardReturnable" EntityType="Self.tbl_Register_OutWardReturnable" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_Register_PatientDischarge" EntityType="Self.tbl_Register_PatientDischarge" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_Register_PatientTransfer" EntityType="Self.tbl_Register_PatientTransfer" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_Register_Posting" EntityType="Self.tbl_Register_Posting" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_Register_Round" EntityType="Self.tbl_Register_Round" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_Register_VehicleMovement" EntityType="Self.tbl_Register_VehicleMovement" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tbl_Register_VehicleParking" EntityType="Self.tbl_Register_VehicleParking" Schema="dbo" store:Type="Tables" />
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="MyIntranetApp_RegisterModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="tbl_Register_Fuel">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="VechicleNumber" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="OpeningKM" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ClosingKM" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="TotalKM" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="BillNo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="FuelFilled" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Amount" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="DriverName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="SecuritySupervisor" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="SecuritySupervisorSign" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Remarks" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+          <Property Name="LocationId" Type="Int32" />
+          <Property Name="FuelQty" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="tbl_Register_Key">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="EmployeeNumber" Type="Int32" />
+          <Property Name="KeyDepartment" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="KeyNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="NoOfKeys" Type="Int32" />
+          <Property Name="KeyIssuerName" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="TakingDateTime" Type="DateTime" Precision="3" />
+          <Property Name="TakingSignature" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ReturnSignature" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ReturnDateTime" Type="DateTime" Precision="3" />
+          <Property Name="TakingRemarks" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="ReturnRemarks" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+          <Property Name="LocationId" Type="Int32" />
+          <Property Name="TakingSecuritySignature" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="TakingSecurity" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ReturnSecurity" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ReturnSecuritySign" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ReturnEmployee" Type="Int32" />
+        </EntityType>
+        <EntityType Name="tbl_Register_LifeCell">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PatientMRNo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="NameOfPatient" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="RoomNo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="CompanyName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="PatientContactNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ParamedicName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="ContactNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Security" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="InDateTime" Type="DateTime" Precision="3" />
+          <Property Name="InSign" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="OutDateTime" Type="DateTime" Precision="3" />
+          <Property Name="OutSign" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="InRemarks" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="OutRemarks" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+          <Property Name="LocationId" Type="Int32" />
+        </EntityType>
+        <EntityType Name="tbl_Register_PatientTransfer">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PatientMRNo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="NameOfPatient" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="FromLocation" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="ToLocation" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="OutDateTime" Type="DateTime" Precision="3" />
+          <Property Name="OutRemarks" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="NurseIncharge" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="NurseInchargeSign" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Security" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="SecuritySign" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="SecuritySupervisor" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="SecuritySupervisorSign" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="InDateTime" Type="DateTime" Precision="3" />
+          <Property Name="InRemarks" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+          <Property Name="LocationId" Type="Int32" />
+          <Property Name="InLocation" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityContainer Name="MyIntranetApp_RegisterEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="tbl_Register_Fuel" EntityType="Self.tbl_Register_Fuel" />
+          <EntitySet Name="tbl_Register_Key" EntityType="Self.tbl_Register_Key" />
+          <EntitySet Name="tbl_Register_LifeCell" EntityType="Self.tbl_Register_LifeCell" />
+          <EntitySet Name="tbl_Register_PatientTransfer" EntityType="Self.tbl_Register_PatientTransfer" />
+          <EntitySet Name="tbl_Register_Daak" EntityType="MyIntranetApp_RegisterModel.tbl_Register_Daak" />
+          <EntitySet Name="tbl_Register_Demo" EntityType="MyIntranetApp_RegisterModel.tbl_Register_Demo" />
+          <EntitySet Name="tbl_Register_LostFound" EntityType="MyIntranetApp_RegisterModel.tbl_Register_LostFound" />
+          <EntitySet Name="tbl_Register_PatientDischarge" EntityType="MyIntranetApp_RegisterModel.tbl_Register_PatientDischarge" />
+          <EntitySet Name="tbl_Register_BioMedicalWaste" EntityType="MyIntranetApp_RegisterModel.tbl_Register_BioMedicalWaste" />
+          <EntitySet Name="tbl_Register_InternalInward" EntityType="MyIntranetApp_RegisterModel.tbl_Register_InternalInward" />
+          <EntitySet Name="tbl_Register_InwardNonReturnable" EntityType="MyIntranetApp_RegisterModel.tbl_Register_InwardNonReturnable" />
+          <EntitySet Name="tbl_Register_InWardReturnable" EntityType="MyIntranetApp_RegisterModel.tbl_Register_InWardReturnable" />
+          <EntitySet Name="tbl_Register_OutWardNonReturnable" EntityType="MyIntranetApp_RegisterModel.tbl_Register_OutWardNonReturnable" />
+          <EntitySet Name="tbl_Register_OutWardReturnable" EntityType="MyIntranetApp_RegisterModel.tbl_Register_OutWardReturnable" />
+          <EntitySet Name="tbl_Register_VehicleMovement" EntityType="MyIntranetApp_RegisterModel.tbl_Register_VehicleMovement" />
+          <EntitySet Name="tbl_Register_VehicleParking" EntityType="MyIntranetApp_RegisterModel.tbl_Register_VehicleParking" />
+          <EntitySet Name="tbl_ParkingLocation" EntityType="MyIntranetApp_RegisterModel.tbl_ParkingLocation" />
+          <EntitySet Name="tbl_Patient_Movement_Register" EntityType="MyIntranetApp_RegisterModel.tbl_Patient_Movement_Register" />
+          <EntitySet Name="tbl_Lms_CourceTrainee" EntityType="MyIntranetApp_RegisterModel.tbl_Lms_CourceTrainee" />
+          <EntitySet Name="tbl_Lms_Course" EntityType="MyIntranetApp_RegisterModel.tbl_Lms_Course" />
+          <EntitySet Name="tbl_Lms_CoursePage" EntityType="MyIntranetApp_RegisterModel.tbl_Lms_CoursePage" />
+          <EntitySet Name="tbl_Lms_CourseQuiz" EntityType="MyIntranetApp_RegisterModel.tbl_Lms_CourseQuiz" />
+          <EntitySet Name="tbl_Lms_CourseTrainer" EntityType="MyIntranetApp_RegisterModel.tbl_Lms_CourseTrainer" />
+          <EntitySet Name="tbl_LMS_TraineeQuiz" EntityType="MyIntranetApp_RegisterModel.tbl_LMS_TraineeQuiz" />
+          <EntitySet Name="tbl_Register_Occurance" EntityType="MyIntranetApp_RegisterModel.tbl_Register_Occurance" />
+          <EntitySet Name="tbl_Register_Posting" EntityType="MyIntranetApp_RegisterModel.tbl_Register_Posting" />
+          <EntitySet Name="tbl_Register_MobileDepositing" EntityType="MyIntranetApp_RegisterModel.tbl_Register_MobileDepositing" />
+          <EntitySet Name="tbl_Register_NursingOuting" EntityType="MyIntranetApp_RegisterModel.tbl_Register_NursingOuting" />
+          <EntitySet Name="tbl_Register_Round" EntityType="MyIntranetApp_RegisterModel.tbl_Register_Round" />
+        </EntityContainer>
+        <EntityType Name="tbl_Register_Daak">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LocationId" Type="Int32" />
+          <Property Name="DateOfRegister" Type="DateTime" Precision="3" />
+          <Property Name="Description" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="PODNo" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="FromLocation" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="ToLocation" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Driver" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="DriverSign" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CourierName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="HandOverto" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="HandOverSign" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="Remarks" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="tbl_Register_Demo">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LocationId" Type="Int32" />
+          <Property Name="ProductDetails" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="VendorName" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="Qty" Type="Int32" />
+          <Property Name="DcNo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="HandoverToSecurity" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="HandoverToSecuritySign" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="HandOverToDepartment" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="HandOverToPersonName" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="HandOverDate" Type="DateTime" Precision="3" />
+          <Property Name="HandOverRemarks" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="ReturnSecurity" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ReturnSecuritySign" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ReturnDepartment" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ReturnPersonName" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ReturnDate" Type="DateTime" Precision="3" />
+          <Property Name="ReturnRemarks" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="tbl_Register_LostFound">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="RequestType" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="LocationId" Type="Int32" />
+          <Property Name="Items" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="LostIsEmployeeOrOther" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="Lost_or_HandOverPerson" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="LostRegisterSecurity" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="LostRegisterSecuritySign" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="LostRemarks" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="LostDate" Type="DateTime" Precision="3" />
+          <Property Name="LostApproximateTime" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="FoundIsEmployeeOrOther" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="FoundPerson" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="FoundRegisterSecurity" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="FoundRegisterSecuritySign" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="FoundRemarks" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="FoundDate" Type="DateTime" Precision="3" />
+          <Property Name="FoundApproximateTime" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+          <Property Name="Handoverto" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="HandovertoSign" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="LostPersonAddress" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="FoundPersonAddress" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="HandoverPersonAddress" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="tbl_Register_PatientDischarge">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LocationId" Type="Int32" />
+          <Property Name="PatientMRNo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="NameOfPatient" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Passes" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="RoomNo" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="OutDate" Type="DateTime" Precision="3" />
+          <Property Name="OutTime" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IpExecutive" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="IpExecutiveSign" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Security" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="SecuritySign" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Remarks" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="tbl_Register_BioMedicalWaste">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LocationId" Type="Int32" />
+          <Property Name="SlipNo" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="NameOfHCE" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="MedicareRegistratioNo" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="DateOfRegister" Type="DateTime" Precision="3" />
+          <Property Name="YellowNoOfBags" Type="Int32" />
+          <Property Name="YellowWeightKgs" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="BlueNoOfBags" Type="Int32" />
+          <Property Name="BlueWeightKgs" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="RedNoOfBags" Type="Int32" />
+          <Property Name="RedWeightKgs" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="SharpsNoOfBags" Type="Int32" />
+          <Property Name="SharpsWeightKgs" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="TakenBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="TakenBySign" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="Security" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="SecuritySign" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="Remarks" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="tbl_Register_InternalInward">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LocationId" Type="Int32" />
+          <Property Name="RegisterDate" Type="DateTime" Precision="3" />
+          <Property Name="Department" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="GatePassNo" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="ProductName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Qty" Type="Int32" />
+          <Property Name="FromPerson" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="AuthorizeBy" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Reason" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="Security" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="SecuritySign" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="HandOverSign" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="HandOverTo" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="TakenBySign" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="TakenBy" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Remarks" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="tbl_Register_InwardNonReturnable">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LocationId" Type="Int32" />
+          <Property Name="RegisterDate" Type="DateTime" Precision="3" />
+          <Property Name="SupplierName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="ProductName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Qty" Type="Int32" />
+          <Property Name="Amount" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="InvoiceNo" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="HandOverTo" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="HandOverToSign" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Security" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="SecuritySign" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Remarks" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="tbl_Register_InWardReturnable">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LocationId" Type="Int32" />
+          <Property Name="RegisterDate" Type="DateTime" Precision="3" />
+          <Property Name="Department" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="GatePassNo" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="SupplierName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="ProductName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Qty" Type="Int32" />
+          <Property Name="AuthorizeBy" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Reason" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="Security" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="SecuritySign" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="OutDate" Type="DateTime" Precision="3" />
+          <Property Name="OutTime" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Remarks" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+          <Property Name="ExceptedDate" Type="DateTime" Precision="3" />
+          <Property Name="InSecurity" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="InSecuritySign" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="InPerson" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="InPersonSign" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="tbl_Register_OutWardNonReturnable">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LocationId" Type="Int32" />
+          <Property Name="RegisterDate" Type="DateTime" Precision="3" />
+          <Property Name="Department" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="GatePassNo" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="ProductName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Qty" Type="Int32" />
+          <Property Name="SendingTo" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="AuthorizeBy" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Reason" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="Security" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="SecuritySign" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="OutDate" Type="DateTime" Precision="3" />
+          <Property Name="OutTime" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Remarks" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="tbl_Register_OutWardReturnable">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LocationId" Type="Int32" />
+          <Property Name="RegisterDate" Type="DateTime" Precision="3" />
+          <Property Name="Department" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="GatePassNo" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="ProductName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Qty" Type="Int32" />
+          <Property Name="SendingTo" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="AuthorizeBy" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Reason" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="Security" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="SecuritySign" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="ExceptedDate" Type="DateTime" Precision="3" />
+          <Property Name="DateOfReturn" Type="DateTime" Precision="3" />
+          <Property Name="Remarks" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+          <Property Name="ReturnSecurity" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="ReturnSecuritySign" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="ReturnPerson" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="ReturnPersonSign" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="tbl_Register_VehicleMovement">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LocationId" Type="Int32" />
+          <Property Name="WheelerType" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="DateOfRegister" Type="DateTime" Precision="3" />
+          <Property Name="VehicleNameOrNumber" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="OutReading" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="OutTime" Type="DateTime" Precision="3" />
+          <Property Name="Driver" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="InReading" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="InTime" Type="DateTime" Precision="3" />
+          <Property Name="TotalKiloMeter" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="GoingTo" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Purpose" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Remarks" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+          <Property Name="InSecurity" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="InSecuritySign" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="DriverSign" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="OutSecurity" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="OutSecuritySign" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="tbl_Register_VehicleParking">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LocationId" Type="Int32" />
+          <Property Name="ParkingLocation" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="WheelerType" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="DateOfRegister" Type="DateTime" Precision="3" />
+          <Property Name="VehicleNameOrNumber" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="MobileNo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="InTime" Type="DateTime" Precision="3" />
+          <Property Name="InDriver" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="OutTime" Type="DateTime" Precision="3" />
+          <Property Name="OutDriver" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="Purpose" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Remarks" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+          <Property Name="InSecurity" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="InSecuritySign" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="InDriverSign" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="OutSecurity" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="OutSecuritySign" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="OutDriverSign" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="tbl_ParkingLocation">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LocationId" Type="Int32" />
+          <Property Name="ParkingLocation" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ParkingType" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ParkingVolume" Type="Int32" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="tbl_Patient_Movement_Register">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="PatientMRNo" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="NameOfPatient" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="Mobile" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="Ward" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="InTime" Type="DateTime" Precision="3" />
+          <Property Name="OutTime" Type="DateTime" Precision="3" />
+          <Property Name="RoomNo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ConsultantName" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="Remarks" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+          <Property Name="LocationId" Type="Int32" />
+          <Property Name="DateOfRegister" Type="DateTime" Precision="3" />
+          <Property Name="OutPerson" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="OutPersonSign" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="InPerson" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="InPersonSign" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="InSecurity" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="InSecuritySign" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="OutSecurity" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="OutSecuritySign" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="InWard" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="tbl_Lms_CourceTrainee">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CourseId" Type="Int32" />
+          <Property Name="TraineeEmpId" Type="Int32" />
+          <Property Name="TraineeSign" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="AttendedOn" Type="DateTime" Precision="3" />
+          <Property Name="Remarks" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="Mode" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+          <Property Name="Department" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CourseName" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="tbl_Lms_Course">
+          <Key>
+            <PropertyRef Name="CourseId" />
+          </Key>
+          <Property Name="CourseId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CourseCode" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CourseName" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="Description" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="CourseImg" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="DateOfCourse" Type="DateTime" Precision="3" />
+          <Property Name="Rating" Type="Int32" />
+          <Property Name="IsGlobal" Type="Boolean" />
+          <Property Name="LocationId" Type="Int32" />
+          <Property Name="DepartmentId" Type="Int32" />
+          <Property Name="Remarks" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="tbl_Lms_CoursePage">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CourseId" Type="Int32" />
+          <Property Name="Page_Order" Type="Int32" />
+          <Property Name="PageContent" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="PageDocumentUrl" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="PageContentType" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="Remarks" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="tbl_Lms_CourseQuiz">
+          <Key>
+            <PropertyRef Name="QuizId" />
+          </Key>
+          <Property Name="QuizId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="QuizName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="CourseId" Type="Int32" />
+          <Property Name="StartTime" Type="DateTime" Precision="3" />
+          <Property Name="Duration" Type="Int32" />
+          <Property Name="Score" Type="Int32" />
+          <Property Name="EndTime" Type="DateTime" Precision="3" />
+          <Property Name="Remarks" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="tbl_Lms_CourseTrainer">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="CourseId" Type="Int32" />
+          <Property Name="TrainerId" Type="Int32" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="tbl_LMS_TraineeQuiz">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TraineeId" Type="Int32" />
+          <Property Name="QuizId" Type="Int32" />
+          <Property Name="Marks" Type="Int32" />
+          <Property Name="Remarks" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="tbl_Register_Occurance">
+          <Key>
+            <PropertyRef Name="OccuranceId" />
+          </Key>
+          <Property Name="OccuranceId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LocationId" Type="Int32" />
+          <Property Name="DateOfRegister" Type="DateTime" Precision="3" />
+          <Property Name="Occurance" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Shift" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="OccuranceTime" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="EmployeeId" Type="Int32" />
+          <Property Name="EmployeeSign" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Remarks" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="tbl_Register_Posting">
+          <Key>
+            <PropertyRef Name="PostingId" />
+          </Key>
+          <Property Name="PostingId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LocationId" Type="Int32" />
+          <Property Name="PostingDate" Type="DateTime" Precision="3" />
+          <Property Name="PostingType" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="PostingRank" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="EmployeeId" Type="Int32" />
+          <Property Name="Shift" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="PostingLocation" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="InTime" Type="DateTime" Precision="3" />
+          <Property Name="InTimeEmpSign" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="InAuthorizeEmpSign" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="InAuthorizeEmp" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="OutTime" Type="DateTime" Precision="3" />
+          <Property Name="OutTimeEmpSign" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="OutAuthorizeEmpSign" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="OutAuthorizeEmp" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="Remarks" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="tbl_Register_MobileDepositing">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="EmployeeNumber" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="RegisterDate" Type="DateTime" Precision="3" />
+          <Property Name="LocationId" Type="Int32" />
+          <Property Name="TokenNumber" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="SecurityInSign" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="EmployeeInSign" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="SecurityOutSign" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="EmployeeOutSign" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="InSecurity" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="OutSecurity" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Remarks" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+        </EntityType>
+        <EntityType Name="tbl_Register_NursingOuting">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="EmployeeNo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="EmployeeName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Designation" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Deparment" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="EmployeeLocation" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="EmailId" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="MobileNo" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ReasonForGoing" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="OutDate" Type="DateTime" Precision="3" />
+          <Property Name="OutSecurity" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="OutSecuritySign" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="OutEmployeeSign" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="OutRemarks" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="InDate" Type="DateTime" Precision="3" />
+          <Property Name="InSecurity" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="InSecuritySign" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="InEmployeeSign" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Status" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IsActive" Type="Boolean" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+          <Property Name="LocationId" Type="Int32" />
+          <Property Name="LeaveFromDate" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="LeaveToDate" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="ShiftName" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="tbl_Register_Round">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MrNo" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="IpNo" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="NameOfPatient" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="DrName" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="Remarks" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="ActionTaken" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="AttenderSign" Type="String" MaxLength="250" FixedLength="false" Unicode="false" />
+          <Property Name="CreatedOn" Type="DateTime" Precision="3" />
+          <Property Name="CreatedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="ModifiedOn" Type="DateTime" Precision="3" />
+          <Property Name="ModifiedBy" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="LocationId" Type="Int32" />
+        </EntityType>
+      </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="MyIntranetApp_RegisterModelStoreContainer" CdmEntityContainer="MyIntranetApp_RegisterEntities">
+          <EntitySetMapping Name="tbl_Register_Fuel">
+            <EntityTypeMapping TypeName="MyIntranetApp_RegisterModel.tbl_Register_Fuel">
+              <MappingFragment StoreEntitySet="tbl_Register_Fuel">
+                <ScalarProperty Name="FuelQty" ColumnName="FuelQty" />
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="VechicleNumber" ColumnName="VechicleNumber" />
+                <ScalarProperty Name="OpeningKM" ColumnName="OpeningKM" />
+                <ScalarProperty Name="ClosingKM" ColumnName="ClosingKM" />
+                <ScalarProperty Name="TotalKM" ColumnName="TotalKM" />
+                <ScalarProperty Name="BillNo" ColumnName="BillNo" />
+                <ScalarProperty Name="FuelFilled" ColumnName="FuelFilled" />
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
+                <ScalarProperty Name="DriverName" ColumnName="DriverName" />
+                <ScalarProperty Name="SecuritySupervisor" ColumnName="SecuritySupervisor" />
+                <ScalarProperty Name="SecuritySupervisorSign" ColumnName="SecuritySupervisorSign" />
+                <ScalarProperty Name="Remarks" ColumnName="Remarks" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_Register_Key">
+            <EntityTypeMapping TypeName="MyIntranetApp_RegisterModel.tbl_Register_Key">
+              <MappingFragment StoreEntitySet="tbl_Register_Key">
+                <ScalarProperty Name="ReturnEmployee" ColumnName="ReturnEmployee" />
+                <ScalarProperty Name="ReturnSecuritySign" ColumnName="ReturnSecuritySign" />
+                <ScalarProperty Name="ReturnSecurity" ColumnName="ReturnSecurity" />
+                <ScalarProperty Name="TakingSecurity" ColumnName="TakingSecurity" />
+                <ScalarProperty Name="TakingSecuritySignature" ColumnName="TakingSecuritySignature" />
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="EmployeeNumber" ColumnName="EmployeeNumber" />
+                <ScalarProperty Name="KeyDepartment" ColumnName="KeyDepartment" />
+                <ScalarProperty Name="KeyNumber" ColumnName="KeyNumber" />
+                <ScalarProperty Name="NoOfKeys" ColumnName="NoOfKeys" />
+                <ScalarProperty Name="KeyIssuerName" ColumnName="KeyIssuerName" />
+                <ScalarProperty Name="TakingDateTime" ColumnName="TakingDateTime" />
+                <ScalarProperty Name="TakingSignature" ColumnName="TakingSignature" />
+                <ScalarProperty Name="ReturnSignature" ColumnName="ReturnSignature" />
+                <ScalarProperty Name="ReturnDateTime" ColumnName="ReturnDateTime" />
+                <ScalarProperty Name="TakingRemarks" ColumnName="TakingRemarks" />
+                <ScalarProperty Name="ReturnRemarks" ColumnName="ReturnRemarks" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_Register_LifeCell">
+            <EntityTypeMapping TypeName="MyIntranetApp_RegisterModel.tbl_Register_LifeCell">
+              <MappingFragment StoreEntitySet="tbl_Register_LifeCell">
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="PatientMRNo" ColumnName="PatientMRNo" />
+                <ScalarProperty Name="NameOfPatient" ColumnName="NameOfPatient" />
+                <ScalarProperty Name="RoomNo" ColumnName="RoomNo" />
+                <ScalarProperty Name="CompanyName" ColumnName="CompanyName" />
+                <ScalarProperty Name="PatientContactNumber" ColumnName="PatientContactNumber" />
+                <ScalarProperty Name="ParamedicName" ColumnName="ParamedicName" />
+                <ScalarProperty Name="ContactNumber" ColumnName="ContactNumber" />
+                <ScalarProperty Name="Security" ColumnName="Security" />
+                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+                <ScalarProperty Name="InSign" ColumnName="InSign" />
+                <ScalarProperty Name="OutDateTime" ColumnName="OutDateTime" />
+                <ScalarProperty Name="OutSign" ColumnName="OutSign" />
+                <ScalarProperty Name="InRemarks" ColumnName="InRemarks" />
+                <ScalarProperty Name="OutRemarks" ColumnName="OutRemarks" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_Register_PatientTransfer">
+            <EntityTypeMapping TypeName="MyIntranetApp_RegisterModel.tbl_Register_PatientTransfer">
+              <MappingFragment StoreEntitySet="tbl_Register_PatientTransfer">
+                <ScalarProperty Name="InLocation" ColumnName="InLocation" />
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+                <ScalarProperty Name="PatientMRNo" ColumnName="PatientMRNo" />
+                <ScalarProperty Name="NameOfPatient" ColumnName="NameOfPatient" />
+                <ScalarProperty Name="FromLocation" ColumnName="FromLocation" />
+                <ScalarProperty Name="ToLocation" ColumnName="ToLocation" />
+                <ScalarProperty Name="OutDateTime" ColumnName="OutDateTime" />
+                <ScalarProperty Name="OutRemarks" ColumnName="OutRemarks" />
+                <ScalarProperty Name="NurseIncharge" ColumnName="NurseIncharge" />
+                <ScalarProperty Name="NurseInchargeSign" ColumnName="NurseInchargeSign" />
+                <ScalarProperty Name="Security" ColumnName="Security" />
+                <ScalarProperty Name="SecuritySign" ColumnName="SecuritySign" />
+                <ScalarProperty Name="SecuritySupervisor" ColumnName="SecuritySupervisor" />
+                <ScalarProperty Name="SecuritySupervisorSign" ColumnName="SecuritySupervisorSign" />
+                <ScalarProperty Name="InDateTime" ColumnName="InDateTime" />
+                <ScalarProperty Name="InRemarks" ColumnName="InRemarks" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_Register_Daak">
+            <EntityTypeMapping TypeName="MyIntranetApp_RegisterModel.tbl_Register_Daak">
+              <MappingFragment StoreEntitySet="tbl_Register_Daak">
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Remarks" ColumnName="Remarks" />
+                <ScalarProperty Name="HandOverSign" ColumnName="HandOverSign" />
+                <ScalarProperty Name="HandOverto" ColumnName="HandOverto" />
+                <ScalarProperty Name="CourierName" ColumnName="CourierName" />
+                <ScalarProperty Name="DriverSign" ColumnName="DriverSign" />
+                <ScalarProperty Name="Driver" ColumnName="Driver" />
+                <ScalarProperty Name="ToLocation" ColumnName="ToLocation" />
+                <ScalarProperty Name="FromLocation" ColumnName="FromLocation" />
+                <ScalarProperty Name="PODNo" ColumnName="PODNo" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="DateOfRegister" ColumnName="DateOfRegister" />
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_Register_Demo">
+            <EntityTypeMapping TypeName="MyIntranetApp_RegisterModel.tbl_Register_Demo">
+              <MappingFragment StoreEntitySet="tbl_Register_Demo">
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="ReturnRemarks" ColumnName="ReturnRemarks" />
+                <ScalarProperty Name="ReturnDate" ColumnName="ReturnDate" />
+                <ScalarProperty Name="ReturnPersonName" ColumnName="ReturnPersonName" />
+                <ScalarProperty Name="ReturnDepartment" ColumnName="ReturnDepartment" />
+                <ScalarProperty Name="ReturnSecuritySign" ColumnName="ReturnSecuritySign" />
+                <ScalarProperty Name="ReturnSecurity" ColumnName="ReturnSecurity" />
+                <ScalarProperty Name="HandOverRemarks" ColumnName="HandOverRemarks" />
+                <ScalarProperty Name="HandOverDate" ColumnName="HandOverDate" />
+                <ScalarProperty Name="HandOverToPersonName" ColumnName="HandOverToPersonName" />
+                <ScalarProperty Name="HandOverToDepartment" ColumnName="HandOverToDepartment" />
+                <ScalarProperty Name="HandoverToSecuritySign" ColumnName="HandoverToSecuritySign" />
+                <ScalarProperty Name="HandoverToSecurity" ColumnName="HandoverToSecurity" />
+                <ScalarProperty Name="DcNo" ColumnName="DcNo" />
+                <ScalarProperty Name="Qty" ColumnName="Qty" />
+                <ScalarProperty Name="VendorName" ColumnName="VendorName" />
+                <ScalarProperty Name="ProductDetails" ColumnName="ProductDetails" />
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_Register_LostFound">
+            <EntityTypeMapping TypeName="MyIntranetApp_RegisterModel.tbl_Register_LostFound">
+              <MappingFragment StoreEntitySet="tbl_Register_LostFound">
+                <ScalarProperty Name="HandoverPersonAddress" ColumnName="HandoverPersonAddress" />
+                <ScalarProperty Name="FoundPersonAddress" ColumnName="FoundPersonAddress" />
+                <ScalarProperty Name="LostPersonAddress" ColumnName="LostPersonAddress" />
+                <ScalarProperty Name="HandovertoSign" ColumnName="HandovertoSign" />
+                <ScalarProperty Name="Handoverto" ColumnName="Handoverto" />
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="FoundApproximateTime" ColumnName="FoundApproximateTime" />
+                <ScalarProperty Name="FoundDate" ColumnName="FoundDate" />
+                <ScalarProperty Name="FoundRemarks" ColumnName="FoundRemarks" />
+                <ScalarProperty Name="FoundRegisterSecuritySign" ColumnName="FoundRegisterSecuritySign" />
+                <ScalarProperty Name="FoundRegisterSecurity" ColumnName="FoundRegisterSecurity" />
+                <ScalarProperty Name="FoundPerson" ColumnName="FoundPerson" />
+                <ScalarProperty Name="FoundIsEmployeeOrOther" ColumnName="FoundIsEmployeeOrOther" />
+                <ScalarProperty Name="LostApproximateTime" ColumnName="LostApproximateTime" />
+                <ScalarProperty Name="LostDate" ColumnName="LostDate" />
+                <ScalarProperty Name="LostRemarks" ColumnName="LostRemarks" />
+                <ScalarProperty Name="LostRegisterSecuritySign" ColumnName="LostRegisterSecuritySign" />
+                <ScalarProperty Name="LostRegisterSecurity" ColumnName="LostRegisterSecurity" />
+                <ScalarProperty Name="Lost_or_HandOverPerson" ColumnName="Lost_or_HandOverPerson" />
+                <ScalarProperty Name="LostIsEmployeeOrOther" ColumnName="LostIsEmployeeOrOther" />
+                <ScalarProperty Name="Items" ColumnName="Items" />
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="RequestType" ColumnName="RequestType" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_Register_PatientDischarge">
+            <EntityTypeMapping TypeName="MyIntranetApp_RegisterModel.tbl_Register_PatientDischarge">
+              <MappingFragment StoreEntitySet="tbl_Register_PatientDischarge">
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Remarks" ColumnName="Remarks" />
+                <ScalarProperty Name="SecuritySign" ColumnName="SecuritySign" />
+                <ScalarProperty Name="Security" ColumnName="Security" />
+                <ScalarProperty Name="IpExecutiveSign" ColumnName="IpExecutiveSign" />
+                <ScalarProperty Name="IpExecutive" ColumnName="IpExecutive" />
+                <ScalarProperty Name="OutTime" ColumnName="OutTime" />
+                <ScalarProperty Name="OutDate" ColumnName="OutDate" />
+                <ScalarProperty Name="RoomNo" ColumnName="RoomNo" />
+                <ScalarProperty Name="Passes" ColumnName="Passes" />
+                <ScalarProperty Name="NameOfPatient" ColumnName="NameOfPatient" />
+                <ScalarProperty Name="PatientMRNo" ColumnName="PatientMRNo" />
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_Register_BioMedicalWaste">
+            <EntityTypeMapping TypeName="MyIntranetApp_RegisterModel.tbl_Register_BioMedicalWaste">
+              <MappingFragment StoreEntitySet="tbl_Register_BioMedicalWaste">
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Remarks" ColumnName="Remarks" />
+                <ScalarProperty Name="SecuritySign" ColumnName="SecuritySign" />
+                <ScalarProperty Name="Security" ColumnName="Security" />
+                <ScalarProperty Name="TakenBySign" ColumnName="TakenBySign" />
+                <ScalarProperty Name="TakenBy" ColumnName="TakenBy" />
+                <ScalarProperty Name="SharpsWeightKgs" ColumnName="SharpsWeightKgs" />
+                <ScalarProperty Name="SharpsNoOfBags" ColumnName="SharpsNoOfBags" />
+                <ScalarProperty Name="RedWeightKgs" ColumnName="RedWeightKgs" />
+                <ScalarProperty Name="RedNoOfBags" ColumnName="RedNoOfBags" />
+                <ScalarProperty Name="BlueWeightKgs" ColumnName="BlueWeightKgs" />
+                <ScalarProperty Name="BlueNoOfBags" ColumnName="BlueNoOfBags" />
+                <ScalarProperty Name="YellowWeightKgs" ColumnName="YellowWeightKgs" />
+                <ScalarProperty Name="YellowNoOfBags" ColumnName="YellowNoOfBags" />
+                <ScalarProperty Name="DateOfRegister" ColumnName="DateOfRegister" />
+                <ScalarProperty Name="MedicareRegistratioNo" ColumnName="MedicareRegistratioNo" />
+                <ScalarProperty Name="NameOfHCE" ColumnName="NameOfHCE" />
+                <ScalarProperty Name="SlipNo" ColumnName="SlipNo" />
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_Register_InternalInward">
+            <EntityTypeMapping TypeName="MyIntranetApp_RegisterModel.tbl_Register_InternalInward">
+              <MappingFragment StoreEntitySet="tbl_Register_InternalInward">
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Remarks" ColumnName="Remarks" />
+                <ScalarProperty Name="TakenBy" ColumnName="TakenBy" />
+                <ScalarProperty Name="TakenBySign" ColumnName="TakenBySign" />
+                <ScalarProperty Name="HandOverTo" ColumnName="HandOverTo" />
+                <ScalarProperty Name="HandOverSign" ColumnName="HandOverSign" />
+                <ScalarProperty Name="SecuritySign" ColumnName="SecuritySign" />
+                <ScalarProperty Name="Security" ColumnName="Security" />
+                <ScalarProperty Name="Reason" ColumnName="Reason" />
+                <ScalarProperty Name="AuthorizeBy" ColumnName="AuthorizeBy" />
+                <ScalarProperty Name="FromPerson" ColumnName="FromPerson" />
+                <ScalarProperty Name="Qty" ColumnName="Qty" />
+                <ScalarProperty Name="ProductName" ColumnName="ProductName" />
+                <ScalarProperty Name="GatePassNo" ColumnName="GatePassNo" />
+                <ScalarProperty Name="Department" ColumnName="Department" />
+                <ScalarProperty Name="RegisterDate" ColumnName="RegisterDate" />
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_Register_InwardNonReturnable">
+            <EntityTypeMapping TypeName="MyIntranetApp_RegisterModel.tbl_Register_InwardNonReturnable">
+              <MappingFragment StoreEntitySet="tbl_Register_InwardNonReturnable">
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Remarks" ColumnName="Remarks" />
+                <ScalarProperty Name="SecuritySign" ColumnName="SecuritySign" />
+                <ScalarProperty Name="Security" ColumnName="Security" />
+                <ScalarProperty Name="HandOverToSign" ColumnName="HandOverToSign" />
+                <ScalarProperty Name="HandOverTo" ColumnName="HandOverTo" />
+                <ScalarProperty Name="InvoiceNo" ColumnName="InvoiceNo" />
+                <ScalarProperty Name="Amount" ColumnName="Amount" />
+                <ScalarProperty Name="Qty" ColumnName="Qty" />
+                <ScalarProperty Name="ProductName" ColumnName="ProductName" />
+                <ScalarProperty Name="SupplierName" ColumnName="SupplierName" />
+                <ScalarProperty Name="RegisterDate" ColumnName="RegisterDate" />
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_Register_InWardReturnable">
+            <EntityTypeMapping TypeName="MyIntranetApp_RegisterModel.tbl_Register_InWardReturnable">
+              <MappingFragment StoreEntitySet="tbl_Register_InWardReturnable">
+                <ScalarProperty Name="InPersonSign" ColumnName="InPersonSign" />
+                <ScalarProperty Name="InPerson" ColumnName="InPerson" />
+                <ScalarProperty Name="InSecuritySign" ColumnName="InSecuritySign" />
+                <ScalarProperty Name="InSecurity" ColumnName="InSecurity" />
+                <ScalarProperty Name="ExceptedDate" ColumnName="ExceptedDate" />
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Remarks" ColumnName="Remarks" />
+                <ScalarProperty Name="OutTime" ColumnName="OutTime" />
+                <ScalarProperty Name="OutDate" ColumnName="OutDate" />
+                <ScalarProperty Name="SecuritySign" ColumnName="SecuritySign" />
+                <ScalarProperty Name="Security" ColumnName="Security" />
+                <ScalarProperty Name="Reason" ColumnName="Reason" />
+                <ScalarProperty Name="AuthorizeBy" ColumnName="AuthorizeBy" />
+                <ScalarProperty Name="Qty" ColumnName="Qty" />
+                <ScalarProperty Name="ProductName" ColumnName="ProductName" />
+                <ScalarProperty Name="SupplierName" ColumnName="SupplierName" />
+                <ScalarProperty Name="GatePassNo" ColumnName="GatePassNo" />
+                <ScalarProperty Name="Department" ColumnName="Department" />
+                <ScalarProperty Name="RegisterDate" ColumnName="RegisterDate" />
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_Register_OutWardNonReturnable">
+            <EntityTypeMapping TypeName="MyIntranetApp_RegisterModel.tbl_Register_OutWardNonReturnable">
+              <MappingFragment StoreEntitySet="tbl_Register_OutWardNonReturnable">
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Remarks" ColumnName="Remarks" />
+                <ScalarProperty Name="OutTime" ColumnName="OutTime" />
+                <ScalarProperty Name="OutDate" ColumnName="OutDate" />
+                <ScalarProperty Name="SecuritySign" ColumnName="SecuritySign" />
+                <ScalarProperty Name="Security" ColumnName="Security" />
+                <ScalarProperty Name="Reason" ColumnName="Reason" />
+                <ScalarProperty Name="AuthorizeBy" ColumnName="AuthorizeBy" />
+                <ScalarProperty Name="SendingTo" ColumnName="SendingTo" />
+                <ScalarProperty Name="Qty" ColumnName="Qty" />
+                <ScalarProperty Name="ProductName" ColumnName="ProductName" />
+                <ScalarProperty Name="GatePassNo" ColumnName="GatePassNo" />
+                <ScalarProperty Name="Department" ColumnName="Department" />
+                <ScalarProperty Name="RegisterDate" ColumnName="RegisterDate" />
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_Register_OutWardReturnable">
+            <EntityTypeMapping TypeName="MyIntranetApp_RegisterModel.tbl_Register_OutWardReturnable">
+              <MappingFragment StoreEntitySet="tbl_Register_OutWardReturnable">
+                <ScalarProperty Name="ReturnPersonSign" ColumnName="ReturnPersonSign" />
+                <ScalarProperty Name="ReturnPerson" ColumnName="ReturnPerson" />
+                <ScalarProperty Name="ReturnSecuritySign" ColumnName="ReturnSecuritySign" />
+                <ScalarProperty Name="ReturnSecurity" ColumnName="ReturnSecurity" />
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Remarks" ColumnName="Remarks" />
+                <ScalarProperty Name="DateOfReturn" ColumnName="DateOfReturn" />
+                <ScalarProperty Name="ExceptedDate" ColumnName="ExceptedDate" />
+                <ScalarProperty Name="SecuritySign" ColumnName="SecuritySign" />
+                <ScalarProperty Name="Security" ColumnName="Security" />
+                <ScalarProperty Name="Reason" ColumnName="Reason" />
+                <ScalarProperty Name="AuthorizeBy" ColumnName="AuthorizeBy" />
+                <ScalarProperty Name="SendingTo" ColumnName="SendingTo" />
+                <ScalarProperty Name="Qty" ColumnName="Qty" />
+                <ScalarProperty Name="ProductName" ColumnName="ProductName" />
+                <ScalarProperty Name="GatePassNo" ColumnName="GatePassNo" />
+                <ScalarProperty Name="Department" ColumnName="Department" />
+                <ScalarProperty Name="RegisterDate" ColumnName="RegisterDate" />
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_Register_VehicleMovement">
+            <EntityTypeMapping TypeName="MyIntranetApp_RegisterModel.tbl_Register_VehicleMovement">
+              <MappingFragment StoreEntitySet="tbl_Register_VehicleMovement">
+                <ScalarProperty Name="OutSecuritySign" ColumnName="OutSecuritySign" />
+                <ScalarProperty Name="OutSecurity" ColumnName="OutSecurity" />
+                <ScalarProperty Name="DriverSign" ColumnName="DriverSign" />
+                <ScalarProperty Name="InSecuritySign" ColumnName="InSecuritySign" />
+                <ScalarProperty Name="InSecurity" ColumnName="InSecurity" />
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Remarks" ColumnName="Remarks" />
+                <ScalarProperty Name="Purpose" ColumnName="Purpose" />
+                <ScalarProperty Name="GoingTo" ColumnName="GoingTo" />
+                <ScalarProperty Name="TotalKiloMeter" ColumnName="TotalKiloMeter" />
+                <ScalarProperty Name="InTime" ColumnName="InTime" />
+                <ScalarProperty Name="InReading" ColumnName="InReading" />
+                <ScalarProperty Name="Driver" ColumnName="Driver" />
+                <ScalarProperty Name="OutTime" ColumnName="OutTime" />
+                <ScalarProperty Name="OutReading" ColumnName="OutReading" />
+                <ScalarProperty Name="VehicleNameOrNumber" ColumnName="VehicleNameOrNumber" />
+                <ScalarProperty Name="DateOfRegister" ColumnName="DateOfRegister" />
+                <ScalarProperty Name="WheelerType" ColumnName="WheelerType" />
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_Register_VehicleParking">
+            <EntityTypeMapping TypeName="MyIntranetApp_RegisterModel.tbl_Register_VehicleParking">
+              <MappingFragment StoreEntitySet="tbl_Register_VehicleParking">
+                <ScalarProperty Name="OutDriverSign" ColumnName="OutDriverSign" />
+                <ScalarProperty Name="OutSecuritySign" ColumnName="OutSecuritySign" />
+                <ScalarProperty Name="OutSecurity" ColumnName="OutSecurity" />
+                <ScalarProperty Name="InDriverSign" ColumnName="InDriverSign" />
+                <ScalarProperty Name="InSecuritySign" ColumnName="InSecuritySign" />
+                <ScalarProperty Name="InSecurity" ColumnName="InSecurity" />
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Remarks" ColumnName="Remarks" />
+                <ScalarProperty Name="Purpose" ColumnName="Purpose" />
+                <ScalarProperty Name="OutDriver" ColumnName="OutDriver" />
+                <ScalarProperty Name="OutTime" ColumnName="OutTime" />
+                <ScalarProperty Name="InDriver" ColumnName="InDriver" />
+                <ScalarProperty Name="InTime" ColumnName="InTime" />
+                <ScalarProperty Name="MobileNo" ColumnName="MobileNo" />
+                <ScalarProperty Name="VehicleNameOrNumber" ColumnName="VehicleNameOrNumber" />
+                <ScalarProperty Name="DateOfRegister" ColumnName="DateOfRegister" />
+                <ScalarProperty Name="WheelerType" ColumnName="WheelerType" />
+                <ScalarProperty Name="ParkingLocation" ColumnName="ParkingLocation" />
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_ParkingLocation">
+            <EntityTypeMapping TypeName="MyIntranetApp_RegisterModel.tbl_ParkingLocation">
+              <MappingFragment StoreEntitySet="tbl_ParkingLocation">
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="ParkingVolume" ColumnName="ParkingVolume" />
+                <ScalarProperty Name="ParkingType" ColumnName="ParkingType" />
+                <ScalarProperty Name="ParkingLocation" ColumnName="ParkingLocation" />
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_Patient_Movement_Register">
+            <EntityTypeMapping TypeName="MyIntranetApp_RegisterModel.tbl_Patient_Movement_Register">
+              <MappingFragment StoreEntitySet="tbl_Patient_Movement_Register">
+                <ScalarProperty Name="InWard" ColumnName="InWard" />
+                <ScalarProperty Name="OutSecuritySign" ColumnName="OutSecuritySign" />
+                <ScalarProperty Name="OutSecurity" ColumnName="OutSecurity" />
+                <ScalarProperty Name="InSecuritySign" ColumnName="InSecuritySign" />
+                <ScalarProperty Name="InSecurity" ColumnName="InSecurity" />
+                <ScalarProperty Name="InPersonSign" ColumnName="InPersonSign" />
+                <ScalarProperty Name="InPerson" ColumnName="InPerson" />
+                <ScalarProperty Name="OutPersonSign" ColumnName="OutPersonSign" />
+                <ScalarProperty Name="OutPerson" ColumnName="OutPerson" />
+                <ScalarProperty Name="DateOfRegister" ColumnName="DateOfRegister" />
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Remarks" ColumnName="Remarks" />
+                <ScalarProperty Name="ConsultantName" ColumnName="ConsultantName" />
+                <ScalarProperty Name="RoomNo" ColumnName="RoomNo" />
+                <ScalarProperty Name="OutTime" ColumnName="OutTime" />
+                <ScalarProperty Name="InTime" ColumnName="InTime" />
+                <ScalarProperty Name="Ward" ColumnName="Ward" />
+                <ScalarProperty Name="Mobile" ColumnName="Mobile" />
+                <ScalarProperty Name="NameOfPatient" ColumnName="NameOfPatient" />
+                <ScalarProperty Name="PatientMRNo" ColumnName="PatientMRNo" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_Lms_CourceTrainee">
+            <EntityTypeMapping TypeName="MyIntranetApp_RegisterModel.tbl_Lms_CourceTrainee">
+              <MappingFragment StoreEntitySet="tbl_Lms_CourceTrainee">
+                <ScalarProperty Name="CourseName" ColumnName="CourseName" />
+                <ScalarProperty Name="Department" ColumnName="Department" />
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Mode" ColumnName="Mode" />
+                <ScalarProperty Name="Remarks" ColumnName="Remarks" />
+                <ScalarProperty Name="AttendedOn" ColumnName="AttendedOn" />
+                <ScalarProperty Name="TraineeSign" ColumnName="TraineeSign" />
+                <ScalarProperty Name="TraineeEmpId" ColumnName="TraineeEmpId" />
+                <ScalarProperty Name="CourseId" ColumnName="CourseId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_Lms_Course">
+            <EntityTypeMapping TypeName="MyIntranetApp_RegisterModel.tbl_Lms_Course">
+              <MappingFragment StoreEntitySet="tbl_Lms_Course">
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Remarks" ColumnName="Remarks" />
+                <ScalarProperty Name="DepartmentId" ColumnName="DepartmentId" />
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="IsGlobal" ColumnName="IsGlobal" />
+                <ScalarProperty Name="Rating" ColumnName="Rating" />
+                <ScalarProperty Name="DateOfCourse" ColumnName="DateOfCourse" />
+                <ScalarProperty Name="CourseImg" ColumnName="CourseImg" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="CourseName" ColumnName="CourseName" />
+                <ScalarProperty Name="CourseCode" ColumnName="CourseCode" />
+                <ScalarProperty Name="CourseId" ColumnName="CourseId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_Lms_CoursePage">
+            <EntityTypeMapping TypeName="MyIntranetApp_RegisterModel.tbl_Lms_CoursePage">
+              <MappingFragment StoreEntitySet="tbl_Lms_CoursePage">
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Remarks" ColumnName="Remarks" />
+                <ScalarProperty Name="PageContentType" ColumnName="PageContentType" />
+                <ScalarProperty Name="PageDocumentUrl" ColumnName="PageDocumentUrl" />
+                <ScalarProperty Name="PageContent" ColumnName="PageContent" />
+                <ScalarProperty Name="Page_Order" ColumnName="Page_Order" />
+                <ScalarProperty Name="CourseId" ColumnName="CourseId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_Lms_CourseQuiz">
+            <EntityTypeMapping TypeName="MyIntranetApp_RegisterModel.tbl_Lms_CourseQuiz">
+              <MappingFragment StoreEntitySet="tbl_Lms_CourseQuiz">
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Remarks" ColumnName="Remarks" />
+                <ScalarProperty Name="EndTime" ColumnName="EndTime" />
+                <ScalarProperty Name="Score" ColumnName="Score" />
+                <ScalarProperty Name="Duration" ColumnName="Duration" />
+                <ScalarProperty Name="StartTime" ColumnName="StartTime" />
+                <ScalarProperty Name="CourseId" ColumnName="CourseId" />
+                <ScalarProperty Name="QuizName" ColumnName="QuizName" />
+                <ScalarProperty Name="QuizId" ColumnName="QuizId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_Lms_CourseTrainer">
+            <EntityTypeMapping TypeName="MyIntranetApp_RegisterModel.tbl_Lms_CourseTrainer">
+              <MappingFragment StoreEntitySet="tbl_Lms_CourseTrainer">
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="TrainerId" ColumnName="TrainerId" />
+                <ScalarProperty Name="CourseId" ColumnName="CourseId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_LMS_TraineeQuiz">
+            <EntityTypeMapping TypeName="MyIntranetApp_RegisterModel.tbl_LMS_TraineeQuiz">
+              <MappingFragment StoreEntitySet="tbl_LMS_TraineeQuiz">
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Remarks" ColumnName="Remarks" />
+                <ScalarProperty Name="Marks" ColumnName="Marks" />
+                <ScalarProperty Name="QuizId" ColumnName="QuizId" />
+                <ScalarProperty Name="TraineeId" ColumnName="TraineeId" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_Register_Occurance">
+            <EntityTypeMapping TypeName="MyIntranetApp_RegisterModel.tbl_Register_Occurance">
+              <MappingFragment StoreEntitySet="tbl_Register_Occurance">
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Remarks" ColumnName="Remarks" />
+                <ScalarProperty Name="EmployeeSign" ColumnName="EmployeeSign" />
+                <ScalarProperty Name="EmployeeId" ColumnName="EmployeeId" />
+                <ScalarProperty Name="OccuranceTime" ColumnName="OccuranceTime" />
+                <ScalarProperty Name="Shift" ColumnName="Shift" />
+                <ScalarProperty Name="Occurance" ColumnName="Occurance" />
+                <ScalarProperty Name="DateOfRegister" ColumnName="DateOfRegister" />
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="OccuranceId" ColumnName="OccuranceId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_Register_Posting">
+            <EntityTypeMapping TypeName="MyIntranetApp_RegisterModel.tbl_Register_Posting">
+              <MappingFragment StoreEntitySet="tbl_Register_Posting">
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Remarks" ColumnName="Remarks" />
+                <ScalarProperty Name="OutAuthorizeEmp" ColumnName="OutAuthorizeEmp" />
+                <ScalarProperty Name="OutAuthorizeEmpSign" ColumnName="OutAuthorizeEmpSign" />
+                <ScalarProperty Name="OutTimeEmpSign" ColumnName="OutTimeEmpSign" />
+                <ScalarProperty Name="OutTime" ColumnName="OutTime" />
+                <ScalarProperty Name="InAuthorizeEmp" ColumnName="InAuthorizeEmp" />
+                <ScalarProperty Name="InAuthorizeEmpSign" ColumnName="InAuthorizeEmpSign" />
+                <ScalarProperty Name="InTimeEmpSign" ColumnName="InTimeEmpSign" />
+                <ScalarProperty Name="InTime" ColumnName="InTime" />
+                <ScalarProperty Name="PostingLocation" ColumnName="PostingLocation" />
+                <ScalarProperty Name="Shift" ColumnName="Shift" />
+                <ScalarProperty Name="EmployeeId" ColumnName="EmployeeId" />
+                <ScalarProperty Name="PostingRank" ColumnName="PostingRank" />
+                <ScalarProperty Name="PostingType" ColumnName="PostingType" />
+                <ScalarProperty Name="PostingDate" ColumnName="PostingDate" />
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="PostingId" ColumnName="PostingId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_Register_MobileDepositing">
+            <EntityTypeMapping TypeName="MyIntranetApp_RegisterModel.tbl_Register_MobileDepositing">
+              <MappingFragment StoreEntitySet="tbl_Register_MobileDepositing">
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="Remarks" ColumnName="Remarks" />
+                <ScalarProperty Name="OutSecurity" ColumnName="OutSecurity" />
+                <ScalarProperty Name="InSecurity" ColumnName="InSecurity" />
+                <ScalarProperty Name="EmployeeOutSign" ColumnName="EmployeeOutSign" />
+                <ScalarProperty Name="SecurityOutSign" ColumnName="SecurityOutSign" />
+                <ScalarProperty Name="EmployeeInSign" ColumnName="EmployeeInSign" />
+                <ScalarProperty Name="SecurityInSign" ColumnName="SecurityInSign" />
+                <ScalarProperty Name="TokenNumber" ColumnName="TokenNumber" />
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="RegisterDate" ColumnName="RegisterDate" />
+                <ScalarProperty Name="EmployeeNumber" ColumnName="EmployeeNumber" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_Register_NursingOuting">
+            <EntityTypeMapping TypeName="MyIntranetApp_RegisterModel.tbl_Register_NursingOuting">
+              <MappingFragment StoreEntitySet="tbl_Register_NursingOuting">
+                <ScalarProperty Name="ShiftName" ColumnName="ShiftName" />
+                <ScalarProperty Name="LeaveToDate" ColumnName="LeaveToDate" />
+                <ScalarProperty Name="LeaveFromDate" ColumnName="LeaveFromDate" />
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="IsActive" ColumnName="IsActive" />
+                <ScalarProperty Name="Status" ColumnName="Status" />
+                <ScalarProperty Name="InEmployeeSign" ColumnName="InEmployeeSign" />
+                <ScalarProperty Name="InSecuritySign" ColumnName="InSecuritySign" />
+                <ScalarProperty Name="InSecurity" ColumnName="InSecurity" />
+                <ScalarProperty Name="InDate" ColumnName="InDate" />
+                <ScalarProperty Name="OutRemarks" ColumnName="OutRemarks" />
+                <ScalarProperty Name="OutEmployeeSign" ColumnName="OutEmployeeSign" />
+                <ScalarProperty Name="OutSecuritySign" ColumnName="OutSecuritySign" />
+                <ScalarProperty Name="OutSecurity" ColumnName="OutSecurity" />
+                <ScalarProperty Name="OutDate" ColumnName="OutDate" />
+                <ScalarProperty Name="ReasonForGoing" ColumnName="ReasonForGoing" />
+                <ScalarProperty Name="MobileNo" ColumnName="MobileNo" />
+                <ScalarProperty Name="EmailId" ColumnName="EmailId" />
+                <ScalarProperty Name="EmployeeLocation" ColumnName="EmployeeLocation" />
+                <ScalarProperty Name="Deparment" ColumnName="Deparment" />
+                <ScalarProperty Name="Designation" ColumnName="Designation" />
+                <ScalarProperty Name="EmployeeName" ColumnName="EmployeeName" />
+                <ScalarProperty Name="EmployeeNo" ColumnName="EmployeeNo" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tbl_Register_Round">
+            <EntityTypeMapping TypeName="MyIntranetApp_RegisterModel.tbl_Register_Round">
+              <MappingFragment StoreEntitySet="tbl_Register_Round">
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="ModifiedBy" ColumnName="ModifiedBy" />
+                <ScalarProperty Name="ModifiedOn" ColumnName="ModifiedOn" />
+                <ScalarProperty Name="CreatedBy" ColumnName="CreatedBy" />
+                <ScalarProperty Name="CreatedOn" ColumnName="CreatedOn" />
+                <ScalarProperty Name="AttenderSign" ColumnName="AttenderSign" />
+                <ScalarProperty Name="ActionTaken" ColumnName="ActionTaken" />
+                <ScalarProperty Name="Remarks" ColumnName="Remarks" />
+                <ScalarProperty Name="DrName" ColumnName="DrName" />
+                <ScalarProperty Name="NameOfPatient" ColumnName="NameOfPatient" />
+                <ScalarProperty Name="IpNo" ColumnName="IpNo" />
+                <ScalarProperty Name="MrNo" ColumnName="MrNo" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

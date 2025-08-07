@@ -1,0 +1,83 @@
+﻿@model WebApplicationHsApp.DataModel.tbl_AsqQuestions
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>tbl_AsqQuestions</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.FillingMonth)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.FillingMonth)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.FillingPageType)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.FillingPageType)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.FillingPageTypeOrder)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.FillingPageTypeOrder)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Question)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Question)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.QuestionImage)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.QuestionImage)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.QuestionOptions)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.QuestionOptions)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.OrderNumber)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.OrderNumber)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.IsActive)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.IsActive)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.AsqQuestionId }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
